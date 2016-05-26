@@ -1,0 +1,40 @@
+*.class
+*.log
+
+
+# sbt specific
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
+.DS_Store
+.idea
+.idea_modules
+
+# vim swap files
+*.swp
+*.swo
+
+# eclipse stuff
+.classpath
+.project
+.settings
+.cache
+
+dist/
+
+public/*.html
+public/styles/style.css
+
+public/views/*.html
+
+.sass-cache
+
+# lb local stuff
+node_modules
+
