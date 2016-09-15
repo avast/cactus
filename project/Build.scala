@@ -17,7 +17,8 @@ object Build extends Build {
 
   val macroSettings = Seq(
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect" % "2.11.7"
+      "org.scala-lang" % "scala-reflect" % "2.11.7",
+      "com.google.protobuf" % "protobuf-java" % "2.6.1"
     )
   )
 
