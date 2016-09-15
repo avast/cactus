@@ -124,7 +124,7 @@ object CactusMacros {
 
 
       case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
-        q" if ($query) $getter.asScala else throw CactusException(MissingFieldFailure(${name.toString})) "
+        q" if ($query) $getter.asScala.toList else throw CactusException(MissingFieldFailure(${name.toString})) "
 
       case t => // plain type
         q" if ($query) $getter else throw CactusException(MissingFieldFailure(${name.toString})) "

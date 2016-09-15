@@ -2,6 +2,10 @@ package com.avast.cactus
 
 import java.util
 
+import com.google.protobuf.MessageLite
+
+import scala.collection.immutable
+
 case class CaseClassA(field: String,
                       @GpbName("fieldIntName")
                       fieldInt: Int,
@@ -9,8 +13,8 @@ case class CaseClassA(field: String,
                       fieldGpb: CaseClassB,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
-                      fieldListStrings: Seq[String],
-                      fieldOptionListIntegers: Option[Seq[Int]]) {
+                      fieldListStrings: immutable.Seq[String],
+                      fieldOptionListIntegers: Option[List[Int]]) {
 
   def confusingMethod: String = ""
 
@@ -65,7 +69,7 @@ object Test extends App {
   gpb.as[CaseClassA] match {
     case Right(inst) =>
       println(inst)
-      assert(inst.toString == "CaseClassA(ahoj,9,Some(13),CaseClassB(0.9),Some(CaseClassB(0.9)),None,Buffer(a, b),Some(ArrayBuffer(3, 6)))")
+      assert(inst.toString == "CaseClassA(ahoj,9,Some(13),CaseClassB(0.9),Some(CaseClassB(0.9)),None,List(a, b),Some(List(3, 6)))")
 
     case Left(MissingFieldFailure(fieldName)) =>
       println(s"Missing required field: '$fieldName'")
