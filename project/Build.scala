@@ -2,12 +2,12 @@ import sbt.Keys._
 import sbt._
 
 
-object Build extends Build  {
+object Build extends Build {
 
 
   val commonSettings = Defaults.coreDefaultSettings ++ Seq(
     scalaVersion := "2.11.7"
-    , version :=  "0.1"
+    , version := "0.1"
     , scalacOptions += "-deprecation"
     , scalacOptions += "-unchecked"
     , scalacOptions += "-feature"
