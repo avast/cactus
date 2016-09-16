@@ -1,13 +1,14 @@
 package com.avast.cactus
 
-import com.avast.cactus.TestMessage.Data2
+import com.avast.cactus.TestMessage.{Data, Data2}
+import com.google.protobuf.TextFormat
 import org.scalatest.FunSuite
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable
 
 class CactusMacrosTest extends FunSuite {
-  test("basic") {
+  test("GPB to case class") {
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
       .build()
@@ -24,7 +25,15 @@ class CactusMacrosTest extends FunSuite {
 
 
     val expected = CaseClassA("ahoj", 9, Some(13), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)))
-    assertResult(Right(expected))(gpb.as[CaseClassA])
+    assertResult(Right(expected))(gpb.asCaseClass[CaseClassA])
+  }
+
+  test("Case class to GPB") {
+    val caseClass = CaseClassA("ahoj", 9, Some(13), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)))
+
+    val Right(result) = caseClass.asGpb[Data]
+
+    println(s"Data {\n${TextFormat.printToString(result)}\n}")
   }
 }
 

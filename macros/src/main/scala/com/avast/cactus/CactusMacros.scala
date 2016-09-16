@@ -30,12 +30,12 @@ object CactusMacros {
     case Failure(NonFatal(e)) => throw e
   }
 
-  def convertGpbToCaseClassT[A: c.WeakTypeTag](c: whitebox.Context): c.Expr[Either[CactusFailure, A]] = {
+  def convertGpbToCaseClass[Gpb: c.WeakTypeTag](c: whitebox.Context): c.Expr[Either[CactusFailure, Gpb]] = {
     import c.universe._
 
-    val tpe = weakTypeOf[A]
+    val tpe = weakTypeOf[Gpb]
 
-    c.Expr[Either[CactusFailure, A]] {
+    c.Expr[Either[CactusFailure, Gpb]] {
       q""" {
           import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
@@ -51,6 +51,38 @@ object CactusMacros {
           }
          }
         """
+    }
+  }
+
+  def convertCaseClassToGpb[Gpb: c.WeakTypeTag](c: whitebox.Context)(ct: c.Tree): c.Expr[Either[CactusFailure, Gpb]] = {
+    import c.universe._
+
+    // unpack the implicit ClassTag tree
+    val caseClassSymbol = (ct match {
+      case q"ClassTag.apply[$cl](${_}): ${_}" => cl
+    }).symbol
+
+    c.Expr[Either[CactusFailure, Gpb]] {
+      val tree =
+        q""" {
+          import com.avast.cactus.CactusException
+          import com.avast.cactus.CactusFailure
+          import com.avast.cactus.CactusMacros._
+
+          import scala.util.Try
+          import scala.collection.JavaConverters._
+
+          try {
+            Right(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], q" ${TermName("caseClass")} ")})
+          } catch {
+            case e: CactusException => Left(e.failure)
+          }
+         }
+        """
+
+      println(tree)
+
+      tree
     }
   }
 
@@ -136,7 +168,61 @@ object CactusMacros {
   }
 
   private object CaseClassToGpb {
+    def createConverter(c: whitebox.Context)(caseClassType: c.universe.Type, gpbType: c.universe.Type, caseClass: c.Tree): c.Tree = {
+      import c.universe._
 
+      if (!caseClassType.typeSymbol.isClass) {
+        c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a class")
+      }
+
+      val gpbClassSymbol = gpbType.typeSymbol.asClass
+
+      gpbType.typeSymbol.typeSignature
+
+      val caseClassSymbol = caseClassType.typeSymbol.asClass
+
+      if (!caseClassSymbol.isCaseClass) {
+        c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a case class")
+      }
+
+      val ctor = caseClassType.decls.collectFirst {
+        case m: MethodSymbol if m.isPrimaryConstructor => m
+      }.get
+
+      val fields = ctor.paramLists.flatten
+
+      println(s"Fields: $fields")
+
+      //      val params = fields.map { field =>
+      //        val fieldName = field.name.decodedName.toTermName
+      //        val returnType = field.typeSignature
+      //
+      //        val annotsTypes = field.annotations.map(_.tree.tpe.toString)
+      //        val annotsParams = field.annotations.map {
+      //          _.tree.children.tail.map { case q" $name = $value " =>
+      //            name.toString() -> c.eval[String](c.Expr(q"$value"))
+      //          }.toMap
+      //        }
+      //
+      //        val annotations = annotsTypes.zip(annotsParams).toMap
+      //
+      //        val gpbNameAnnotations = annotations.find { case (key, _) => key == classOf[GpbName].getName }
+      //
+      //        val nameInGpb = gpbNameAnnotations.flatMap { case (_, par) =>
+      //          par.get("value")
+      //        }.map(_.toString()).getOrElse(fieldName.toString)
+      //
+      //        val upper = firstUpper(nameInGpb.toString)
+      //        val query = TermName(s"has$upper")
+      //        val getter = TermName(s"get$upper")
+      //
+      //        val value = processEndType(c)(fieldName, returnType)(q"$caseClass.$query", q"$caseClass.$getter")
+      //
+      //        c.Expr(q"$fieldName = $value")
+      //      }
+
+      q" { ${TermName(gpbClassSymbol.name.toString)}.newBuilder().setField($caseClass.field).build() } "
+    }
   }
 
   private def firstUpper(s: String): String = {
