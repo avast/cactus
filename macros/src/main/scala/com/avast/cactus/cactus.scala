@@ -1,5 +1,7 @@
 package com.avast
 
+import com.google.protobuf.MessageLite
+
 import scala.language.experimental.macros
 
 package object cactus {

@@ -17,7 +17,9 @@ object Build extends Build {
 
   val macroSettings = Seq(
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect" % "2.11.7"
+      "org.scala-lang" % "scala-reflect" % "2.11.7",
+      "com.google.protobuf" % "protobuf-java" % "2.6.1",
+      "org.scalatest" % "scalatest_2.11" % "3.0.0" % "test"
     )
   )
 
@@ -28,13 +30,4 @@ object Build extends Build {
       addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
     )
   )
-
-  lazy val demo = Project(
-    id = "example"
-    , base = file("./example")
-    , settings = commonSettings ++ Seq(
-      addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
-    )
-  ).dependsOn(macros)
-
 }
