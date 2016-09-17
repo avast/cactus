@@ -243,24 +243,22 @@ object CactusMacros {
         case OptPattern(t) => // Option[T]
           val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          q""
-
-//          q"""
-//              $field.foreach(${processEndType(c)(field, typeArg)(setter)}.get)
-//           """
+          q"""
+              $field.foreach(value => ${processEndType(c)(q"value", typeArg)(setter)})
+           """
 
           //q"CactusMacros.OptAToOptB(CactusMacros.tryToOption(Try(${processEndType(c)(field, typeArg)(query, getter)})))"
 
         case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
 
-          q""
+          q"???"
 
           //q" if ($query) ${createConverter(c)(returnType, q"$getter ")} else throw CactusException(MissingFieldFailure(${field.toString})) "
 
 
         case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
 
-          q""
+          q"???"
 
           // collections don't have the "has" method, test size instead
           //q" if ($getter.size() > 0) $getter.asScala.toList else throw CactusException(MissingFieldFailure(${field.toString})) "
