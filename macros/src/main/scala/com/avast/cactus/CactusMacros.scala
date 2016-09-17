@@ -177,7 +177,9 @@ object CactusMacros {
 
       val gpbClassSymbol = gpbType.typeSymbol.asClass
 
-      gpbType.typeSymbol.typeSignature
+      val gpbGetters = gpbType.decls.collect {
+        case m: MethodSymbol if m.name.toString.startsWith("get") && !m.isStatic => m
+      }
 
       val caseClassSymbol = caseClassType.typeSymbol.asClass
 
@@ -215,7 +217,11 @@ object CactusMacros {
         val upper = firstUpper(nameInGpb.toString)
         val setter = TermName(s"set$upper")
 
-        val assignment = processEndType(c)(q"$caseClass.$fieldName", returnType)(q"builder.$setter")
+        val gpbGetter = gpbGetters.find(_.name.toString == s"get$upper").getOrElse(c.abort(c.enclosingPosition, s"Could not convert case class to $gpbClassSymbol"))
+
+        //println("GPB getter> "+gpbGetter)
+
+        val assignment = processEndType(c)(q"$caseClass.$fieldName", returnType)(gpbGetter, q"builder.$setter", upper)
 
         c.Expr(q" $assignment ")
       }
@@ -233,7 +239,7 @@ object CactusMacros {
 
     private def processEndType(c: whitebox.Context)
                               (field: c.universe.Tree, returnType: c.universe.Type)
-                              (setter: c.universe.Tree): c.Tree = {
+                              (gpbGetter: c.universe.MethodSymbol, setter: c.universe.Tree, upperFieldName: String): c.Tree = {
       import c.universe._
 
       val typeSymbol = returnType.typeSymbol
@@ -244,30 +250,47 @@ object CactusMacros {
           val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
 
           q"""
-              $field.foreach(value => ${processEndType(c)(q"value", typeArg)(setter)})
+              $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbGetter, setter, upperFieldName)})
            """
 
-          //q"CactusMacros.OptAToOptB(CactusMacros.tryToOption(Try(${processEndType(c)(field, typeArg)(query, getter)})))"
+        //q"CactusMacros.OptAToOptB(CactusMacros.tryToOption(Try(${processEndType(c)(field, typeArg)(query, getter)})))"
 
         case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
 
           q"???"
 
-          //q" if ($query) ${createConverter(c)(returnType, q"$getter ")} else throw CactusException(MissingFieldFailure(${field.toString})) "
+        //q" if ($query) ${createConverter(c)(returnType, q"$getter ")} else throw CactusException(MissingFieldFailure(${field.toString})) "
 
 
         case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
 
-          q"???"
+          val l = if (upperFieldName.endsWith("List")) upperFieldName.substring(0, upperFieldName.length - 4) else upperFieldName
+          val addMethod = TermName(s"addAll$l")
 
-          // collections don't have the "has" method, test size instead
-          //q" if ($getter.size() > 0) $getter.asScala.toList else throw CactusException(MissingFieldFailure(${field.toString})) "
+          // TODO own name in GPB
+
+          val fieldGenType = returnType.typeArgs.head // it's collection, it HAS type arg
+
+          val getterResultType = gpbGetter.returnType.resultType
+          val getterGenType = getterResultType.typeArgs.headOption
+            .getOrElse {
+              if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
+                typeOf[java.lang.String]
+              } else {
+                c.abort(c.enclosingPosition, s"Could not convert $field to $getterResultType")
+                typeOf[java.lang.String] // just return something, it's aborted anyway...
+              }
+            }
+
+          // the implicit conversion wouldn't be used implicitly
+          // we have to specify types to be converted manually, because type inference cannot determine it
+          q"""
+              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.collection.immutable.Seq]($field).toIterable.asJava)
+           """
 
         case t => // plain type
 
           q" $setter($field) "
-
-          //q" if ($query) $getter else throw CactusException(MissingFieldFailure(${field.toString})) "
       }
     }
 
