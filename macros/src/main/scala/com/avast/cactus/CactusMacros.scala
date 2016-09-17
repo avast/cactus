@@ -4,6 +4,7 @@ import scala.collection.TraversableLike
 import scala.collection.generic.CanBuildFrom
 import scala.language.experimental.macros
 import scala.language.{higherKinds, implicitConversions}
+import scala.reflect.api.Trees
 import scala.reflect.macros._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
@@ -40,6 +41,8 @@ object CactusMacros {
       case q"ClassTag.apply[$cl](${_}): ${_}" => cl
     }).symbol
 
+    val variableName = getVariableName(c)
+
     c.Expr[Either[CactusFailure, CaseClass]] {
       q""" {
           import com.avast.cactus.CactusException
@@ -50,7 +53,7 @@ object CactusMacros {
           import scala.collection.JavaConverters._
 
           try {
-            Right(${GpbToCaseClass.createConverter(c)(caseClassType, gpbSymbol.typeSignature.asInstanceOf[c.universe.Type], q" ${TermName("gpb")} ")})
+            Right(${GpbToCaseClass.createConverter(c)(caseClassType, gpbSymbol.typeSignature.asInstanceOf[c.universe.Type], variableName)})
           } catch {
             case e: CactusException => Left(e.failure)
           }
@@ -67,9 +70,10 @@ object CactusMacros {
       case q"ClassTag.apply[$cl](${_}): ${_}" => cl
     }).symbol
 
+    val variableName = getVariableName(c)
+
     c.Expr[Either[CactusFailure, Gpb]] {
-      val tree =
-        q""" {
+      q""" {
           import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
@@ -78,17 +82,23 @@ object CactusMacros {
           import scala.collection.JavaConverters._
 
           try {
-            Right(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], q" ${TermName("caseClass")} ")})
+            Right(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], variableName)})
           } catch {
             case e: CactusException => Left(e.failure)
           }
          }
         """
-
-      println(tree)
-
-      tree
     }
+  }
+
+  private def getVariableName[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
+    import c.universe._
+
+    val variableName = c.prefix.tree match {
+      case q"cactus.this.`package`.${_}[${_}]($n)" => n
+    }
+
+    q" $variableName "
   }
 
   private object GpbToCaseClass {
@@ -112,7 +122,7 @@ object CactusMacros {
 
       val ctor = caseClassType.decls.collectFirst {
         case m: MethodSymbol if m.isPrimaryConstructor => m
-      }.getOrElse(c.abort(c.enclosingPosition,"Could not determine case class ctor"))
+      }.getOrElse(c.abort(c.enclosingPosition, "Could not determine case class ctor"))
 
       val fields = ctor.paramLists.flatten
 
@@ -175,9 +185,9 @@ object CactusMacros {
 
         case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
 
-          val internalGpbType = gpbType.decls.collectFirst{
+          val internalGpbType = gpbType.decls.collectFirst {
             case m: MethodSymbol if m.name.toString == getter.toString().split("\\.")(1) => m.returnType
-          }.getOrElse(c.abort(c.enclosingPosition,"Could not determine internal GPB type"))
+          }.getOrElse(c.abort(c.enclosingPosition, "Could not determine internal GPB type"))
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else throw CactusException(MissingFieldFailure(${name.toString})) "
 
@@ -217,8 +227,6 @@ object CactusMacros {
       }.get
 
       val fields = ctor.paramLists.flatten
-
-      println(s"Fields: $fields")
 
       val params = fields.map { field =>
         val fieldName = field.name.decodedName.toTermName
@@ -277,33 +285,22 @@ object CactusMacros {
         case OptPattern(t) => // Option[T]
           val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          q"""
-              $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetter, setter, upperFieldName)})
-           """
-
-        //q"CactusMacros.OptAToOptB(CactusMacros.tryToOption(Try(${processEndType(c)(field, typeArg)(query, getter)})))"
+          q" $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetter, setter, upperFieldName)}) "
 
         case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
 
-          q"???"
-
-        //q" if ($query) ${createConverter(c)(returnType, q"$getter ")} else throw CactusException(MissingFieldFailure(${field.toString})) "
-
+          q" $setter(${createConverter(c)(typeSymbol.typeSignature, gpbGetter.returnType, q" $field ")}) "
 
         case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
 
           val l = if (upperFieldName.endsWith("List")) upperFieldName.substring(0, upperFieldName.length - 4) else upperFieldName
           val addMethod = TermName(s"addAll$l")
 
-          // TODO own name in GPB
-
           val fieldGenType = returnType.typeArgs.head // it's collection, it HAS type arg
 
           val getterResultType = gpbGetter.returnType.resultType
           val getterGenType = getterResultType.typeArgs.headOption
             .getOrElse {
-              //println(s"getter $gpbGetter  $field result type: $getterResultType")
-
               if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
                 typeOf[java.lang.String]
               } else {

@@ -32,9 +32,32 @@ class CactusMacrosTest extends FunSuite {
   test("Case class to GPB") {
     val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)), None)
 
-    //val Right(result) = caseClass.asGpb[Data]
+    val gpbInternal = Data2.newBuilder()
+      .setFieldDouble(0.9)
+      .build()
 
-    //println(s"Data {\n${TextFormat.printToString(result)}\n}")
+    val expectedGpb = TestMessage.Data.newBuilder()
+      .setField("ahoj")
+      .setFieldIntName(9)
+      .setFieldOption(13)
+      .setFieldBlob(ByteString.EMPTY)
+      .setFieldGpb(gpbInternal)
+      .setFieldGpbOption(gpbInternal)
+      .addAllFieldStrings(Seq("a", "b").asJava)
+      .addAllFieldStringsName(Seq("a").asJava)
+      .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
+      .build()
+
+
+    assertResult(Right(expectedGpb))(caseClass.asGpb[Data])
+  }
+
+  test("case class to GPB and back") {
+    val original = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)), None)
+
+    val Right(converted) = original.asGpb[Data]
+
+    assertResult(Right(original))(converted.asCaseClass[CaseClassA])
   }
 }
 
@@ -43,7 +66,8 @@ case class CaseClassA(field: String,
                       fieldInt: Int,
                       fieldOption: Option[Int],
                       fieldBlob: ByteString,
-                      fieldStringsName: List[String],
+                      @GpbName("fieldStringsName")
+                      fieldStrings2: List[String],
                       fieldGpb: CaseClassB,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
