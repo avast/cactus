@@ -1,7 +1,7 @@
 package com.avast.cactus
 
 import com.avast.cactus.TestMessage.{Data, Data2}
-import com.google.protobuf.{ByteString, TextFormat}
+import com.google.protobuf.ByteString
 import org.scalatest.FunSuite
 
 import scala.collection.JavaConverters._

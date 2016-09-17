@@ -4,7 +4,6 @@ import scala.collection.TraversableLike
 import scala.collection.generic.CanBuildFrom
 import scala.language.experimental.macros
 import scala.language.{higherKinds, implicitConversions}
-import scala.reflect.api.Trees
 import scala.reflect.macros._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
@@ -37,9 +36,7 @@ object CactusMacros {
     val caseClassType = weakTypeOf[CaseClass]
 
     // unpack the implicit ClassTag tree
-    val gpbSymbol = (gpbCt match {
-      case q"ClassTag.apply[$cl](${_}): ${_}" => cl
-    }).symbol
+    val gpbSymbol = extractSymbolFromClassTag(c)(gpbCt)
 
     val variableName = getVariableName(c)
 
@@ -66,9 +63,7 @@ object CactusMacros {
     import c.universe._
 
     // unpack the implicit ClassTag tree
-    val caseClassSymbol = (caseClassCt match {
-      case q"ClassTag.apply[$cl](${_}): ${_}" => cl
-    }).symbol
+    val caseClassSymbol = extractSymbolFromClassTag(c)(caseClassCt)
 
     val variableName = getVariableName(c)
 
@@ -91,81 +86,26 @@ object CactusMacros {
     }
   }
 
-  private def getVariableName[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
-    import c.universe._
-
-    val variableName = c.prefix.tree match {
-      case q"cactus.this.`package`.${_}[${_}]($n)" => n
-    }
-
-    q" $variableName "
-  }
-
   private object GpbToCaseClass {
 
     def createConverter(c: whitebox.Context)(caseClassType: c.universe.Type, gpbType: c.universe.Type, gpb: c.Tree): c.Tree = {
       import c.universe._
 
-      if (!caseClassType.typeSymbol.isClass) {
-        c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a class")
-      }
-
-      val classSymbol = caseClassType.typeSymbol.asClass
-
-      if (!classSymbol.isCaseClass) {
-        c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a case class")
-      }
-
-      val gpbGetters = gpbType.decls.collect {
-        case m: MethodSymbol if m.name.toString.startsWith("get") && !m.isStatic => m
-      }
-
-      val ctor = caseClassType.decls.collectFirst {
-        case m: MethodSymbol if m.isPrimaryConstructor => m
-      }.getOrElse(c.abort(c.enclosingPosition, "Could not determine case class ctor"))
-
-      val fields = ctor.paramLists.flatten
+      val i = initialize(c)(caseClassType, gpbType)
+      import i._
 
       val params = fields.map { field =>
-        val fieldName = field.name.decodedName.toTermName
-        val returnType = field.typeSignature
+        val e = extractField(c)(field, gpbGetters)
+        import e._
 
-        val annotsTypes = field.annotations.map(_.tree.tpe.toString)
-        val annotsParams = field.annotations.map {
-          _.tree.children.tail.map { case q" $name = $value " =>
-            name.toString() -> c.eval[String](c.Expr(q"$value"))
-          }.toMap
-        }
-
-        val annotations = annotsTypes.zip(annotsParams).toMap
-
-        val gpbNameAnnotations = annotations.find { case (key, _) => key == classOf[GpbName].getName }
-
-        val nameInGpb = gpbNameAnnotations.flatMap { case (_, par) =>
-          par.get("value")
-        }.map(_.toString()).getOrElse(fieldName.toString)
-
-        val upper = firstUpper(nameInGpb.toString)
         val query = TermName(s"has$upper")
-
-
-        // find getter for the field in GPB
-        // try *List first for case it's a repeated field and user didn't name it *List in the case class
-        val gpbGetter = TermName({
-          gpbGetters
-            .find(_.name.toString == s"get${upper}List") // collection ?
-            .orElse(gpbGetters.find(_.name.toString == s"get$upper"))
-            .getOrElse {
-              c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $fieldName")
-            }
-        }.name.toString)
 
         val value = processEndType(c)(fieldName, returnType, gpbType)(q"$gpb.$query", q"$gpb.$gpbGetter")
 
         c.Expr(q"$fieldName = $value")
       }
 
-      q" { ${TermName(classSymbol.name.toString)}(..$params) } "
+      q" { ${TermName(caseClassSymbol.name.toString)}(..$params) } "
     }
 
 
@@ -206,56 +146,16 @@ object CactusMacros {
     def createConverter(c: whitebox.Context)(caseClassType: c.universe.Type, gpbType: c.universe.Type, caseClass: c.Tree): c.Tree = {
       import c.universe._
 
-      if (!caseClassType.typeSymbol.isClass) {
-        c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a class")
-      }
+      val i = initialize(c)(caseClassType, gpbType)
+      import i._
 
       val gpbClassSymbol = gpbType.typeSymbol.asClass
 
-      val gpbGetters = gpbType.decls.collect {
-        case m: MethodSymbol if m.name.toString.startsWith("get") && !m.isStatic => m
-      }
-
-      val caseClassSymbol = caseClassType.typeSymbol.asClass
-
-      if (!caseClassSymbol.isCaseClass) {
-        c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a case class")
-      }
-
-      val ctor = caseClassType.decls.collectFirst {
-        case m: MethodSymbol if m.isPrimaryConstructor => m
-      }.get
-
-      val fields = ctor.paramLists.flatten
-
       val params = fields.map { field =>
-        val fieldName = field.name.decodedName.toTermName
-        val returnType = field.typeSignature
+        val e = extractField(c)(field, gpbGetters)
+        import e._
 
-        val annotsTypes = field.annotations.map(_.tree.tpe.toString)
-        val annotsParams = field.annotations.map {
-          _.tree.children.tail.map { case q" $name = $value " =>
-            name.toString() -> c.eval[String](c.Expr(q"$value"))
-          }.toMap
-        }
-
-        val annotations = annotsTypes.zip(annotsParams).toMap
-
-        val gpbNameAnnotations = annotations.find { case (key, _) => key == classOf[GpbName].getName }
-
-        val nameInGpb = gpbNameAnnotations.flatMap { case (_, par) =>
-          par.get("value")
-        }.map(_.toString()).getOrElse(fieldName.toString)
-
-        val upper = firstUpper(nameInGpb.toString)
         val setter = TermName(s"set$upper")
-
-        // find getter for the field in GPB
-        // try *List first for case it's a repeated field and user didn't name it *List in the case class
-        val gpbGetter = gpbGetters
-          .find(_.name.toString == s"get${upper}List") // collection ?
-          .orElse(gpbGetters.find(_.name.toString == s"get$upper"))
-          .getOrElse(c.abort(c.enclosingPosition, s"Could not convert case class to $gpbClassSymbol"))
 
         val assignment = processEndType(c)(q"$caseClass.$fieldName", returnType)(gpbType, gpbGetter, q"builder.$setter", upper)
 
@@ -320,6 +220,83 @@ object CactusMacros {
       }
     }
 
+  }
+
+
+  private def initialize(c: whitebox.Context)(caseClassType: c.universe.Type, gpbType: c.universe.Type) = new {
+
+    import c.universe._
+
+    if (!caseClassType.typeSymbol.isClass) {
+      c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a class")
+    }
+
+    val caseClassSymbol = caseClassType.typeSymbol.asClass
+
+    if (!caseClassSymbol.isCaseClass) {
+      c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a case class")
+    }
+
+    val ctor = caseClassType.decls.collectFirst {
+      case m: MethodSymbol if m.isPrimaryConstructor => m
+    }.get
+
+    val fields = ctor.paramLists.flatten
+
+    val gpbGetters = gpbType.decls.collect {
+      case m: MethodSymbol if m.name.toString.startsWith("get") && !m.isStatic => m
+    }
+  }
+
+  private def extractField(c: whitebox.Context)(field: c.universe.Symbol, gpbGetters: Iterable[c.universe.MethodSymbol]) = new {
+
+    import c.universe._
+
+    val fieldName = field.name.decodedName.toTermName
+    val returnType = field.typeSignature
+
+    val annotsTypes = field.annotations.map(_.tree.tpe.toString)
+    val annotsParams = field.annotations.map {
+      _.tree.children.tail.map { case q" $name = $value " =>
+        name.toString() -> c.eval[String](c.Expr(q"$value"))
+      }.toMap
+    }
+
+    val annotations = annotsTypes.zip(annotsParams).toMap
+
+    val gpbNameAnnotations = annotations.find { case (key, _) => key == classOf[GpbName].getName }
+
+    val nameInGpb = gpbNameAnnotations.flatMap { case (_, par) =>
+      par.get("value")
+    }.map(_.toString()).getOrElse(fieldName.toString)
+
+    val upper = firstUpper(nameInGpb.toString)
+
+    // find getter for the field in GPB
+    // try *List first for case it's a repeated field and user didn't name it *List in the case class
+    val gpbGetter = gpbGetters
+      .find(_.name.toString == s"get${upper}List") // collection ?
+      .orElse(gpbGetters.find(_.name.toString == s"get$upper"))
+      .getOrElse(c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $fieldName"))
+
+  }
+
+  private def extractSymbolFromClassTag[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree) = {
+    import c.universe._
+
+    (gpbCt match {
+      case q"ClassTag.apply[$cl](${_}): ${_}" => cl
+    }).symbol
+  }
+
+  private def getVariableName[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
+    import c.universe._
+
+    val variableName = c.prefix.tree match {
+      case q"cactus.this.`package`.${_}[${_}]($n)" => n
+    }
+
+    q" $variableName "
   }
 
   private def firstUpper(s: String): String = {
