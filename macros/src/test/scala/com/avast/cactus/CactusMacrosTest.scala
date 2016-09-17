@@ -1,7 +1,7 @@
 package com.avast.cactus
 
 import com.avast.cactus.TestMessage.{Data, Data2}
-import com.google.protobuf.TextFormat
+import com.google.protobuf.{ByteString, TextFormat}
 import org.scalatest.FunSuite
 
 import scala.collection.JavaConverters._
@@ -17,23 +17,24 @@ class CactusMacrosTest extends FunSuite {
       .setField("ahoj")
       .setFieldIntName(9)
       .setFieldOption(13)
+      .setFieldBlob(ByteString.EMPTY)
       .setFieldGpb(gpbInternal)
       .setFieldGpbOption(gpbInternal)
       .addAllFieldStrings(Seq("a", "b").asJava)
+      .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .build()
 
-
-    val expected = CaseClassA("ahoj", 9, Some(13), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)))
+    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)), None)
     assertResult(Right(expected))(gpb.asCaseClass[CaseClassA])
   }
 
   test("Case class to GPB") {
-    val caseClass = CaseClassA("ahoj", 9, Some(13), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)))
+    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)), None)
 
-    val Right(result) = caseClass.asGpb[Data]
+    //val Right(result) = caseClass.asGpb[Data]
 
-    println(s"Data {\n${TextFormat.printToString(result)}\n}")
+    //println(s"Data {\n${TextFormat.printToString(result)}\n}")
   }
 }
 
@@ -41,11 +42,13 @@ case class CaseClassA(field: String,
                       @GpbName("fieldIntName")
                       fieldInt: Int,
                       fieldOption: Option[Int],
+                      fieldBlob: ByteString,
+                      fieldStringsName: List[String],
                       fieldGpb: CaseClassB,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
                       fieldStringsList: immutable.Seq[String],
-                      fieldOptionIntegersList: Option[List[Int]]) {
-}
+                      fieldOptionIntegersList: Option[List[Int]],
+                      fieldOptionIntegersEmptyList: Option[List[Int]])
 
 case class CaseClassB(fieldDouble: Double)
