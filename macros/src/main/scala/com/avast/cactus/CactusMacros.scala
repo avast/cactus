@@ -126,7 +126,7 @@ object CactusMacros {
         case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
 
           val internalGpbType = gpbType.decls.collectFirst {
-            case m: MethodSymbol if m.name.toString == getter.toString().split("\\.")(1) => m.returnType
+            case m: MethodSymbol if m.name.toString == getter.toString().split("\\.").reverse.head => m.returnType
           }.getOrElse(c.abort(c.enclosingPosition, "Could not determine internal GPB type"))
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else throw CactusException(MissingFieldFailure(${name.toString})) "
