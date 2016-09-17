@@ -159,7 +159,7 @@ object CactusMacros {
 
         case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
           // collections don't have the "has" method, test size instead
-          q" if ($getter.size() > 0) $getter.asScala.toList else throw CactusException(MissingFieldFailure(${name.toString})) "
+          q" if (!$getter.isEmpty) $getter.asScala.toList else throw CactusException(MissingFieldFailure(${name.toString})) "
 
         case t => // plain type
           q" if ($query) $getter else throw CactusException(MissingFieldFailure(${name.toString})) "
@@ -193,36 +193,86 @@ object CactusMacros {
 
       println(s"Fields: $fields")
 
-      //      val params = fields.map { field =>
-      //        val fieldName = field.name.decodedName.toTermName
-      //        val returnType = field.typeSignature
-      //
-      //        val annotsTypes = field.annotations.map(_.tree.tpe.toString)
-      //        val annotsParams = field.annotations.map {
-      //          _.tree.children.tail.map { case q" $name = $value " =>
-      //            name.toString() -> c.eval[String](c.Expr(q"$value"))
-      //          }.toMap
-      //        }
-      //
-      //        val annotations = annotsTypes.zip(annotsParams).toMap
-      //
-      //        val gpbNameAnnotations = annotations.find { case (key, _) => key == classOf[GpbName].getName }
-      //
-      //        val nameInGpb = gpbNameAnnotations.flatMap { case (_, par) =>
-      //          par.get("value")
-      //        }.map(_.toString()).getOrElse(fieldName.toString)
-      //
-      //        val upper = firstUpper(nameInGpb.toString)
-      //        val query = TermName(s"has$upper")
-      //        val getter = TermName(s"get$upper")
-      //
-      //        val value = processEndType(c)(fieldName, returnType)(q"$caseClass.$query", q"$caseClass.$getter")
-      //
-      //        c.Expr(q"$fieldName = $value")
-      //      }
+      val params = fields.map { field =>
+        val fieldName = field.name.decodedName.toTermName
+        val returnType = field.typeSignature
 
-      q" { ${TermName(gpbClassSymbol.name.toString)}.newBuilder().setField($caseClass.field).build() } "
+        val annotsTypes = field.annotations.map(_.tree.tpe.toString)
+        val annotsParams = field.annotations.map {
+          _.tree.children.tail.map { case q" $name = $value " =>
+            name.toString() -> c.eval[String](c.Expr(q"$value"))
+          }.toMap
+        }
+
+        val annotations = annotsTypes.zip(annotsParams).toMap
+
+        val gpbNameAnnotations = annotations.find { case (key, _) => key == classOf[GpbName].getName }
+
+        val nameInGpb = gpbNameAnnotations.flatMap { case (_, par) =>
+          par.get("value")
+        }.map(_.toString()).getOrElse(fieldName.toString)
+
+        val upper = firstUpper(nameInGpb.toString)
+        val setter = TermName(s"set$upper")
+
+        val assignment = processEndType(c)(q"$caseClass.$fieldName", returnType)(q"builder.$setter")
+
+        c.Expr(q" $assignment ")
+      }
+
+      q"""
+        {
+          val builder = ${TermName(gpbClassSymbol.name.toString)}.newBuilder()
+
+          ..$params
+
+          builder.build()
+        }
+       """
     }
+
+    private def processEndType(c: whitebox.Context)
+                              (field: c.universe.Tree, returnType: c.universe.Type)
+                              (setter: c.universe.Tree): c.Tree = {
+      import c.universe._
+
+      val typeSymbol = returnType.typeSymbol
+      val resultType = returnType.resultType
+
+      resultType.toString match {
+        case OptPattern(t) => // Option[T]
+          val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
+
+          q""
+
+//          q"""
+//              $field.foreach(${processEndType(c)(field, typeArg)(setter)}.get)
+//           """
+
+          //q"CactusMacros.OptAToOptB(CactusMacros.tryToOption(Try(${processEndType(c)(field, typeArg)(query, getter)})))"
+
+        case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
+
+          q""
+
+          //q" if ($query) ${createConverter(c)(returnType, q"$getter ")} else throw CactusException(MissingFieldFailure(${field.toString})) "
+
+
+        case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
+
+          q""
+
+          // collections don't have the "has" method, test size instead
+          //q" if ($getter.size() > 0) $getter.asScala.toList else throw CactusException(MissingFieldFailure(${field.toString})) "
+
+        case t => // plain type
+
+          q" $setter($field) "
+
+          //q" if ($query) $getter else throw CactusException(MissingFieldFailure(${field.toString})) "
+      }
+    }
+
   }
 
   private def firstUpper(s: String): String = {
