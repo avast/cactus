@@ -41,7 +41,7 @@ object CactusMacros {
     val variableName = getVariableName(c)
 
     c.Expr[Either[CactusFailure, CaseClass]] {
-      val tree = q""" {
+      q""" {
           import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
@@ -56,9 +56,6 @@ object CactusMacros {
           }
          }
         """
-      println(tree)
-
-      tree
     }
   }
 
@@ -71,7 +68,7 @@ object CactusMacros {
     val variableName = getVariableName(c)
 
     c.Expr[Either[CactusFailure, Gpb]] {
-      val tree = q""" {
+      q""" {
           import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
@@ -86,10 +83,6 @@ object CactusMacros {
           }
          }
         """
-
-      println(tree)
-
-      tree
     }
   }
 

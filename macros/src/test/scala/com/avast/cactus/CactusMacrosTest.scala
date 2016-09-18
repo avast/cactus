@@ -8,9 +8,13 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable
 
 class CactusMacrosTest extends FunSuite {
+  implicit val StringToByteStringConverter = CactusConverter((b: String) => ByteString.copyFromUtf8(b))
+  implicit val ByteStringToStringConverter = CactusConverter((b: ByteString) => b.toStringUtf8)
+
   test("GPB to case class") {
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
+      .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
 
     val gpb = TestMessage.Data.newBuilder()
@@ -25,15 +29,16 @@ class CactusMacrosTest extends FunSuite {
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .build()
 
-    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)), None)
+    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
     assertResult(Right(expected))(gpb.asCaseClass[CaseClassA])
   }
 
   test("Case class to GPB") {
-    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)), None)
+    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
+      .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
 
     val expectedGpb = TestMessage.Data.newBuilder()
@@ -53,7 +58,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("case class to GPB and back") {
-    val original = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9), Some(CaseClassB(0.9)), None, List("a", "b"), Some(List(3, 6)), None)
+    val original = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
 
     val Right(converted) = original.asGpb[Data]
 
@@ -75,4 +80,4 @@ case class CaseClassA(field: String,
                       fieldOptionIntegersList: Option[List[Int]],
                       fieldOptionIntegersEmptyList: Option[List[Int]])
 
-case class CaseClassB(fieldDouble: Double)
+case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)

@@ -16,4 +16,5 @@ message Data {
 
 message Data2 {
     optional double field_double = 1;	    	      // REQUIRED
+    optional bytes field_blob = 2;	    	          // REQUIRED
 }

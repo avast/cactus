@@ -2548,6 +2548,23 @@ public final class TestMessage {
      * </pre>
      */
     double getFieldDouble();
+
+    /**
+     * <code>optional bytes field_blob = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    boolean hasFieldBlob();
+    /**
+     * <code>optional bytes field_blob = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    com.google.protobuf.ByteString getFieldBlob();
   }
   /**
    * Protobuf type {@code Data2}
@@ -2604,6 +2621,11 @@ public final class TestMessage {
             case 9: {
               bitField0_ |= 0x00000001;
               fieldDouble_ = input.readDouble();
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              fieldBlob_ = input.readBytes();
               break;
             }
           }
@@ -2669,8 +2691,32 @@ public final class TestMessage {
       return fieldDouble_;
     }
 
+    public static final int FIELD_BLOB_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString fieldBlob_;
+    /**
+     * <code>optional bytes field_blob = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public boolean hasFieldBlob() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional bytes field_blob = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getFieldBlob() {
+      return fieldBlob_;
+    }
+
     private void initFields() {
       fieldDouble_ = 0D;
+      fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2688,6 +2734,9 @@ public final class TestMessage {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeDouble(1, fieldDouble_);
       }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, fieldBlob_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -2700,6 +2749,10 @@ public final class TestMessage {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(1, fieldDouble_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, fieldBlob_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2820,6 +2873,8 @@ public final class TestMessage {
         super.clear();
         fieldDouble_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000001);
+        fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -2852,6 +2907,10 @@ public final class TestMessage {
           to_bitField0_ |= 0x00000001;
         }
         result.fieldDouble_ = fieldDouble_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.fieldBlob_ = fieldBlob_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2870,6 +2929,9 @@ public final class TestMessage {
         if (other == com.avast.cactus.TestMessage.Data2.getDefaultInstance()) return this;
         if (other.hasFieldDouble()) {
           setFieldDouble(other.getFieldDouble());
+        }
+        if (other.hasFieldBlob()) {
+          setFieldBlob(other.getFieldBlob());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2946,6 +3008,57 @@ public final class TestMessage {
         return this;
       }
 
+      private com.google.protobuf.ByteString fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes field_blob = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public boolean hasFieldBlob() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional bytes field_blob = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getFieldBlob() {
+        return fieldBlob_;
+      }
+      /**
+       * <code>optional bytes field_blob = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder setFieldBlob(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        fieldBlob_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes field_blob = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder clearFieldBlob() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        fieldBlob_ = getDefaultInstance().getFieldBlob();
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:Data2)
     }
 
@@ -2984,8 +3097,9 @@ public final class TestMessage {
       "pty\030\006 \003(\005\022 \n\020field_gpb_option\030\007 \001(\0132\006.Da" +
       "ta2\022&\n\026field_gpb_option_empty\030\010 \001(\0132\006.Da" +
       "ta2\022\031\n\tfield_gpb\030\t \001(\0132\006.Data2\022\022\n\nfield_" +
-      "blob\030\n \001(\014\"\035\n\005Data2\022\024\n\014field_double\030\001 \001(" +
-      "\001B\022\n\020com.avast.cactus"
+      "blob\030\n \001(\014\"1\n\005Data2\022\024\n\014field_double\030\001 \001(" +
+      "\001\022\022\n\nfield_blob\030\002 \001(\014B\022\n\020com.avast.cactu",
+      "s"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3010,7 +3124,7 @@ public final class TestMessage {
     internal_static_Data2_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Data2_descriptor,
-        new java.lang.String[] { "FieldDouble", });
+        new java.lang.String[] { "FieldDouble", "FieldBlob", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
