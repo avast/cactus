@@ -56,7 +56,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("case class to GPB and back") {
-    val original = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
+    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
 
     val Right(converted) = original.asGpb[Data]
 
@@ -80,4 +80,17 @@ case class CaseClassA(field: String,
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
-// there is converter between String and ByteString in cactus by default
+// this is clone of CaseClassA, but it contains different collections
+case class CaseClassC(field: String,
+                      @GpbName("fieldIntName")
+                      fieldInt: Int,
+                      fieldOption: Option[Int],
+                      fieldBlob: ByteString,
+                      @GpbName("fieldStringsName")
+                      fieldStrings2: Vector[String],
+                      fieldGpb: CaseClassB,
+                      fieldGpbOption: Option[CaseClassB],
+                      fieldGpbOptionEmpty: Option[CaseClassB],
+                      fieldStringsList: Seq[String],
+                      fieldOptionIntegersList: Option[Seq[Int]],
+                      fieldOptionIntegersEmptyList: Option[Seq[Int]])

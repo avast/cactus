@@ -213,8 +213,9 @@ object CactusMacros {
 
           // the implicit conversion wouldn't be used implicitly
           // we have to specify types to be converted manually, because type inference cannot determine it
+          // the collections is converted to mutable Seq here, since it has to have unified format for the conversion
           q"""
-              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.collection.immutable.Seq]($field).asJava)
+              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.Seq]($field.toSeq).asJava)
            """
 
         case t => // plain type
