@@ -8,8 +8,6 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable
 
 class CactusMacrosTest extends FunSuite {
-  implicit val StringToByteStringConverter = CactusConverter((b: String) => ByteString.copyFromUtf8(b))
-  implicit val ByteStringToStringConverter = CactusConverter((b: ByteString) => b.toStringUtf8)
 
   test("GPB to case class") {
     val gpbInternal = Data2.newBuilder()
@@ -81,3 +79,5 @@ case class CaseClassA(field: String,
                       fieldOptionIntegersEmptyList: Option[List[Int]])
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
+
+// there is converter between String and ByteString in cactus by default

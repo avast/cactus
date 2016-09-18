@@ -3,14 +3,16 @@ package com.avast.cactus
 import scala.annotation.implicitNotFound
 
 @implicitNotFound("Could not find CactusConverter from ${A} to ${B}, try to import or define one")
-trait CactusConverter[A, B] extends (A => B)
+trait CactusConverter[A, B] {
+  def apply(a: A): B
+}
 
 object CactusConverter {
   def apply[A, B](f: A => B): CactusConverter[A, B] = new CactusConverter[A, B] {
     override def apply(a: A): B = f(a)
   }
 
-  //implicit def noOpConverter[A]: CactusConverter[A, A] = CactusConverter(identity)
+  // standard types converters:
 
   implicit val string2StringConverter: CactusConverter[String, java.lang.String] = CactusConverter(identity)
 
