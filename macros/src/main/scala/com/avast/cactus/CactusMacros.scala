@@ -12,15 +12,15 @@ object CactusMacros {
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
-  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: A => B): T[B] = {
+  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: CactusConverter[A, B]): T[B] = {
     coll.map(aToBConverter)
   }
 
-  implicit def TryAToTryB[A, B](ta: Try[A])(implicit aToBConverter: A => B): Try[B] = {
+  implicit def TryAToTryB[A, B](ta: Try[A])(implicit aToBConverter: CactusConverter[A, B]): Try[B] = {
     ta.map(aToBConverter)
   }
 
-  implicit def OptAToOptB[A, B](ta: Option[A])(implicit aToBConverter: A => B): Option[B] = {
+  implicit def OptAToOptB[A, B](ta: Option[A])(implicit aToBConverter: CactusConverter[A, B]): Option[B] = {
     ta.map(aToBConverter)
   }
 
@@ -41,7 +41,7 @@ object CactusMacros {
     val variableName = getVariableName(c)
 
     c.Expr[Either[CactusFailure, CaseClass]] {
-      q""" {
+      val tree = q""" {
           import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
@@ -56,6 +56,9 @@ object CactusMacros {
           }
          }
         """
+      println(tree)
+
+      tree
     }
   }
 
@@ -68,7 +71,7 @@ object CactusMacros {
     val variableName = getVariableName(c)
 
     c.Expr[Either[CactusFailure, Gpb]] {
-      q""" {
+      val tree = q""" {
           import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
@@ -83,6 +86,10 @@ object CactusMacros {
           }
          }
         """
+
+      println(tree)
+
+      tree
     }
   }
 
@@ -121,7 +128,7 @@ object CactusMacros {
         case OptPattern(t) => // Option[T]
           val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          q"CactusMacros.OptAToOptB(CactusMacros.tryToOption(Try(${processEndType(c)(name, typeArg, gpbType)(query, getter)})))"
+          q"(CactusMacros.tryToOption(Try(${processEndType(c)(name, typeArg, gpbType)(query, getter)})))"
 
         case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
 
@@ -131,10 +138,9 @@ object CactusMacros {
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else throw CactusException(MissingFieldFailure(${name.toString})) "
 
-
         case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
           // collections don't have the "has" method, test size instead
-          q" if (!$getter.isEmpty) $getter.asScala.toList else throw CactusException(MissingFieldFailure(${name.toString})) "
+          q" if (!$getter.isEmpty) CactusMacros.CollAToCollB($getter.asScala.toList) else throw CactusException(MissingFieldFailure(${name.toString})) "
 
         case t => // plain type
           q" if ($query) $getter else throw CactusException(MissingFieldFailure(${name.toString})) "
@@ -211,7 +217,7 @@ object CactusMacros {
           // the implicit conversion wouldn't be used implicitly
           // we have to specify types to be converted manually, because type inference cannot determine it
           q"""
-              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.collection.immutable.Seq]($field).toIterable.asJava)
+              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.collection.immutable.Seq]($field).asJava)
            """
 
         case t => // plain type
