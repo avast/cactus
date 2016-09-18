@@ -1,20 +1,20 @@
 option java_package = "com.avast.cactus";
 
 message Data {
-    optional string field = 1;                        // REQUIRED
-    optional int32 field_int_name = 2;                // REQUIRED
-    optional int32 field_option = 3;                  // OPTIONAL
-    repeated string field_strings = 4;                // REQUIRED
-    repeated string field_strings_name = 11;          // REQUIRED
-    repeated int32 field_option_integers = 5;         // OPTIONAL
-    repeated int32 field_option_integers_empty = 6;   // OPTIONAL
-    optional Data2 field_gpb_option = 7; 	          // OPTIONAL
-    optional Data2 field_gpb_option_empty = 8;        // OPTIONAL
-    optional Data2 field_gpb = 9;   		          // REQUIRED
-    optional bytes field_blob = 10;                   // REQUIRED
+    optional string     field = 1;                          // REQUIRED
+    optional int32      field_int_name = 2;                 // REQUIRED
+    optional int32      field_option = 3;                   // OPTIONAL
+    repeated string     field_strings = 4;                  // REQUIRED
+    repeated string     field_strings_name = 5;             // REQUIRED
+    repeated int32      field_option_integers = 6;          // OPTIONAL
+    repeated int32      field_option_integers_empty = 7;    // OPTIONAL
+    optional Data2      field_gpb_option = 8; 	            // OPTIONAL
+    optional Data2      field_gpb_option_empty = 9;         // OPTIONAL
+    optional Data2      field_gpb = 10;   		            // REQUIRED
+    optional bytes      field_blob = 11;                    // REQUIRED
 }
 
 message Data2 {
-    optional double field_double = 1;	    	      // REQUIRED
-    optional bytes field_blob = 2;	    	          // REQUIRED
+    optional double     field_double = 1;	  	            // REQUIRED
+    optional bytes      field_blob = 2;	                    // REQUIRED
 }
