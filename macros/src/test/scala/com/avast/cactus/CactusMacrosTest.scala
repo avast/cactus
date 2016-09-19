@@ -9,6 +9,10 @@ import scala.collection.immutable
 
 class CactusMacrosTest extends FunSuite {
 
+  // user specified converters
+  implicit val StringToByteStringConverter: CactusConverter[String, ByteString] = CactusConverter((b: String) => ByteString.copyFromUtf8(b))
+  implicit val ByteStringToStringConverter: CactusConverter[ByteString, String] = CactusConverter((b: ByteString) => b.toStringUtf8)
+
   test("GPB to case class") {
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
@@ -32,7 +36,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("Case class to GPB") {
-    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
+    val caseClass = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
@@ -56,7 +60,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("case class to GPB and back") {
-    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
+    val original = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
 
     val Right(converted) = original.asGpb[Data]
 
