@@ -12,16 +12,20 @@ object CactusMacros {
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
-  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: A => B): T[B] = {
-    coll.map(aToBConverter)
+  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: CactusConverter[A, B]): T[B] = {
+    coll.map(aToBConverter.apply)
   }
 
-  implicit def TryAToTryB[A, B](ta: Try[A])(implicit aToBConverter: A => B): Try[B] = {
-    ta.map(aToBConverter)
+  implicit def TryAToTryB[A, B](ta: Try[A])(implicit aToBConverter: CactusConverter[A, B]): Try[B] = {
+    ta.map(aToBConverter.apply)
   }
 
-  implicit def OptAToOptB[A, B](ta: Option[A])(implicit aToBConverter: A => B): Option[B] = {
-    ta.map(aToBConverter)
+  implicit def OptAToOptB[A, B](ta: Option[A])(implicit aToBConverter: CactusConverter[A, B]): Option[B] = {
+    ta.map(aToBConverter.apply)
+  }
+
+  implicit def AToB[A, B](a: A)(implicit aToBConverter: CactusConverter[A, B]): B = {
+    aToBConverter.apply(a)
   }
 
   def tryToOption[A](t: Try[A]): Option[A] = t match {
@@ -121,7 +125,7 @@ object CactusMacros {
         case OptPattern(t) => // Option[T]
           val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          q"CactusMacros.OptAToOptB(CactusMacros.tryToOption(Try(${processEndType(c)(name, typeArg, gpbType)(query, getter)})))"
+          q"(CactusMacros.tryToOption(Try(${processEndType(c)(name, typeArg, gpbType)(query, getter)})))"
 
         case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
 
@@ -131,10 +135,9 @@ object CactusMacros {
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else throw CactusException(MissingFieldFailure(${name.toString})) "
 
-
         case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
           // collections don't have the "has" method, test size instead
-          q" if (!$getter.isEmpty) $getter.asScala.toList else throw CactusException(MissingFieldFailure(${name.toString})) "
+          q" if (!$getter.isEmpty) CactusMacros.CollAToCollB($getter.asScala.toList) else throw CactusException(MissingFieldFailure(${name.toString})) "
 
         case t => // plain type
           q" if ($query) $getter else throw CactusException(MissingFieldFailure(${name.toString})) "
@@ -210,8 +213,9 @@ object CactusMacros {
 
           // the implicit conversion wouldn't be used implicitly
           // we have to specify types to be converted manually, because type inference cannot determine it
+          // the collections is converted to mutable Seq here, since it has to have unified format for the conversion
           q"""
-              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.collection.immutable.Seq]($field).toIterable.asJava)
+              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.Seq]($field.toSeq).asJava)
            """
 
         case t => // plain type
