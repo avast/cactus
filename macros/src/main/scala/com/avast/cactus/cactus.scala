@@ -15,12 +15,4 @@ package object cactus {
     def asGpb[Gpb <: MessageLite](implicit caseClassCt: ClassTag[CaseClass]): Either[CactusFailure, Gpb] = macro CactusMacros.convertCaseClassToGpb[Gpb]
   }
 
-  // additional converters:
-
-  implicit val StringToByteStringConverter: CactusConverter[String, ByteString] = CactusConverter((b: String) => ByteString.copyFromUtf8(b))
-  implicit val ByteStringToStringConverter: CactusConverter[ByteString, String] = CactusConverter((b: ByteString) => b.toStringUtf8)
-
-  implicit val ByteArrayToByteStringConverter: CactusConverter[Array[Byte], ByteString] = CactusConverter((b: Array[Byte]) => ByteString.copyFrom(b))
-  implicit val ByteStringToByteArrayConverter: CactusConverter[ByteString, Array[Byte]] = CactusConverter((b: ByteString) => b.toByteArray)
-
 }
