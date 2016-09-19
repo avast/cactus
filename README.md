@@ -1,5 +1,6 @@
 # Cactus
 
+[![Build Status](https://travis-ci.org/avast/cactus.svg?branch=master)](https://travis-ci.org/avast/cactus)
 Library for conversion between [GPB](https://developers.google.com/protocol-buffers/) instance and Scala case class.
 
 ## GPB to case class
