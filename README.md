@@ -5,7 +5,7 @@
 Library for mapping between [GPB](https://developers.google.com/protocol-buffers/) messages and Scala's case classes.
 
 The library automatically converts common data types (`String`, primitive types, collections) and can map optional fields 
-into `Option`. This process is extensible via typeclass `Convert`.
+into `Option`. This process is extensible via `Converter`.
 
 ## GPB to case class
 
@@ -22,7 +22,7 @@ Currently there is only one possible failure (`MissingFieldFailure`) which conta
 It is common that the field has different name in the GPB and in the case class. You can use `GpbName` annotation 
 to override the expected name - see the example.
 
-You have the option to either add or not add `List` suffix to the name of the case class field - 
+You have the option to either add or not suffix `List` to the name of the case class field when mapping a collection - 
 see `fieldString2` vs. `fieldStringsList` in the example.
 
 Mapping of complex messages (message contains another message which contains another message) is support.
@@ -122,7 +122,7 @@ case class. This is intentional design of the converter since both GPB and case 
 Case class can be mapped back to GPB as easily as in the other direction. The source case class can contain an arbitrary 
 scala collection (even mutable).
 
-You have the option to either add or not add `List` suffix to the name of the case class field - 
+You have the option to either add or not suffix `List` to the name of the case class field when mapping a collection - 
 see `fieldString2` vs. `fieldStringsList` in the example.
 
 ### Example
