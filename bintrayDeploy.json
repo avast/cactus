@@ -23,7 +23,7 @@
 
   "files":
   [
-    {"includePattern": "macros/target/scala_2.11/(.*\\.(jar|pom|xml))", "uploadPattern": "$1"}
+    {"includePattern": "macros/target/scala-2.11/(.*\\.(jar|pom|xml))", "uploadPattern": "$1"}
   ],
   "publish": true
 }
