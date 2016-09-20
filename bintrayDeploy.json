@@ -1,6 +1,6 @@
 {
   "package": {
-    "name": "com.avast.cactus",
+    "name": "cactus",
     "repo": "maven",
     "subject": "avast",
     "desc": "Library for conversion between GPB and Scala case classes",
