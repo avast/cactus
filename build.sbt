@@ -1,7 +1,7 @@
 import sbt.Keys._
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.11.7",
+  scalaVersion := "2.11.8",
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
@@ -31,11 +31,11 @@ lazy val commonSettings = Seq(
     )
 )
 
-val macroSettings = Seq(
+lazy val macroSettings = Seq(
   libraryDependencies ++= Seq(
-    "org.scala-lang" % "scala-reflect" % "2.11.7",
+    "org.scala-lang" % "scala-reflect" % "2.11.8",
     "com.google.protobuf" % "protobuf-java" % "2.6.1",
-    "org.scalatest" % "scalatest_2.11" % "3.0.0" % "test"
+    "org.scalatest" %% "scalatest" % "3.0.0" % "test"
   )
 )
 
