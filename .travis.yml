@@ -1,3 +1,9 @@
 language: scala
 scala:
-  - 2.11.8
+- 2.11.8
+deploy:
+  provider: bintray
+  file: bintrayDeploy.json
+  user: kolena
+  key:
+    secure: W/CyeJQl+4Z90H0Mp+nUVU8ke1AbZbGKcTE5200RFPlaMjJgu649tbcXzgnJBIZF448pbL9OFuNITlYN2C8JWnBNLvDH6ZR9fEB8hkUpCS+lIFSRndrJqVN9DEtovD8ENtsGwySLZUp94YSUxQheQiCgAjXqQIEcRlVJ0yHhmcTQvtx16QSHD8LYteLEegVELhmYlzvRpOabBBWd/qm+fALoPV0e4i59h3XlioNnCXTPFEjS7pNWAIvbjRfH7UJtVaXJy3HSmsVx7qPskXJ7N1bmUlh+66cWppuGttQKOyx/dz4MfsUlkhGMkK7cwWFuLjO3b826v3Bb6hpXu5qHP5/O3lsR/ob7JP/cQxiI0aY8ZnJn7ohhkGbuVZ/i5Viw1BpfOp7zAAFXkUrCGGCSW3wrT2VY8ZtuyQuyh9e164fNVgcYWN4gUnY/+PUPBnbWlmrGRAKecvqn1bUFXBsxSupfRWZGprJ5801h+psgVQWlrt4TN5FZC7JmHp28zHzkuxhUpFtdxiy1rB0CzZ8qlIkaCJdheu+UxqAEDIfBSSKk15YfTLa3BB6OnX9Iw+qMiUE4IFMqjiD6aNEq1nESWWMK1eNAHjwHiDE6uXuzzmQvT7y03BUyjskeXzCvzEqRDiPHgwBs30IT0a4qZY31RT7ozeggT3DVv7mbTv2mxc4=
