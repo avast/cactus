@@ -1,6 +1,6 @@
 package com.avast
 
-import com.google.protobuf.{ByteString, MessageLite}
+import com.google.protobuf.MessageLite
 
 import scala.language.experimental.macros
 import scala.reflect.ClassTag

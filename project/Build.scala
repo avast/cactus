@@ -1,12 +1,10 @@
 import sbt.Keys._
 import sbt._
 
-
 object Build extends Build {
 
-
   val commonSettings = Defaults.coreDefaultSettings ++ Seq(
-    scalaVersion := "2.11.7"
+    scalaVersion := "2.11.8"
     , version := "0.1"
     , scalacOptions += "-deprecation"
     , scalacOptions += "-unchecked"
@@ -17,9 +15,9 @@ object Build extends Build {
 
   val macroSettings = Seq(
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect" % "2.11.7",
+      "org.scala-lang" % "scala-reflect" % "2.11.8",
       "com.google.protobuf" % "protobuf-java" % "2.6.1",
-      "org.scalatest" % "scalatest_2.11" % "3.0.0" % "test"
+      "org.scalatest" %% "scalatest" % "3.0.0" % "test"
     )
   )
 
