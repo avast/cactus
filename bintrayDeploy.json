@@ -17,13 +17,13 @@
     "name": "VERSION",
     "desc": "vVERSION",
     "released": "DATE",
-    "vcs_tag": "vVERSION",
+    "vcs_tag": "VERSION",
     "gpgSign": false
   },
 
   "files":
   [
-    {"includePattern": "macros/target/scala-2.11/(.*\\.(jar|pom|xml))", "uploadPattern": "$1"}
+    {"includePattern": "macros\\/target\\/scala\\-2\\.11\\/(.*\\.(jar|pom|xml))", "uploadPattern": "$1"}
   ],
   "publish": true
 }
