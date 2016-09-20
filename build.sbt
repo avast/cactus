@@ -15,7 +15,8 @@ lazy val commonSettings = Seq(
 
   licenses ++= Seq("Apache-2.0" -> url(s"https://github.com/avast/${name.value}/blob/${version.value}/LICENSE")),
   publishArtifact in Test := false,
-  bintrayOrganization := Some("avast"),
+  publishMavenStyle := true,
+  publishTo in ThisBuild := Some(Resolver.file("file", new File("target/release"))),
   pomExtra := (
     <scm>
       <url>git@github.com:avast/{name.value}.git</url>
