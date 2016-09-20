@@ -3,6 +3,9 @@
 [![Build Status](https://travis-ci.org/avast/cactus.svg?branch=master)](https://travis-ci.org/avast/cactus)
 Library for conversion between [GPB](https://developers.google.com/protocol-buffers/) instance and Scala case class.
 
+The library automatically converts collections, primitive data types (incl. `String`) and can map optional fields into `Option`. It's extensible via
+typeclass, when you can achieve support of your own data types.
+
 ## GPB to case class
 
 As we use [GPB](https://developers.google.com/protocol-buffers/)s for communication over the network, we quite often need to map the GPB to our business
@@ -53,7 +56,13 @@ message Data2 {
 Scala:
 ```scala
 
-case class CaseClassA(field: String,
+// your own converters:
+implicit val StringToByteStringConverter: CactusConverter[String, ByteString] = CactusConverter((b: String) => ByteString.copyFromUtf8(b))
+implicit val ByteStringToStringConverter: CactusConverter[ByteString, String] = CactusConverter((b: ByteString) => b.toStringUtf8)
+
+
+case class CaseClassA(
+  field: String,
   @GpbName("fieldIntName") // different name in GPB than in case class 
   fieldInt: Int,
   fieldOption: Option[Int],
@@ -65,9 +74,14 @@ case class CaseClassA(field: String,
   fieldGpbOptionEmpty: Option[CaseClassB],
   fieldStringsList: immutable.Seq[String],
   fieldOptionIntegersList: Option[List[Int]],
-  fieldOptionIntegersEmptyList: Option[List[Int]])
+  fieldOptionIntegersEmptyList: Option[List[Int]]
+)
 
-case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
+case class CaseClassB(
+  fieldDouble: Double, 
+  @GpbName("fieldBlob")
+  fieldString: String // this is possible thanks to the user-specified converter, it's `ByteString` in the GPB
+)
 
 
 object Test extends App {
