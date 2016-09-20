@@ -14,10 +14,10 @@
   },
 
   "version": {
-    "name": "0.1-SNAPSHOT",
+    "name": "0.1.1",
     "desc": "First release",
     "released": "2016-09-20",
-    "vcs_tag": "0.1-SNAPSHOT",
+    "vcs_tag": "0.1.1",
     "gpgSign": false
   },
 
