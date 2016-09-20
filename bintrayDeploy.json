@@ -23,8 +23,7 @@
 
   "files":
   [
-    {"includePattern": "build/bin(.*)*/(.*\\.gem)", "excludePattern": ".*/do-not-deploy/.*", "uploadPattern": "gems/$2"},
-    {"includePattern": "build/docs/(.*)", "uploadPattern": "docs/$1"}
+    {"includePattern": "macros/target/scala_2.11/(.*\\.(jar|pom))", "uploadPattern": "$1"}
   ],
   "publish": true
 }

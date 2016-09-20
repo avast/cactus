@@ -1,6 +1,7 @@
 # Cactus
 
 [![Build Status](https://travis-ci.org/avast/cactus.svg?branch=master)](https://travis-ci.org/avast/cactus)
+[ ![Download](https://api.bintray.com/packages/avast/maven/cactus/images/download.svg) ](https://bintray.com/avast/maven/cactus/_latestVersion)
 
 Library for mapping between [GPB](https://developers.google.com/protocol-buffers/) messages and Scala's case classes.
 
