@@ -10,8 +10,8 @@ import scala.collection.immutable
 class CactusMacrosTest extends FunSuite {
 
   // user specified converters
-  implicit val StringToByteStringConverter: CactusConverter[String, ByteString] = CactusConverter((b: String) => ByteString.copyFromUtf8(b))
-  implicit val ByteStringToStringConverter: CactusConverter[ByteString, String] = CactusConverter((b: ByteString) => b.toStringUtf8)
+  implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))
+  implicit val ByteStringToStringConverter: Converter[ByteString, String] = Converter((b: ByteString) => b.toStringUtf8)
 
   test("GPB to case class") {
     val gpbInternal = Data2.newBuilder()

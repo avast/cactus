@@ -12,19 +12,19 @@ object CactusMacros {
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
-  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: CactusConverter[A, B]): T[B] = {
+  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
     coll.map(aToBConverter.apply)
   }
 
-  implicit def TryAToTryB[A, B](ta: Try[A])(implicit aToBConverter: CactusConverter[A, B]): Try[B] = {
+  implicit def TryAToTryB[A, B](ta: Try[A])(implicit aToBConverter: Converter[A, B]): Try[B] = {
     ta.map(aToBConverter.apply)
   }
 
-  implicit def OptAToOptB[A, B](ta: Option[A])(implicit aToBConverter: CactusConverter[A, B]): Option[B] = {
+  implicit def OptAToOptB[A, B](ta: Option[A])(implicit aToBConverter: Converter[A, B]): Option[B] = {
     ta.map(aToBConverter.apply)
   }
 
-  implicit def AToB[A, B](a: A)(implicit aToBConverter: CactusConverter[A, B]): B = {
+  implicit def AToB[A, B](a: A)(implicit aToBConverter: Converter[A, B]): B = {
     aToBConverter.apply(a)
   }
 

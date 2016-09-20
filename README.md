@@ -1,31 +1,32 @@
 # Cactus
 
 [![Build Status](https://travis-ci.org/avast/cactus.svg?branch=master)](https://travis-ci.org/avast/cactus)
-Library for conversion between [GPB](https://developers.google.com/protocol-buffers/) instance and Scala case class.
 
-The library automatically converts collections, primitive data types (incl. `String`) and can map optional fields into `Option`. It's extensible via
-typeclass, when you can achieve support of your own data types.
+Library for mapping between [GPB](https://developers.google.com/protocol-buffers/) messages and Scala's case classes.
+
+The library automatically converts common data types (`String`, primitive types, collections) and can map optional fields 
+into `Option`. This process is extensible via `Converter`.
 
 ## GPB to case class
 
-As we use [GPB](https://developers.google.com/protocol-buffers/)s for communication over the network, we quite often need to map the GPB to our business
-object, which is usually a case class. We follow Google recommendations and have all fields `optional`, which is quite not handy when doing the business 
-object mapping because some validation is necessary.  
+We often need to map GPB message to business object (which is usually a case class) when GPB is used for communication 
+over the network. It is a good practice to follow Google's recommendation to have all fields `optional`. However that
+is not very handy during mapping because validation is necessary.
 
-This library solves both problems together - it generates conversion code (using macros) which is reading data from the GPB instance and putting them into the
-case class and
-depending on case class fields types it does automatic conversion (primitive types, collections) and also the validation - fields not wrapped in `Option` are
-considered to be required and their absence causes failure of the conversion.
+This library solves both problems - it generates mapping (using macros) between GPB message and Scala case class
+based on the fields of the case class and validates that all the required fields (not wrapped in `Option`) are present.
+It also automatically converts between common data types.
 
-Currently there is only one possible conversion failure - `MissingFieldFailure`, which contains name of missing field.
+Currently there is only one possible failure (`MissingFieldFailure`) which contains the name of the missing field.
 
-It's common that the field has different name in the GPB than we want to have in the case class. This is solved with `GpbName` annotation - see
-the example.
+It is common that the field has different name in the GPB and in the case class. You can use `GpbName` annotation 
+to override the expected name - see the example.
 
-When mapping the list, you have option to either add or not add `List` suffix to name of the case class field - see `fieldString2` vs. `fieldStringsList`
-in the example.
+You have the option to either add or not suffix `List` to the name of the case class field when mapping a collection - 
+see `fieldString2` vs. `fieldStringsList` in the example.
 
-The GPB message can contain another GPB message inside, as in the example below. Recursive instances (field with `Data` type in `Data` class) are NOT supported.
+Mapping of complex messages (message contains another message which contains another message) is support.
+However **recursive** mapping (field with `Data` type in `Data` class) is **NOT supported**. 
 
 ### Example
 
@@ -50,16 +51,13 @@ message Data2 {
     optional double     field_double = 1;	  	            // REQUIRED
     optional bytes      field_blob = 2;	                    // REQUIRED
 }
-
 ```
 
 Scala:
 ```scala
-
 // your own converters:
-implicit val StringToByteStringConverter: CactusConverter[String, ByteString] = CactusConverter((b: String) => ByteString.copyFromUtf8(b))
-implicit val ByteStringToStringConverter: CactusConverter[ByteString, String] = CactusConverter((b: ByteString) => b.toStringUtf8)
-
+implicit val StringToByteStringConver: Convert[String, ByteString] = Convert((b: String) => ByteString.copyFromUtf8(b))
+implicit val ByteStringToStringConver: Convert[ByteString, String] = Convert((b: ByteString) => b.toStringUtf8)
 
 case class CaseClassA(
   field: String,
@@ -82,7 +80,6 @@ case class CaseClassB(
   @GpbName("fieldBlob")
   fieldString: String // this is possible thanks to the user-specified converter, it's `ByteString` in the GPB
 )
-
 
 object Test extends App {
   import com.avast.cactus._
@@ -112,21 +109,21 @@ object Test extends App {
       println(s"Missing required field: '$fieldName'")
   }
 }
-
 ```
+
 See [unit tests](macros/src/test/scala/com/avast/cactus/CactusMacrosTest.scala) for more examples.
 
-Collections (`java.util.List<T>`) are converted to `scala.collection.immutable.Seq[T]`, concretely to `scala.collection.immutable.List[T]`. Default Scala
-`Seq[T]` is mutable and cannot be used in the target case class. Since both the GPB and case classes are meant to be immutable, this is intentional design of the converter. 
+Collections (`java.util.List<T>`) are converted to `scala.collection.immutable.Seq[T]` -
+concretely to `scala.collection.immutable.List[T]`. Default Scala `Seq[T]` is mutable and cannot be used in the target 
+case class. This is intentional design of the converter since both GPB and case classes are meant to be immutable. 
 
 ## Case class to GPB
 
-Case class can be converted to GPB the same easy way as in the other direction.  
+Case class can be mapped back to GPB as easily as in the other direction. The source case class can contain an arbitrary 
+scala collection (even mutable).
 
-The source case class can contain an arbitrary scala collection (even mutable).
-
-When mapping the collection, you have option to either add or not add `List` suffix to name of the case class field - see `fieldString2` vs. `fieldStringsList`
-in the example.
+You have the option to either add or not suffix `List` to the name of the case class field when mapping a collection - 
+see `fieldString2` vs. `fieldStringsList` in the example.
 
 ### Example
 
@@ -156,7 +153,6 @@ message Data2 {
 
 Scala:
 ```scala
-
 case class CaseClassA(field: String,
   @GpbName("fieldIntName")
   fieldInt: Int,
@@ -199,14 +195,11 @@ object Test extends App {
       println(f)
   }
 }
-
 ```
+
 See [unit tests](macros/src/test/scala/com/avast/cactus/CactusMacrosTest.scala) for more examples.
 
 ## Appendix
 
-The library is compiled with dependency on GPB 2.6.1. Since it use the `MessageLite` interface only as a "marker trait", it should be safe to exclude the GPB
-dependency and use v 2.5.0 or 2.4.1 instead.
-
-
-Author: Jan Kolena (kolena[at]avast.com), [Avast Software s.r.o.](https://www.avast.com)
+The library is compiled with dependency on GPB 2.6.1. It should be safe to exclude the dependency and use version
+`2.5.x` or `2.4.x` instead since it uses the `MessageLite` interface only as a "marker trait".
