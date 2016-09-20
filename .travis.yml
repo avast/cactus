@@ -3,6 +3,8 @@ scala:
 - 2.11.8
 jdk:
 - oraclejdk8
+skip_cleanup: true
+before_deploy: "./before_deploy.sh"
 deploy:
   provider: bintray
   file: bintrayDeploy.json
