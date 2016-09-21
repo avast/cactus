@@ -298,6 +298,9 @@ object CactusMacros {
 
     val variableName = c.prefix.tree match {
       case q"cactus.this.`package`.${_}[${_}]($n)" => n
+      case q"com.avast.cactus.`package`.${_}[${_}]($n)" => n
+
+      case t => c.abort(c.enclosingPosition, s"Cannot process the conversion - variable name extraction from tree ${t} failed")
     }
 
     q" $variableName "
