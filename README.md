@@ -26,7 +26,7 @@ to override the expected name - see the example.
 You have the option to either add or not suffix `List` to the name of the case class field when mapping a collection - 
 see `fieldString2` vs. `fieldStringsList` in the example.
 
-Mapping of complex messages (message contains another message which contains another message) is support.
+Mapping of complex messages (message contains another message which contains another message) is supported.
 However **recursive** mapping (field with `Data` type in `Data` class) is **NOT supported**. 
 
 ### Example
