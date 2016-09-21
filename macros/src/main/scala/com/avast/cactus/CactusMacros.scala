@@ -290,6 +290,8 @@ object CactusMacros {
 
     (gpbCt match {
       case q"ClassTag.apply[$cl](${_}): ${_}" => cl
+
+      case t => c.abort(c.enclosingPosition, s"Cannot process the conversion - variable type extraction from tree '$t' failed")
     }).symbol
   }
 
@@ -300,7 +302,7 @@ object CactusMacros {
       case q"cactus.this.`package`.${_}[${_}]($n)" => n
       case q"com.avast.cactus.`package`.${_}[${_}]($n)" => n
 
-      case t => c.abort(c.enclosingPosition, s"Cannot process the conversion - variable name extraction from tree ${t} failed")
+      case t => c.abort(c.enclosingPosition, s"Cannot process the conversion - variable name extraction from tree '$t' failed")
     }
 
     q" $variableName "
