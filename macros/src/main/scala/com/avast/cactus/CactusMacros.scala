@@ -10,6 +10,8 @@ import scala.util.{Failure, Success, Try}
 
 object CactusMacros {
 
+  private val Debug = System.getProperty("macroDebug") != null
+
   private val OptPattern = "Option\\[(.*)\\]".r
 
   implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
@@ -45,7 +47,8 @@ object CactusMacros {
     val variableName = getVariableName(c)
 
     c.Expr[Either[CactusFailure, CaseClass]] {
-      q""" {
+      val tree =
+        q""" {
           import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
@@ -60,6 +63,10 @@ object CactusMacros {
           }
          }
         """
+
+      if (Debug) println(tree)
+
+      tree
     }
   }
 
@@ -72,7 +79,8 @@ object CactusMacros {
     val variableName = getVariableName(c)
 
     c.Expr[Either[CactusFailure, Gpb]] {
-      q""" {
+      val tree =
+        q""" {
           import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
@@ -87,6 +95,10 @@ object CactusMacros {
           }
          }
         """
+
+      if (Debug) println(tree)
+
+      tree
     }
   }
 
@@ -136,8 +148,14 @@ object CactusMacros {
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else throw CactusException(MissingFieldFailure(${name.toString})) "
 
         case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
+
+          val toSeq = TermName(typeSymbol.name.toString match {
+            case "List" => "toList"
+            case _ => "toVector"
+          })
+
           // collections don't have the "has" method, test size instead
-          q" if (!$getter.isEmpty) CactusMacros.CollAToCollB($getter.asScala.toList) else throw CactusException(MissingFieldFailure(${name.toString})) "
+          q" if (!$getter.isEmpty) CactusMacros.CollAToCollB($getter.asScala.$toSeq) else throw CactusException(MissingFieldFailure(${name.toString})) "
 
         case t => // plain type
           q" if ($query) $getter else throw CactusException(MissingFieldFailure(${name.toString})) "

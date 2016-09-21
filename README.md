@@ -115,8 +115,9 @@ object Test extends App {
 See [unit tests](macros/src/test/scala/com/avast/cactus/CactusMacrosTest.scala) for more examples.
 
 Collections (`java.util.List<T>`) are converted to `scala.collection.immutable.Seq[T]` -
-concretely to `scala.collection.immutable.List[T]`. Default Scala `Seq[T]` is mutable and cannot be used in the target 
-case class. This is intentional design of the converter since both GPB and case classes are meant to be immutable. 
+concretely to `scala.collection.immutable.Vector[T]`. Another option is to use `scala.collection.immutable.List[T]` - you have to specify one of these.
+Default Scala `Seq[T]` is mutable and cannot be used in the target case class.
+This is intentional design of the converter since both GPB and case classes are meant to be immutable. 
 
 ## Case class to GPB
 

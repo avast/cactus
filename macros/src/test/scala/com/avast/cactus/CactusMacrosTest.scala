@@ -31,7 +31,7 @@ class CactusMacrosTest extends FunSuite {
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .build()
 
-    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
+    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(Vector(3, 6)), None)
     assertResult(Right(expected))(gpb.asCaseClass[CaseClassA])
   }
 
@@ -60,11 +60,11 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("case class to GPB and back") {
-    val original = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
+    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(Vector(3, 6)), None)
 
     val Right(converted) = original.asGpb[Data]
 
-    assertResult(Right(original))(converted.asCaseClass[CaseClassA])
+    assertResult(Right(original))(converted.asCaseClass[CaseClassC])
   }
 }
 
@@ -79,7 +79,7 @@ case class CaseClassA(field: String,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
                       fieldStringsList: immutable.Seq[String],
-                      fieldOptionIntegersList: Option[List[Int]],
+                      fieldOptionIntegersList: Option[Vector[Int]],
                       fieldOptionIntegersEmptyList: Option[List[Int]])
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
