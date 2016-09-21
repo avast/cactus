@@ -123,9 +123,6 @@ case class. This is intentional design of the converter since both GPB and case 
 Case class can be mapped back to GPB as easily as in the other direction. The source case class can contain an arbitrary 
 scala collection (even mutable).
 
-You have the option to either add or not suffix `List` to the name of the case class field when mapping a collection - 
-see `fieldString2` vs. `fieldStringsList` in the example.
-
 ### Example
 
 GPB:
