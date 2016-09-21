@@ -16,7 +16,7 @@ is not very handy during mapping because validation is necessary.
 
 This library solves both problems - it generates mapping (using macros) between GPB message and Scala case class
 based on the fields of the case class and validates that all the required fields (not wrapped in `Option`) are present.
-It also automatically converts between common data types.
+It also automatically converts between common data types. Note: `Option[List[A]]` never contains an empty collection; that is turned to `None`.
 
 Currently there is only one possible failure (`MissingFieldFailure`) which contains the name of the missing field.
 
