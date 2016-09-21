@@ -23,7 +23,7 @@
 
   "files":
   [
-    {"includePattern": "target/release/com/avast/cactus_2.11/VERSION/(.*\\.(jar|pom|xml)(\\.(md5|sha1))?)", "uploadPattern": "$1"}
+    {"includePattern": "target/release/com/avast/cactus_2.11/VERSION/(.*)", "uploadPattern": "$1"}
   ],
   "publish": true
 }
