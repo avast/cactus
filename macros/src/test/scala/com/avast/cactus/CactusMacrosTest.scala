@@ -13,6 +13,10 @@ class CactusMacrosTest extends FunSuite {
   implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))
   implicit val ByteStringToStringConverter: Converter[ByteString, String] = Converter((b: ByteString) => b.toStringUtf8)
 
+  // these are not needed, but they are here to be sure it won't cause trouble to the user
+  implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter((b: Array[Byte]) => ByteString.copyFrom(b))
+  implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
+
   test("GPB to case class") {
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)

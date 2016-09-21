@@ -10,11 +10,11 @@ import scala.util.{Failure, Success, Try}
 
 object CactusMacros {
 
-  private val Debug = System.getProperty("macroDebug") != null
+  private val Debug = false
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
-  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
+  def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
     coll.map(aToBConverter.apply)
   }
 
@@ -116,7 +116,7 @@ object CactusMacros {
 
         val query = TermName(s"has$upper")
 
-        val value = processEndType(c)(fieldName, returnType, gpbType)(q"$gpb.$query", q"$gpb.$gpbGetter")
+        val value = processEndType(c)(fieldName, returnType, gpbType)(q"$gpb.$query", q"$gpb.$gpbGetter", gpbGetter)
 
         c.Expr(q"$fieldName = $value")
       }
@@ -127,7 +127,7 @@ object CactusMacros {
 
     private def processEndType(c: whitebox.Context)
                               (name: c.universe.TermName, returnType: c.universe.Type, gpbType: c.universe.Type)
-                              (query: c.universe.Tree, getter: c.universe.Tree): c.Tree = {
+                              (query: c.universe.Tree, getter: c.universe.Tree, gpbGetterMethod: c.universe.MethodSymbol): c.Tree = {
       import c.universe._
 
       val typeSymbol = returnType.typeSymbol
@@ -137,7 +137,7 @@ object CactusMacros {
         case OptPattern(t) => // Option[T]
           val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          q"(CactusMacros.tryToOption(Try(${processEndType(c)(name, typeArg, gpbType)(query, getter)})))"
+          q"(CactusMacros.tryToOption(Try(${processEndType(c)(name, typeArg, gpbType)(query, getter, gpbGetterMethod)})))"
 
         case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
 
@@ -154,11 +154,19 @@ object CactusMacros {
             case _ => "toVector"
           })
 
-          // collections don't have the "has" method, test size instead
+          // collections don't have the "has" method, test if empty instead
           q" if (!$getter.isEmpty) CactusMacros.CollAToCollB($getter.asScala.$toSeq) else throw CactusException(MissingFieldFailure(${name.toString})) "
 
         case t => // plain type
-          q" if ($query) $getter else throw CactusException(MissingFieldFailure(${name.toString})) "
+
+          val srcType = gpbGetterMethod.returnType.resultType.typeSymbol
+          val dstType = returnType.resultType.typeSymbol
+
+          val value = if (srcType != dstType) {
+            q" CactusMacros.AToB[$srcType, $dstType]($getter) "
+          } else q" $getter "
+
+          q" if ($query) $value else throw CactusException(MissingFieldFailure(${name.toString})) "
       }
     }
   }
