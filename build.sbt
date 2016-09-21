@@ -10,13 +10,12 @@ lazy val commonSettings = Seq(
 
   organization := "com.avast",
   name := "cactus",
-  version := sys.env.getOrElse("TRAVIS_TAG", "0.1"),
+  version := sys.env.getOrElse("TRAVIS_TAG", "0.1-SNAPSHOT"),
   description := "Library for conversion between GPB and Scala case classes",
 
   licenses ++= Seq("Apache-2.0" -> url(s"https://github.com/avast/${name.value}/blob/${version.value}/LICENSE")),
   publishArtifact in Test := false,
-  publishMavenStyle := true,
-  publishTo in ThisBuild := Some(Resolver.file("file", new File("target/release"))),
+  bintrayOrganization := Some("avast"),
   pomExtra := (
     <scm>
       <url>git@github.com:avast/{name.value}.git</url>
@@ -39,6 +38,9 @@ lazy val macroSettings = Seq(
     "org.scalatest" %% "scalatest" % "3.0.0" % "test"
   )
 )
+
+lazy val root = Project(id = "rootProject",
+  base = file(".")) settings (publish := { }) aggregate macros
 
 lazy val macros = Project(
   id = "macros",
