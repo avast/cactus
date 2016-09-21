@@ -10,7 +10,7 @@ lazy val commonSettings = Seq(
 
   organization := "com.avast",
   name := "cactus",
-  version := Option(System.getProperty("project.version")).getOrElse("0.1"),
+  version := sys.env.getOrElse("TRAVIS_TAG", "0.1"),
   description := "Library for conversion between GPB and Scala case classes",
 
   licenses ++= Seq("Apache-2.0" -> url(s"https://github.com/avast/${name.value}/blob/${version.value}/LICENSE")),
