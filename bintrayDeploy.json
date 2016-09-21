@@ -9,13 +9,13 @@
     "github_use_tag_release_notes": false,
     "licenses": ["Apache-2.0"],
     "labels": ["scala","gpb"],
-    "public_download_numbers": false,
-    "public_stats": false
+    "public_download_numbers": true,
+    "public_stats": true
   },
 
   "version": {
     "name": "VERSION",
-    "desc": "vVERSION",
+    "desc": "Release vVERSION",
     "released": "DATE",
     "vcs_tag": "VERSION",
     "gpgSign": false
@@ -23,7 +23,7 @@
 
   "files":
   [
-    {"includePattern": "target/release/com/avast/cactus_2.11/0.1/(.*\\.(jar|pom|xml))", "uploadPattern": "$1"}
+    {"includePattern": "target/release/com/avast/cactus_2.11/0.1/(.*\\.(jar|pom|xml)(\\.(md5|sha1))?)", "uploadPattern": "$1"}
   ],
   "publish": true
 }
