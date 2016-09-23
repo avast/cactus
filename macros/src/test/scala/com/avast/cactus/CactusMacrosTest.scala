@@ -46,6 +46,7 @@ class CactusMacrosTest extends FunSuite {
       .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
 
+    // fields commented out are REQUIRED
     val gpb = TestMessage.Data.newBuilder()
       //      .setField("ahoj")
       //      .setFieldIntName(9)
@@ -57,9 +58,6 @@ class CactusMacrosTest extends FunSuite {
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .build()
-
-    //    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(Vector(3, 6)), None)
-    //    assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
 
     val expected = List("field", "fieldIntName", "fieldStrings").map(MissingFieldFailure).sortBy(_.toString)
 
@@ -114,9 +112,9 @@ case class CaseClassA(field: String,
                       fieldGpb: CaseClassB,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
-                      fieldStringsList: immutable.Seq[String],
-                      fieldOptionIntegersList: Option[Vector[Int]],
-                      fieldOptionIntegersEmptyList: Option[List[Int]])
+                      fieldStrings: immutable.Seq[String],
+                      fieldOptionIntegers: Option[Vector[Int]],
+                      fieldOptionIntegersEmpty: Option[List[Int]])
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
@@ -131,6 +129,6 @@ case class CaseClassC(field: String,
                       fieldGpb: CaseClassB,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
-                      fieldStringsList: Seq[String],
-                      fieldOptionIntegersList: Option[Seq[Int]],
-                      fieldOptionIntegersEmptyList: Option[Seq[Int]])
+                      fieldStrings: Seq[String],
+                      fieldOptionIntegers: Option[Seq[Int]],
+                      fieldOptionIntegersEmpty: Option[Seq[Int]])

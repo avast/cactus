@@ -117,8 +117,6 @@ object CactusMacros {
 
         val query = TermName(s"has$upper")
 
-        println(nameInGpb)
-
         val value = processEndType(c)(fieldName, nameInGpb, returnType, gpbType)(q"$gpb.$query", q"$gpb.$gpbGetter", gpbGetter)
 
         c.Expr(q"val $fieldName: $returnType Or Every[CactusFailure] = { $value }")
@@ -161,7 +159,7 @@ object CactusMacros {
             case m: MethodSymbol if m.name.toString == getter.toString().split("\\.").reverse.head => m.returnType
           }.getOrElse(c.abort(c.enclosingPosition, "Could not determine internal GPB type"))
 
-          q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure(${nameInGpb}))) "
+          q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure($nameInGpb))) "
 
         case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
 
@@ -171,7 +169,7 @@ object CactusMacros {
           })
 
           // collections don't have the "has" method, test if empty instead
-          q" if (!$getter.isEmpty) Good(CactusMacros.CollAToCollB($getter.asScala.$toFinalCollection)) else Bad(One(MissingFieldFailure(${nameInGpb}))) "
+          q" if (!$getter.isEmpty) Good(CactusMacros.CollAToCollB($getter.asScala.$toFinalCollection)) else Bad(One(MissingFieldFailure($nameInGpb))) "
 
         case t => // plain type
 
@@ -182,7 +180,7 @@ object CactusMacros {
             q" CactusMacros.AToB[$srcType, $dstType]($getter) "
           } else q" $getter "
 
-          q" if ($query) Good($value) else Bad(One(MissingFieldFailure(${nameInGpb}))) "
+          q" if ($query) Good($value) else Bad(One(MissingFieldFailure($nameInGpb))) "
       }
     }
   }

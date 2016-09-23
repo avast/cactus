@@ -108,7 +108,7 @@ public final class TestMessage {
         getFieldStringsBytes(int index);
 
     /**
-     * <code>repeated string field_strings_name = 11;</code>
+     * <code>repeated string field_strings_name = 5;</code>
      *
      * <pre>
      * REQUIRED
@@ -117,7 +117,7 @@ public final class TestMessage {
     com.google.protobuf.ProtocolStringList
         getFieldStringsNameList();
     /**
-     * <code>repeated string field_strings_name = 11;</code>
+     * <code>repeated string field_strings_name = 5;</code>
      *
      * <pre>
      * REQUIRED
@@ -125,7 +125,7 @@ public final class TestMessage {
      */
     int getFieldStringsNameCount();
     /**
-     * <code>repeated string field_strings_name = 11;</code>
+     * <code>repeated string field_strings_name = 5;</code>
      *
      * <pre>
      * REQUIRED
@@ -133,7 +133,7 @@ public final class TestMessage {
      */
     java.lang.String getFieldStringsName(int index);
     /**
-     * <code>repeated string field_strings_name = 11;</code>
+     * <code>repeated string field_strings_name = 5;</code>
      *
      * <pre>
      * REQUIRED
@@ -143,7 +143,7 @@ public final class TestMessage {
         getFieldStringsNameBytes(int index);
 
     /**
-     * <code>repeated int32 field_option_integers = 5;</code>
+     * <code>repeated int32 field_option_integers = 6;</code>
      *
      * <pre>
      * OPTIONAL
@@ -151,7 +151,7 @@ public final class TestMessage {
      */
     java.util.List<java.lang.Integer> getFieldOptionIntegersList();
     /**
-     * <code>repeated int32 field_option_integers = 5;</code>
+     * <code>repeated int32 field_option_integers = 6;</code>
      *
      * <pre>
      * OPTIONAL
@@ -159,7 +159,7 @@ public final class TestMessage {
      */
     int getFieldOptionIntegersCount();
     /**
-     * <code>repeated int32 field_option_integers = 5;</code>
+     * <code>repeated int32 field_option_integers = 6;</code>
      *
      * <pre>
      * OPTIONAL
@@ -168,7 +168,7 @@ public final class TestMessage {
     int getFieldOptionIntegers(int index);
 
     /**
-     * <code>repeated int32 field_option_integers_empty = 6;</code>
+     * <code>repeated int32 field_option_integers_empty = 7;</code>
      *
      * <pre>
      * OPTIONAL
@@ -176,7 +176,7 @@ public final class TestMessage {
      */
     java.util.List<java.lang.Integer> getFieldOptionIntegersEmptyList();
     /**
-     * <code>repeated int32 field_option_integers_empty = 6;</code>
+     * <code>repeated int32 field_option_integers_empty = 7;</code>
      *
      * <pre>
      * OPTIONAL
@@ -184,7 +184,7 @@ public final class TestMessage {
      */
     int getFieldOptionIntegersEmptyCount();
     /**
-     * <code>repeated int32 field_option_integers_empty = 6;</code>
+     * <code>repeated int32 field_option_integers_empty = 7;</code>
      *
      * <pre>
      * OPTIONAL
@@ -193,7 +193,7 @@ public final class TestMessage {
     int getFieldOptionIntegersEmpty(int index);
 
     /**
-     * <code>optional .Data2 field_gpb_option = 7;</code>
+     * <code>optional .Data2 field_gpb_option = 8;</code>
      *
      * <pre>
      * OPTIONAL
@@ -201,7 +201,7 @@ public final class TestMessage {
      */
     boolean hasFieldGpbOption();
     /**
-     * <code>optional .Data2 field_gpb_option = 7;</code>
+     * <code>optional .Data2 field_gpb_option = 8;</code>
      *
      * <pre>
      * OPTIONAL
@@ -209,7 +209,7 @@ public final class TestMessage {
      */
     com.avast.cactus.TestMessage.Data2 getFieldGpbOption();
     /**
-     * <code>optional .Data2 field_gpb_option = 7;</code>
+     * <code>optional .Data2 field_gpb_option = 8;</code>
      *
      * <pre>
      * OPTIONAL
@@ -218,7 +218,7 @@ public final class TestMessage {
     com.avast.cactus.TestMessage.Data2OrBuilder getFieldGpbOptionOrBuilder();
 
     /**
-     * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+     * <code>optional .Data2 field_gpb_option_empty = 9;</code>
      *
      * <pre>
      * OPTIONAL
@@ -226,7 +226,7 @@ public final class TestMessage {
      */
     boolean hasFieldGpbOptionEmpty();
     /**
-     * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+     * <code>optional .Data2 field_gpb_option_empty = 9;</code>
      *
      * <pre>
      * OPTIONAL
@@ -234,7 +234,7 @@ public final class TestMessage {
      */
     com.avast.cactus.TestMessage.Data2 getFieldGpbOptionEmpty();
     /**
-     * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+     * <code>optional .Data2 field_gpb_option_empty = 9;</code>
      *
      * <pre>
      * OPTIONAL
@@ -243,7 +243,7 @@ public final class TestMessage {
     com.avast.cactus.TestMessage.Data2OrBuilder getFieldGpbOptionEmptyOrBuilder();
 
     /**
-     * <code>optional .Data2 field_gpb = 9;</code>
+     * <code>optional .Data2 field_gpb = 10;</code>
      *
      * <pre>
      * REQUIRED
@@ -251,7 +251,7 @@ public final class TestMessage {
      */
     boolean hasFieldGpb();
     /**
-     * <code>optional .Data2 field_gpb = 9;</code>
+     * <code>optional .Data2 field_gpb = 10;</code>
      *
      * <pre>
      * REQUIRED
@@ -259,7 +259,7 @@ public final class TestMessage {
      */
     com.avast.cactus.TestMessage.Data2 getFieldGpb();
     /**
-     * <code>optional .Data2 field_gpb = 9;</code>
+     * <code>optional .Data2 field_gpb = 10;</code>
      *
      * <pre>
      * REQUIRED
@@ -268,7 +268,7 @@ public final class TestMessage {
     com.avast.cactus.TestMessage.Data2OrBuilder getFieldGpbOrBuilder();
 
     /**
-     * <code>optional bytes field_blob = 10;</code>
+     * <code>optional bytes field_blob = 11;</code>
      *
      * <pre>
      * REQUIRED
@@ -276,7 +276,7 @@ public final class TestMessage {
      */
     boolean hasFieldBlob();
     /**
-     * <code>optional bytes field_blob = 10;</code>
+     * <code>optional bytes field_blob = 11;</code>
      *
      * <pre>
      * REQUIRED
@@ -361,7 +361,16 @@ public final class TestMessage {
               fieldStrings_.add(bs);
               break;
             }
-            case 40: {
+            case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                fieldStringsName_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              fieldStringsName_.add(bs);
+              break;
+            }
+            case 48: {
               if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
                 fieldOptionIntegers_ = new java.util.ArrayList<java.lang.Integer>();
                 mutable_bitField0_ |= 0x00000020;
@@ -369,7 +378,7 @@ public final class TestMessage {
               fieldOptionIntegers_.add(input.readInt32());
               break;
             }
-            case 42: {
+            case 50: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
               if (!((mutable_bitField0_ & 0x00000020) == 0x00000020) && input.getBytesUntilLimit() > 0) {
@@ -382,7 +391,7 @@ public final class TestMessage {
               input.popLimit(limit);
               break;
             }
-            case 48: {
+            case 56: {
               if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
                 fieldOptionIntegersEmpty_ = new java.util.ArrayList<java.lang.Integer>();
                 mutable_bitField0_ |= 0x00000040;
@@ -390,7 +399,7 @@ public final class TestMessage {
               fieldOptionIntegersEmpty_.add(input.readInt32());
               break;
             }
-            case 50: {
+            case 58: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
               if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
@@ -403,7 +412,7 @@ public final class TestMessage {
               input.popLimit(limit);
               break;
             }
-            case 58: {
+            case 66: {
               com.avast.cactus.TestMessage.Data2.Builder subBuilder = null;
               if (((bitField0_ & 0x00000008) == 0x00000008)) {
                 subBuilder = fieldGpbOption_.toBuilder();
@@ -416,7 +425,7 @@ public final class TestMessage {
               bitField0_ |= 0x00000008;
               break;
             }
-            case 66: {
+            case 74: {
               com.avast.cactus.TestMessage.Data2.Builder subBuilder = null;
               if (((bitField0_ & 0x00000010) == 0x00000010)) {
                 subBuilder = fieldGpbOptionEmpty_.toBuilder();
@@ -429,7 +438,7 @@ public final class TestMessage {
               bitField0_ |= 0x00000010;
               break;
             }
-            case 74: {
+            case 82: {
               com.avast.cactus.TestMessage.Data2.Builder subBuilder = null;
               if (((bitField0_ & 0x00000020) == 0x00000020)) {
                 subBuilder = fieldGpb_.toBuilder();
@@ -442,18 +451,9 @@ public final class TestMessage {
               bitField0_ |= 0x00000020;
               break;
             }
-            case 82: {
+            case 90: {
               bitField0_ |= 0x00000040;
               fieldBlob_ = input.readBytes();
-              break;
-            }
-            case 90: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-                fieldStringsName_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000010;
-              }
-              fieldStringsName_.add(bs);
               break;
             }
           }
@@ -467,14 +467,14 @@ public final class TestMessage {
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           fieldStrings_ = fieldStrings_.getUnmodifiableView();
         }
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          fieldStringsName_ = fieldStringsName_.getUnmodifiableView();
+        }
         if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
           fieldOptionIntegers_ = java.util.Collections.unmodifiableList(fieldOptionIntegers_);
         }
         if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           fieldOptionIntegersEmpty_ = java.util.Collections.unmodifiableList(fieldOptionIntegersEmpty_);
-        }
-        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-          fieldStringsName_ = fieldStringsName_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -653,10 +653,10 @@ public final class TestMessage {
       return fieldStrings_.getByteString(index);
     }
 
-    public static final int FIELD_STRINGS_NAME_FIELD_NUMBER = 11;
+    public static final int FIELD_STRINGS_NAME_FIELD_NUMBER = 5;
     private com.google.protobuf.LazyStringList fieldStringsName_;
     /**
-     * <code>repeated string field_strings_name = 11;</code>
+     * <code>repeated string field_strings_name = 5;</code>
      *
      * <pre>
      * REQUIRED
@@ -667,7 +667,7 @@ public final class TestMessage {
       return fieldStringsName_;
     }
     /**
-     * <code>repeated string field_strings_name = 11;</code>
+     * <code>repeated string field_strings_name = 5;</code>
      *
      * <pre>
      * REQUIRED
@@ -677,7 +677,7 @@ public final class TestMessage {
       return fieldStringsName_.size();
     }
     /**
-     * <code>repeated string field_strings_name = 11;</code>
+     * <code>repeated string field_strings_name = 5;</code>
      *
      * <pre>
      * REQUIRED
@@ -687,7 +687,7 @@ public final class TestMessage {
       return fieldStringsName_.get(index);
     }
     /**
-     * <code>repeated string field_strings_name = 11;</code>
+     * <code>repeated string field_strings_name = 5;</code>
      *
      * <pre>
      * REQUIRED
@@ -698,10 +698,10 @@ public final class TestMessage {
       return fieldStringsName_.getByteString(index);
     }
 
-    public static final int FIELD_OPTION_INTEGERS_FIELD_NUMBER = 5;
+    public static final int FIELD_OPTION_INTEGERS_FIELD_NUMBER = 6;
     private java.util.List<java.lang.Integer> fieldOptionIntegers_;
     /**
-     * <code>repeated int32 field_option_integers = 5;</code>
+     * <code>repeated int32 field_option_integers = 6;</code>
      *
      * <pre>
      * OPTIONAL
@@ -712,7 +712,7 @@ public final class TestMessage {
       return fieldOptionIntegers_;
     }
     /**
-     * <code>repeated int32 field_option_integers = 5;</code>
+     * <code>repeated int32 field_option_integers = 6;</code>
      *
      * <pre>
      * OPTIONAL
@@ -722,7 +722,7 @@ public final class TestMessage {
       return fieldOptionIntegers_.size();
     }
     /**
-     * <code>repeated int32 field_option_integers = 5;</code>
+     * <code>repeated int32 field_option_integers = 6;</code>
      *
      * <pre>
      * OPTIONAL
@@ -732,10 +732,10 @@ public final class TestMessage {
       return fieldOptionIntegers_.get(index);
     }
 
-    public static final int FIELD_OPTION_INTEGERS_EMPTY_FIELD_NUMBER = 6;
+    public static final int FIELD_OPTION_INTEGERS_EMPTY_FIELD_NUMBER = 7;
     private java.util.List<java.lang.Integer> fieldOptionIntegersEmpty_;
     /**
-     * <code>repeated int32 field_option_integers_empty = 6;</code>
+     * <code>repeated int32 field_option_integers_empty = 7;</code>
      *
      * <pre>
      * OPTIONAL
@@ -746,7 +746,7 @@ public final class TestMessage {
       return fieldOptionIntegersEmpty_;
     }
     /**
-     * <code>repeated int32 field_option_integers_empty = 6;</code>
+     * <code>repeated int32 field_option_integers_empty = 7;</code>
      *
      * <pre>
      * OPTIONAL
@@ -756,7 +756,7 @@ public final class TestMessage {
       return fieldOptionIntegersEmpty_.size();
     }
     /**
-     * <code>repeated int32 field_option_integers_empty = 6;</code>
+     * <code>repeated int32 field_option_integers_empty = 7;</code>
      *
      * <pre>
      * OPTIONAL
@@ -766,10 +766,10 @@ public final class TestMessage {
       return fieldOptionIntegersEmpty_.get(index);
     }
 
-    public static final int FIELD_GPB_OPTION_FIELD_NUMBER = 7;
+    public static final int FIELD_GPB_OPTION_FIELD_NUMBER = 8;
     private com.avast.cactus.TestMessage.Data2 fieldGpbOption_;
     /**
-     * <code>optional .Data2 field_gpb_option = 7;</code>
+     * <code>optional .Data2 field_gpb_option = 8;</code>
      *
      * <pre>
      * OPTIONAL
@@ -779,7 +779,7 @@ public final class TestMessage {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional .Data2 field_gpb_option = 7;</code>
+     * <code>optional .Data2 field_gpb_option = 8;</code>
      *
      * <pre>
      * OPTIONAL
@@ -789,7 +789,7 @@ public final class TestMessage {
       return fieldGpbOption_;
     }
     /**
-     * <code>optional .Data2 field_gpb_option = 7;</code>
+     * <code>optional .Data2 field_gpb_option = 8;</code>
      *
      * <pre>
      * OPTIONAL
@@ -799,10 +799,10 @@ public final class TestMessage {
       return fieldGpbOption_;
     }
 
-    public static final int FIELD_GPB_OPTION_EMPTY_FIELD_NUMBER = 8;
+    public static final int FIELD_GPB_OPTION_EMPTY_FIELD_NUMBER = 9;
     private com.avast.cactus.TestMessage.Data2 fieldGpbOptionEmpty_;
     /**
-     * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+     * <code>optional .Data2 field_gpb_option_empty = 9;</code>
      *
      * <pre>
      * OPTIONAL
@@ -812,7 +812,7 @@ public final class TestMessage {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+     * <code>optional .Data2 field_gpb_option_empty = 9;</code>
      *
      * <pre>
      * OPTIONAL
@@ -822,7 +822,7 @@ public final class TestMessage {
       return fieldGpbOptionEmpty_;
     }
     /**
-     * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+     * <code>optional .Data2 field_gpb_option_empty = 9;</code>
      *
      * <pre>
      * OPTIONAL
@@ -832,10 +832,10 @@ public final class TestMessage {
       return fieldGpbOptionEmpty_;
     }
 
-    public static final int FIELD_GPB_FIELD_NUMBER = 9;
+    public static final int FIELD_GPB_FIELD_NUMBER = 10;
     private com.avast.cactus.TestMessage.Data2 fieldGpb_;
     /**
-     * <code>optional .Data2 field_gpb = 9;</code>
+     * <code>optional .Data2 field_gpb = 10;</code>
      *
      * <pre>
      * REQUIRED
@@ -845,7 +845,7 @@ public final class TestMessage {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
-     * <code>optional .Data2 field_gpb = 9;</code>
+     * <code>optional .Data2 field_gpb = 10;</code>
      *
      * <pre>
      * REQUIRED
@@ -855,7 +855,7 @@ public final class TestMessage {
       return fieldGpb_;
     }
     /**
-     * <code>optional .Data2 field_gpb = 9;</code>
+     * <code>optional .Data2 field_gpb = 10;</code>
      *
      * <pre>
      * REQUIRED
@@ -865,10 +865,10 @@ public final class TestMessage {
       return fieldGpb_;
     }
 
-    public static final int FIELD_BLOB_FIELD_NUMBER = 10;
+    public static final int FIELD_BLOB_FIELD_NUMBER = 11;
     private com.google.protobuf.ByteString fieldBlob_;
     /**
-     * <code>optional bytes field_blob = 10;</code>
+     * <code>optional bytes field_blob = 11;</code>
      *
      * <pre>
      * REQUIRED
@@ -878,7 +878,7 @@ public final class TestMessage {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional bytes field_blob = 10;</code>
+     * <code>optional bytes field_blob = 11;</code>
      *
      * <pre>
      * REQUIRED
@@ -926,26 +926,26 @@ public final class TestMessage {
       for (int i = 0; i < fieldStrings_.size(); i++) {
         output.writeBytes(4, fieldStrings_.getByteString(i));
       }
+      for (int i = 0; i < fieldStringsName_.size(); i++) {
+        output.writeBytes(5, fieldStringsName_.getByteString(i));
+      }
       for (int i = 0; i < fieldOptionIntegers_.size(); i++) {
-        output.writeInt32(5, fieldOptionIntegers_.get(i));
+        output.writeInt32(6, fieldOptionIntegers_.get(i));
       }
       for (int i = 0; i < fieldOptionIntegersEmpty_.size(); i++) {
-        output.writeInt32(6, fieldOptionIntegersEmpty_.get(i));
+        output.writeInt32(7, fieldOptionIntegersEmpty_.get(i));
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeMessage(7, fieldGpbOption_);
+        output.writeMessage(8, fieldGpbOption_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeMessage(8, fieldGpbOptionEmpty_);
+        output.writeMessage(9, fieldGpbOptionEmpty_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeMessage(9, fieldGpb_);
+        output.writeMessage(10, fieldGpb_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBytes(10, fieldBlob_);
-      }
-      for (int i = 0; i < fieldStringsName_.size(); i++) {
-        output.writeBytes(11, fieldStringsName_.getByteString(i));
+        output.writeBytes(11, fieldBlob_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -979,6 +979,15 @@ public final class TestMessage {
       }
       {
         int dataSize = 0;
+        for (int i = 0; i < fieldStringsName_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeBytesSizeNoTag(fieldStringsName_.getByteString(i));
+        }
+        size += dataSize;
+        size += 1 * getFieldStringsNameList().size();
+      }
+      {
+        int dataSize = 0;
         for (int i = 0; i < fieldOptionIntegers_.size(); i++) {
           dataSize += com.google.protobuf.CodedOutputStream
             .computeInt32SizeNoTag(fieldOptionIntegers_.get(i));
@@ -997,28 +1006,19 @@ public final class TestMessage {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(7, fieldGpbOption_);
+          .computeMessageSize(8, fieldGpbOption_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(8, fieldGpbOptionEmpty_);
+          .computeMessageSize(9, fieldGpbOptionEmpty_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(9, fieldGpb_);
+          .computeMessageSize(10, fieldGpb_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(10, fieldBlob_);
-      }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < fieldStringsName_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(fieldStringsName_.getByteString(i));
-        }
-        size += dataSize;
-        size += 1 * getFieldStringsNameList().size();
+          .computeBytesSize(11, fieldBlob_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1701,7 +1701,7 @@ public final class TestMessage {
          }
       }
       /**
-       * <code>repeated string field_strings_name = 11;</code>
+       * <code>repeated string field_strings_name = 5;</code>
        *
        * <pre>
        * REQUIRED
@@ -1712,7 +1712,7 @@ public final class TestMessage {
         return fieldStringsName_.getUnmodifiableView();
       }
       /**
-       * <code>repeated string field_strings_name = 11;</code>
+       * <code>repeated string field_strings_name = 5;</code>
        *
        * <pre>
        * REQUIRED
@@ -1722,7 +1722,7 @@ public final class TestMessage {
         return fieldStringsName_.size();
       }
       /**
-       * <code>repeated string field_strings_name = 11;</code>
+       * <code>repeated string field_strings_name = 5;</code>
        *
        * <pre>
        * REQUIRED
@@ -1732,7 +1732,7 @@ public final class TestMessage {
         return fieldStringsName_.get(index);
       }
       /**
-       * <code>repeated string field_strings_name = 11;</code>
+       * <code>repeated string field_strings_name = 5;</code>
        *
        * <pre>
        * REQUIRED
@@ -1743,7 +1743,7 @@ public final class TestMessage {
         return fieldStringsName_.getByteString(index);
       }
       /**
-       * <code>repeated string field_strings_name = 11;</code>
+       * <code>repeated string field_strings_name = 5;</code>
        *
        * <pre>
        * REQUIRED
@@ -1760,7 +1760,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated string field_strings_name = 11;</code>
+       * <code>repeated string field_strings_name = 5;</code>
        *
        * <pre>
        * REQUIRED
@@ -1777,7 +1777,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated string field_strings_name = 11;</code>
+       * <code>repeated string field_strings_name = 5;</code>
        *
        * <pre>
        * REQUIRED
@@ -1792,7 +1792,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated string field_strings_name = 11;</code>
+       * <code>repeated string field_strings_name = 5;</code>
        *
        * <pre>
        * REQUIRED
@@ -1805,7 +1805,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated string field_strings_name = 11;</code>
+       * <code>repeated string field_strings_name = 5;</code>
        *
        * <pre>
        * REQUIRED
@@ -1830,7 +1830,7 @@ public final class TestMessage {
          }
       }
       /**
-       * <code>repeated int32 field_option_integers = 5;</code>
+       * <code>repeated int32 field_option_integers = 6;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1841,7 +1841,7 @@ public final class TestMessage {
         return java.util.Collections.unmodifiableList(fieldOptionIntegers_);
       }
       /**
-       * <code>repeated int32 field_option_integers = 5;</code>
+       * <code>repeated int32 field_option_integers = 6;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1851,7 +1851,7 @@ public final class TestMessage {
         return fieldOptionIntegers_.size();
       }
       /**
-       * <code>repeated int32 field_option_integers = 5;</code>
+       * <code>repeated int32 field_option_integers = 6;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1861,7 +1861,7 @@ public final class TestMessage {
         return fieldOptionIntegers_.get(index);
       }
       /**
-       * <code>repeated int32 field_option_integers = 5;</code>
+       * <code>repeated int32 field_option_integers = 6;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1875,7 +1875,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated int32 field_option_integers = 5;</code>
+       * <code>repeated int32 field_option_integers = 6;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1888,7 +1888,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated int32 field_option_integers = 5;</code>
+       * <code>repeated int32 field_option_integers = 6;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1903,7 +1903,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated int32 field_option_integers = 5;</code>
+       * <code>repeated int32 field_option_integers = 6;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1924,7 +1924,7 @@ public final class TestMessage {
          }
       }
       /**
-       * <code>repeated int32 field_option_integers_empty = 6;</code>
+       * <code>repeated int32 field_option_integers_empty = 7;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1935,7 +1935,7 @@ public final class TestMessage {
         return java.util.Collections.unmodifiableList(fieldOptionIntegersEmpty_);
       }
       /**
-       * <code>repeated int32 field_option_integers_empty = 6;</code>
+       * <code>repeated int32 field_option_integers_empty = 7;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1945,7 +1945,7 @@ public final class TestMessage {
         return fieldOptionIntegersEmpty_.size();
       }
       /**
-       * <code>repeated int32 field_option_integers_empty = 6;</code>
+       * <code>repeated int32 field_option_integers_empty = 7;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1955,7 +1955,7 @@ public final class TestMessage {
         return fieldOptionIntegersEmpty_.get(index);
       }
       /**
-       * <code>repeated int32 field_option_integers_empty = 6;</code>
+       * <code>repeated int32 field_option_integers_empty = 7;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1969,7 +1969,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated int32 field_option_integers_empty = 6;</code>
+       * <code>repeated int32 field_option_integers_empty = 7;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1982,7 +1982,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated int32 field_option_integers_empty = 6;</code>
+       * <code>repeated int32 field_option_integers_empty = 7;</code>
        *
        * <pre>
        * OPTIONAL
@@ -1997,7 +1997,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>repeated int32 field_option_integers_empty = 6;</code>
+       * <code>repeated int32 field_option_integers_empty = 7;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2014,7 +2014,7 @@ public final class TestMessage {
       private com.google.protobuf.SingleFieldBuilder<
           com.avast.cactus.TestMessage.Data2, com.avast.cactus.TestMessage.Data2.Builder, com.avast.cactus.TestMessage.Data2OrBuilder> fieldGpbOptionBuilder_;
       /**
-       * <code>optional .Data2 field_gpb_option = 7;</code>
+       * <code>optional .Data2 field_gpb_option = 8;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2024,7 +2024,7 @@ public final class TestMessage {
         return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
-       * <code>optional .Data2 field_gpb_option = 7;</code>
+       * <code>optional .Data2 field_gpb_option = 8;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2038,7 +2038,7 @@ public final class TestMessage {
         }
       }
       /**
-       * <code>optional .Data2 field_gpb_option = 7;</code>
+       * <code>optional .Data2 field_gpb_option = 8;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2058,7 +2058,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb_option = 7;</code>
+       * <code>optional .Data2 field_gpb_option = 8;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2076,7 +2076,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb_option = 7;</code>
+       * <code>optional .Data2 field_gpb_option = 8;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2099,7 +2099,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb_option = 7;</code>
+       * <code>optional .Data2 field_gpb_option = 8;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2116,7 +2116,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb_option = 7;</code>
+       * <code>optional .Data2 field_gpb_option = 8;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2128,7 +2128,7 @@ public final class TestMessage {
         return getFieldGpbOptionFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .Data2 field_gpb_option = 7;</code>
+       * <code>optional .Data2 field_gpb_option = 8;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2142,7 +2142,7 @@ public final class TestMessage {
         }
       }
       /**
-       * <code>optional .Data2 field_gpb_option = 7;</code>
+       * <code>optional .Data2 field_gpb_option = 8;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2166,7 +2166,7 @@ public final class TestMessage {
       private com.google.protobuf.SingleFieldBuilder<
           com.avast.cactus.TestMessage.Data2, com.avast.cactus.TestMessage.Data2.Builder, com.avast.cactus.TestMessage.Data2OrBuilder> fieldGpbOptionEmptyBuilder_;
       /**
-       * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+       * <code>optional .Data2 field_gpb_option_empty = 9;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2176,7 +2176,7 @@ public final class TestMessage {
         return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
-       * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+       * <code>optional .Data2 field_gpb_option_empty = 9;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2190,7 +2190,7 @@ public final class TestMessage {
         }
       }
       /**
-       * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+       * <code>optional .Data2 field_gpb_option_empty = 9;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2210,7 +2210,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+       * <code>optional .Data2 field_gpb_option_empty = 9;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2228,7 +2228,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+       * <code>optional .Data2 field_gpb_option_empty = 9;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2251,7 +2251,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+       * <code>optional .Data2 field_gpb_option_empty = 9;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2268,7 +2268,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+       * <code>optional .Data2 field_gpb_option_empty = 9;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2280,7 +2280,7 @@ public final class TestMessage {
         return getFieldGpbOptionEmptyFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+       * <code>optional .Data2 field_gpb_option_empty = 9;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2294,7 +2294,7 @@ public final class TestMessage {
         }
       }
       /**
-       * <code>optional .Data2 field_gpb_option_empty = 8;</code>
+       * <code>optional .Data2 field_gpb_option_empty = 9;</code>
        *
        * <pre>
        * OPTIONAL
@@ -2318,7 +2318,7 @@ public final class TestMessage {
       private com.google.protobuf.SingleFieldBuilder<
           com.avast.cactus.TestMessage.Data2, com.avast.cactus.TestMessage.Data2.Builder, com.avast.cactus.TestMessage.Data2OrBuilder> fieldGpbBuilder_;
       /**
-       * <code>optional .Data2 field_gpb = 9;</code>
+       * <code>optional .Data2 field_gpb = 10;</code>
        *
        * <pre>
        * REQUIRED
@@ -2328,7 +2328,7 @@ public final class TestMessage {
         return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
-       * <code>optional .Data2 field_gpb = 9;</code>
+       * <code>optional .Data2 field_gpb = 10;</code>
        *
        * <pre>
        * REQUIRED
@@ -2342,7 +2342,7 @@ public final class TestMessage {
         }
       }
       /**
-       * <code>optional .Data2 field_gpb = 9;</code>
+       * <code>optional .Data2 field_gpb = 10;</code>
        *
        * <pre>
        * REQUIRED
@@ -2362,7 +2362,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb = 9;</code>
+       * <code>optional .Data2 field_gpb = 10;</code>
        *
        * <pre>
        * REQUIRED
@@ -2380,7 +2380,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb = 9;</code>
+       * <code>optional .Data2 field_gpb = 10;</code>
        *
        * <pre>
        * REQUIRED
@@ -2403,7 +2403,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb = 9;</code>
+       * <code>optional .Data2 field_gpb = 10;</code>
        *
        * <pre>
        * REQUIRED
@@ -2420,7 +2420,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional .Data2 field_gpb = 9;</code>
+       * <code>optional .Data2 field_gpb = 10;</code>
        *
        * <pre>
        * REQUIRED
@@ -2432,7 +2432,7 @@ public final class TestMessage {
         return getFieldGpbFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .Data2 field_gpb = 9;</code>
+       * <code>optional .Data2 field_gpb = 10;</code>
        *
        * <pre>
        * REQUIRED
@@ -2446,7 +2446,7 @@ public final class TestMessage {
         }
       }
       /**
-       * <code>optional .Data2 field_gpb = 9;</code>
+       * <code>optional .Data2 field_gpb = 10;</code>
        *
        * <pre>
        * REQUIRED
@@ -2468,7 +2468,7 @@ public final class TestMessage {
 
       private com.google.protobuf.ByteString fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>optional bytes field_blob = 10;</code>
+       * <code>optional bytes field_blob = 11;</code>
        *
        * <pre>
        * REQUIRED
@@ -2478,7 +2478,7 @@ public final class TestMessage {
         return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
-       * <code>optional bytes field_blob = 10;</code>
+       * <code>optional bytes field_blob = 11;</code>
        *
        * <pre>
        * REQUIRED
@@ -2488,7 +2488,7 @@ public final class TestMessage {
         return fieldBlob_;
       }
       /**
-       * <code>optional bytes field_blob = 10;</code>
+       * <code>optional bytes field_blob = 11;</code>
        *
        * <pre>
        * REQUIRED
@@ -2504,7 +2504,7 @@ public final class TestMessage {
         return this;
       }
       /**
-       * <code>optional bytes field_blob = 10;</code>
+       * <code>optional bytes field_blob = 11;</code>
        *
        * <pre>
        * REQUIRED
@@ -3092,12 +3092,12 @@ public final class TestMessage {
       "\n\022test_message.proto\"\263\002\n\004Data\022\r\n\005field\030\001" +
       " \001(\t\022\026\n\016field_int_name\030\002 \001(\005\022\024\n\014field_op" +
       "tion\030\003 \001(\005\022\025\n\rfield_strings\030\004 \003(\t\022\032\n\022fie" +
-      "ld_strings_name\030\013 \003(\t\022\035\n\025field_option_in" +
-      "tegers\030\005 \003(\005\022#\n\033field_option_integers_em" +
-      "pty\030\006 \003(\005\022 \n\020field_gpb_option\030\007 \001(\0132\006.Da" +
-      "ta2\022&\n\026field_gpb_option_empty\030\010 \001(\0132\006.Da" +
-      "ta2\022\031\n\tfield_gpb\030\t \001(\0132\006.Data2\022\022\n\nfield_" +
-      "blob\030\n \001(\014\"1\n\005Data2\022\024\n\014field_double\030\001 \001(" +
+      "ld_strings_name\030\005 \003(\t\022\035\n\025field_option_in" +
+      "tegers\030\006 \003(\005\022#\n\033field_option_integers_em" +
+      "pty\030\007 \003(\005\022 \n\020field_gpb_option\030\010 \001(\0132\006.Da" +
+      "ta2\022&\n\026field_gpb_option_empty\030\t \001(\0132\006.Da" +
+      "ta2\022\031\n\tfield_gpb\030\n \001(\0132\006.Data2\022\022\n\nfield_" +
+      "blob\030\013 \001(\014\"1\n\005Data2\022\024\n\014field_double\030\001 \001(" +
       "\001\022\022\n\nfield_blob\030\002 \001(\014B\022\n\020com.avast.cactu",
       "s"
     };
