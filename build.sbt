@@ -35,6 +35,7 @@ lazy val macroSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % "2.11.8",
     "com.google.protobuf" % "protobuf-java" % "2.6.1",
+    "org.scalactic" %% "scalactic" % "3.0.0",
     "org.scalatest" %% "scalatest" % "3.0.0" % "test"
   )
 )

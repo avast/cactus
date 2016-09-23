@@ -10,7 +10,7 @@ import scala.util.{Failure, Success, Try}
 
 object CactusMacros {
 
-  private val Debug = false
+  private val Debug = true
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
@@ -118,10 +118,18 @@ object CactusMacros {
 
         val value = processEndType(c)(fieldName, returnType, gpbType)(q"$gpb.$query", q"$gpb.$gpbGetter", gpbGetter)
 
-        c.Expr(q"$fieldName = $value")
+        c.Expr(q"val $fieldName: $returnType = { $value }")
       }
 
-      q" { ${TermName(caseClassSymbol.name.toString)}(..$params) } "
+      val fieldNames = fields.map(_.name.toTermName)
+
+      q"""
+         {
+            ..$params
+
+            ${TermName(caseClassSymbol.name.toString)}(..$fieldNames)
+         }
+       """
     }
 
 

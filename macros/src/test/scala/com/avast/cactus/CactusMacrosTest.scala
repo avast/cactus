@@ -39,37 +39,37 @@ class CactusMacrosTest extends FunSuite {
     assertResult(Right(expected))(gpb.asCaseClass[CaseClassA])
   }
 
-  test("Case class to GPB") {
-    val caseClass = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
-
-    val gpbInternal = Data2.newBuilder()
-      .setFieldDouble(0.9)
-      .setFieldBlob(ByteString.copyFromUtf8("text"))
-      .build()
-
-    val expectedGpb = TestMessage.Data.newBuilder()
-      .setField("ahoj")
-      .setFieldIntName(9)
-      .setFieldOption(13)
-      .setFieldBlob(ByteString.EMPTY)
-      .setFieldGpb(gpbInternal)
-      .setFieldGpbOption(gpbInternal)
-      .addAllFieldStrings(Seq("a", "b").asJava)
-      .addAllFieldStringsName(Seq("a").asJava)
-      .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
-      .build()
-
-
-    assertResult(Right(expectedGpb))(caseClass.asGpb[Data])
-  }
-
-  test("case class to GPB and back") {
-    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(Vector(3, 6)), None)
-
-    val Right(converted) = original.asGpb[Data]
-
-    assertResult(Right(original))(converted.asCaseClass[CaseClassC])
-  }
+//  test("Case class to GPB") {
+//    val caseClass = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
+//
+//    val gpbInternal = Data2.newBuilder()
+//      .setFieldDouble(0.9)
+//      .setFieldBlob(ByteString.copyFromUtf8("text"))
+//      .build()
+//
+//    val expectedGpb = TestMessage.Data.newBuilder()
+//      .setField("ahoj")
+//      .setFieldIntName(9)
+//      .setFieldOption(13)
+//      .setFieldBlob(ByteString.EMPTY)
+//      .setFieldGpb(gpbInternal)
+//      .setFieldGpbOption(gpbInternal)
+//      .addAllFieldStrings(Seq("a", "b").asJava)
+//      .addAllFieldStringsName(Seq("a").asJava)
+//      .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
+//      .build()
+//
+//
+//    assertResult(Right(expectedGpb))(caseClass.asGpb[Data])
+//  }
+//
+//  test("case class to GPB and back") {
+//    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(Vector(3, 6)), None)
+//
+//    val Right(converted) = original.asGpb[Data]
+//
+//    assertResult(Right(original))(converted.asCaseClass[CaseClassC])
+//  }
 }
 
 case class CaseClassA(field: String,
