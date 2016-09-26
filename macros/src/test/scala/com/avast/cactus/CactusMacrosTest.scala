@@ -36,7 +36,7 @@ class CactusMacrosTest extends FunSuite {
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .build()
 
-    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(Vector(3, 6)), None)
+    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List())
     assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
   }
 
@@ -59,7 +59,7 @@ class CactusMacrosTest extends FunSuite {
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .build()
 
-    val expected = List("field", "fieldIntName", "fieldStrings").map(MissingFieldFailure).sortBy(_.toString)
+    val expected = List("field", "fieldIntName").map(MissingFieldFailure).sortBy(_.toString)
 
     gpb.asCaseClass[CaseClassA] match {
       case Bad(e) =>
@@ -70,7 +70,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("Case class to GPB") {
-    val caseClass = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(List(3, 6)), None)
+    val caseClass = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), List(3, 6), List())
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
@@ -96,7 +96,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("case class to GPB and back") {
-    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(Vector(3, 6)), None)
+    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List())
 
     val Good(converted) = original.asGpb[Data]
 
@@ -115,8 +115,8 @@ case class CaseClassA(field: String,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
                       fieldStrings: immutable.Seq[String],
-                      fieldOptionIntegers: Option[Vector[Int]],
-                      fieldOptionIntegersEmpty: Option[List[Int]])
+                      fieldOptionIntegers: Vector[Int],
+                      fieldOptionIntegersEmpty: List[Int])
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
@@ -132,5 +132,5 @@ case class CaseClassC(field: String,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
                       fieldStrings: Seq[String],
-                      fieldOptionIntegers: Option[Seq[Int]],
-                      fieldOptionIntegersEmpty: Option[Seq[Int]])
+                      fieldOptionIntegers: Seq[Int],
+                      fieldOptionIntegersEmpty: Seq[Int])

@@ -16,7 +16,7 @@ is not very handy during mapping because validation is necessary.
 
 This library solves both problems - it generates mapping (using macros) between GPB message and Scala case class
 based on the fields of the case class and validates that all the required fields (not wrapped in `Option`) are present.
-It also automatically converts between common data types. Note: `Option[List[A]]` never contains an empty collection; that is turned to `None`.
+It also automatically converts between common data types.
 
 Currently there is only one possible failure (`MissingFieldFailure`) which contains the name of the missing field.
 
@@ -35,10 +35,10 @@ message Data {
     optional string     field = 1;                          // REQUIRED
     optional int32      field_int_name = 2;                 // REQUIRED
     optional int32      field_option = 3;                   // OPTIONAL
-    repeated string     field_strings = 4;                  // REQUIRED
-    repeated string     field_strings_name = 5;             // REQUIRED
-    repeated int32      field_option_integers = 6;          // OPTIONAL
-    repeated int32      field_option_integers_empty = 7;    // OPTIONAL
+    repeated string     field_strings = 4;                  
+    repeated string     field_strings_name = 5;             
+    repeated int32      field_option_integers = 6;          
+    repeated int32      field_option_integers_empty = 7;    
     optional Data2      field_gpb_option = 8; 	            // OPTIONAL
     optional Data2      field_gpb_option_empty = 9;         // OPTIONAL
     optional Data2      field_gpb = 10;   		            // REQUIRED
@@ -69,14 +69,14 @@ case class CaseClassA(
   fieldGpbOption: Option[CaseClassB],
   fieldGpbOptionEmpty: Option[CaseClassB],
   fieldStrings: immutable.Seq[String],
-  fieldOptionIntegers: Option[List[Int]],
-  fieldOptionIntegersEmpty: Option[List[Int]]
+  fieldOptionIntegers: Seq[Int],
+  fieldOptionIntegersEmpty: List[Int]
 )
 
 case class CaseClassB(
   fieldDouble: Double, 
   @GpbName("fieldBlob")
-  fieldString: String // this is possible thanks to the user-specified converter, it's `ByteString` in the GPB
+  fieldString: String // this is possible thanks to the user-specified converter, the field type is `ByteString` in the GPB
 )
 
 object Test extends App {
@@ -100,26 +100,22 @@ object Test extends App {
    .build()
 
   gpb.asCaseClass[CaseClassA] match {
-    case Right(inst) =>
+    case Good(inst) =>
       println(inst)
 
-    case Left(MissingFieldFailure(fieldName)) =>
-      println(s"Missing required field: '$fieldName'")
+    case Bad(e) =>
+      println(s"Missing required fields: '${e.mkString(", ")}'")
   }
 }
 ```
 
 See [unit tests](macros/src/test/scala/com/avast/cactus/CactusMacrosTest.scala) for more examples.
 
-Collections (`java.util.List<T>`) are converted to `scala.collection.immutable.Seq[T]` -
-concretely to `scala.collection.immutable.Vector[T]`. Another option is to use `scala.collection.immutable.List[T]` - you have to specify one of these.
-Default Scala `Seq[T]` is mutable and cannot be used in the target case class.
-This is intentional design of the converter since both GPB and case classes are meant to be immutable. 
+Collections (`java.util.List<T>`) are converted to `scala.collection.immutable.Seq[T]` - concretely to `scala.collection.immutable.Vector[T]` by default.
+Another option is to use `scala.collection.immutable.List[T]` - you have to use the `List` type explicitly.
+By specifying `scala.collection.Seq[T]`, which can contain also mutable collections, you get the `Vector[T]`.
 
 ## Case class to GPB
-
-Case class can be mapped back to GPB as easily as in the other direction. The source case class can contain an arbitrary 
-scala collection (even mutable).
 
 ### Example
 
@@ -130,10 +126,10 @@ message Data {
     optional string     field = 1;                          // REQUIRED
     optional int32      field_int_name = 2;                 // REQUIRED
     optional int32      field_option = 3;                   // OPTIONAL
-    repeated string     field_strings = 4;                  // REQUIRED
-    repeated string     field_strings_name = 5;             // REQUIRED
-    repeated int32      field_option_integers = 6;          // OPTIONAL
-    repeated int32      field_option_integers_empty = 7;    // OPTIONAL
+    repeated string     field_strings = 4;                  
+    repeated string     field_strings_name = 5;             
+    repeated int32      field_option_integers = 6;          
+    repeated int32      field_option_integers_empty = 7;    
     optional Data2      field_gpb_option = 8; 	            // OPTIONAL
     optional Data2      field_gpb_option_empty = 9;         // OPTIONAL
     optional Data2      field_gpb = 10;   		            // REQUIRED
@@ -184,11 +180,11 @@ object Test extends App {
   )
 
   caseClass.asGpb[Data] match {
-    case Right(inst) =>
+    case Good(inst) =>
       println(inst)
 
-    case Left(f) =>
-      println(f)
+    case Bad(e) =>
+      println("Errors: " + e)
   }
 }
 ```

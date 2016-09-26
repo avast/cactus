@@ -172,7 +172,7 @@ object CactusMacros {
           })
 
           // collections don't have the "has" method, test if empty instead
-          q" if (!$getter.isEmpty) Good(CactusMacros.CollAToCollB($getter.asScala.$toFinalCollection)) else Bad(One(MissingFieldFailure($nameInGpb))) "
+          q" Good(CactusMacros.CollAToCollB($getter.asScala.$toFinalCollection)) "
 
         case t => // plain type
 
