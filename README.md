@@ -23,9 +23,6 @@ Currently there is only one possible failure (`MissingFieldFailure`) which conta
 It is common that the field has different name in the GPB and in the case class. You can use `GpbName` annotation 
 to override the expected name - see the example.
 
-You have the option to either add or not suffix `List` to the name of the case class field when mapping a collection - 
-see `fieldString2` vs. `fieldStringsList` in the example.
-
 Mapping of complex messages (message contains another message which contains another message) is supported.
 However **recursive** mapping (field with `Data` type in `Data` class) is **NOT supported**. 
 
@@ -71,9 +68,9 @@ case class CaseClassA(
   fieldGpb: CaseClassB,
   fieldGpbOption: Option[CaseClassB],
   fieldGpbOptionEmpty: Option[CaseClassB],
-  fieldStringsList: immutable.Seq[String],
-  fieldOptionIntegersList: Option[List[Int]],
-  fieldOptionIntegersEmptyList: Option[List[Int]]
+  fieldStrings: immutable.Seq[String],
+  fieldOptionIntegers: Option[List[Int]],
+  fieldOptionIntegersEmpty: Option[List[Int]]
 )
 
 case class CaseClassB(
