@@ -142,12 +142,14 @@ object CactusMacros {
                               (query: c.universe.Tree, getter: c.universe.Tree, gpbGetterMethod: c.universe.MethodSymbol): c.Tree = {
       import c.universe._
 
-      val typeSymbol = returnType.typeSymbol
-      val resultType = returnType.resultType
+      val dstResultType = returnType.resultType
 
-      resultType.toString match {
+      val srcTypeSymbol = gpbGetterMethod.returnType.resultType.typeSymbol
+      val dstTypeSymbol = dstResultType.typeSymbol
+
+      dstResultType.toString match {
         case OptPattern(t) => // Option[T]
-          val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
+          val typeArg = dstResultType.typeArgs.head // it's an Option, so it has 1 type arg
 
           q""" {
                  val value: $typeArg Or Every[CactusFailure] = {${processEndType(c)(name, nameInGpb, typeArg, gpbType)(query, getter, gpbGetterMethod)}}
@@ -156,7 +158,7 @@ object CactusMacros {
                }
            """
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
+        case t if dstTypeSymbol.isClass && dstTypeSymbol.asClass.isCaseClass => // case class
 
           val internalGpbType = gpbType.decls.collectFirst {
             case m: MethodSymbol if m.name.toString == getter.toString().split("\\.").reverse.head => m.returnType
@@ -164,9 +166,9 @@ object CactusMacros {
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure($nameInGpb))) "
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
+        case t if dstTypeSymbol.isClass && dstTypeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
 
-          val toFinalCollection = TermName(typeSymbol.name.toString match {
+          val toFinalCollection = TermName(dstTypeSymbol.name.toString match {
             case "List" => "toList"
             case _ => "toVector"
           })
@@ -176,11 +178,8 @@ object CactusMacros {
 
         case t => // plain type
 
-          val srcType = gpbGetterMethod.returnType.resultType.typeSymbol
-          val dstType = returnType.resultType.typeSymbol
-
-          val value = if (srcType != dstType) {
-            q" CactusMacros.AToB[$srcType, $dstType]($getter) "
+          val value = if (srcTypeSymbol != dstTypeSymbol) {
+            q" CactusMacros.AToB[$srcTypeSymbol, $dstTypeSymbol]($getter) "
           } else q" $getter "
 
           q" if ($query) Good($value) else Bad(One(MissingFieldFailure($nameInGpb))) "
