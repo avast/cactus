@@ -71,7 +71,7 @@ object CactusMacros {
     }
   }
 
-  def convertCaseClassToGpb[Gpb: c.WeakTypeTag](c: whitebox.Context)(caseClassCt: c.Tree): c.Expr[Either[CactusFailure, Gpb]] = {
+  def convertCaseClassToGpb[Gpb: c.WeakTypeTag](c: whitebox.Context)(caseClassCt: c.Tree): c.Expr[Gpb Or Every[CactusFailure]] = {
     import c.universe._
 
     // unpack the implicit ClassTag tree
@@ -79,20 +79,23 @@ object CactusMacros {
 
     val variableName = getVariableName(c)
 
-    c.Expr[Either[CactusFailure, Gpb]] {
+    c.Expr[Gpb Or Every[CactusFailure]] {
       val tree =
         q""" {
           import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
 
+          import org.scalactic._
+          import org.scalactic.Accumulation._
+
           import scala.util.Try
           import scala.collection.JavaConverters._
 
           try {
-            Right(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], variableName)})
+            Good(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], variableName)})
           } catch {
-            case e: CactusException => Left(e.failure)
+            case e: CactusException => Bad(One(e.failure))
           }
          }
         """

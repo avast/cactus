@@ -13,7 +13,7 @@ package object cactus {
   }
 
   implicit class CaseClassToGpbConverter[CaseClass](val caseClass: CaseClass) extends AnyVal {
-    def asGpb[Gpb <: MessageLite](implicit caseClassCt: ClassTag[CaseClass]): Either[CactusFailure, Gpb] = macro CactusMacros.convertCaseClassToGpb[Gpb]
+    def asGpb[Gpb <: MessageLite](implicit caseClassCt: ClassTag[CaseClass]): Gpb Or Every[CactusFailure] = macro CactusMacros.convertCaseClassToGpb[Gpb]
   }
 
 }

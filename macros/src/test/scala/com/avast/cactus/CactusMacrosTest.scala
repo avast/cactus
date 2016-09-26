@@ -90,13 +90,15 @@ class CactusMacrosTest extends FunSuite {
       .build()
 
 
-    assertResult(Right(expectedGpb))(caseClass.asGpb[Data])
+    caseClass.asGpb[Data] match {
+      case Good(e) if e == expectedGpb => // ok
+    }
   }
 
   test("case class to GPB and back") {
     val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Some(Vector(3, 6)), None)
 
-    val Right(converted) = original.asGpb[Data]
+    val Good(converted) = original.asGpb[Data]
 
     assertResult(Good(original))(converted.asCaseClass[CaseClassC])
   }
