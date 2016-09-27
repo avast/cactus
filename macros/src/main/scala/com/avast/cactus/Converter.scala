@@ -13,6 +13,8 @@ object Converter {
     override def apply(a: A): B = f(a)
   }
 
+  // primitive types conversions:
+
   // this converter is necessary otherwise we get strange compilation errors
   implicit val string2StringConverter: Converter[String, java.lang.String] = Converter(identity)
 
@@ -33,5 +35,9 @@ object Converter {
   implicit val Float2floatConverter: Converter[java.lang.Float, Float] = Converter(Float2float)
   implicit val Double2doubleConverter: Converter[java.lang.Double, Double] = Converter(Double2double)
   implicit val Boolean2booleanConverter: Converter[java.lang.Boolean, Boolean] = Converter(Boolean2boolean)
+
+  // collections conversions:
+
+  implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
 
 }

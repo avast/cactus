@@ -28,6 +28,10 @@ object CactusMacros {
     ta.map(aToBConverter.apply)
   }
 
+  def OrAToOrB[A, B](ta: Or[A, Every[CactusFailure]])(implicit aToBConverter: Converter[A, B]): Or[B, Every[CactusFailure]] = {
+    ta.map(aToBConverter.apply)
+  }
+
   implicit def AToB[A, B](a: A)(implicit aToBConverter: Converter[A, B]): B = {
     aToBConverter.apply(a)
   }
@@ -120,9 +124,9 @@ object CactusMacros {
 
         val query = TermName(s"has$upper")
 
-        val value = processEndType(c)(fieldName, nameInGpb, returnType, gpbType)(q"$gpb.$query", q"$gpb.$gpbGetter", gpbGetter)
+        val value = processEndType(c)(fieldName, nameInGpb, dstType, gpbType)(q"$gpb.$query", q"$gpb.$gpbGetter", gpbGetter)
 
-        c.Expr(q"val $fieldName: $returnType Or Every[CactusFailure] = { $value }")
+        c.Expr(q"val $fieldName: $dstType Or Every[CactusFailure] = { $value }")
       }
 
       val fieldNames = fields.map(_.name.toTermName)
@@ -166,15 +170,19 @@ object CactusMacros {
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure($nameInGpb))) "
 
-        case t if dstTypeSymbol.isClass && dstTypeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
+        case t if srcTypeSymbol.isClass && srcTypeSymbol.asClass.baseClasses.contains(typeOf[java.util.List[_]].typeSymbol) => // collection
 
-          val toFinalCollection = TermName(dstTypeSymbol.name.toString match {
-            case "List" => "toList"
-            case _ => "toVector"
-          })
+          val typeArg = dstResultType.typeArgs.head
 
-          // collections don't have the "has" method, test if empty instead
-          q" Good(CactusMacros.CollAToCollB($getter.asScala.$toFinalCollection)) "
+          val vectorTypeSymbol = typeOf[Vector[_]].typeSymbol
+
+          val toFinalCollection = if (dstTypeSymbol != vectorTypeSymbol && !vectorTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol)) {
+            q" CactusMacros.OrAToOrB[${TypeName("Vector")}[$typeArg],${dstTypeSymbol.name.toTypeName}[$typeArg]] "
+          } else {
+            q" identity "
+          }
+
+          q" $toFinalCollection(Good((CactusMacros.CollAToCollB($getter.asScala.toVector)))) "
 
         case t => // plain type
 
@@ -202,7 +210,7 @@ object CactusMacros {
 
         val setter = TermName(s"set$upper")
 
-        val assignment = processEndType(c)(q"$caseClass.$fieldName", returnType)(gpbType, gpbGetter, q"builder.$setter", upper)
+        val assignment = processEndType(c)(q"$caseClass.$fieldName", dstType)(gpbType, gpbGetter, q"builder.$setter", upper)
 
         c.Expr(q" $assignment ")
       }
@@ -299,7 +307,7 @@ object CactusMacros {
     import c.universe._
 
     val fieldName = field.name.decodedName.toTermName
-    val returnType = field.typeSignature
+    val dstType = field.typeSignature
 
     val annotsTypes = field.annotations.map(_.tree.tpe.toString)
     val annotsParams = field.annotations.map {
