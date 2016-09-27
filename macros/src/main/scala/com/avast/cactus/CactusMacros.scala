@@ -169,7 +169,7 @@ object CactusMacros {
               val vectorTypeSymbol = typeOf[Vector[_]].typeSymbol
 
               val toFinalCollection = if (dstTypeSymbol != vectorTypeSymbol && !vectorTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol)) {
-                q" CactusMacros.OrAToOrB[${TypeName("Vector")}[$typeArg],${dstTypeSymbol.name.toTypeName}[$typeArg]] "
+                q" CactusMacros.OrAToOrB[Vector[$typeArg],${dstTypeSymbol.name.toTypeName}[$typeArg]] "
               } else {
                 q" identity "
               }
@@ -177,18 +177,11 @@ object CactusMacros {
               q" $toFinalCollection(Good(CactusMacros.CollAToCollB($getter.asScala.toVector))) "
 
             case None =>
-              val getterGenType = gpbGetterMethod.returnType.typeArgs.headOption
-                .getOrElse {
-                  if (srcTypeSymbol.toString == "com.google.protobuf.ProtocolStringList") {
-                    typeOf[java.lang.String]
-                  } else {
-                    c.abort(c.enclosingPosition, s"Could not convert $srcTypeSymbol to $dstResultType")
-                  }
-                }
+              // TODO what if the src type is not a collection?
+              val getterGenType = extractGpbGenType(c)(gpbGetterMethod)
 
               q" Good(CactusMacros.AToB[Vector[$getterGenType], $dstResultType]($getter.asScala.toVector)) "
           }
-
 
         case t => // plain type
 
@@ -258,33 +251,13 @@ object CactusMacros {
           val l = if (upperFieldName.endsWith("List")) upperFieldName.substring(0, upperFieldName.length - 4) else upperFieldName
           val addMethod = TermName(s"addAll$l")
 
-          val getterResultType = gpbGetterMethod.returnType.resultType
-          val getterGenType = getterResultType.typeArgs.headOption
-            .getOrElse {
-              if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
-                typeOf[java.lang.String]
-              } else {
-                c.abort(c.enclosingPosition, s"Could not convert $field to Seq[$getterResultType]")
-              }
-            }
+          val getterGenType = extractGpbGenType(c)(gpbGetterMethod)
 
+          // TODO what if the dst type is not a collection?
           val (fieldGenType, value) = srcReturnType.typeArgs.headOption match {
             case Some(genType) => (genType, field)
             case None => (getterGenType, q" CactusMacros.AToB[$srcTypeSymbol, Vector[$getterGenType]]($field) ")
-
           }
-
-          //          val fieldGenType = srcReturnType.typeArgs.head // it's collection, it HAS type arg
-          //
-          //          val getterResultType = gpbGetterMethod.srcReturnType.resultType
-          //          val getterGenType = getterResultType.typeArgs.headOption
-          //            .getOrElse {
-          //              if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
-          //                typeOf[java.lang.String]
-          //              } else {
-          //                c.abort(c.enclosingPosition, s"Could not convert $field to Seq[$getterResultType]")
-          //              }
-          //            }
 
           val convertedValue = if (fieldGenType != getterGenType) {
             q" CollAToCollB[$fieldGenType, $getterGenType, scala.Seq]($value.toSeq) "
@@ -292,9 +265,6 @@ object CactusMacros {
             q" $value.toSeq "
           }
 
-          // the implicit conversion wouldn't be used implicitly
-          // we have to specify types to be converted manually, because type inference cannot determine it
-          // the collections is converted to mutable Seq here, since it has to have unified format for the conversion
           q"""
               ${TermName("builder")}.$addMethod($convertedValue.asJava)
            """
@@ -368,6 +338,22 @@ object CactusMacros {
       .orElse(gpbGetters.find(_.name.toString == s"get$upper"))
       .getOrElse(c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $fieldName"))
 
+  }
+
+  private def extractGpbGenType(c: whitebox.Context)(gpbGetterMethod: c.universe.MethodSymbol) = {
+    import c.universe._
+
+    val getterResultType = gpbGetterMethod.returnType.resultType
+    val getterGenType = getterResultType.typeArgs.headOption
+      .getOrElse {
+        if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
+          typeOf[java.lang.String]
+        } else {
+          c.abort(c.enclosingPosition, s"Could not extract generic type from $getterResultType")
+        }
+      }
+
+    getterGenType
   }
 
   private def extractSymbolFromClassTag[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree) = {
