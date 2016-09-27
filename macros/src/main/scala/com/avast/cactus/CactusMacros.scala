@@ -20,14 +20,6 @@ object CactusMacros {
     coll.map(aToBConverter.apply)
   }
 
-  implicit def TryAToTryB[A, B](ta: Try[A])(implicit aToBConverter: Converter[A, B]): Try[B] = {
-    ta.map(aToBConverter.apply)
-  }
-
-  implicit def OptAToOptB[A, B](ta: Option[A])(implicit aToBConverter: Converter[A, B]): Option[B] = {
-    ta.map(aToBConverter.apply)
-  }
-
   def OrAToOrB[A, B](ta: Or[A, Every[CactusFailure]])(implicit aToBConverter: Converter[A, B]): Or[B, Every[CactusFailure]] = {
     ta.map(aToBConverter.apply)
   }
@@ -142,7 +134,7 @@ object CactusMacros {
 
 
     private def processEndType(c: whitebox.Context)
-                              (name: c.universe.TermName, nameInGpb: String, returnType: c.universe.Type, gpbType: c.universe.Type)
+                              (fieldName: c.universe.TermName, nameInGpb: String, returnType: c.universe.Type, gpbType: c.universe.Type)
                               (query: c.universe.Tree, getter: c.universe.Tree, gpbGetterMethod: c.universe.MethodSymbol): c.Tree = {
       import c.universe._
 
@@ -156,7 +148,7 @@ object CactusMacros {
           val typeArg = dstResultType.typeArgs.head // it's an Option, so it has 1 type arg
 
           q""" {
-                 val value: $typeArg Or Every[CactusFailure] = {${processEndType(c)(name, nameInGpb, typeArg, gpbType)(query, getter, gpbGetterMethod)}}
+                 val value: $typeArg Or Every[CactusFailure] = {${processEndType(c)(fieldName, nameInGpb, typeArg, gpbType)(query, getter, gpbGetterMethod)}}
 
                  value.map(Option(_)).recover(_ => None)
                }
@@ -172,17 +164,31 @@ object CactusMacros {
 
         case t if srcTypeSymbol.isClass && srcTypeSymbol.asClass.baseClasses.contains(typeOf[java.util.List[_]].typeSymbol) => // collection
 
-          val typeArg = dstResultType.typeArgs.head
+          dstResultType.typeArgs.headOption match {
+            case Some(typeArg) =>
+              val vectorTypeSymbol = typeOf[Vector[_]].typeSymbol
 
-          val vectorTypeSymbol = typeOf[Vector[_]].typeSymbol
+              val toFinalCollection = if (dstTypeSymbol != vectorTypeSymbol && !vectorTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol)) {
+                q" CactusMacros.OrAToOrB[${TypeName("Vector")}[$typeArg],${dstTypeSymbol.name.toTypeName}[$typeArg]] "
+              } else {
+                q" identity "
+              }
 
-          val toFinalCollection = if (dstTypeSymbol != vectorTypeSymbol && !vectorTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol)) {
-            q" CactusMacros.OrAToOrB[${TypeName("Vector")}[$typeArg],${dstTypeSymbol.name.toTypeName}[$typeArg]] "
-          } else {
-            q" identity "
+              q" $toFinalCollection(Good(CactusMacros.CollAToCollB($getter.asScala.toVector))) "
+
+            case None =>
+              val getterGenType = gpbGetterMethod.returnType.typeArgs.headOption
+                .getOrElse {
+                  if (srcTypeSymbol.toString == "com.google.protobuf.ProtocolStringList") {
+                    typeOf[java.lang.String]
+                  } else {
+                    c.abort(c.enclosingPosition, s"Could not convert $srcTypeSymbol to $dstResultType")
+                  }
+                }
+
+              q" Good(CactusMacros.AToB[Vector[$getterGenType], $dstResultType]($getter.asScala.toVector)) "
           }
 
-          q" $toFinalCollection(Good((CactusMacros.CollAToCollB($getter.asScala.toVector)))) "
 
         case t => // plain type
 
@@ -227,31 +233,32 @@ object CactusMacros {
     }
 
     private def processEndType(c: whitebox.Context)
-                              (field: c.universe.Tree, returnType: c.universe.Type)
-                              (gpbType: c.universe.Type, gpbGetter: c.universe.MethodSymbol, setter: c.universe.Tree, upperFieldName: String): c.Tree = {
+                              (field: c.universe.Tree, srcReturnType: c.universe.Type)
+                              (gpbType: c.universe.Type, gpbGetterMethod: c.universe.MethodSymbol, setter: c.universe.Tree, upperFieldName: String): c.Tree = {
       import c.universe._
 
-      val typeSymbol = returnType.typeSymbol
-      val resultType = returnType.resultType
+      val typeSymbol = srcReturnType.typeSymbol
+      val dstResultType = srcReturnType.resultType
 
-      resultType.toString match {
+      val dstTypeSymbol = gpbGetterMethod.returnType.resultType.typeSymbol
+      val srcTypeSymbol = dstResultType.typeSymbol
+
+      dstResultType.toString match {
         case OptPattern(t) => // Option[T]
-          val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
+          val typeArg = dstResultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          q" $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetter, setter, upperFieldName)}) "
+          q" $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetterMethod, setter, upperFieldName)}) "
 
         case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
 
-          q" $setter(${createConverter(c)(typeSymbol.typeSignature, gpbGetter.returnType, q" $field ")}) "
+          q" $setter(${createConverter(c)(typeSymbol.typeSignature, gpbGetterMethod.returnType, q" $field ")}) "
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
+        case t if dstTypeSymbol.isClass && dstTypeSymbol.asClass.baseClasses.contains(typeOf[java.util.List[_]].typeSymbol) => // collection
 
           val l = if (upperFieldName.endsWith("List")) upperFieldName.substring(0, upperFieldName.length - 4) else upperFieldName
           val addMethod = TermName(s"addAll$l")
 
-          val fieldGenType = returnType.typeArgs.head // it's collection, it HAS type arg
-
-          val getterResultType = gpbGetter.returnType.resultType
+          val getterResultType = gpbGetterMethod.returnType.resultType
           val getterGenType = getterResultType.typeArgs.headOption
             .getOrElse {
               if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
@@ -261,16 +268,44 @@ object CactusMacros {
               }
             }
 
+          val (fieldGenType, value) = srcReturnType.typeArgs.headOption match {
+            case Some(genType) => (genType, field)
+            case None => (getterGenType, q" CactusMacros.AToB[$srcTypeSymbol, Vector[$getterGenType]]($field) ")
+
+          }
+
+          //          val fieldGenType = srcReturnType.typeArgs.head // it's collection, it HAS type arg
+          //
+          //          val getterResultType = gpbGetterMethod.srcReturnType.resultType
+          //          val getterGenType = getterResultType.typeArgs.headOption
+          //            .getOrElse {
+          //              if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
+          //                typeOf[java.lang.String]
+          //              } else {
+          //                c.abort(c.enclosingPosition, s"Could not convert $field to Seq[$getterResultType]")
+          //              }
+          //            }
+
+          val convertedValue = if (fieldGenType != getterGenType) {
+            q" CollAToCollB[$fieldGenType, $getterGenType, scala.Seq]($value.toSeq) "
+          } else {
+            q" $value.toSeq "
+          }
+
           // the implicit conversion wouldn't be used implicitly
           // we have to specify types to be converted manually, because type inference cannot determine it
           // the collections is converted to mutable Seq here, since it has to have unified format for the conversion
           q"""
-              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.Seq]($field.toSeq).asJava)
+              ${TermName("builder")}.$addMethod($convertedValue.asJava)
            """
 
         case t => // plain type
 
-          q" $setter($field) "
+          val value = if (dstTypeSymbol != srcTypeSymbol) {
+            q" CactusMacros.AToB[$srcTypeSymbol, $dstTypeSymbol]($field) "
+          } else q" $field "
+
+          q" $setter($value) "
       }
     }
 

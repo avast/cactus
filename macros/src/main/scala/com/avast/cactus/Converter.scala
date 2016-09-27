@@ -1,6 +1,7 @@
 package com.avast.cactus
 
 import scala.annotation.implicitNotFound
+import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
 trait Converter[A, B] {
@@ -39,5 +40,7 @@ object Converter {
   // collections conversions:
 
   implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
+
+  implicit def vectorToArray[A: ClassTag]: Converter[Vector[A], Array[A]] = Converter(_.toArray)
 
 }
