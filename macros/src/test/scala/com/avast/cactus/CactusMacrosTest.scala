@@ -14,9 +14,13 @@ class CactusMacrosTest extends FunSuite {
   implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))
   implicit val ByteStringToStringConverter: Converter[ByteString, String] = Converter((b: ByteString) => b.toStringUtf8)
 
+  implicit val doubleToStringConverter: Converter[Double, String] = Converter(_.toString)
+  //TODO improve message
+  implicit val stringToDoubleConverter: Converter[String, Double] = Converter(_.toDouble)
+
   implicit def vectorToString[A]: Converter[Vector[A], String] = Converter(_.mkString(","))
 
-  implicit def stringToVectorInt: Converter[String, Vector[Integer]] = Converter(_.split(",").map(_.toInt).map(int2Integer).toVector)
+  implicit val stringToVectorInt: Converter[String, Vector[Integer]] = Converter(_.split(",").map(_.toInt).map(int2Integer).toVector)
 
   test("GPB to case class") {
     val gpbInternal = Data2.newBuilder()
@@ -70,7 +74,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("Case class to GPB") {
-    val caseClass = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), "3,6", List())
+    val caseClass = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List(3.5, 6.7), "3,6", List())
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
@@ -96,7 +100,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("case class to GPB and back") {
-    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Vector("a", "b"), "3,6", Vector())
+    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List(3.5, 6.7), "3,6", Vector())
 
     val Good(converted) = original.asGpb[Data]
 
@@ -131,6 +135,6 @@ case class CaseClassC(field: String,
                       fieldGpb: CaseClassB,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
-                      fieldStrings: Seq[String],
+                      fieldStrings: List[Double],
                       fieldOptionIntegers: String,
                       fieldOptionIntegersEmpty: Seq[Int])

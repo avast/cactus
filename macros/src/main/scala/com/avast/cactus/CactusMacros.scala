@@ -1,14 +1,15 @@
 package com.avast.cactus
 
+import java.util.function.{Function => JavaFunction}
+
 import org.scalactic.{Every, Or}
 
+import scala.collection.JavaConverters._
 import scala.collection.TraversableLike
 import scala.collection.generic.CanBuildFrom
 import scala.language.experimental.macros
 import scala.language.{higherKinds, implicitConversions}
 import scala.reflect.macros._
-import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
 
 object CactusMacros {
 
@@ -16,22 +17,21 @@ object CactusMacros {
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
-  def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
+  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
     coll.map(aToBConverter.apply)
   }
 
-  def OrAToOrB[A, B](ta: Or[A, Every[CactusFailure]])(implicit aToBConverter: Converter[A, B]): Or[B, Every[CactusFailure]] = {
+  implicit def JavaListAToJavaListB[A, B](list: java.lang.Iterable[A])(implicit aToBConverter: Converter[A, B]): java.lang.Iterable[B] = {
+    //TODO optimize
+    list.asScala.map(aToBConverter.apply).asJava
+  }
+
+  implicit def OrAToOrB[A, B](ta: Or[A, Every[CactusFailure]])(implicit aToBConverter: Converter[A, B]): Or[B, Every[CactusFailure]] = {
     ta.map(aToBConverter.apply)
   }
 
   implicit def AToB[A, B](a: A)(implicit aToBConverter: Converter[A, B]): B = {
     aToBConverter.apply(a)
-  }
-
-  def tryToOption[A](t: Try[A]): Option[A] = t match {
-    case Success(a) => Option(a)
-    case Failure(e) if e.isInstanceOf[CactusException] => None
-    case Failure(NonFatal(e)) => throw e
   }
 
   def convertGpbToCaseClass[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree): c.Expr[CaseClass Or Every[CactusFailure]] = {
@@ -47,7 +47,6 @@ object CactusMacros {
     c.Expr[CaseClass Or Every[CactusFailure]] {
       val tree =
         q""" {
-          import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
 
@@ -78,7 +77,6 @@ object CactusMacros {
     c.Expr[Gpb Or Every[CactusFailure]] {
       val tree =
         q""" {
-          import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
 
@@ -88,11 +86,7 @@ object CactusMacros {
           import scala.util.Try
           import scala.collection.JavaConverters._
 
-          try {
-            Good(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], variableName)})
-          } catch {
-            case e: CactusException => Bad(One(e.failure))
-          }
+          Good(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], variableName)})
          }
         """
 
@@ -174,7 +168,7 @@ object CactusMacros {
                 q" identity "
               }
 
-              q" $toFinalCollection(Good(CactusMacros.CollAToCollB($getter.asScala.toVector))) "
+              q" $toFinalCollection(Good($getter.asScala.toVector)) "
 
             case None =>
               // TODO what if the src type is not a collection?
@@ -259,14 +253,8 @@ object CactusMacros {
             case None => (getterGenType, q" CactusMacros.AToB[$srcTypeSymbol, Vector[$getterGenType]]($field) ")
           }
 
-          val convertedValue = if (fieldGenType != getterGenType) {
-            q" CollAToCollB[$fieldGenType, $getterGenType, scala.Seq]($value.toSeq) "
-          } else {
-            q" $value.toSeq "
-          }
-
           q"""
-              ${TermName("builder")}.$addMethod($convertedValue.asJava)
+              ${TermName("builder")}.$addMethod($value.toSeq.asJava)
            """
 
         case t => // plain type

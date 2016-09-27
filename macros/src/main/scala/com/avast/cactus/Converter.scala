@@ -14,6 +14,8 @@ object Converter {
     override def apply(a: A): B = f(a)
   }
 
+//  implicit def identityConverter[A]: Converter[A, A] = Converter(identity)
+
   // primitive types conversions:
 
   // this converter is necessary otherwise we get strange compilation errors
@@ -38,6 +40,8 @@ object Converter {
   implicit val Boolean2booleanConverter: Converter[java.lang.Boolean, Boolean] = Converter(Boolean2boolean)
 
   // collections conversions:
+
+  implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] = Converter(_.map(aToBConverter.apply).toList)
 
   implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
 
