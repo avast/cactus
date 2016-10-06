@@ -131,7 +131,7 @@ object CactusMacros {
          {
             ..$params
 
-            withGood(..$fieldNames) { ${TermName(caseClassSymbol.name.toString)} }
+            withGood(..$fieldNames) { ${TermName(caseClassSymbol.name.toString)}.apply }
          }
        """
     }

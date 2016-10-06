@@ -134,3 +134,5 @@ case class CaseClassC(field: String,
                       fieldStrings: Seq[String],
                       fieldOptionIntegers: Seq[Int],
                       fieldOptionIntegersEmpty: Seq[Int])
+
+object CaseClassA // this is here to prevent reappearing of bug with companion object
