@@ -54,8 +54,8 @@ message Data2 {
 Scala:
 ```scala
 // your own converters:
-implicit val StringToByteStringConver: Convert[String, ByteString] = Convert((b: String) => ByteString.copyFromUtf8(b))
-implicit val ByteStringToStringConver: Convert[ByteString, String] = Convert((b: ByteString) => b.toStringUtf8)
+implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))
+implicit val ByteStringToStringConverter: Converter[ByteString, String] = Converter((b: ByteString) => b.toStringUtf8)
 
 case class CaseClassA(
   field: String,
