@@ -160,7 +160,7 @@ object CactusMacros {
                }
            """
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass && gpbGetterMethod.returnType.baseClasses.map(_.name.toString).contains("MessageLite") => // case class -> GPB
+        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // GPB -> case class
 
           val internalGpbType = gpbType.decls.collectFirst {
             case m: MethodSymbol if m.name.toString == getter.toString().split("\\.").reverse.head => m.returnType
@@ -172,7 +172,7 @@ object CactusMacros {
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure($nameInGpb))) "
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
+        case t if isCollection(c)(typeSymbol) => // collection
 
           val toFinalCollection = TermName(typeSymbol.name.toString match {
             case "List" => "toList"
@@ -249,11 +249,11 @@ object CactusMacros {
 
           q" $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetterMethod, setter, upperFieldName)}) "
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass && gpbGetterMethod.returnType.baseClasses.map(_.name.toString).contains("MessageLite") => // case class -> GPB
+        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // case class -> GPB
 
           q" $setter(${createConverter(c)(typeSymbol.typeSignature, gpbGetterMethod.returnType, q" $field ")}) "
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
+        case t if isCollection(c)(typeSymbol) => // collection
 
           val l = if (upperFieldName.endsWith("List")) upperFieldName.substring(0, upperFieldName.length - 4) else upperFieldName
           val addMethod = TermName(s"addAll$l")
@@ -295,7 +295,6 @@ object CactusMacros {
     }
 
   }
-
 
   private def initialize(c: whitebox.Context)(caseClassType: c.universe.Type, gpbType: c.universe.Type) = new {
 
@@ -383,6 +382,14 @@ object CactusMacros {
     }
 
     q" $variableName "
+  }
+
+  private def caseClassAndGpb(c: whitebox.Context)(caseClassTypeSymbol: c.universe.Symbol, gpbGetterMethod: c.universe.MethodSymbol): Boolean = {
+    caseClassTypeSymbol.isClass && caseClassTypeSymbol.asClass.isCaseClass && gpbGetterMethod.returnType.baseClasses.map(_.name.toString).contains("MessageLite")
+  }
+
+  private def isCollection(c: whitebox.Context)(typeSymbol: c.universe.Symbol): Boolean = {
+    typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike")
   }
 
   private def firstUpper(s: String): String = {
