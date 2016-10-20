@@ -14,6 +14,9 @@ class CactusMacrosTest extends FunSuite {
   implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))
   implicit val ByteStringToStringConverter: Converter[ByteString, String] = Converter((b: ByteString) => b.toStringUtf8)
 
+  implicit val StringWrapperToStringConverter: Converter[StringWrapperClass, String] = Converter((b: StringWrapperClass) => b.value)
+  implicit val StringToStringWrapperConverter: Converter[String, StringWrapperClass] = Converter((b: String) => StringWrapperClass(b))
+
   // these are not needed, but they are here to be sure it won't cause trouble to the user
   implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter((b: Array[Byte]) => ByteString.copyFrom(b))
   implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
@@ -70,7 +73,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("Case class to GPB") {
-    val caseClass = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), List(3, 6), List())
+    val caseClass = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), List(3, 6), List())
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
@@ -96,7 +99,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("case class to GPB and back") {
-    val original = CaseClassC("ahoj", 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List())
+    val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List())
 
     val Good(converted) = original.asGpb[Data]
 
@@ -120,8 +123,7 @@ case class CaseClassA(field: String,
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
-// this is clone of CaseClassA, but it contains different collections
-case class CaseClassC(field: String,
+case class CaseClassC(field: StringWrapperClass,
                       @GpbName("fieldIntName")
                       fieldInt: Int,
                       fieldOption: Option[Int],
@@ -134,5 +136,7 @@ case class CaseClassC(field: String,
                       fieldStrings: Seq[String],
                       fieldOptionIntegers: Seq[Int],
                       fieldOptionIntegersEmpty: Seq[Int])
+
+case class StringWrapperClass(value: String)
 
 object CaseClassA // this is here to prevent reappearing of bug with companion object
