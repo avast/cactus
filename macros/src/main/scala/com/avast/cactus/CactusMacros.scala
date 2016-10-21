@@ -114,6 +114,10 @@ object CactusMacros {
       val i = initialize(c)(caseClassType, gpbType)
       import i._
 
+      if (Debug) {
+        println(s"Converting ${gpbType.typeSymbol} to ${caseClassType.typeSymbol}")
+      }
+
       val params = fields.map { field =>
         val e = extractField(c)(field, gpbGetters)
         import e._
@@ -156,15 +160,19 @@ object CactusMacros {
                }
            """
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
+        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // GPB -> case class
 
           val internalGpbType = gpbType.decls.collectFirst {
             case m: MethodSymbol if m.name.toString == getter.toString().split("\\.").reverse.head => m.returnType
           }.getOrElse(c.abort(c.enclosingPosition, "Could not determine internal GPB type"))
 
+          if (Debug) {
+            println(s"Internal case class $typeSymbol, GPB type: ${internalGpbType.typeSymbol}")
+          }
+
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure($nameInGpb))) "
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
+        case t if isCollection(c)(typeSymbol) => // collection
 
           val toFinalCollection = TermName(typeSymbol.name.toString match {
             case "List" => "toList"
@@ -180,6 +188,10 @@ object CactusMacros {
           val dstType = returnType.resultType.typeSymbol
 
           val value = if (srcType != dstType) {
+            if (Debug) {
+              println(s"Requires converter from $srcType to $dstType")
+            }
+
             q" CactusMacros.AToB[$srcType, $dstType]($getter) "
           } else q" $getter "
 
@@ -196,6 +208,10 @@ object CactusMacros {
       import i._
 
       val gpbClassSymbol = gpbType.typeSymbol.asClass
+
+      if (Debug) {
+        println(s"Converting ${caseClassType.typeSymbol} to ${gpbType.typeSymbol}")
+      }
 
       val params = fields.map { field =>
         val e = extractField(c)(field, gpbGetters)
@@ -221,7 +237,7 @@ object CactusMacros {
 
     private def processEndType(c: whitebox.Context)
                               (field: c.universe.Tree, returnType: c.universe.Type)
-                              (gpbType: c.universe.Type, gpbGetter: c.universe.MethodSymbol, setter: c.universe.Tree, upperFieldName: String): c.Tree = {
+                              (gpbType: c.universe.Type, gpbGetterMethod: c.universe.MethodSymbol, setter: c.universe.Tree, upperFieldName: String): c.Tree = {
       import c.universe._
 
       val typeSymbol = returnType.typeSymbol
@@ -231,20 +247,20 @@ object CactusMacros {
         case OptPattern(t) => // Option[T]
           val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          q" $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetter, setter, upperFieldName)}) "
+          q" $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetterMethod, setter, upperFieldName)}) "
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
+        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // case class -> GPB
 
-          q" $setter(${createConverter(c)(typeSymbol.typeSignature, gpbGetter.returnType, q" $field ")}) "
+          q" $setter(${createConverter(c)(typeSymbol.typeSignature, gpbGetterMethod.returnType, q" $field ")}) "
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike") => // collection
+        case t if isCollection(c)(typeSymbol) => // collection
 
           val l = if (upperFieldName.endsWith("List")) upperFieldName.substring(0, upperFieldName.length - 4) else upperFieldName
           val addMethod = TermName(s"addAll$l")
 
           val fieldGenType = returnType.typeArgs.head // it's collection, it HAS type arg
 
-          val getterResultType = gpbGetter.returnType.resultType
+          val getterResultType = gpbGetterMethod.returnType.resultType
           val getterGenType = getterResultType.typeArgs.headOption
             .getOrElse {
               if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
@@ -263,12 +279,22 @@ object CactusMacros {
 
         case t => // plain type
 
-          q" $setter($field) "
+          val srcType = returnType.resultType.typeSymbol
+          val dstType = gpbGetterMethod.returnType.resultType.typeSymbol
+
+          val value = if (srcType != dstType) {
+            if (Debug) {
+              println(s"Requires converter from $srcType to $dstType")
+            }
+
+            q" CactusMacros.AToB[$srcType, $dstType]($field) "
+          } else q" $field "
+
+          q" $setter($value) "
       }
     }
 
   }
-
 
   private def initialize(c: whitebox.Context)(caseClassType: c.universe.Type, gpbType: c.universe.Type) = new {
 
@@ -324,7 +350,14 @@ object CactusMacros {
     val gpbGetter = gpbGetters
       .find(_.name.toString == s"get${upper}List") // collection ?
       .orElse(gpbGetters.find(_.name.toString == s"get$upper"))
-      .getOrElse(c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $fieldName"))
+      .getOrElse {
+        if (Debug) {
+          println(s"No getter for $fieldName found in GPB - neither ${s"get${upper}List"} nor ${s"get$upper"}")
+          println(s"All getters: ${gpbGetters.map(_.name.toString).mkString("[", ", ", "]")}")
+        }
+
+        c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $fieldName")
+      }
 
   }
 
@@ -349,6 +382,14 @@ object CactusMacros {
     }
 
     q" $variableName "
+  }
+
+  private def caseClassAndGpb(c: whitebox.Context)(caseClassTypeSymbol: c.universe.Symbol, gpbGetterMethod: c.universe.MethodSymbol): Boolean = {
+    caseClassTypeSymbol.isClass && caseClassTypeSymbol.asClass.isCaseClass && gpbGetterMethod.returnType.baseClasses.map(_.name.toString).contains("MessageLite")
+  }
+
+  private def isCollection(c: whitebox.Context)(typeSymbol: c.universe.Symbol): Boolean = {
+    typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike")
   }
 
   private def firstUpper(s: String): String = {
