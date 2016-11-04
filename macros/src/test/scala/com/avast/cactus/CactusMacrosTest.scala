@@ -133,8 +133,8 @@ case class CaseClassC(field: StringWrapperClass,
                       fieldGpb: CaseClassB,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
-                      fieldStrings: List[Double],
-                      fieldOptionIntegers: String,
+                      fieldStrings: Seq[String],
+                      fieldOptionIntegers: Seq[Int],
                       fieldOptionIntegersEmpty: Seq[Int])
 
 case class StringWrapperClass(value: String)

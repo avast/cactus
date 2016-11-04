@@ -152,19 +152,19 @@ object CactusMacros {
                }
            """
 
-        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // GPB -> case class
+        case t if caseClassAndGpb(c)(dstTypeSymbol, gpbGetterMethod) => // GPB -> case class
 
           val internalGpbType = gpbType.decls.collectFirst {
             case m: MethodSymbol if m.name.toString == getter.toString().split("\\.").reverse.head => m.returnType
           }.getOrElse(c.abort(c.enclosingPosition, "Could not determine internal GPB type"))
 
           if (Debug) {
-            println(s"Internal case class $typeSymbol, GPB type: ${internalGpbType.typeSymbol}")
+            println(s"Internal case class $srcTypeSymbol, GPB type: ${internalGpbType.typeSymbol}")
           }
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure($nameInGpb))) "
 
-        case t if isCollection(c)(typeSymbol) => // collection
+        case t if isCollection(c)(dstTypeSymbol) => // collection
 
           dstResultType.typeArgs.headOption match {
             case Some(typeArg) =>
@@ -189,7 +189,7 @@ object CactusMacros {
 
           val value = if (srcTypeSymbol != dstTypeSymbol) {
             if (Debug) {
-              println(s"Requires converter from $srcType to $dstType")
+              println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
             }
 
             q" CactusMacros.AToB[$srcTypeSymbol, $dstTypeSymbol]($getter) "
@@ -268,15 +268,6 @@ object CactusMacros {
             case Some(genType) => (genType, field)
             case None => (getterGenType, q" CactusMacros.AToB[$srcTypeSymbol, Vector[$getterGenType]]($field) ")
           }
-          val getterResultType = gpbGetterMethod.returnType.resultType
-          val getterGenType = getterResultType.typeArgs.headOption
-            .getOrElse {
-              if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
-                typeOf[java.lang.String]
-              } else {
-                c.abort(c.enclosingPosition, s"Could not convert $field to Seq[$getterResultType]")
-              }
-            }
 
           // the implicit conversion wouldn't be used implicitly
           // we have to specify types to be converted manually, because type inference cannot determine it
