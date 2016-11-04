@@ -37,12 +37,11 @@ object Converter {
   implicit val Double2doubleConverter: Converter[java.lang.Double, Double] = Converter(Double2double)
   implicit val Boolean2booleanConverter: Converter[java.lang.Boolean, Boolean] = Converter(Boolean2boolean)
 
-  // collections conversions:
+  // conversions generators:
 
   implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] = Converter(_.map(aToBConverter.apply).toList)
 
   implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
 
   implicit def vectorToArray[A: ClassTag]: Converter[Vector[A], Array[A]] = Converter(_.toArray)
-
 }

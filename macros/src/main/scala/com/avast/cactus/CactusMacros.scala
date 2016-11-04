@@ -1,8 +1,5 @@
 package com.avast.cactus
 
-import java.lang.{Iterable => JIterable}
-import java.util.function.{Function => JavaFunction}
-
 import org.scalactic.{Every, Or}
 
 import scala.collection.TraversableLike
@@ -13,24 +10,17 @@ import scala.reflect.macros._
 
 object CactusMacros {
 
-  private val Debug = true
+  private val Debug = false
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
   implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
-    CollAToCollB[A, B, T].apply(coll)
+    CollAToCollBGenerator[A, B, T].apply(coll)
   }
 
-  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): Converter[T[A], T[B]] = Converter {
+  implicit def CollAToCollBGenerator[A, B, T[X] <: TraversableLike[X, T[X]]](implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): Converter[T[A], T[B]] = Converter {
     _.map(aToBConverter.apply)
   }
-
-  //  implicit def ListAToJavaListB[A, IA <:Iterable[A],  B, IB <: java.lang.Iterable[B]](list: IA)(implicit aToBConverter: Converter[A, B]): Converter[IA, IB]  = Converter {
-  //    i =>
-  //    val map: Iterable[B] = i.map(aToBConverter.apply)
-  //
-  //      map.asJava
-  //  }
 
   implicit def OrAToOrB[A, B](implicit aToBConverter: Converter[A, B]): Converter[Or[A, Every[CactusFailure]], Or[B, Every[CactusFailure]]] = Converter {
     _.map(aToBConverter.apply)
@@ -276,9 +266,6 @@ object CactusMacros {
             case None => (getterGenType, q" CactusMacros.AToB[$srcTypeSymbol, Vector[$getterGenType]]($field) ")
           }
 
-          // the implicit conversion wouldn't be used implicitly
-          // we have to specify types to be converted manually, because type inference cannot determine it
-          // the collections is converted to mutable Seq here, since it has to have unified format for the conversion
           q"""
               ${TermName("builder")}.$addMethod(CactusMacros.AToB[Seq[$fieldGenType], Seq[$getterGenType]]($field.toSeq).asJava)
            """
