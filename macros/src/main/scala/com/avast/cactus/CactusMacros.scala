@@ -164,7 +164,7 @@ object CactusMacros {
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure($nameInGpb))) "
 
-        case t if isCollection(c)(dstTypeSymbol) => // collection
+        case t if isCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
 
           dstResultType.typeArgs.headOption match {
             case Some(typeArg) =>
@@ -240,23 +240,23 @@ object CactusMacros {
                               (gpbType: c.universe.Type, gpbGetterMethod: c.universe.MethodSymbol, setter: c.universe.Tree, upperFieldName: String): c.Tree = {
       import c.universe._
 
-      val typeSymbol = srcReturnType.typeSymbol
-      val dstResultType = srcReturnType.resultType
+      val srcResultType = srcReturnType.resultType
+      val dstResultType = gpbGetterMethod.returnType.resultType
 
-      val dstTypeSymbol = gpbGetterMethod.returnType.resultType.typeSymbol
-      val srcTypeSymbol = dstResultType.typeSymbol
+      val dstTypeSymbol = dstResultType.typeSymbol
+      val srcTypeSymbol = srcResultType.typeSymbol
 
-      dstResultType.toString match {
+      srcResultType.toString match {
         case OptPattern(t) => // Option[T]
-          val typeArg = dstResultType.typeArgs.head // it's an Option, so it has 1 type arg
+          val typeArg = srcResultType.typeArgs.head // it's an Option, so it has 1 type arg
 
           q" $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetterMethod, setter, upperFieldName)}) "
 
-        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // case class -> GPB
+        case t if caseClassAndGpb(c)(srcTypeSymbol, gpbGetterMethod) => // case class -> GPB
 
-          q" $setter(${createConverter(c)(typeSymbol.typeSignature, gpbGetterMethod.returnType, q" $field ")}) "
+          q" $setter(${createConverter(c)(srcTypeSymbol.typeSignature, gpbGetterMethod.returnType, q" $field ")}) "
 
-        case t if isCollection(c)(typeSymbol) => // collection
+        case t if isCollection(c)(srcTypeSymbol) || srcTypeSymbol.name == TypeName("Array") => // collection
 
           val l = if (upperFieldName.endsWith("List")) upperFieldName.substring(0, upperFieldName.length - 4) else upperFieldName
           val addMethod = TermName(s"addAll$l")
@@ -283,7 +283,8 @@ object CactusMacros {
               println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
             }
 
-            q" CactusMacros.AToB[$srcTypeSymbol, $dstTypeSymbol]($field) "
+
+            q" CactusMacros.AToB[$srcResultType, $dstResultType]($field) "
           } else q" $field "
 
           q" $setter($value) "
