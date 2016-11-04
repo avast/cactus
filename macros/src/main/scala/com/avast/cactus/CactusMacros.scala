@@ -104,6 +104,10 @@ object CactusMacros {
       val i = initialize(c)(caseClassType, gpbType)
       import i._
 
+      if (Debug) {
+        println(s"Converting ${gpbType.typeSymbol} to ${caseClassType.typeSymbol}")
+      }
+
       val params = fields.map { field =>
         val e = extractField(c)(field, gpbGetters)
         import e._
@@ -121,7 +125,7 @@ object CactusMacros {
          {
             ..$params
 
-            withGood(..$fieldNames) { ${TermName(caseClassSymbol.name.toString)} }
+            withGood(..$fieldNames) { ${TermName(caseClassSymbol.name.toString)}.apply }
          }
        """
     }
@@ -148,15 +152,19 @@ object CactusMacros {
                }
            """
 
-        case t if dstTypeSymbol.isClass && dstTypeSymbol.asClass.isCaseClass => // case class
+        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // GPB -> case class
 
           val internalGpbType = gpbType.decls.collectFirst {
             case m: MethodSymbol if m.name.toString == getter.toString().split("\\.").reverse.head => m.returnType
           }.getOrElse(c.abort(c.enclosingPosition, "Could not determine internal GPB type"))
 
+          if (Debug) {
+            println(s"Internal case class $typeSymbol, GPB type: ${internalGpbType.typeSymbol}")
+          }
+
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure($nameInGpb))) "
 
-        case t if srcTypeSymbol.isClass && srcTypeSymbol.asClass.baseClasses.contains(typeOf[java.util.List[_]].typeSymbol) => // collection
+        case t if isCollection(c)(typeSymbol) => // collection
 
           dstResultType.typeArgs.headOption match {
             case Some(typeArg) =>
@@ -180,6 +188,10 @@ object CactusMacros {
         case t => // plain type
 
           val value = if (srcTypeSymbol != dstTypeSymbol) {
+            if (Debug) {
+              println(s"Requires converter from $srcType to $dstType")
+            }
+
             q" CactusMacros.AToB[$srcTypeSymbol, $dstTypeSymbol]($getter) "
           } else q" $getter "
 
@@ -196,6 +208,10 @@ object CactusMacros {
       import i._
 
       val gpbClassSymbol = gpbType.typeSymbol.asClass
+
+      if (Debug) {
+        println(s"Converting ${caseClassType.typeSymbol} to ${gpbType.typeSymbol}")
+      }
 
       val params = fields.map { field =>
         val e = extractField(c)(field, gpbGetters)
@@ -236,11 +252,11 @@ object CactusMacros {
 
           q" $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetterMethod, setter, upperFieldName)}) "
 
-        case t if typeSymbol.isClass && typeSymbol.asClass.isCaseClass => // case class
+        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // case class -> GPB
 
           q" $setter(${createConverter(c)(typeSymbol.typeSignature, gpbGetterMethod.returnType, q" $field ")}) "
 
-        case t if dstTypeSymbol.isClass && dstTypeSymbol.asClass.baseClasses.contains(typeOf[java.util.List[_]].typeSymbol) => // collection
+        case t if isCollection(c)(typeSymbol) => // collection
 
           val l = if (upperFieldName.endsWith("List")) upperFieldName.substring(0, upperFieldName.length - 4) else upperFieldName
           val addMethod = TermName(s"addAll$l")
@@ -252,14 +268,30 @@ object CactusMacros {
             case Some(genType) => (genType, field)
             case None => (getterGenType, q" CactusMacros.AToB[$srcTypeSymbol, Vector[$getterGenType]]($field) ")
           }
+          val getterResultType = gpbGetterMethod.returnType.resultType
+          val getterGenType = getterResultType.typeArgs.headOption
+            .getOrElse {
+              if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
+                typeOf[java.lang.String]
+              } else {
+                c.abort(c.enclosingPosition, s"Could not convert $field to Seq[$getterResultType]")
+              }
+            }
 
+          // the implicit conversion wouldn't be used implicitly
+          // we have to specify types to be converted manually, because type inference cannot determine it
+          // the collections is converted to mutable Seq here, since it has to have unified format for the conversion
           q"""
-              ${TermName("builder")}.$addMethod($value.toSeq.asJava)
+              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.Seq]($field.toSeq).asJava)
            """
 
         case t => // plain type
 
-          val value = if (dstTypeSymbol != srcTypeSymbol) {
+          val value = if (srcTypeSymbol != dstTypeSymbol) {
+            if (Debug) {
+              println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
+            }
+
             q" CactusMacros.AToB[$srcTypeSymbol, $dstTypeSymbol]($field) "
           } else q" $field "
 
@@ -268,7 +300,6 @@ object CactusMacros {
     }
 
   }
-
 
   private def initialize(c: whitebox.Context)(caseClassType: c.universe.Type, gpbType: c.universe.Type) = new {
 
@@ -324,7 +355,14 @@ object CactusMacros {
     val gpbGetter = gpbGetters
       .find(_.name.toString == s"get${upper}List") // collection ?
       .orElse(gpbGetters.find(_.name.toString == s"get$upper"))
-      .getOrElse(c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $fieldName"))
+      .getOrElse {
+        if (Debug) {
+          println(s"No getter for $fieldName found in GPB - neither ${s"get${upper}List"} nor ${s"get$upper"}")
+          println(s"All getters: ${gpbGetters.map(_.name.toString).mkString("[", ", ", "]")}")
+        }
+
+        c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $fieldName")
+      }
 
   }
 
@@ -365,6 +403,14 @@ object CactusMacros {
     }
 
     q" $variableName "
+  }
+
+  private def caseClassAndGpb(c: whitebox.Context)(caseClassTypeSymbol: c.universe.Symbol, gpbGetterMethod: c.universe.MethodSymbol): Boolean = {
+    caseClassTypeSymbol.isClass && caseClassTypeSymbol.asClass.isCaseClass && gpbGetterMethod.returnType.baseClasses.map(_.name.toString).contains("MessageLite")
+  }
+
+  private def isCollection(c: whitebox.Context)(typeSymbol: c.universe.Symbol): Boolean = {
+    typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.name.toString).contains("TraversableLike")
   }
 
   private def firstUpper(s: String): String = {
