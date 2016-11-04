@@ -14,8 +14,6 @@ object Converter {
     override def apply(a: A): B = f(a)
   }
 
-//  implicit def identityConverter[A]: Converter[A, A] = Converter(identity)
-
   // primitive types conversions:
 
   // this converter is necessary otherwise we get strange compilation errors

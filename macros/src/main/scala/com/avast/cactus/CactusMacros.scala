@@ -1,10 +1,10 @@
 package com.avast.cactus
 
+import java.lang.{Iterable => JIterable}
 import java.util.function.{Function => JavaFunction}
 
 import org.scalactic.{Every, Or}
 
-import scala.collection.JavaConverters._
 import scala.collection.TraversableLike
 import scala.collection.generic.CanBuildFrom
 import scala.language.experimental.macros
@@ -13,21 +13,27 @@ import scala.reflect.macros._
 
 object CactusMacros {
 
-  private val Debug = false
+  private val Debug = true
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
   implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
-    coll.map(aToBConverter.apply)
+    CollAToCollB[A, B, T].apply(coll)
   }
 
-  implicit def JavaListAToJavaListB[A, B](list: java.lang.Iterable[A])(implicit aToBConverter: Converter[A, B]): java.lang.Iterable[B] = {
-    //TODO optimize
-    list.asScala.map(aToBConverter.apply).asJava
+  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): Converter[T[A], T[B]] = Converter {
+    _.map(aToBConverter.apply)
   }
 
-  implicit def OrAToOrB[A, B](ta: Or[A, Every[CactusFailure]])(implicit aToBConverter: Converter[A, B]): Or[B, Every[CactusFailure]] = {
-    ta.map(aToBConverter.apply)
+  //  implicit def ListAToJavaListB[A, IA <:Iterable[A],  B, IB <: java.lang.Iterable[B]](list: IA)(implicit aToBConverter: Converter[A, B]): Converter[IA, IB]  = Converter {
+  //    i =>
+  //    val map: Iterable[B] = i.map(aToBConverter.apply)
+  //
+  //      map.asJava
+  //  }
+
+  implicit def OrAToOrB[A, B](implicit aToBConverter: Converter[A, B]): Converter[Or[A, Every[CactusFailure]], Or[B, Every[CactusFailure]]] = Converter {
+    _.map(aToBConverter.apply)
   }
 
   implicit def AToB[A, B](a: A)(implicit aToBConverter: Converter[A, B]): B = {
@@ -171,12 +177,12 @@ object CactusMacros {
               val vectorTypeSymbol = typeOf[Vector[_]].typeSymbol
 
               val toFinalCollection = if (dstTypeSymbol != vectorTypeSymbol && !vectorTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol)) {
-                q" CactusMacros.OrAToOrB[Vector[$typeArg],${dstTypeSymbol.name.toTypeName}[$typeArg]] "
+                q" CactusMacros.AToB[Vector[$typeArg],${dstTypeSymbol.name.toTypeName}[$typeArg]] "
               } else {
                 q" identity "
               }
 
-              q" $toFinalCollection(Good($getter.asScala.toVector)) "
+              q" Good($toFinalCollection($getter.asScala.toVector)) "
 
             case None =>
               // TODO what if the src type is not a collection?
@@ -193,7 +199,8 @@ object CactusMacros {
             }
 
             q" CactusMacros.AToB[$srcTypeSymbol, $dstTypeSymbol]($getter) "
-          } else q" $getter "
+          } else
+            q" $getter "
 
           q" if ($query) Good($value) else Bad(One(MissingFieldFailure($nameInGpb))) "
       }
@@ -273,7 +280,7 @@ object CactusMacros {
           // we have to specify types to be converted manually, because type inference cannot determine it
           // the collections is converted to mutable Seq here, since it has to have unified format for the conversion
           q"""
-              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.Seq]($field.toSeq).asJava)
+              ${TermName("builder")}.$addMethod(CactusMacros.AToB[Seq[$fieldGenType], Seq[$getterGenType]]($field.toSeq).asJava)
            """
 
         case t => // plain type
@@ -282,7 +289,6 @@ object CactusMacros {
             if (Debug) {
               println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
             }
-
 
             q" CactusMacros.AToB[$srcResultType, $dstResultType]($field) "
           } else q" $field "
