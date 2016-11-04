@@ -8,6 +8,8 @@ lazy val commonSettings = Seq(
   scalacOptions ++= Seq("-Ypatmat-exhaust-depth", "off"),
   resolvers += Resolver.sonatypeRepo("releases"),
 
+  crossScalaVersions := Seq("2.11.8", "2.12.0"),
+
   organization := "com.avast",
   name := "cactus",
   version := sys.env.getOrElse("TRAVIS_TAG", "0.1-SNAPSHOT"),
