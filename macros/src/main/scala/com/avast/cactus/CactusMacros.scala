@@ -7,8 +7,6 @@ import scala.collection.generic.CanBuildFrom
 import scala.language.experimental.macros
 import scala.language.{higherKinds, implicitConversions}
 import scala.reflect.macros._
-import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
 
 object CactusMacros {
 
@@ -16,26 +14,20 @@ object CactusMacros {
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
-  def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
-    coll.map(aToBConverter.apply)
+  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
+    CollAToCollBGenerator[A, B, T].apply(coll)
   }
 
-  implicit def TryAToTryB[A, B](ta: Try[A])(implicit aToBConverter: Converter[A, B]): Try[B] = {
-    ta.map(aToBConverter.apply)
+  implicit def CollAToCollBGenerator[A, B, T[X] <: TraversableLike[X, T[X]]](implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): Converter[T[A], T[B]] = Converter {
+    _.map(aToBConverter.apply)
   }
 
-  implicit def OptAToOptB[A, B](ta: Option[A])(implicit aToBConverter: Converter[A, B]): Option[B] = {
-    ta.map(aToBConverter.apply)
+  implicit def OrAToOrB[A, B](implicit aToBConverter: Converter[A, B]): Converter[Or[A, Every[CactusFailure]], Or[B, Every[CactusFailure]]] = Converter {
+    _.map(aToBConverter.apply)
   }
 
   implicit def AToB[A, B](a: A)(implicit aToBConverter: Converter[A, B]): B = {
     aToBConverter.apply(a)
-  }
-
-  def tryToOption[A](t: Try[A]): Option[A] = t match {
-    case Success(a) => Option(a)
-    case Failure(e) if e.isInstanceOf[CactusException] => None
-    case Failure(NonFatal(e)) => throw e
   }
 
   def convertGpbToCaseClass[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree): c.Expr[CaseClass Or Every[CactusFailure]] = {
@@ -51,7 +43,6 @@ object CactusMacros {
     c.Expr[CaseClass Or Every[CactusFailure]] {
       val tree =
         q""" {
-          import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
 
@@ -82,7 +73,6 @@ object CactusMacros {
     c.Expr[Gpb Or Every[CactusFailure]] {
       val tree =
         q""" {
-          import com.avast.cactus.CactusException
           import com.avast.cactus.CactusFailure
           import com.avast.cactus.CactusMacros._
 
@@ -92,11 +82,7 @@ object CactusMacros {
           import scala.util.Try
           import scala.collection.JavaConverters._
 
-          try {
-            Good(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], variableName)})
-          } catch {
-            case e: CactusException => Bad(One(e.failure))
-          }
+          Good(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], variableName)})
          }
         """
 
@@ -124,9 +110,9 @@ object CactusMacros {
 
         val query = TermName(s"has$upper")
 
-        val value = processEndType(c)(fieldName, nameInGpb, returnType, gpbType)(q"$gpb.$query", q"$gpb.$gpbGetter", gpbGetter)
+        val value = processEndType(c)(fieldName, nameInGpb, dstType, gpbType)(q"$gpb.$query", q"$gpb.$gpbGetter", gpbGetter)
 
-        c.Expr(q"val $fieldName: $returnType Or Every[CactusFailure] = { $value }")
+        c.Expr(q"val $fieldName: $dstType Or Every[CactusFailure] = { $value }")
       }
 
       val fieldNames = fields.map(_.name.toTermName)
@@ -142,58 +128,69 @@ object CactusMacros {
 
 
     private def processEndType(c: whitebox.Context)
-                              (name: c.universe.TermName, nameInGpb: String, returnType: c.universe.Type, gpbType: c.universe.Type)
+                              (fieldName: c.universe.TermName, nameInGpb: String, returnType: c.universe.Type, gpbType: c.universe.Type)
                               (query: c.universe.Tree, getter: c.universe.Tree, gpbGetterMethod: c.universe.MethodSymbol): c.Tree = {
       import c.universe._
 
-      val typeSymbol = returnType.typeSymbol
-      val resultType = returnType.resultType
+      val dstResultType = returnType.resultType
 
-      resultType.toString match {
+      val srcTypeSymbol = gpbGetterMethod.returnType.resultType.typeSymbol
+      val dstTypeSymbol = dstResultType.typeSymbol
+
+      dstResultType.toString match {
         case OptPattern(t) => // Option[T]
-          val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
+          val typeArg = dstResultType.typeArgs.head // it's an Option, so it has 1 type arg
 
           q""" {
-                 val value: $typeArg Or Every[CactusFailure] = {${processEndType(c)(name, nameInGpb, typeArg, gpbType)(query, getter, gpbGetterMethod)}}
+                 val value: $typeArg Or Every[CactusFailure] = {${processEndType(c)(fieldName, nameInGpb, typeArg, gpbType)(query, getter, gpbGetterMethod)}}
 
                  value.map(Option(_)).recover(_ => None)
                }
            """
 
-        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // GPB -> case class
+        case t if caseClassAndGpb(c)(dstTypeSymbol, gpbGetterMethod) => // GPB -> case class
 
           val internalGpbType = gpbType.decls.collectFirst {
             case m: MethodSymbol if m.name.toString == getter.toString().split("\\.").reverse.head => m.returnType
           }.getOrElse(c.abort(c.enclosingPosition, "Could not determine internal GPB type"))
 
           if (Debug) {
-            println(s"Internal case class $typeSymbol, GPB type: ${internalGpbType.typeSymbol}")
+            println(s"Internal case class $srcTypeSymbol, GPB type: ${internalGpbType.typeSymbol}")
           }
 
           q" if ($query) ${createConverter(c)(returnType, internalGpbType, q"$getter ")} else Bad(One(MissingFieldFailure($nameInGpb))) "
 
-        case t if isCollection(c)(typeSymbol) => // collection
+        case t if isCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
 
-          val toFinalCollection = TermName(typeSymbol.name.toString match {
-            case "List" => "toList"
-            case _ => "toVector"
-          })
+          dstResultType.typeArgs.headOption match {
+            case Some(typeArg) =>
+              val vectorTypeSymbol = typeOf[Vector[_]].typeSymbol
 
-          // collections don't have the "has" method, test if empty instead
-          q" Good(CactusMacros.CollAToCollB($getter.asScala.$toFinalCollection)) "
+              val toFinalCollection = if (dstTypeSymbol != vectorTypeSymbol && !vectorTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol)) {
+                q" CactusMacros.AToB[Vector[$typeArg],${dstTypeSymbol.name.toTypeName}[$typeArg]] "
+              } else {
+                q" identity "
+              }
+
+              q" Good($toFinalCollection($getter.asScala.toVector)) "
+
+            case None =>
+              // TODO what if the src type is not a collection?
+              val getterGenType = extractGpbGenType(c)(gpbGetterMethod)
+
+              q" Good(CactusMacros.AToB[Vector[$getterGenType], $dstResultType]($getter.asScala.toVector)) "
+          }
 
         case t => // plain type
 
-          val srcType = gpbGetterMethod.returnType.resultType.typeSymbol
-          val dstType = returnType.resultType.typeSymbol
-
-          val value = if (srcType != dstType) {
+          val value = if (srcTypeSymbol != dstTypeSymbol) {
             if (Debug) {
-              println(s"Requires converter from $srcType to $dstType")
+              println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
             }
 
-            q" CactusMacros.AToB[$srcType, $dstType]($getter) "
-          } else q" $getter "
+            q" CactusMacros.AToB[$srcTypeSymbol, $dstTypeSymbol]($getter) "
+          } else
+            q" $getter "
 
           q" if ($query) Good($value) else Bad(One(MissingFieldFailure($nameInGpb))) "
       }
@@ -219,7 +216,7 @@ object CactusMacros {
 
         val setter = TermName(s"set$upper")
 
-        val assignment = processEndType(c)(q"$caseClass.$fieldName", returnType)(gpbType, gpbGetter, q"builder.$setter", upper)
+        val assignment = processEndType(c)(q"$caseClass.$fieldName", dstType)(gpbType, gpbGetter, q"builder.$setter", upper)
 
         c.Expr(q" $assignment ")
       }
@@ -236,58 +233,51 @@ object CactusMacros {
     }
 
     private def processEndType(c: whitebox.Context)
-                              (field: c.universe.Tree, returnType: c.universe.Type)
+                              (field: c.universe.Tree, srcReturnType: c.universe.Type)
                               (gpbType: c.universe.Type, gpbGetterMethod: c.universe.MethodSymbol, setter: c.universe.Tree, upperFieldName: String): c.Tree = {
       import c.universe._
 
-      val typeSymbol = returnType.typeSymbol
-      val resultType = returnType.resultType
+      val srcResultType = srcReturnType.resultType
+      val dstResultType = gpbGetterMethod.returnType.resultType
 
-      resultType.toString match {
+      val dstTypeSymbol = dstResultType.typeSymbol
+      val srcTypeSymbol = srcResultType.typeSymbol
+
+      srcResultType.toString match {
         case OptPattern(t) => // Option[T]
-          val typeArg = resultType.typeArgs.head // it's an Option, so it has 1 type arg
+          val typeArg = srcResultType.typeArgs.head // it's an Option, so it has 1 type arg
 
           q" $field.foreach(value => ${processEndType(c)(q"value", typeArg)(gpbType, gpbGetterMethod, setter, upperFieldName)}) "
 
-        case t if caseClassAndGpb(c)(typeSymbol, gpbGetterMethod) => // case class -> GPB
+        case t if caseClassAndGpb(c)(srcTypeSymbol, gpbGetterMethod) => // case class -> GPB
 
-          q" $setter(${createConverter(c)(typeSymbol.typeSignature, gpbGetterMethod.returnType, q" $field ")}) "
+          q" $setter(${createConverter(c)(srcTypeSymbol.typeSignature, gpbGetterMethod.returnType, q" $field ")}) "
 
-        case t if isCollection(c)(typeSymbol) => // collection
+        case t if isCollection(c)(srcTypeSymbol) || srcTypeSymbol.name == TypeName("Array") => // collection
 
           val l = if (upperFieldName.endsWith("List")) upperFieldName.substring(0, upperFieldName.length - 4) else upperFieldName
           val addMethod = TermName(s"addAll$l")
 
-          val fieldGenType = returnType.typeArgs.head // it's collection, it HAS type arg
+          val getterGenType = extractGpbGenType(c)(gpbGetterMethod)
 
-          val getterResultType = gpbGetterMethod.returnType.resultType
-          val getterGenType = getterResultType.typeArgs.headOption
-            .getOrElse {
-              if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
-                typeOf[java.lang.String]
-              } else {
-                c.abort(c.enclosingPosition, s"Could not convert $field to Seq[$getterResultType]")
-              }
-            }
+          // TODO what if the dst type is not a collection?
+          val (fieldGenType, value) = srcReturnType.typeArgs.headOption match {
+            case Some(genType) => (genType, field)
+            case None => (getterGenType, q" CactusMacros.AToB[$srcTypeSymbol, Vector[$getterGenType]]($field) ")
+          }
 
-          // the implicit conversion wouldn't be used implicitly
-          // we have to specify types to be converted manually, because type inference cannot determine it
-          // the collections is converted to mutable Seq here, since it has to have unified format for the conversion
           q"""
-              ${TermName("builder")}.$addMethod(CollAToCollB[$fieldGenType, $getterGenType, scala.Seq]($field.toSeq).asJava)
+              ${TermName("builder")}.$addMethod(CactusMacros.AToB[Seq[$fieldGenType], Seq[$getterGenType]]($field.toSeq).asJava)
            """
 
         case t => // plain type
 
-          val srcType = returnType.resultType.typeSymbol
-          val dstType = gpbGetterMethod.returnType.resultType.typeSymbol
-
-          val value = if (srcType != dstType) {
+          val value = if (srcTypeSymbol != dstTypeSymbol) {
             if (Debug) {
-              println(s"Requires converter from $srcType to $dstType")
+              println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
             }
 
-            q" CactusMacros.AToB[$srcType, $dstType]($field) "
+            q" CactusMacros.AToB[$srcResultType, $dstResultType]($field) "
           } else q" $field "
 
           q" $setter($value) "
@@ -326,7 +316,7 @@ object CactusMacros {
     import c.universe._
 
     val fieldName = field.name.decodedName.toTermName
-    val returnType = field.typeSignature
+    val dstType = field.typeSignature
 
     val annotsTypes = field.annotations.map(_.tree.tpe.toString)
     val annotsParams = field.annotations.map {
@@ -359,6 +349,22 @@ object CactusMacros {
         c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $fieldName")
       }
 
+  }
+
+  private def extractGpbGenType(c: whitebox.Context)(gpbGetterMethod: c.universe.MethodSymbol) = {
+    import c.universe._
+
+    val getterResultType = gpbGetterMethod.returnType.resultType
+    val getterGenType = getterResultType.typeArgs.headOption
+      .getOrElse {
+        if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
+          typeOf[java.lang.String]
+        } else {
+          c.abort(c.enclosingPosition, s"Could not extract generic type from $getterResultType")
+        }
+      }
+
+    getterGenType
   }
 
   private def extractSymbolFromClassTag[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree) = {

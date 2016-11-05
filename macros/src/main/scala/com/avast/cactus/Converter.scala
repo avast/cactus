@@ -1,6 +1,7 @@
 package com.avast.cactus
 
 import scala.annotation.implicitNotFound
+import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
 trait Converter[A, B] {
@@ -12,6 +13,8 @@ object Converter {
   def apply[A, B](f: A => B): Converter[A, B] = new Converter[A, B] {
     override def apply(a: A): B = f(a)
   }
+
+  // primitive types conversions:
 
   // this converter is necessary otherwise we get strange compilation errors
   implicit val string2StringConverter: Converter[String, java.lang.String] = Converter(identity)
@@ -34,4 +37,11 @@ object Converter {
   implicit val Double2doubleConverter: Converter[java.lang.Double, Double] = Converter(Double2double)
   implicit val Boolean2booleanConverter: Converter[java.lang.Boolean, Boolean] = Converter(Boolean2boolean)
 
+  // conversions generators:
+
+  implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] = Converter(_.map(aToBConverter.apply).toList)
+
+  implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
+
+  implicit def vectorToArray[A: ClassTag]: Converter[Vector[A], Array[A]] = Converter(_.toArray)
 }

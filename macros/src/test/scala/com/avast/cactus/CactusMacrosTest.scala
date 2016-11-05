@@ -1,6 +1,6 @@
 package com.avast.cactus
 
-import com.avast.cactus.TestMessage.{Data, Data2}
+import com.avast.cactus.TestMessage._
 import com.google.protobuf.ByteString
 import org.scalactic.{Bad, Good}
 import org.scalatest.FunSuite
@@ -73,7 +73,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("Case class to GPB") {
-    val caseClass = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), List(3, 6), List())
+    val caseClass = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), List(3, 6), List())
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
@@ -98,8 +98,8 @@ class CactusMacrosTest extends FunSuite {
     }
   }
 
-  test("case class to GPB and back") {
-    val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List())
+  test("convert case class to GPB and back") {
+    val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), Vector(3, 6), List())
 
     val Good(converted) = original.asGpb[Data]
 
@@ -133,10 +133,31 @@ case class CaseClassC(field: StringWrapperClass,
                       fieldGpb: CaseClassB,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
-                      fieldStrings: Seq[String],
+                      fieldStrings: Array[String],
                       fieldOptionIntegers: Seq[Int],
-                      fieldOptionIntegersEmpty: Seq[Int])
+                      fieldOptionIntegersEmpty: Seq[Int]) {
+
+  // needed because of the array
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case that: CaseClassC =>
+      field == that.field &&
+        fieldInt == that.fieldInt &&
+        fieldOption == that.fieldOption &&
+        fieldBlob == that.fieldBlob &&
+        fieldStrings2 == that.fieldStrings2 &&
+        fieldGpb == that.fieldGpb &&
+        fieldGpbOption == that.fieldGpbOption &&
+        fieldGpbOptionEmpty == that.fieldGpbOptionEmpty &&
+        (fieldStrings sameElements that.fieldStrings) &&
+        fieldOptionIntegers == that.fieldOptionIntegers &&
+        fieldOptionIntegersEmpty == that.fieldOptionIntegersEmpty
+
+    case _ => false
+  }
+}
 
 case class StringWrapperClass(value: String)
 
-object CaseClassA // this is here to prevent reappearing of bug with companion object
+object CaseClassA
+
+// this is here to prevent reappearing of bug with companion object
