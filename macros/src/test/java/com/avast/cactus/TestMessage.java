@@ -168,6 +168,31 @@ public final class TestMessage {
     int getFieldOptionIntegers(int index);
 
     /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    java.util.List<java.lang.Integer> getFieldIntegers2List();
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    int getFieldIntegers2Count();
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    int getFieldIntegers2(int index);
+
+    /**
      * <code>repeated int32 field_option_integers_empty = 7;</code>
      *
      * <pre>
@@ -283,6 +308,50 @@ public final class TestMessage {
      * </pre>
      */
     com.google.protobuf.ByteString getFieldBlob();
+
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    java.util.List<com.avast.cactus.TestMessage.MapMessage> 
+        getFieldMapList();
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    com.avast.cactus.TestMessage.MapMessage getFieldMap(int index);
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    int getFieldMapCount();
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    java.util.List<? extends com.avast.cactus.TestMessage.MapMessageOrBuilder> 
+        getFieldMapOrBuilderList();
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    com.avast.cactus.TestMessage.MapMessageOrBuilder getFieldMapOrBuilder(
+        int index);
   }
   /**
    * Protobuf type {@code Data}
@@ -392,9 +461,9 @@ public final class TestMessage {
               break;
             }
             case 56: {
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
                 fieldOptionIntegersEmpty_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000080;
               }
               fieldOptionIntegersEmpty_.add(input.readInt32());
               break;
@@ -402,9 +471,9 @@ public final class TestMessage {
             case 58: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080) && input.getBytesUntilLimit() > 0) {
                 fieldOptionIntegersEmpty_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000080;
               }
               while (input.getBytesUntilLimit() > 0) {
                 fieldOptionIntegersEmpty_.add(input.readInt32());
@@ -456,6 +525,35 @@ public final class TestMessage {
               fieldBlob_ = input.readBytes();
               break;
             }
+            case 98: {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+                fieldMap_ = new java.util.ArrayList<com.avast.cactus.TestMessage.MapMessage>();
+                mutable_bitField0_ |= 0x00001000;
+              }
+              fieldMap_.add(input.readMessage(com.avast.cactus.TestMessage.MapMessage.PARSER, extensionRegistry));
+              break;
+            }
+            case 104: {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+                fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              fieldIntegers2_.add(input.readInt32());
+              break;
+            }
+            case 106: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+                fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                fieldIntegers2_.add(input.readInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -473,8 +571,14 @@ public final class TestMessage {
         if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
           fieldOptionIntegers_ = java.util.Collections.unmodifiableList(fieldOptionIntegers_);
         }
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
           fieldOptionIntegersEmpty_ = java.util.Collections.unmodifiableList(fieldOptionIntegersEmpty_);
+        }
+        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+          fieldMap_ = java.util.Collections.unmodifiableList(fieldMap_);
+        }
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+          fieldIntegers2_ = java.util.Collections.unmodifiableList(fieldIntegers2_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -732,6 +836,40 @@ public final class TestMessage {
       return fieldOptionIntegers_.get(index);
     }
 
+    public static final int FIELD_INTEGERS2_FIELD_NUMBER = 13;
+    private java.util.List<java.lang.Integer> fieldIntegers2_;
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public java.util.List<java.lang.Integer>
+        getFieldIntegers2List() {
+      return fieldIntegers2_;
+    }
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public int getFieldIntegers2Count() {
+      return fieldIntegers2_.size();
+    }
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public int getFieldIntegers2(int index) {
+      return fieldIntegers2_.get(index);
+    }
+
     public static final int FIELD_OPTION_INTEGERS_EMPTY_FIELD_NUMBER = 7;
     private java.util.List<java.lang.Integer> fieldOptionIntegersEmpty_;
     /**
@@ -888,6 +1026,61 @@ public final class TestMessage {
       return fieldBlob_;
     }
 
+    public static final int FIELD_MAP_FIELD_NUMBER = 12;
+    private java.util.List<com.avast.cactus.TestMessage.MapMessage> fieldMap_;
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public java.util.List<com.avast.cactus.TestMessage.MapMessage> getFieldMapList() {
+      return fieldMap_;
+    }
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public java.util.List<? extends com.avast.cactus.TestMessage.MapMessageOrBuilder> 
+        getFieldMapOrBuilderList() {
+      return fieldMap_;
+    }
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public int getFieldMapCount() {
+      return fieldMap_.size();
+    }
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public com.avast.cactus.TestMessage.MapMessage getFieldMap(int index) {
+      return fieldMap_.get(index);
+    }
+    /**
+     * <code>repeated .MapMessage field_map = 12;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public com.avast.cactus.TestMessage.MapMessageOrBuilder getFieldMapOrBuilder(
+        int index) {
+      return fieldMap_.get(index);
+    }
+
     private void initFields() {
       field_ = "";
       fieldIntName_ = 0;
@@ -895,11 +1088,13 @@ public final class TestMessage {
       fieldStrings_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       fieldStringsName_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       fieldOptionIntegers_ = java.util.Collections.emptyList();
+      fieldIntegers2_ = java.util.Collections.emptyList();
       fieldOptionIntegersEmpty_ = java.util.Collections.emptyList();
       fieldGpbOption_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
       fieldGpbOptionEmpty_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
       fieldGpb_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
       fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
+      fieldMap_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -946,6 +1141,12 @@ public final class TestMessage {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBytes(11, fieldBlob_);
+      }
+      for (int i = 0; i < fieldMap_.size(); i++) {
+        output.writeMessage(12, fieldMap_.get(i));
+      }
+      for (int i = 0; i < fieldIntegers2_.size(); i++) {
+        output.writeInt32(13, fieldIntegers2_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1019,6 +1220,19 @@ public final class TestMessage {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(11, fieldBlob_);
+      }
+      for (int i = 0; i < fieldMap_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(12, fieldMap_.get(i));
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < fieldIntegers2_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeInt32SizeNoTag(fieldIntegers2_.get(i));
+        }
+        size += dataSize;
+        size += 1 * getFieldIntegers2List().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1132,6 +1346,7 @@ public final class TestMessage {
           getFieldGpbOptionFieldBuilder();
           getFieldGpbOptionEmptyFieldBuilder();
           getFieldGpbFieldBuilder();
+          getFieldMapFieldBuilder();
         }
       }
       private static Builder create() {
@@ -1152,28 +1367,36 @@ public final class TestMessage {
         bitField0_ = (bitField0_ & ~0x00000010);
         fieldOptionIntegers_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000020);
-        fieldOptionIntegersEmpty_ = java.util.Collections.emptyList();
+        fieldIntegers2_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000040);
+        fieldOptionIntegersEmpty_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000080);
         if (fieldGpbOptionBuilder_ == null) {
           fieldGpbOption_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
         } else {
           fieldGpbOptionBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000100);
         if (fieldGpbOptionEmptyBuilder_ == null) {
           fieldGpbOptionEmpty_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
         } else {
           fieldGpbOptionEmptyBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000200);
         if (fieldGpbBuilder_ == null) {
           fieldGpb_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
         } else {
           fieldGpbBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000200);
-        fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000400);
+        fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000800);
+        if (fieldMapBuilder_ == null) {
+          fieldMap_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00001000);
+        } else {
+          fieldMapBuilder_.clear();
+        }
         return this;
       }
 
@@ -1230,11 +1453,16 @@ public final class TestMessage {
         }
         result.fieldOptionIntegers_ = fieldOptionIntegers_;
         if (((bitField0_ & 0x00000040) == 0x00000040)) {
-          fieldOptionIntegersEmpty_ = java.util.Collections.unmodifiableList(fieldOptionIntegersEmpty_);
+          fieldIntegers2_ = java.util.Collections.unmodifiableList(fieldIntegers2_);
           bitField0_ = (bitField0_ & ~0x00000040);
         }
+        result.fieldIntegers2_ = fieldIntegers2_;
+        if (((bitField0_ & 0x00000080) == 0x00000080)) {
+          fieldOptionIntegersEmpty_ = java.util.Collections.unmodifiableList(fieldOptionIntegersEmpty_);
+          bitField0_ = (bitField0_ & ~0x00000080);
+        }
         result.fieldOptionIntegersEmpty_ = fieldOptionIntegersEmpty_;
-        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000008;
         }
         if (fieldGpbOptionBuilder_ == null) {
@@ -1242,7 +1470,7 @@ public final class TestMessage {
         } else {
           result.fieldGpbOption_ = fieldGpbOptionBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
           to_bitField0_ |= 0x00000010;
         }
         if (fieldGpbOptionEmptyBuilder_ == null) {
@@ -1250,7 +1478,7 @@ public final class TestMessage {
         } else {
           result.fieldGpbOptionEmpty_ = fieldGpbOptionEmptyBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000020;
         }
         if (fieldGpbBuilder_ == null) {
@@ -1258,10 +1486,19 @@ public final class TestMessage {
         } else {
           result.fieldGpb_ = fieldGpbBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
           to_bitField0_ |= 0x00000040;
         }
         result.fieldBlob_ = fieldBlob_;
+        if (fieldMapBuilder_ == null) {
+          if (((bitField0_ & 0x00001000) == 0x00001000)) {
+            fieldMap_ = java.util.Collections.unmodifiableList(fieldMap_);
+            bitField0_ = (bitField0_ & ~0x00001000);
+          }
+          result.fieldMap_ = fieldMap_;
+        } else {
+          result.fieldMap_ = fieldMapBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1319,10 +1556,20 @@ public final class TestMessage {
           }
           onChanged();
         }
+        if (!other.fieldIntegers2_.isEmpty()) {
+          if (fieldIntegers2_.isEmpty()) {
+            fieldIntegers2_ = other.fieldIntegers2_;
+            bitField0_ = (bitField0_ & ~0x00000040);
+          } else {
+            ensureFieldIntegers2IsMutable();
+            fieldIntegers2_.addAll(other.fieldIntegers2_);
+          }
+          onChanged();
+        }
         if (!other.fieldOptionIntegersEmpty_.isEmpty()) {
           if (fieldOptionIntegersEmpty_.isEmpty()) {
             fieldOptionIntegersEmpty_ = other.fieldOptionIntegersEmpty_;
-            bitField0_ = (bitField0_ & ~0x00000040);
+            bitField0_ = (bitField0_ & ~0x00000080);
           } else {
             ensureFieldOptionIntegersEmptyIsMutable();
             fieldOptionIntegersEmpty_.addAll(other.fieldOptionIntegersEmpty_);
@@ -1340,6 +1587,32 @@ public final class TestMessage {
         }
         if (other.hasFieldBlob()) {
           setFieldBlob(other.getFieldBlob());
+        }
+        if (fieldMapBuilder_ == null) {
+          if (!other.fieldMap_.isEmpty()) {
+            if (fieldMap_.isEmpty()) {
+              fieldMap_ = other.fieldMap_;
+              bitField0_ = (bitField0_ & ~0x00001000);
+            } else {
+              ensureFieldMapIsMutable();
+              fieldMap_.addAll(other.fieldMap_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.fieldMap_.isEmpty()) {
+            if (fieldMapBuilder_.isEmpty()) {
+              fieldMapBuilder_.dispose();
+              fieldMapBuilder_ = null;
+              fieldMap_ = other.fieldMap_;
+              bitField0_ = (bitField0_ & ~0x00001000);
+              fieldMapBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getFieldMapFieldBuilder() : null;
+            } else {
+              fieldMapBuilder_.addAllMessages(other.fieldMap_);
+            }
+          }
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1916,11 +2189,105 @@ public final class TestMessage {
         return this;
       }
 
+      private java.util.List<java.lang.Integer> fieldIntegers2_ = java.util.Collections.emptyList();
+      private void ensureFieldIntegers2IsMutable() {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+          fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>(fieldIntegers2_);
+          bitField0_ |= 0x00000040;
+         }
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public java.util.List<java.lang.Integer>
+          getFieldIntegers2List() {
+        return java.util.Collections.unmodifiableList(fieldIntegers2_);
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public int getFieldIntegers2Count() {
+        return fieldIntegers2_.size();
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public int getFieldIntegers2(int index) {
+        return fieldIntegers2_.get(index);
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder setFieldIntegers2(
+          int index, int value) {
+        ensureFieldIntegers2IsMutable();
+        fieldIntegers2_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder addFieldIntegers2(int value) {
+        ensureFieldIntegers2IsMutable();
+        fieldIntegers2_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder addAllFieldIntegers2(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureFieldIntegers2IsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, fieldIntegers2_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder clearFieldIntegers2() {
+        fieldIntegers2_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000040);
+        onChanged();
+        return this;
+      }
+
       private java.util.List<java.lang.Integer> fieldOptionIntegersEmpty_ = java.util.Collections.emptyList();
       private void ensureFieldOptionIntegersEmptyIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
           fieldOptionIntegersEmpty_ = new java.util.ArrayList<java.lang.Integer>(fieldOptionIntegersEmpty_);
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000080;
          }
       }
       /**
@@ -2005,7 +2372,7 @@ public final class TestMessage {
        */
       public Builder clearFieldOptionIntegersEmpty() {
         fieldOptionIntegersEmpty_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000080);
         onChanged();
         return this;
       }
@@ -2021,7 +2388,7 @@ public final class TestMessage {
        * </pre>
        */
       public boolean hasFieldGpbOption() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>optional .Data2 field_gpb_option = 8;</code>
@@ -2054,7 +2421,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000100;
         return this;
       }
       /**
@@ -2072,7 +2439,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000100;
         return this;
       }
       /**
@@ -2084,7 +2451,7 @@ public final class TestMessage {
        */
       public Builder mergeFieldGpbOption(com.avast.cactus.TestMessage.Data2 value) {
         if (fieldGpbOptionBuilder_ == null) {
-          if (((bitField0_ & 0x00000080) == 0x00000080) &&
+          if (((bitField0_ & 0x00000100) == 0x00000100) &&
               fieldGpbOption_ != com.avast.cactus.TestMessage.Data2.getDefaultInstance()) {
             fieldGpbOption_ =
               com.avast.cactus.TestMessage.Data2.newBuilder(fieldGpbOption_).mergeFrom(value).buildPartial();
@@ -2095,7 +2462,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000100;
         return this;
       }
       /**
@@ -2112,7 +2479,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000100);
         return this;
       }
       /**
@@ -2123,7 +2490,7 @@ public final class TestMessage {
        * </pre>
        */
       public com.avast.cactus.TestMessage.Data2.Builder getFieldGpbOptionBuilder() {
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000100;
         onChanged();
         return getFieldGpbOptionFieldBuilder().getBuilder();
       }
@@ -2173,7 +2540,7 @@ public final class TestMessage {
        * </pre>
        */
       public boolean hasFieldGpbOptionEmpty() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
        * <code>optional .Data2 field_gpb_option_empty = 9;</code>
@@ -2206,7 +2573,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionEmptyBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000200;
         return this;
       }
       /**
@@ -2224,7 +2591,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionEmptyBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000200;
         return this;
       }
       /**
@@ -2236,7 +2603,7 @@ public final class TestMessage {
        */
       public Builder mergeFieldGpbOptionEmpty(com.avast.cactus.TestMessage.Data2 value) {
         if (fieldGpbOptionEmptyBuilder_ == null) {
-          if (((bitField0_ & 0x00000100) == 0x00000100) &&
+          if (((bitField0_ & 0x00000200) == 0x00000200) &&
               fieldGpbOptionEmpty_ != com.avast.cactus.TestMessage.Data2.getDefaultInstance()) {
             fieldGpbOptionEmpty_ =
               com.avast.cactus.TestMessage.Data2.newBuilder(fieldGpbOptionEmpty_).mergeFrom(value).buildPartial();
@@ -2247,7 +2614,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionEmptyBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000200;
         return this;
       }
       /**
@@ -2264,7 +2631,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionEmptyBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000200);
         return this;
       }
       /**
@@ -2275,7 +2642,7 @@ public final class TestMessage {
        * </pre>
        */
       public com.avast.cactus.TestMessage.Data2.Builder getFieldGpbOptionEmptyBuilder() {
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000200;
         onChanged();
         return getFieldGpbOptionEmptyFieldBuilder().getBuilder();
       }
@@ -2325,7 +2692,7 @@ public final class TestMessage {
        * </pre>
        */
       public boolean hasFieldGpb() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
        * <code>optional .Data2 field_gpb = 10;</code>
@@ -2358,7 +2725,7 @@ public final class TestMessage {
         } else {
           fieldGpbBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000400;
         return this;
       }
       /**
@@ -2376,7 +2743,7 @@ public final class TestMessage {
         } else {
           fieldGpbBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000400;
         return this;
       }
       /**
@@ -2388,7 +2755,7 @@ public final class TestMessage {
        */
       public Builder mergeFieldGpb(com.avast.cactus.TestMessage.Data2 value) {
         if (fieldGpbBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200) &&
+          if (((bitField0_ & 0x00000400) == 0x00000400) &&
               fieldGpb_ != com.avast.cactus.TestMessage.Data2.getDefaultInstance()) {
             fieldGpb_ =
               com.avast.cactus.TestMessage.Data2.newBuilder(fieldGpb_).mergeFrom(value).buildPartial();
@@ -2399,7 +2766,7 @@ public final class TestMessage {
         } else {
           fieldGpbBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000400;
         return this;
       }
       /**
@@ -2416,7 +2783,7 @@ public final class TestMessage {
         } else {
           fieldGpbBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000400);
         return this;
       }
       /**
@@ -2427,7 +2794,7 @@ public final class TestMessage {
        * </pre>
        */
       public com.avast.cactus.TestMessage.Data2.Builder getFieldGpbBuilder() {
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000400;
         onChanged();
         return getFieldGpbFieldBuilder().getBuilder();
       }
@@ -2475,7 +2842,7 @@ public final class TestMessage {
        * </pre>
        */
       public boolean hasFieldBlob() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
        * <code>optional bytes field_blob = 11;</code>
@@ -2498,7 +2865,7 @@ public final class TestMessage {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000400;
+  bitField0_ |= 0x00000800;
         fieldBlob_ = value;
         onChanged();
         return this;
@@ -2511,10 +2878,322 @@ public final class TestMessage {
        * </pre>
        */
       public Builder clearFieldBlob() {
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000800);
         fieldBlob_ = getDefaultInstance().getFieldBlob();
         onChanged();
         return this;
+      }
+
+      private java.util.List<com.avast.cactus.TestMessage.MapMessage> fieldMap_ =
+        java.util.Collections.emptyList();
+      private void ensureFieldMapIsMutable() {
+        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
+          fieldMap_ = new java.util.ArrayList<com.avast.cactus.TestMessage.MapMessage>(fieldMap_);
+          bitField0_ |= 0x00001000;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.avast.cactus.TestMessage.MapMessage, com.avast.cactus.TestMessage.MapMessage.Builder, com.avast.cactus.TestMessage.MapMessageOrBuilder> fieldMapBuilder_;
+
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public java.util.List<com.avast.cactus.TestMessage.MapMessage> getFieldMapList() {
+        if (fieldMapBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(fieldMap_);
+        } else {
+          return fieldMapBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public int getFieldMapCount() {
+        if (fieldMapBuilder_ == null) {
+          return fieldMap_.size();
+        } else {
+          return fieldMapBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessage getFieldMap(int index) {
+        if (fieldMapBuilder_ == null) {
+          return fieldMap_.get(index);
+        } else {
+          return fieldMapBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder setFieldMap(
+          int index, com.avast.cactus.TestMessage.MapMessage value) {
+        if (fieldMapBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFieldMapIsMutable();
+          fieldMap_.set(index, value);
+          onChanged();
+        } else {
+          fieldMapBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder setFieldMap(
+          int index, com.avast.cactus.TestMessage.MapMessage.Builder builderForValue) {
+        if (fieldMapBuilder_ == null) {
+          ensureFieldMapIsMutable();
+          fieldMap_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          fieldMapBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addFieldMap(com.avast.cactus.TestMessage.MapMessage value) {
+        if (fieldMapBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFieldMapIsMutable();
+          fieldMap_.add(value);
+          onChanged();
+        } else {
+          fieldMapBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addFieldMap(
+          int index, com.avast.cactus.TestMessage.MapMessage value) {
+        if (fieldMapBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFieldMapIsMutable();
+          fieldMap_.add(index, value);
+          onChanged();
+        } else {
+          fieldMapBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addFieldMap(
+          com.avast.cactus.TestMessage.MapMessage.Builder builderForValue) {
+        if (fieldMapBuilder_ == null) {
+          ensureFieldMapIsMutable();
+          fieldMap_.add(builderForValue.build());
+          onChanged();
+        } else {
+          fieldMapBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addFieldMap(
+          int index, com.avast.cactus.TestMessage.MapMessage.Builder builderForValue) {
+        if (fieldMapBuilder_ == null) {
+          ensureFieldMapIsMutable();
+          fieldMap_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          fieldMapBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addAllFieldMap(
+          java.lang.Iterable<? extends com.avast.cactus.TestMessage.MapMessage> values) {
+        if (fieldMapBuilder_ == null) {
+          ensureFieldMapIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, fieldMap_);
+          onChanged();
+        } else {
+          fieldMapBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder clearFieldMap() {
+        if (fieldMapBuilder_ == null) {
+          fieldMap_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00001000);
+          onChanged();
+        } else {
+          fieldMapBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder removeFieldMap(int index) {
+        if (fieldMapBuilder_ == null) {
+          ensureFieldMapIsMutable();
+          fieldMap_.remove(index);
+          onChanged();
+        } else {
+          fieldMapBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessage.Builder getFieldMapBuilder(
+          int index) {
+        return getFieldMapFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessageOrBuilder getFieldMapOrBuilder(
+          int index) {
+        if (fieldMapBuilder_ == null) {
+          return fieldMap_.get(index);  } else {
+          return fieldMapBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public java.util.List<? extends com.avast.cactus.TestMessage.MapMessageOrBuilder> 
+           getFieldMapOrBuilderList() {
+        if (fieldMapBuilder_ != null) {
+          return fieldMapBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(fieldMap_);
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessage.Builder addFieldMapBuilder() {
+        return getFieldMapFieldBuilder().addBuilder(
+            com.avast.cactus.TestMessage.MapMessage.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessage.Builder addFieldMapBuilder(
+          int index) {
+        return getFieldMapFieldBuilder().addBuilder(
+            index, com.avast.cactus.TestMessage.MapMessage.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .MapMessage field_map = 12;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public java.util.List<com.avast.cactus.TestMessage.MapMessage.Builder> 
+           getFieldMapBuilderList() {
+        return getFieldMapFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.avast.cactus.TestMessage.MapMessage, com.avast.cactus.TestMessage.MapMessage.Builder, com.avast.cactus.TestMessage.MapMessageOrBuilder> 
+          getFieldMapFieldBuilder() {
+        if (fieldMapBuilder_ == null) {
+          fieldMapBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              com.avast.cactus.TestMessage.MapMessage, com.avast.cactus.TestMessage.MapMessage.Builder, com.avast.cactus.TestMessage.MapMessageOrBuilder>(
+                  fieldMap_,
+                  ((bitField0_ & 0x00001000) == 0x00001000),
+                  getParentForChildren(),
+                  isClean());
+          fieldMap_ = null;
+        }
+        return fieldMapBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:Data)
@@ -3070,6 +3749,940 @@ public final class TestMessage {
     // @@protoc_insertion_point(class_scope:Data2)
   }
 
+  public interface MapMessageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:MapMessage)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string key = 1;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    boolean hasKey();
+    /**
+     * <code>optional string key = 1;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    java.lang.String getKey();
+    /**
+     * <code>optional string key = 1;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+
+    /**
+     * <code>optional string value = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    boolean hasValue();
+    /**
+     * <code>optional string value = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    java.lang.String getValue();
+    /**
+     * <code>optional string value = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getValueBytes();
+
+    /**
+     * <code>optional string other = 3;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    boolean hasOther();
+    /**
+     * <code>optional string other = 3;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    java.lang.String getOther();
+    /**
+     * <code>optional string other = 3;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getOtherBytes();
+  }
+  /**
+   * Protobuf type {@code MapMessage}
+   */
+  public static final class MapMessage extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:MapMessage)
+      MapMessageOrBuilder {
+    // Use MapMessage.newBuilder() to construct.
+    private MapMessage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private MapMessage(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final MapMessage defaultInstance;
+    public static MapMessage getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public MapMessage getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private MapMessage(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              key_ = bs;
+              break;
+            }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              value_ = bs;
+              break;
+            }
+            case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000004;
+              other_ = bs;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.avast.cactus.TestMessage.internal_static_MapMessage_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.avast.cactus.TestMessage.internal_static_MapMessage_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.avast.cactus.TestMessage.MapMessage.class, com.avast.cactus.TestMessage.MapMessage.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<MapMessage> PARSER =
+        new com.google.protobuf.AbstractParser<MapMessage>() {
+      public MapMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new MapMessage(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MapMessage> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private java.lang.Object key_;
+    /**
+     * <code>optional string key = 1;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public boolean hasKey() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string key = 1;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          key_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string key = 1;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int VALUE_FIELD_NUMBER = 2;
+    private java.lang.Object value_;
+    /**
+     * <code>optional string value = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public boolean hasValue() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional string value = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public java.lang.String getValue() {
+      java.lang.Object ref = value_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          value_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string value = 2;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getValueBytes() {
+      java.lang.Object ref = value_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        value_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int OTHER_FIELD_NUMBER = 3;
+    private java.lang.Object other_;
+    /**
+     * <code>optional string other = 3;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public boolean hasOther() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional string other = 3;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public java.lang.String getOther() {
+      java.lang.Object ref = other_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          other_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string other = 3;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getOtherBytes() {
+      java.lang.Object ref = other_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        other_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private void initFields() {
+      key_ = "";
+      value_ = "";
+      other_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, getValueBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, getOtherBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getValueBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, getOtherBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static com.avast.cactus.TestMessage.MapMessage parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessage.MapMessage parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessage.MapMessage parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessage.MapMessage parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessage.MapMessage parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.avast.cactus.TestMessage.MapMessage parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessage.MapMessage parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static com.avast.cactus.TestMessage.MapMessage parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessage.MapMessage parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static com.avast.cactus.TestMessage.MapMessage parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(com.avast.cactus.TestMessage.MapMessage prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code MapMessage}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:MapMessage)
+        com.avast.cactus.TestMessage.MapMessageOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.avast.cactus.TestMessage.internal_static_MapMessage_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.avast.cactus.TestMessage.internal_static_MapMessage_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.avast.cactus.TestMessage.MapMessage.class, com.avast.cactus.TestMessage.MapMessage.Builder.class);
+      }
+
+      // Construct using com.avast.cactus.TestMessage.MapMessage.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        key_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        value_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        other_ = "";
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.avast.cactus.TestMessage.internal_static_MapMessage_descriptor;
+      }
+
+      public com.avast.cactus.TestMessage.MapMessage getDefaultInstanceForType() {
+        return com.avast.cactus.TestMessage.MapMessage.getDefaultInstance();
+      }
+
+      public com.avast.cactus.TestMessage.MapMessage build() {
+        com.avast.cactus.TestMessage.MapMessage result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.avast.cactus.TestMessage.MapMessage buildPartial() {
+        com.avast.cactus.TestMessage.MapMessage result = new com.avast.cactus.TestMessage.MapMessage(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.key_ = key_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.value_ = value_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.other_ = other_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.avast.cactus.TestMessage.MapMessage) {
+          return mergeFrom((com.avast.cactus.TestMessage.MapMessage)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.avast.cactus.TestMessage.MapMessage other) {
+        if (other == com.avast.cactus.TestMessage.MapMessage.getDefaultInstance()) return this;
+        if (other.hasKey()) {
+          bitField0_ |= 0x00000001;
+          key_ = other.key_;
+          onChanged();
+        }
+        if (other.hasValue()) {
+          bitField0_ |= 0x00000002;
+          value_ = other.value_;
+          onChanged();
+        }
+        if (other.hasOther()) {
+          bitField0_ |= 0x00000004;
+          other_ = other.other_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.avast.cactus.TestMessage.MapMessage parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.avast.cactus.TestMessage.MapMessage) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>optional string key = 1;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            key_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder clearKey() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object value_ = "";
+      /**
+       * <code>optional string value = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public boolean hasValue() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string value = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public java.lang.String getValue() {
+        java.lang.Object ref = value_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            value_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string value = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getValueBytes() {
+        java.lang.Object ref = value_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          value_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string value = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder setValue(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        value_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string value = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder clearValue() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        value_ = getDefaultInstance().getValue();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string value = 2;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder setValueBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        value_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object other_ = "";
+      /**
+       * <code>optional string other = 3;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public boolean hasOther() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional string other = 3;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public java.lang.String getOther() {
+        java.lang.Object ref = other_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            other_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string other = 3;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getOtherBytes() {
+        java.lang.Object ref = other_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          other_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string other = 3;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder setOther(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        other_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string other = 3;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder clearOther() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        other_ = getDefaultInstance().getOther();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string other = 3;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder setOtherBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        other_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:MapMessage)
+    }
+
+    static {
+      defaultInstance = new MapMessage(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:MapMessage)
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Data_descriptor;
   private static
@@ -3080,6 +4693,11 @@ public final class TestMessage {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Data2_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_MapMessage_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_MapMessage_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -3089,17 +4707,19 @@ public final class TestMessage {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\022test_message.proto\"\263\002\n\004Data\022\r\n\005field\030\001" +
+      "\n\022test_message.proto\"\354\002\n\004Data\022\r\n\005field\030\001" +
       " \001(\t\022\026\n\016field_int_name\030\002 \001(\005\022\024\n\014field_op" +
       "tion\030\003 \001(\005\022\025\n\rfield_strings\030\004 \003(\t\022\032\n\022fie" +
       "ld_strings_name\030\005 \003(\t\022\035\n\025field_option_in" +
-      "tegers\030\006 \003(\005\022#\n\033field_option_integers_em" +
-      "pty\030\007 \003(\005\022 \n\020field_gpb_option\030\010 \001(\0132\006.Da" +
-      "ta2\022&\n\026field_gpb_option_empty\030\t \001(\0132\006.Da" +
-      "ta2\022\031\n\tfield_gpb\030\n \001(\0132\006.Data2\022\022\n\nfield_" +
-      "blob\030\013 \001(\014\"1\n\005Data2\022\024\n\014field_double\030\001 \001(" +
-      "\001\022\022\n\nfield_blob\030\002 \001(\014B\022\n\020com.avast.cactu",
-      "s"
+      "tegers\030\006 \003(\005\022\027\n\017field_integers2\030\r \003(\005\022#\n" +
+      "\033field_option_integers_empty\030\007 \003(\005\022 \n\020fi" +
+      "eld_gpb_option\030\010 \001(\0132\006.Data2\022&\n\026field_gp" +
+      "b_option_empty\030\t \001(\0132\006.Data2\022\031\n\tfield_gp" +
+      "b\030\n \001(\0132\006.Data2\022\022\n\nfield_blob\030\013 \001(\014\022\036\n\tf" +
+      "ield_map\030\014 \003(\0132\013.MapMessage\"1\n\005Data2\022\024\n\014",
+      "field_double\030\001 \001(\001\022\022\n\nfield_blob\030\002 \001(\014\"7" +
+      "\n\nMapMessage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t" +
+      "\022\r\n\005other\030\003 \001(\tB\022\n\020com.avast.cactus"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3118,13 +4738,19 @@ public final class TestMessage {
     internal_static_Data_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Data_descriptor,
-        new java.lang.String[] { "Field", "FieldIntName", "FieldOption", "FieldStrings", "FieldStringsName", "FieldOptionIntegers", "FieldOptionIntegersEmpty", "FieldGpbOption", "FieldGpbOptionEmpty", "FieldGpb", "FieldBlob", });
+        new java.lang.String[] { "Field", "FieldIntName", "FieldOption", "FieldStrings", "FieldStringsName", "FieldOptionIntegers", "FieldIntegers2", "FieldOptionIntegersEmpty", "FieldGpbOption", "FieldGpbOptionEmpty", "FieldGpb", "FieldBlob", "FieldMap", });
     internal_static_Data2_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_Data2_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Data2_descriptor,
         new java.lang.String[] { "FieldDouble", "FieldBlob", });
+    internal_static_MapMessage_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_MapMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_MapMessage_descriptor,
+        new java.lang.String[] { "Key", "Value", "Other", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
