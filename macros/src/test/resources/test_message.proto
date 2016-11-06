@@ -12,9 +12,17 @@ message Data {
     optional Data2      field_gpb_option_empty = 9;         // OPTIONAL
     optional Data2      field_gpb = 10;   		            // REQUIRED
     optional bytes      field_blob = 11;                    // REQUIRED
+    repeated MapMessage field_map = 12;                     // OPTIONAL
+    repeated int32      field_integers2 = 13;               // REQUIRED
 }
 
 message Data2 {
     optional double     field_double = 1;	  	            // REQUIRED
     optional bytes      field_blob = 2;	                    // REQUIRED
+}
+
+message MapMessage {
+    optional string key = 1;                                // REQUIRED
+    optional string value = 2;                              // REQUIRED
+    optional string other = 3;                              // OPTIONAL
 }

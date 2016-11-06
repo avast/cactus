@@ -17,6 +17,9 @@ class CactusMacrosTest extends FunSuite {
   implicit val StringWrapperToStringConverter: Converter[StringWrapperClass, String] = Converter((b: StringWrapperClass) => b.value)
   implicit val StringToStringWrapperConverter: Converter[String, StringWrapperClass] = Converter((b: String) => StringWrapperClass(b))
 
+  implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter(_.asScala.mkString(", "))
+  implicit val StringJavaIntegerListConverter: Converter[String, java.util.List[Integer]] = Converter(_.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
+
   // these are not needed, but they are here to be sure it won't cause trouble to the user
   implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter((b: Array[Byte]) => ByteString.copyFrom(b))
   implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
@@ -26,6 +29,8 @@ class CactusMacrosTest extends FunSuite {
       .setFieldDouble(0.9)
       .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
+
+    val map = Map("first" -> "1", "second" -> "2")
 
     val gpb = TestMessage.Data.newBuilder()
       .setField("ahoj")
@@ -37,9 +42,11 @@ class CactusMacrosTest extends FunSuite {
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
+      .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
+      .addAllFieldMap(map.map { case (key, value) => TestMessage.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
       .build()
 
-    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List())
+    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List(), "1, 2", map)
     assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
   }
 
@@ -73,7 +80,9 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("Case class to GPB") {
-    val caseClass = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), List(3, 6), List())
+    val map = Map("first" -> "1", "second" -> "2")
+
+    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List(), "1, 2", map)
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
@@ -90,8 +99,9 @@ class CactusMacrosTest extends FunSuite {
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
+      .addAllFieldMap(map.map { case (key, value) => TestMessage.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
+      .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
       .build()
-
 
     caseClass.asGpb[Data] match {
       case Good(e) if e == expectedGpb => // ok
@@ -99,7 +109,9 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("convert case class to GPB and back") {
-    val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), Vector(3, 6), List())
+    val map = Map("first" -> "1", "second" -> "2")
+
+    val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), Vector(3, 6), List(), map)
 
     val Good(converted) = original.asGpb[Data]
 
@@ -119,7 +131,11 @@ case class CaseClassA(field: String,
                       fieldGpbOptionEmpty: Option[CaseClassB],
                       fieldStrings: immutable.Seq[String],
                       fieldOptionIntegers: Vector[Int],
-                      fieldOptionIntegersEmpty: List[Int])
+                      fieldOptionIntegersEmpty: List[Int],
+                      @GpbName("fieldIntegers2")
+                      fieldIntegersString: String,
+                      @GpbMap(key = "key", value = "value")
+                      fieldMap: Map[String, String])
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
@@ -135,7 +151,9 @@ case class CaseClassC(field: StringWrapperClass,
                       fieldGpbOptionEmpty: Option[CaseClassB],
                       fieldStrings: Array[String],
                       fieldOptionIntegers: Seq[Int],
-                      fieldOptionIntegersEmpty: Seq[Int]) {
+                      fieldOptionIntegersEmpty: Seq[Int],
+                      @GpbMap(key = "key", value = "value")
+                      fieldMap: Map[String, String]) {
 
   // needed because of the array
   override def equals(obj: scala.Any): Boolean = obj match {
@@ -150,7 +168,8 @@ case class CaseClassC(field: StringWrapperClass,
         fieldGpbOptionEmpty == that.fieldGpbOptionEmpty &&
         (fieldStrings sameElements that.fieldStrings) &&
         fieldOptionIntegers == that.fieldOptionIntegers &&
-        fieldOptionIntegersEmpty == that.fieldOptionIntegersEmpty
+        fieldOptionIntegersEmpty == that.fieldOptionIntegersEmpty &&
+        fieldMap == fieldMap
 
     case _ => false
   }
