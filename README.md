@@ -23,6 +23,9 @@ Currently there is only one possible failure (`MissingFieldFailure`) which conta
 It is common that the field has different name in the GPB and in the case class. You can use `GpbName` annotation 
 to override the expected name - see the example.
 
+GPBs 2.x does not have map type and it's usually solved by using repeated field with message, which contains `key` and `value` fields. Automatic conversion
+to (and from) Scala `Map` is supported via `GpbMap` annotation - see the `CaseClassA` in example.
+
 Mapping of complex messages (message contains another message which contains another message) is supported.
 However **recursive** mapping (field with `Data` type in `Data` class) is **NOT supported**. 
 
@@ -43,11 +46,18 @@ message Data {
     optional Data2      field_gpb_option_empty = 9;         // OPTIONAL
     optional Data2      field_gpb = 10;   		            // REQUIRED
     optional bytes      field_blob = 11;                    // REQUIRED
+    repeated MapMessage field_map = 12;                     // OPTIONAL
 }
 
 message Data2 {
     optional double     field_double = 1;	  	            // REQUIRED
     optional bytes      field_blob = 2;	                    // REQUIRED
+}
+
+message MapMessage {
+    optional string key = 1;                                // REQUIRED
+    optional string value = 2;                              // REQUIRED
+    optional string other = 3;                              // OPTIONAL
 }
 ```
 
@@ -70,7 +80,9 @@ case class CaseClassA(
   fieldGpbOptionEmpty: Option[CaseClassB],
   fieldStrings: immutable.Seq[String],
   fieldOptionIntegers: Seq[Int],
-  fieldOptionIntegersEmpty: List[Int]
+  fieldOptionIntegersEmpty: List[Int],
+  @GpbMap(key = "key", value = "value")
+  fieldMap: Map[String, String]
 )
 
 case class CaseClassB(
@@ -97,6 +109,7 @@ object Test extends App {
    .addAllFieldStrings(Seq("a", "b").asJava)
    .addAllFieldStringsName(Seq("a").asJava)
    .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
+   .addAllFieldMap(map.map { case (key, value) => TestMessage.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
    .build()
 
   gpb.asCaseClass[CaseClassA] match {
