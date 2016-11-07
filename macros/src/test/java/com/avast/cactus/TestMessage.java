@@ -168,31 +168,6 @@ public final class TestMessage {
     int getFieldOptionIntegers(int index);
 
     /**
-     * <code>repeated int32 field_integers2 = 13;</code>
-     *
-     * <pre>
-     * REQUIRED
-     * </pre>
-     */
-    java.util.List<java.lang.Integer> getFieldIntegers2List();
-    /**
-     * <code>repeated int32 field_integers2 = 13;</code>
-     *
-     * <pre>
-     * REQUIRED
-     * </pre>
-     */
-    int getFieldIntegers2Count();
-    /**
-     * <code>repeated int32 field_integers2 = 13;</code>
-     *
-     * <pre>
-     * REQUIRED
-     * </pre>
-     */
-    int getFieldIntegers2(int index);
-
-    /**
      * <code>repeated int32 field_option_integers_empty = 7;</code>
      *
      * <pre>
@@ -352,6 +327,75 @@ public final class TestMessage {
      */
     com.avast.cactus.TestMessage.MapMessageOrBuilder getFieldMapOrBuilder(
         int index);
+
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    java.util.List<java.lang.Integer> getFieldIntegers2List();
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    int getFieldIntegers2Count();
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    int getFieldIntegers2(int index);
+
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    java.util.List<com.avast.cactus.TestMessage.MapMessage> 
+        getFieldMap2List();
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    com.avast.cactus.TestMessage.MapMessage getFieldMap2(int index);
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    int getFieldMap2Count();
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    java.util.List<? extends com.avast.cactus.TestMessage.MapMessageOrBuilder> 
+        getFieldMap2OrBuilderList();
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    com.avast.cactus.TestMessage.MapMessageOrBuilder getFieldMap2OrBuilder(
+        int index);
   }
   /**
    * Protobuf type {@code Data}
@@ -461,9 +505,9 @@ public final class TestMessage {
               break;
             }
             case 56: {
-              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
                 fieldOptionIntegersEmpty_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000080;
+                mutable_bitField0_ |= 0x00000040;
               }
               fieldOptionIntegersEmpty_.add(input.readInt32());
               break;
@@ -471,9 +515,9 @@ public final class TestMessage {
             case 58: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
                 fieldOptionIntegersEmpty_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000080;
+                mutable_bitField0_ |= 0x00000040;
               }
               while (input.getBytesUntilLimit() > 0) {
                 fieldOptionIntegersEmpty_.add(input.readInt32());
@@ -526,17 +570,17 @@ public final class TestMessage {
               break;
             }
             case 98: {
-              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+              if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
                 fieldMap_ = new java.util.ArrayList<com.avast.cactus.TestMessage.MapMessage>();
-                mutable_bitField0_ |= 0x00001000;
+                mutable_bitField0_ |= 0x00000800;
               }
               fieldMap_.add(input.readMessage(com.avast.cactus.TestMessage.MapMessage.PARSER, extensionRegistry));
               break;
             }
             case 104: {
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
                 fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00001000;
               }
               fieldIntegers2_.add(input.readInt32());
               break;
@@ -544,14 +588,22 @@ public final class TestMessage {
             case 106: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000) && input.getBytesUntilLimit() > 0) {
                 fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00001000;
               }
               while (input.getBytesUntilLimit() > 0) {
                 fieldIntegers2_.add(input.readInt32());
               }
               input.popLimit(limit);
+              break;
+            }
+            case 114: {
+              if (!((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
+                fieldMap2_ = new java.util.ArrayList<com.avast.cactus.TestMessage.MapMessage>();
+                mutable_bitField0_ |= 0x00002000;
+              }
+              fieldMap2_.add(input.readMessage(com.avast.cactus.TestMessage.MapMessage.PARSER, extensionRegistry));
               break;
             }
           }
@@ -571,14 +623,17 @@ public final class TestMessage {
         if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
           fieldOptionIntegers_ = java.util.Collections.unmodifiableList(fieldOptionIntegers_);
         }
-        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           fieldOptionIntegersEmpty_ = java.util.Collections.unmodifiableList(fieldOptionIntegersEmpty_);
         }
-        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+        if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
           fieldMap_ = java.util.Collections.unmodifiableList(fieldMap_);
         }
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
           fieldIntegers2_ = java.util.Collections.unmodifiableList(fieldIntegers2_);
+        }
+        if (((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
+          fieldMap2_ = java.util.Collections.unmodifiableList(fieldMap2_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -836,40 +891,6 @@ public final class TestMessage {
       return fieldOptionIntegers_.get(index);
     }
 
-    public static final int FIELD_INTEGERS2_FIELD_NUMBER = 13;
-    private java.util.List<java.lang.Integer> fieldIntegers2_;
-    /**
-     * <code>repeated int32 field_integers2 = 13;</code>
-     *
-     * <pre>
-     * REQUIRED
-     * </pre>
-     */
-    public java.util.List<java.lang.Integer>
-        getFieldIntegers2List() {
-      return fieldIntegers2_;
-    }
-    /**
-     * <code>repeated int32 field_integers2 = 13;</code>
-     *
-     * <pre>
-     * REQUIRED
-     * </pre>
-     */
-    public int getFieldIntegers2Count() {
-      return fieldIntegers2_.size();
-    }
-    /**
-     * <code>repeated int32 field_integers2 = 13;</code>
-     *
-     * <pre>
-     * REQUIRED
-     * </pre>
-     */
-    public int getFieldIntegers2(int index) {
-      return fieldIntegers2_.get(index);
-    }
-
     public static final int FIELD_OPTION_INTEGERS_EMPTY_FIELD_NUMBER = 7;
     private java.util.List<java.lang.Integer> fieldOptionIntegersEmpty_;
     /**
@@ -1081,6 +1102,95 @@ public final class TestMessage {
       return fieldMap_.get(index);
     }
 
+    public static final int FIELD_INTEGERS2_FIELD_NUMBER = 13;
+    private java.util.List<java.lang.Integer> fieldIntegers2_;
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public java.util.List<java.lang.Integer>
+        getFieldIntegers2List() {
+      return fieldIntegers2_;
+    }
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public int getFieldIntegers2Count() {
+      return fieldIntegers2_.size();
+    }
+    /**
+     * <code>repeated int32 field_integers2 = 13;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public int getFieldIntegers2(int index) {
+      return fieldIntegers2_.get(index);
+    }
+
+    public static final int FIELD_MAP2_FIELD_NUMBER = 14;
+    private java.util.List<com.avast.cactus.TestMessage.MapMessage> fieldMap2_;
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public java.util.List<com.avast.cactus.TestMessage.MapMessage> getFieldMap2List() {
+      return fieldMap2_;
+    }
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public java.util.List<? extends com.avast.cactus.TestMessage.MapMessageOrBuilder> 
+        getFieldMap2OrBuilderList() {
+      return fieldMap2_;
+    }
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public int getFieldMap2Count() {
+      return fieldMap2_.size();
+    }
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public com.avast.cactus.TestMessage.MapMessage getFieldMap2(int index) {
+      return fieldMap2_.get(index);
+    }
+    /**
+     * <code>repeated .MapMessage field_map2 = 14;</code>
+     *
+     * <pre>
+     * OPTIONAL
+     * </pre>
+     */
+    public com.avast.cactus.TestMessage.MapMessageOrBuilder getFieldMap2OrBuilder(
+        int index) {
+      return fieldMap2_.get(index);
+    }
+
     private void initFields() {
       field_ = "";
       fieldIntName_ = 0;
@@ -1088,13 +1198,14 @@ public final class TestMessage {
       fieldStrings_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       fieldStringsName_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       fieldOptionIntegers_ = java.util.Collections.emptyList();
-      fieldIntegers2_ = java.util.Collections.emptyList();
       fieldOptionIntegersEmpty_ = java.util.Collections.emptyList();
       fieldGpbOption_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
       fieldGpbOptionEmpty_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
       fieldGpb_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
       fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
       fieldMap_ = java.util.Collections.emptyList();
+      fieldIntegers2_ = java.util.Collections.emptyList();
+      fieldMap2_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1147,6 +1258,9 @@ public final class TestMessage {
       }
       for (int i = 0; i < fieldIntegers2_.size(); i++) {
         output.writeInt32(13, fieldIntegers2_.get(i));
+      }
+      for (int i = 0; i < fieldMap2_.size(); i++) {
+        output.writeMessage(14, fieldMap2_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1233,6 +1347,10 @@ public final class TestMessage {
         }
         size += dataSize;
         size += 1 * getFieldIntegers2List().size();
+      }
+      for (int i = 0; i < fieldMap2_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(14, fieldMap2_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1347,6 +1465,7 @@ public final class TestMessage {
           getFieldGpbOptionEmptyFieldBuilder();
           getFieldGpbFieldBuilder();
           getFieldMapFieldBuilder();
+          getFieldMap2FieldBuilder();
         }
       }
       private static Builder create() {
@@ -1367,35 +1486,41 @@ public final class TestMessage {
         bitField0_ = (bitField0_ & ~0x00000010);
         fieldOptionIntegers_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000020);
-        fieldIntegers2_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000040);
         fieldOptionIntegersEmpty_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         if (fieldGpbOptionBuilder_ == null) {
           fieldGpbOption_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
         } else {
           fieldGpbOptionBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         if (fieldGpbOptionEmptyBuilder_ == null) {
           fieldGpbOptionEmpty_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
         } else {
           fieldGpbOptionEmptyBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000100);
         if (fieldGpbBuilder_ == null) {
           fieldGpb_ = com.avast.cactus.TestMessage.Data2.getDefaultInstance();
         } else {
           fieldGpbBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000200);
         fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00000400);
         if (fieldMapBuilder_ == null) {
           fieldMap_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00001000);
+          bitField0_ = (bitField0_ & ~0x00000800);
         } else {
           fieldMapBuilder_.clear();
+        }
+        fieldIntegers2_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00001000);
+        if (fieldMap2Builder_ == null) {
+          fieldMap2_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00002000);
+        } else {
+          fieldMap2Builder_.clear();
         }
         return this;
       }
@@ -1453,16 +1578,11 @@ public final class TestMessage {
         }
         result.fieldOptionIntegers_ = fieldOptionIntegers_;
         if (((bitField0_ & 0x00000040) == 0x00000040)) {
-          fieldIntegers2_ = java.util.Collections.unmodifiableList(fieldIntegers2_);
+          fieldOptionIntegersEmpty_ = java.util.Collections.unmodifiableList(fieldOptionIntegersEmpty_);
           bitField0_ = (bitField0_ & ~0x00000040);
         }
-        result.fieldIntegers2_ = fieldIntegers2_;
-        if (((bitField0_ & 0x00000080) == 0x00000080)) {
-          fieldOptionIntegersEmpty_ = java.util.Collections.unmodifiableList(fieldOptionIntegersEmpty_);
-          bitField0_ = (bitField0_ & ~0x00000080);
-        }
         result.fieldOptionIntegersEmpty_ = fieldOptionIntegersEmpty_;
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
           to_bitField0_ |= 0x00000008;
         }
         if (fieldGpbOptionBuilder_ == null) {
@@ -1470,7 +1590,7 @@ public final class TestMessage {
         } else {
           result.fieldGpbOption_ = fieldGpbOptionBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000010;
         }
         if (fieldGpbOptionEmptyBuilder_ == null) {
@@ -1478,7 +1598,7 @@ public final class TestMessage {
         } else {
           result.fieldGpbOptionEmpty_ = fieldGpbOptionEmptyBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
           to_bitField0_ |= 0x00000020;
         }
         if (fieldGpbBuilder_ == null) {
@@ -1486,18 +1606,32 @@ public final class TestMessage {
         } else {
           result.fieldGpb_ = fieldGpbBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000040;
         }
         result.fieldBlob_ = fieldBlob_;
         if (fieldMapBuilder_ == null) {
-          if (((bitField0_ & 0x00001000) == 0x00001000)) {
+          if (((bitField0_ & 0x00000800) == 0x00000800)) {
             fieldMap_ = java.util.Collections.unmodifiableList(fieldMap_);
-            bitField0_ = (bitField0_ & ~0x00001000);
+            bitField0_ = (bitField0_ & ~0x00000800);
           }
           result.fieldMap_ = fieldMap_;
         } else {
           result.fieldMap_ = fieldMapBuilder_.build();
+        }
+        if (((bitField0_ & 0x00001000) == 0x00001000)) {
+          fieldIntegers2_ = java.util.Collections.unmodifiableList(fieldIntegers2_);
+          bitField0_ = (bitField0_ & ~0x00001000);
+        }
+        result.fieldIntegers2_ = fieldIntegers2_;
+        if (fieldMap2Builder_ == null) {
+          if (((bitField0_ & 0x00002000) == 0x00002000)) {
+            fieldMap2_ = java.util.Collections.unmodifiableList(fieldMap2_);
+            bitField0_ = (bitField0_ & ~0x00002000);
+          }
+          result.fieldMap2_ = fieldMap2_;
+        } else {
+          result.fieldMap2_ = fieldMap2Builder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -1556,20 +1690,10 @@ public final class TestMessage {
           }
           onChanged();
         }
-        if (!other.fieldIntegers2_.isEmpty()) {
-          if (fieldIntegers2_.isEmpty()) {
-            fieldIntegers2_ = other.fieldIntegers2_;
-            bitField0_ = (bitField0_ & ~0x00000040);
-          } else {
-            ensureFieldIntegers2IsMutable();
-            fieldIntegers2_.addAll(other.fieldIntegers2_);
-          }
-          onChanged();
-        }
         if (!other.fieldOptionIntegersEmpty_.isEmpty()) {
           if (fieldOptionIntegersEmpty_.isEmpty()) {
             fieldOptionIntegersEmpty_ = other.fieldOptionIntegersEmpty_;
-            bitField0_ = (bitField0_ & ~0x00000080);
+            bitField0_ = (bitField0_ & ~0x00000040);
           } else {
             ensureFieldOptionIntegersEmptyIsMutable();
             fieldOptionIntegersEmpty_.addAll(other.fieldOptionIntegersEmpty_);
@@ -1592,7 +1716,7 @@ public final class TestMessage {
           if (!other.fieldMap_.isEmpty()) {
             if (fieldMap_.isEmpty()) {
               fieldMap_ = other.fieldMap_;
-              bitField0_ = (bitField0_ & ~0x00001000);
+              bitField0_ = (bitField0_ & ~0x00000800);
             } else {
               ensureFieldMapIsMutable();
               fieldMap_.addAll(other.fieldMap_);
@@ -1605,12 +1729,48 @@ public final class TestMessage {
               fieldMapBuilder_.dispose();
               fieldMapBuilder_ = null;
               fieldMap_ = other.fieldMap_;
-              bitField0_ = (bitField0_ & ~0x00001000);
+              bitField0_ = (bitField0_ & ~0x00000800);
               fieldMapBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getFieldMapFieldBuilder() : null;
             } else {
               fieldMapBuilder_.addAllMessages(other.fieldMap_);
+            }
+          }
+        }
+        if (!other.fieldIntegers2_.isEmpty()) {
+          if (fieldIntegers2_.isEmpty()) {
+            fieldIntegers2_ = other.fieldIntegers2_;
+            bitField0_ = (bitField0_ & ~0x00001000);
+          } else {
+            ensureFieldIntegers2IsMutable();
+            fieldIntegers2_.addAll(other.fieldIntegers2_);
+          }
+          onChanged();
+        }
+        if (fieldMap2Builder_ == null) {
+          if (!other.fieldMap2_.isEmpty()) {
+            if (fieldMap2_.isEmpty()) {
+              fieldMap2_ = other.fieldMap2_;
+              bitField0_ = (bitField0_ & ~0x00002000);
+            } else {
+              ensureFieldMap2IsMutable();
+              fieldMap2_.addAll(other.fieldMap2_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.fieldMap2_.isEmpty()) {
+            if (fieldMap2Builder_.isEmpty()) {
+              fieldMap2Builder_.dispose();
+              fieldMap2Builder_ = null;
+              fieldMap2_ = other.fieldMap2_;
+              bitField0_ = (bitField0_ & ~0x00002000);
+              fieldMap2Builder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getFieldMap2FieldBuilder() : null;
+            } else {
+              fieldMap2Builder_.addAllMessages(other.fieldMap2_);
             }
           }
         }
@@ -2189,105 +2349,11 @@ public final class TestMessage {
         return this;
       }
 
-      private java.util.List<java.lang.Integer> fieldIntegers2_ = java.util.Collections.emptyList();
-      private void ensureFieldIntegers2IsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
-          fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>(fieldIntegers2_);
-          bitField0_ |= 0x00000040;
-         }
-      }
-      /**
-       * <code>repeated int32 field_integers2 = 13;</code>
-       *
-       * <pre>
-       * REQUIRED
-       * </pre>
-       */
-      public java.util.List<java.lang.Integer>
-          getFieldIntegers2List() {
-        return java.util.Collections.unmodifiableList(fieldIntegers2_);
-      }
-      /**
-       * <code>repeated int32 field_integers2 = 13;</code>
-       *
-       * <pre>
-       * REQUIRED
-       * </pre>
-       */
-      public int getFieldIntegers2Count() {
-        return fieldIntegers2_.size();
-      }
-      /**
-       * <code>repeated int32 field_integers2 = 13;</code>
-       *
-       * <pre>
-       * REQUIRED
-       * </pre>
-       */
-      public int getFieldIntegers2(int index) {
-        return fieldIntegers2_.get(index);
-      }
-      /**
-       * <code>repeated int32 field_integers2 = 13;</code>
-       *
-       * <pre>
-       * REQUIRED
-       * </pre>
-       */
-      public Builder setFieldIntegers2(
-          int index, int value) {
-        ensureFieldIntegers2IsMutable();
-        fieldIntegers2_.set(index, value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 field_integers2 = 13;</code>
-       *
-       * <pre>
-       * REQUIRED
-       * </pre>
-       */
-      public Builder addFieldIntegers2(int value) {
-        ensureFieldIntegers2IsMutable();
-        fieldIntegers2_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 field_integers2 = 13;</code>
-       *
-       * <pre>
-       * REQUIRED
-       * </pre>
-       */
-      public Builder addAllFieldIntegers2(
-          java.lang.Iterable<? extends java.lang.Integer> values) {
-        ensureFieldIntegers2IsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, fieldIntegers2_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 field_integers2 = 13;</code>
-       *
-       * <pre>
-       * REQUIRED
-       * </pre>
-       */
-      public Builder clearFieldIntegers2() {
-        fieldIntegers2_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000040);
-        onChanged();
-        return this;
-      }
-
       private java.util.List<java.lang.Integer> fieldOptionIntegersEmpty_ = java.util.Collections.emptyList();
       private void ensureFieldOptionIntegersEmptyIsMutable() {
-        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
           fieldOptionIntegersEmpty_ = new java.util.ArrayList<java.lang.Integer>(fieldOptionIntegersEmpty_);
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000040;
          }
       }
       /**
@@ -2372,7 +2438,7 @@ public final class TestMessage {
        */
       public Builder clearFieldOptionIntegersEmpty() {
         fieldOptionIntegersEmpty_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         onChanged();
         return this;
       }
@@ -2388,7 +2454,7 @@ public final class TestMessage {
        * </pre>
        */
       public boolean hasFieldGpbOption() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
        * <code>optional .Data2 field_gpb_option = 8;</code>
@@ -2421,7 +2487,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000080;
         return this;
       }
       /**
@@ -2439,7 +2505,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000080;
         return this;
       }
       /**
@@ -2451,7 +2517,7 @@ public final class TestMessage {
        */
       public Builder mergeFieldGpbOption(com.avast.cactus.TestMessage.Data2 value) {
         if (fieldGpbOptionBuilder_ == null) {
-          if (((bitField0_ & 0x00000100) == 0x00000100) &&
+          if (((bitField0_ & 0x00000080) == 0x00000080) &&
               fieldGpbOption_ != com.avast.cactus.TestMessage.Data2.getDefaultInstance()) {
             fieldGpbOption_ =
               com.avast.cactus.TestMessage.Data2.newBuilder(fieldGpbOption_).mergeFrom(value).buildPartial();
@@ -2462,7 +2528,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000080;
         return this;
       }
       /**
@@ -2479,7 +2545,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
       /**
@@ -2490,7 +2556,7 @@ public final class TestMessage {
        * </pre>
        */
       public com.avast.cactus.TestMessage.Data2.Builder getFieldGpbOptionBuilder() {
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000080;
         onChanged();
         return getFieldGpbOptionFieldBuilder().getBuilder();
       }
@@ -2540,7 +2606,7 @@ public final class TestMessage {
        * </pre>
        */
       public boolean hasFieldGpbOptionEmpty() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>optional .Data2 field_gpb_option_empty = 9;</code>
@@ -2573,7 +2639,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionEmptyBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         return this;
       }
       /**
@@ -2591,7 +2657,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionEmptyBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         return this;
       }
       /**
@@ -2603,7 +2669,7 @@ public final class TestMessage {
        */
       public Builder mergeFieldGpbOptionEmpty(com.avast.cactus.TestMessage.Data2 value) {
         if (fieldGpbOptionEmptyBuilder_ == null) {
-          if (((bitField0_ & 0x00000200) == 0x00000200) &&
+          if (((bitField0_ & 0x00000100) == 0x00000100) &&
               fieldGpbOptionEmpty_ != com.avast.cactus.TestMessage.Data2.getDefaultInstance()) {
             fieldGpbOptionEmpty_ =
               com.avast.cactus.TestMessage.Data2.newBuilder(fieldGpbOptionEmpty_).mergeFrom(value).buildPartial();
@@ -2614,7 +2680,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionEmptyBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         return this;
       }
       /**
@@ -2631,7 +2697,7 @@ public final class TestMessage {
         } else {
           fieldGpbOptionEmptyBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000100);
         return this;
       }
       /**
@@ -2642,7 +2708,7 @@ public final class TestMessage {
        * </pre>
        */
       public com.avast.cactus.TestMessage.Data2.Builder getFieldGpbOptionEmptyBuilder() {
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         onChanged();
         return getFieldGpbOptionEmptyFieldBuilder().getBuilder();
       }
@@ -2692,7 +2758,7 @@ public final class TestMessage {
        * </pre>
        */
       public boolean hasFieldGpb() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
        * <code>optional .Data2 field_gpb = 10;</code>
@@ -2725,7 +2791,7 @@ public final class TestMessage {
         } else {
           fieldGpbBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00000200;
         return this;
       }
       /**
@@ -2743,7 +2809,7 @@ public final class TestMessage {
         } else {
           fieldGpbBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00000200;
         return this;
       }
       /**
@@ -2755,7 +2821,7 @@ public final class TestMessage {
        */
       public Builder mergeFieldGpb(com.avast.cactus.TestMessage.Data2 value) {
         if (fieldGpbBuilder_ == null) {
-          if (((bitField0_ & 0x00000400) == 0x00000400) &&
+          if (((bitField0_ & 0x00000200) == 0x00000200) &&
               fieldGpb_ != com.avast.cactus.TestMessage.Data2.getDefaultInstance()) {
             fieldGpb_ =
               com.avast.cactus.TestMessage.Data2.newBuilder(fieldGpb_).mergeFrom(value).buildPartial();
@@ -2766,7 +2832,7 @@ public final class TestMessage {
         } else {
           fieldGpbBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00000200;
         return this;
       }
       /**
@@ -2783,7 +2849,7 @@ public final class TestMessage {
         } else {
           fieldGpbBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000200);
         return this;
       }
       /**
@@ -2794,7 +2860,7 @@ public final class TestMessage {
        * </pre>
        */
       public com.avast.cactus.TestMessage.Data2.Builder getFieldGpbBuilder() {
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00000200;
         onChanged();
         return getFieldGpbFieldBuilder().getBuilder();
       }
@@ -2842,7 +2908,7 @@ public final class TestMessage {
        * </pre>
        */
       public boolean hasFieldBlob() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
        * <code>optional bytes field_blob = 11;</code>
@@ -2865,7 +2931,7 @@ public final class TestMessage {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000800;
+  bitField0_ |= 0x00000400;
         fieldBlob_ = value;
         onChanged();
         return this;
@@ -2878,7 +2944,7 @@ public final class TestMessage {
        * </pre>
        */
       public Builder clearFieldBlob() {
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00000400);
         fieldBlob_ = getDefaultInstance().getFieldBlob();
         onChanged();
         return this;
@@ -2887,9 +2953,9 @@ public final class TestMessage {
       private java.util.List<com.avast.cactus.TestMessage.MapMessage> fieldMap_ =
         java.util.Collections.emptyList();
       private void ensureFieldMapIsMutable() {
-        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
+        if (!((bitField0_ & 0x00000800) == 0x00000800)) {
           fieldMap_ = new java.util.ArrayList<com.avast.cactus.TestMessage.MapMessage>(fieldMap_);
-          bitField0_ |= 0x00001000;
+          bitField0_ |= 0x00000800;
          }
       }
 
@@ -3083,7 +3149,7 @@ public final class TestMessage {
       public Builder clearFieldMap() {
         if (fieldMapBuilder_ == null) {
           fieldMap_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00001000);
+          bitField0_ = (bitField0_ & ~0x00000800);
           onChanged();
         } else {
           fieldMapBuilder_.clear();
@@ -3188,12 +3254,418 @@ public final class TestMessage {
           fieldMapBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               com.avast.cactus.TestMessage.MapMessage, com.avast.cactus.TestMessage.MapMessage.Builder, com.avast.cactus.TestMessage.MapMessageOrBuilder>(
                   fieldMap_,
-                  ((bitField0_ & 0x00001000) == 0x00001000),
+                  ((bitField0_ & 0x00000800) == 0x00000800),
                   getParentForChildren(),
                   isClean());
           fieldMap_ = null;
         }
         return fieldMapBuilder_;
+      }
+
+      private java.util.List<java.lang.Integer> fieldIntegers2_ = java.util.Collections.emptyList();
+      private void ensureFieldIntegers2IsMutable() {
+        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
+          fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>(fieldIntegers2_);
+          bitField0_ |= 0x00001000;
+         }
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public java.util.List<java.lang.Integer>
+          getFieldIntegers2List() {
+        return java.util.Collections.unmodifiableList(fieldIntegers2_);
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public int getFieldIntegers2Count() {
+        return fieldIntegers2_.size();
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public int getFieldIntegers2(int index) {
+        return fieldIntegers2_.get(index);
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder setFieldIntegers2(
+          int index, int value) {
+        ensureFieldIntegers2IsMutable();
+        fieldIntegers2_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder addFieldIntegers2(int value) {
+        ensureFieldIntegers2IsMutable();
+        fieldIntegers2_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder addAllFieldIntegers2(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureFieldIntegers2IsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, fieldIntegers2_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated int32 field_integers2 = 13;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder clearFieldIntegers2() {
+        fieldIntegers2_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00001000);
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<com.avast.cactus.TestMessage.MapMessage> fieldMap2_ =
+        java.util.Collections.emptyList();
+      private void ensureFieldMap2IsMutable() {
+        if (!((bitField0_ & 0x00002000) == 0x00002000)) {
+          fieldMap2_ = new java.util.ArrayList<com.avast.cactus.TestMessage.MapMessage>(fieldMap2_);
+          bitField0_ |= 0x00002000;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.avast.cactus.TestMessage.MapMessage, com.avast.cactus.TestMessage.MapMessage.Builder, com.avast.cactus.TestMessage.MapMessageOrBuilder> fieldMap2Builder_;
+
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public java.util.List<com.avast.cactus.TestMessage.MapMessage> getFieldMap2List() {
+        if (fieldMap2Builder_ == null) {
+          return java.util.Collections.unmodifiableList(fieldMap2_);
+        } else {
+          return fieldMap2Builder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public int getFieldMap2Count() {
+        if (fieldMap2Builder_ == null) {
+          return fieldMap2_.size();
+        } else {
+          return fieldMap2Builder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessage getFieldMap2(int index) {
+        if (fieldMap2Builder_ == null) {
+          return fieldMap2_.get(index);
+        } else {
+          return fieldMap2Builder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder setFieldMap2(
+          int index, com.avast.cactus.TestMessage.MapMessage value) {
+        if (fieldMap2Builder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFieldMap2IsMutable();
+          fieldMap2_.set(index, value);
+          onChanged();
+        } else {
+          fieldMap2Builder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder setFieldMap2(
+          int index, com.avast.cactus.TestMessage.MapMessage.Builder builderForValue) {
+        if (fieldMap2Builder_ == null) {
+          ensureFieldMap2IsMutable();
+          fieldMap2_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          fieldMap2Builder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addFieldMap2(com.avast.cactus.TestMessage.MapMessage value) {
+        if (fieldMap2Builder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFieldMap2IsMutable();
+          fieldMap2_.add(value);
+          onChanged();
+        } else {
+          fieldMap2Builder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addFieldMap2(
+          int index, com.avast.cactus.TestMessage.MapMessage value) {
+        if (fieldMap2Builder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFieldMap2IsMutable();
+          fieldMap2_.add(index, value);
+          onChanged();
+        } else {
+          fieldMap2Builder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addFieldMap2(
+          com.avast.cactus.TestMessage.MapMessage.Builder builderForValue) {
+        if (fieldMap2Builder_ == null) {
+          ensureFieldMap2IsMutable();
+          fieldMap2_.add(builderForValue.build());
+          onChanged();
+        } else {
+          fieldMap2Builder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addFieldMap2(
+          int index, com.avast.cactus.TestMessage.MapMessage.Builder builderForValue) {
+        if (fieldMap2Builder_ == null) {
+          ensureFieldMap2IsMutable();
+          fieldMap2_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          fieldMap2Builder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder addAllFieldMap2(
+          java.lang.Iterable<? extends com.avast.cactus.TestMessage.MapMessage> values) {
+        if (fieldMap2Builder_ == null) {
+          ensureFieldMap2IsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, fieldMap2_);
+          onChanged();
+        } else {
+          fieldMap2Builder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder clearFieldMap2() {
+        if (fieldMap2Builder_ == null) {
+          fieldMap2_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00002000);
+          onChanged();
+        } else {
+          fieldMap2Builder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public Builder removeFieldMap2(int index) {
+        if (fieldMap2Builder_ == null) {
+          ensureFieldMap2IsMutable();
+          fieldMap2_.remove(index);
+          onChanged();
+        } else {
+          fieldMap2Builder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessage.Builder getFieldMap2Builder(
+          int index) {
+        return getFieldMap2FieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessageOrBuilder getFieldMap2OrBuilder(
+          int index) {
+        if (fieldMap2Builder_ == null) {
+          return fieldMap2_.get(index);  } else {
+          return fieldMap2Builder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public java.util.List<? extends com.avast.cactus.TestMessage.MapMessageOrBuilder> 
+           getFieldMap2OrBuilderList() {
+        if (fieldMap2Builder_ != null) {
+          return fieldMap2Builder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(fieldMap2_);
+        }
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessage.Builder addFieldMap2Builder() {
+        return getFieldMap2FieldBuilder().addBuilder(
+            com.avast.cactus.TestMessage.MapMessage.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public com.avast.cactus.TestMessage.MapMessage.Builder addFieldMap2Builder(
+          int index) {
+        return getFieldMap2FieldBuilder().addBuilder(
+            index, com.avast.cactus.TestMessage.MapMessage.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .MapMessage field_map2 = 14;</code>
+       *
+       * <pre>
+       * OPTIONAL
+       * </pre>
+       */
+      public java.util.List<com.avast.cactus.TestMessage.MapMessage.Builder> 
+           getFieldMap2BuilderList() {
+        return getFieldMap2FieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          com.avast.cactus.TestMessage.MapMessage, com.avast.cactus.TestMessage.MapMessage.Builder, com.avast.cactus.TestMessage.MapMessageOrBuilder> 
+          getFieldMap2FieldBuilder() {
+        if (fieldMap2Builder_ == null) {
+          fieldMap2Builder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              com.avast.cactus.TestMessage.MapMessage, com.avast.cactus.TestMessage.MapMessage.Builder, com.avast.cactus.TestMessage.MapMessageOrBuilder>(
+                  fieldMap2_,
+                  ((bitField0_ & 0x00002000) == 0x00002000),
+                  getParentForChildren(),
+                  isClean());
+          fieldMap2_ = null;
+        }
+        return fieldMap2Builder_;
       }
 
       // @@protoc_insertion_point(builder_scope:Data)
@@ -4707,19 +5179,20 @@ public final class TestMessage {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\022test_message.proto\"\354\002\n\004Data\022\r\n\005field\030\001" +
+      "\n\022test_message.proto\"\215\003\n\004Data\022\r\n\005field\030\001" +
       " \001(\t\022\026\n\016field_int_name\030\002 \001(\005\022\024\n\014field_op" +
       "tion\030\003 \001(\005\022\025\n\rfield_strings\030\004 \003(\t\022\032\n\022fie" +
       "ld_strings_name\030\005 \003(\t\022\035\n\025field_option_in" +
-      "tegers\030\006 \003(\005\022\027\n\017field_integers2\030\r \003(\005\022#\n" +
-      "\033field_option_integers_empty\030\007 \003(\005\022 \n\020fi" +
-      "eld_gpb_option\030\010 \001(\0132\006.Data2\022&\n\026field_gp" +
-      "b_option_empty\030\t \001(\0132\006.Data2\022\031\n\tfield_gp" +
-      "b\030\n \001(\0132\006.Data2\022\022\n\nfield_blob\030\013 \001(\014\022\036\n\tf" +
-      "ield_map\030\014 \003(\0132\013.MapMessage\"1\n\005Data2\022\024\n\014",
-      "field_double\030\001 \001(\001\022\022\n\nfield_blob\030\002 \001(\014\"7" +
-      "\n\nMapMessage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t" +
-      "\022\r\n\005other\030\003 \001(\tB\022\n\020com.avast.cactus"
+      "tegers\030\006 \003(\005\022#\n\033field_option_integers_em" +
+      "pty\030\007 \003(\005\022 \n\020field_gpb_option\030\010 \001(\0132\006.Da" +
+      "ta2\022&\n\026field_gpb_option_empty\030\t \001(\0132\006.Da" +
+      "ta2\022\031\n\tfield_gpb\030\n \001(\0132\006.Data2\022\022\n\nfield_" +
+      "blob\030\013 \001(\014\022\036\n\tfield_map\030\014 \003(\0132\013.MapMessa" +
+      "ge\022\027\n\017field_integers2\030\r \003(\005\022\037\n\nfield_map",
+      "2\030\016 \003(\0132\013.MapMessage\"1\n\005Data2\022\024\n\014field_d" +
+      "ouble\030\001 \001(\001\022\022\n\nfield_blob\030\002 \001(\014\"7\n\nMapMe" +
+      "ssage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005oth" +
+      "er\030\003 \001(\tB\022\n\020com.avast.cactus"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4738,7 +5211,7 @@ public final class TestMessage {
     internal_static_Data_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Data_descriptor,
-        new java.lang.String[] { "Field", "FieldIntName", "FieldOption", "FieldStrings", "FieldStringsName", "FieldOptionIntegers", "FieldIntegers2", "FieldOptionIntegersEmpty", "FieldGpbOption", "FieldGpbOptionEmpty", "FieldGpb", "FieldBlob", "FieldMap", });
+        new java.lang.String[] { "Field", "FieldIntName", "FieldOption", "FieldStrings", "FieldStringsName", "FieldOptionIntegers", "FieldOptionIntegersEmpty", "FieldGpbOption", "FieldGpbOptionEmpty", "FieldGpb", "FieldBlob", "FieldMap", "FieldIntegers2", "FieldMap2", });
     internal_static_Data2_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_Data2_fieldAccessorTable = new
