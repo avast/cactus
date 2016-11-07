@@ -117,12 +117,11 @@ object CactusMacros {
 
       val fieldNames = fields.map(_.name.toTermName)
 
-      // TODO use full qualified name
       q"""
          {
             ..$params
 
-            withGood(..$fieldNames) { ${TermName(caseClassSymbol.name.toString)}.apply }
+            withGood(..$fieldNames) { ${caseClassSymbol.companion}.apply }
          }
        """
     }
@@ -261,10 +260,9 @@ object CactusMacros {
         c.Expr(q" $assignment ")
       }
 
-      // TODO use full qualified name
       q"""
         {
-          val builder = ${TermName(gpbClassSymbol.name.toString)}.newBuilder()
+          val builder = ${gpbClassSymbol.companion}.newBuilder()
 
           ..$params
 
@@ -308,9 +306,10 @@ object CactusMacros {
 
               val getterGenType = extractGpbGenType(c)(gpbGetterMethod)
 
-              // TODO use full qualified name
+              val mapGpb = getterGenType.companion
+
               q"""
-                ${TermName("builder")}.$addMethod($field.map{case (key, value) => ${TermName(getterGenType.typeSymbol.name.toString)}.newBuilder().${TermName("set" + firstUpper(keyFieldName))}(key).${TermName("set" + firstUpper(valueFieldName))}(value).build()}.asJavaCollection)
+                ${TermName("builder")}.$addMethod($field.map{case (key, value) => $mapGpb.newBuilder().${TermName("set" + firstUpper(keyFieldName))}(key).${TermName("set" + firstUpper(valueFieldName))}(value).build()}.asJavaCollection)
                """
 
             case None =>
