@@ -1,14 +1,12 @@
 import sbt.Keys._
 
+crossScalaVersions := Seq("2.11.8", "2.12.0")
+
 lazy val commonSettings = Seq(
   scalaVersion := "2.11.8",
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
-  scalacOptions ++= Seq("-Ypatmat-exhaust-depth", "off"),
-  resolvers += Resolver.sonatypeRepo("releases"),
-
-  crossScalaVersions := Seq("2.11.8", "2.12.0"),
 
   organization := "com.avast",
   name := "cactus",
@@ -35,8 +33,9 @@ lazy val commonSettings = Seq(
 
 lazy val macroSettings = Seq(
   libraryDependencies ++= Seq(
-    "org.scala-lang" % "scala-reflect" % "2.11.8",
     "com.google.protobuf" % "protobuf-java" % "2.6.1",
+    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+    "org.scala-lang" % "scala-compiler" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.0",
     "org.scalatest" %% "scalatest" % "3.0.0" % "test"
   )
