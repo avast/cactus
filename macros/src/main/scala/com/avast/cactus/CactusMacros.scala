@@ -172,8 +172,33 @@ object CactusMacros {
                 println(s"Converting $srcTypeSymbol to Map from message with key = '$keyFieldName' and value = '$valueFieldName'")
               }
 
+              val dstTypeArgs = dstResultType.typeArgs
+
+              val (dstKeyType, dstValueType) = (dstTypeArgs.head, dstTypeArgs.tail.head)
+
+              val getKeyField = TermName("get" + firstUpper(keyFieldName))
+              val getValueField = TermName("get" + firstUpper(valueFieldName))
+
+
+              val gpbGenType = extractGpbGenType(c)(gpbGetterMethod)
+
+              val srcKeyType = gpbGenType.member(getKeyField).asMethod.returnType
+              val srcValueType = gpbGenType.member(getValueField).asMethod.returnType
+
+              val keyField = if (srcKeyType != dstKeyType) {
+                q" CactusMacros.AToB[$srcKeyType, $dstKeyType](f.$getKeyField) "
+              } else {
+                q" f.$getKeyField "
+              }
+
+              val valueField = if (srcValueType != dstValueType) {
+                q" CactusMacros.AToB[$srcValueType, $dstValueType](f.$getValueField) "
+              } else {
+                q" f.$getValueField "
+              }
+
               q"""
-                Good($getter.asScala.map(f => f.${TermName("get" + firstUpper(keyFieldName))} -> f.${TermName("get" + firstUpper(valueFieldName))} ).toMap)
+                Good($getter.asScala.map(f => $keyField -> $valueField ).toMap)
                """
 
             case None =>
