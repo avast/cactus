@@ -5,7 +5,7 @@ jdk:
 - oraclejdk8
 skip_cleanup: true
 after_success:
-- test $TRAVIS_PULL_REQUEST == "false" && test "$TRAVIS_TAG" != "" && test $TRAVIS_REPO_SLUG == "avast/cactus" && sh "$TRAVIS_BUILD_DIR/.travis.bintray-credentials.sh" && sbt publish
+- test $TRAVIS_PULL_REQUEST == "false" && test "$TRAVIS_TAG" != "" && test $TRAVIS_REPO_SLUG == "avast/cactus" && sh "$TRAVIS_BUILD_DIR/.travis.bintray-credentials.sh" && sbt +publish
 env:
   global:
   - secure: DtsQFoMm+XtltGQTRJUE28AVaNfYvukdlaHoPTs5ahCTJvN3X17bUkFPT4DNeXEqNHFYECtln8h6PaixcabkD1YNlLZNZA7w2MaJzJLL0HLiQZeVEJc7uiI+v91Lv+t9mIfi1xdwdRbu7Lu7z9IQY0FRCNshgs1/Me83uvGgeERTZPGkWrqRb/KlSAdjNY05slhGPGU7OMuBMsrnxjbSfjFjYAD7m1StQljgWufjmOlNDw/tdd+7ArQsK/E6QrX4mYu+B4mE1etjZNVaSHCD+GDdIEEQngoNFjuoWsmiMYcUyOEZtB5vu9eeILgTcO3g48MwwOI4NAW0g3Lbpn4o66a6t31vJea+G2Gjetlbxo6RmqVGOAebfwleZWO3QtALdmsxd1UtHrxVgdN0pYnSGfUVafw6sScfSH/3Be8tLGbGAuGV3XpivwHOF3f6DI5jypHyR+4sgSn8vnRiQNZ6GmmDkxX07GmkKlqiJVcAibZNlL14lKRHk5RRpsq5AMzckXIhm7KOP+l56+9BZ0LPnt7VOUXeYv46c0WyDMUUXP97KwVxaoh7WBCt8S/p0Ls6mlhgO3SAGr0j33W5Wr1KsPYOFcVqYjl1nI/q98NOy8CU8lfjCqdFhlLOLUdNmHiA0+TckXBNMMR+McBm4EjqdporIm+GAT7PDVxsK2SjoHg=
