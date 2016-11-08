@@ -33,14 +33,15 @@ object CactusMacros {
   def convertGpbToCaseClass[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree): c.Expr[CaseClass Or Every[CactusFailure]] = {
     import c.universe._
 
-    val caseClassType = weakTypeOf[CaseClass]
-
     // unpack the implicit ClassTag tree
     val gpbSymbol = extractSymbolFromClassTag(c)(gpbCt)
 
     val variableName = getVariableName(c)
 
     c.Expr[CaseClass Or Every[CactusFailure]] {
+      val caseClassType = weakTypeOf[CaseClass]
+      val gpbType = gpbSymbol.typeSignature.asInstanceOf[c.universe.Type]
+
       val tree =
         q""" {
           import com.avast.cactus.CactusFailure
@@ -52,7 +53,7 @@ object CactusMacros {
           import scala.util.Try
           import scala.collection.JavaConverters._
 
-          ${GpbToCaseClass.createConverter(c)(caseClassType, gpbSymbol.typeSignature.asInstanceOf[c.universe.Type], variableName)}
+          ${GpbToCaseClass.createConverter(c)(caseClassType, gpbType, variableName)}
          }
         """
 
@@ -71,6 +72,9 @@ object CactusMacros {
     val variableName = getVariableName(c)
 
     c.Expr[Gpb Or Every[CactusFailure]] {
+      val caseClassType = caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type]
+      val gpbType = weakTypeOf[Gpb]
+
       val tree =
         q""" {
           import com.avast.cactus.CactusFailure
@@ -82,7 +86,7 @@ object CactusMacros {
           import scala.util.Try
           import scala.collection.JavaConverters._
 
-          Good(${CaseClassToGpb.createConverter(c)(caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type], weakTypeOf[Gpb], variableName)})
+          Good(${CaseClassToGpb.createConverter(c)(caseClassType, gpbType, variableName)}).orBad[org.scalactic.Every[com.avast.cactus.CactusFailure]]
          }
         """
 
@@ -315,7 +319,7 @@ object CactusMacros {
 
         case t if caseClassAndGpb(c)(srcTypeSymbol, gpbGetterMethod) => // case class -> GPB
 
-          q" $setter(${createConverter(c)(srcTypeSymbol.typeSignature, gpbGetterMethod.returnType, q" $field ")}) "
+          q" $setter(${createConverter(c)(srcResultType, gpbGetterMethod.returnType, q" $field ")}) "
 
         case t if isScalaMap(c)(srcTypeSymbol) => // Map[A, B]
           val addMethod = TermName(s"addAll$upperFieldName")
