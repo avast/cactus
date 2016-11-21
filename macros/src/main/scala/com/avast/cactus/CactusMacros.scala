@@ -490,7 +490,7 @@ object CactusMacros {
           println(s"All getters: ${gpbGetters.map(_.name.toString).mkString("[", ", ", "]")}")
         }
 
-        c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $fieldName")
+        c.abort(c.enclosingPosition, s"Could not find getter in GPB for field $nameInGpb ($fieldName in case class), does the field in GPB exist?")
       }
 
   }
