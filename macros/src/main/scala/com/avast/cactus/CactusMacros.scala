@@ -216,19 +216,27 @@ object CactusMacros {
         case t if isScalaCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
 
           if (isJavaCollection(c)(srcTypeSymbol)) {
-            dstResultType.typeArgs.headOption match {
-              case Some(typeArg) =>
+            (dstResultType.typeArgs.headOption, srcResultType.typeArgs.headOption) match {
+              case (Some(dstTypeArg), srcTypeArgOpt) =>
                 val vectorTypeSymbol = typeOf[Vector[_]].typeSymbol
 
                 val toFinalCollection = if (dstTypeSymbol != vectorTypeSymbol && !vectorTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol)) {
-                  q" CactusMacros.AToB[Vector[$typeArg],${dstTypeSymbol.name.toTypeName}[$typeArg]] "
+                  println(s"coll $dstTypeSymbol,  ${vectorTypeSymbol.name} superclasses: "+vectorTypeSymbol.asClass.baseClasses.mkString(","))
+                  println(s" CactusMacros.AToB[Vector[$dstTypeArg],${dstTypeSymbol.name.toTypeName}[$dstTypeArg]] ")
+                  q" CactusMacros.AToB[Vector[$dstTypeArg],${dstTypeSymbol.name.toTypeName}[$dstTypeArg]] "
                 } else {
                   q" identity "
                 }
 
-                q" Good($toFinalCollection($getter.asScala.toVector)) "
+                val srcTypeArg = srcTypeArgOpt.getOrElse(typeOf[String]) // TODO improve the check whether it's really a ProtocolStringList
 
-              case None =>
+                if (srcTypeArg == dstTypeArg) {
+                  q" Good($toFinalCollection($getter.asScala.toVector)) "
+                } else {
+                  q" Good($toFinalCollection($getter.asScala.map(CactusMacros.AToB[$srcTypeArg, $dstTypeArg]).toVector)) "
+                }
+
+              case (_, _) =>
                 val getterGenType = extractGpbGenType(c)(gpbGetterMethod)
 
                 if (Debug) {
