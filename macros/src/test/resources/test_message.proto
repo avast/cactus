@@ -15,6 +15,7 @@ message Data {
     repeated MapMessage field_map = 12;                     // OPTIONAL
     repeated int32      field_integers2 = 13;               // REQUIRED
     repeated MapMessage field_map2 = 14;                    // OPTIONAL
+    repeated Data2      field_gpb_repeated = 15;            // OPTIONAL
 }
 
 message Data2 {
