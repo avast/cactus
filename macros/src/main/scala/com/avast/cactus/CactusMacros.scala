@@ -15,6 +15,9 @@ object CactusMacros {
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
+  private val ProtocolStringList = "com.google.protobuf.ProtocolStringList"
+
+
   implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
     CollAToCollBGenerator[A, B, T].apply(coll)
   }
@@ -123,7 +126,7 @@ object CactusMacros {
       val fieldNames = fields.map(_.name.toTermName)
 
       // prevent Deprecated warning from scalactic.Or
-      val mappingFunction = if (fieldNames.size >1) {
+      val mappingFunction = if (fieldNames.size > 1) {
         q" withGood(..$fieldNames) "
       } else {
         q" ${fieldNames.head}.map "
@@ -235,7 +238,9 @@ object CactusMacros {
                   q" identity "
                 }
 
-                val srcTypeArg = srcTypeArgOpt.getOrElse(typeOf[String]) // TODO improve the check whether it's really a ProtocolStringList
+                val srcTypeArg = srcTypeArgOpt.getOrElse {
+                  if (srcResultType.typeSymbol.fullName == ProtocolStringList) typeOf[String] else c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
+                }
 
                 if (srcTypeArg == dstTypeArg) {
                   q" Good($toFinalCollection($getter.asScala.toVector)) "
@@ -420,7 +425,9 @@ object CactusMacros {
             (dstResultType.typeArgs.headOption, srcResultType.typeArgs.headOption) match {
               case (Some(dstTypeArg), srcTypeArgOpt) =>
 
-                val srcTypeArg = srcTypeArgOpt.getOrElse(typeOf[String]) // TODO improve the check whether it's really a ProtocolStringList
+                val srcTypeArg = srcTypeArgOpt.getOrElse {
+                  if (srcResultType.typeSymbol.fullName == ProtocolStringList) typeOf[String] else c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
+                }
 
                 if (srcTypeArg == dstTypeArg) {
                   q" $field.toSeq "
@@ -546,7 +553,7 @@ object CactusMacros {
     val getterResultType = getterReturnType.resultType
     val getterGenType = getterResultType.typeArgs.headOption
       .getOrElse {
-        if (getterResultType.toString == "com.google.protobuf.ProtocolStringList") {
+        if (getterResultType.toString == ProtocolStringList) {
           typeOf[java.lang.String]
         } else {
           c.abort(c.enclosingPosition, s"Could not extract generic type from $getterResultType")
