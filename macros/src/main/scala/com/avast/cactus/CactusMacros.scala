@@ -383,11 +383,12 @@ object CactusMacros {
 
               q"""
                 ${TermName("builder")}.$addMethod(
-                  $field.map{case (key, value) =>
+                  $field.map{ _ match {
+                  case (key, value) =>
                     $mapGpb.newBuilder()
                     .${TermName("set" + firstUpper(keyFieldName))}($keyField)
                     .${TermName("set" + firstUpper(valueFieldName))}($valueField)
-                    .build()
+                    .build()}
                   }.asJavaCollection
                 )
                """
@@ -408,14 +409,31 @@ object CactusMacros {
           val getterGenType = extractGpbGenType(c)(getterReturnType)
 
           if (isJavaCollection(c)(dstTypeSymbol)) {
-            val (fieldGenType, value) = srcReturnType.typeArgs.headOption match {
-              case Some(genType) => (genType, q" $field.toSeq ")
-              case None => (getterGenType, q" CactusMacros.AToB[$srcTypeSymbol, Vector[$getterGenType]]($field) ")
+
+            (dstResultType.typeArgs.headOption, srcResultType.typeArgs.headOption) match {
+              case (Some(dstTypeArg), srcTypeArgOpt) =>
+
+                val srcTypeArg = srcTypeArgOpt.getOrElse(typeOf[String]) // TODO improve the check whether it's really a ProtocolStringList
+
+                if (srcTypeArg == dstTypeArg) {
+                  q" $field.toSeq "
+                } else {
+
+                  q"""
+                                   val conv = (a: $srcTypeArg) =>  { ${processEndType(c)(q"a", fieldAnnotations, srcTypeArg)(dstTypeArg, dstTypeArg, q"identity", " a ")} }
+
+
+                                   ${TermName("builder")}.$addMethod($field.toSeq.map(conv).asJava)
+
+                                """
+                }
+
+              case (_, _) =>
+
+                q" ${TermName("builder")}.$addMethod(CactusMacros.AToB[Seq[$getterGenType], Seq[$getterGenType]]($field).asJava) "
+
             }
 
-            q"""
-              ${TermName("builder")}.$addMethod(CactusMacros.AToB[Seq[$fieldGenType], Seq[$getterGenType]]($value).asJava)
-           """
           } else {
             if (Debug) {
               println(s"Converting $srcResultType to $dstResultType, fallback to raw conversion")
