@@ -46,6 +46,7 @@ class CactusMacrosTest extends FunSuite {
       .setFieldGpb(gpbInternal)
       .setFieldGpbOption(gpbInternal)
       .addAllFieldGpbRepeated(dataRepeated.asJava)
+      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
@@ -56,7 +57,9 @@ class CactusMacrosTest extends FunSuite {
 
     val caseClassB = CaseClassB(0.9, "text")
 
-    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
+
+    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
     assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
   }
 
@@ -95,7 +98,9 @@ class CactusMacrosTest extends FunSuite {
 
     val caseClassB = CaseClassB(0.9, "text")
 
-    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
+
+    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
@@ -112,6 +117,7 @@ class CactusMacrosTest extends FunSuite {
       .setFieldGpb(gpbInternal)
       .setFieldGpbOption(gpbInternal)
       .addAllFieldGpbRepeated(dataRepeated.asJava)
+      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
@@ -147,6 +153,7 @@ case class CaseClassA(field: String,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
                       fieldGpbRepeated: Seq[CaseClassB],
+                      fieldGpb2RepeatedRecurse: Seq[CaseClassD],
                       fieldStrings: immutable.Seq[String],
                       fieldOptionIntegers: Vector[Int],
                       fieldOptionIntegersEmpty: List[Int],
@@ -159,6 +166,8 @@ case class CaseClassA(field: String,
                       fieldMapDiffType: Map[String, Int])
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
+
+case class CaseClassD(fieldGpb: Seq[CaseClassB])
 
 case class CaseClassC(field: StringWrapperClass,
                       @GpbName("fieldIntName")

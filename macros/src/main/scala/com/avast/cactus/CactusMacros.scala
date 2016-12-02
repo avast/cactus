@@ -122,11 +122,18 @@ object CactusMacros {
 
       val fieldNames = fields.map(_.name.toTermName)
 
+      // prevent Deprecated warning from scalactic.Or
+      val mappingFunction = if (fieldNames.size >1) {
+        q" withGood(..$fieldNames) "
+      } else {
+        q" ${fieldNames.head}.map "
+      }
+
       q"""
          {
             ..$params
 
-            withGood(..$fieldNames) { ${caseClassSymbol.companion}.apply }
+            $mappingFunction { ${caseClassSymbol.companion}.apply }
          }
        """
     }
@@ -420,10 +427,9 @@ object CactusMacros {
                 } else {
 
                   q"""
-                                   val conv = (a: $srcTypeArg) =>  { ${processEndType(c)(q"a", fieldAnnotations, srcTypeArg)(dstTypeArg, dstTypeArg, q"identity", " a ")} }
+                     val conv = (a: $srcTypeArg) =>  { ${processEndType(c)(q"a", fieldAnnotations, srcTypeArg)(dstTypeArg, dstTypeArg, q"identity", " a ")} }
 
-
-                                   ${TermName("builder")}.$addMethod($field.toSeq.map(conv).asJava)
+                     ${TermName("builder")}.$addMethod($field.toSeq.map(conv).asJava)
 
                                 """
                 }
