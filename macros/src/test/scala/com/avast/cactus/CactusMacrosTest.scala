@@ -36,6 +36,8 @@ class CactusMacrosTest extends FunSuite {
     val map = Map("first" -> "1", "second" -> "2")
     val map2 = Map("first" -> 1, "second" -> 2)
 
+    val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
+
     val gpb = TestMessage.Data.newBuilder()
       .setField("ahoj")
       .setFieldIntName(9)
@@ -43,6 +45,8 @@ class CactusMacrosTest extends FunSuite {
       .setFieldBlob(ByteString.EMPTY)
       .setFieldGpb(gpbInternal)
       .setFieldGpbOption(gpbInternal)
+      .addAllFieldGpbRepeated(dataRepeated.asJava)
+      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
@@ -51,7 +55,11 @@ class CactusMacrosTest extends FunSuite {
       .addAllFieldMap2(map.map { case (key, value) => TestMessage.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
       .build()
 
-    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val caseClassB = CaseClassB(0.9, "text")
+
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
+
+    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
     assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
   }
 
@@ -88,12 +96,18 @@ class CactusMacrosTest extends FunSuite {
     val map = Map("first" -> "1", "second" -> "2")
     val map2 = Map("first" -> 1, "second" -> 2)
 
-    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val caseClassB = CaseClassB(0.9, "text")
+
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
+
+    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
       .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
+
+    val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
 
     val expectedGpb = TestMessage.Data.newBuilder()
       .setField("ahoj")
@@ -102,6 +116,8 @@ class CactusMacrosTest extends FunSuite {
       .setFieldBlob(ByteString.EMPTY)
       .setFieldGpb(gpbInternal)
       .setFieldGpbOption(gpbInternal)
+      .addAllFieldGpbRepeated(dataRepeated.asJava)
+      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
@@ -136,6 +152,8 @@ case class CaseClassA(field: String,
                       fieldGpb: CaseClassB,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
+                      fieldGpbRepeated: Seq[CaseClassB],
+                      fieldGpb2RepeatedRecurse: Seq[CaseClassD],
                       fieldStrings: immutable.Seq[String],
                       fieldOptionIntegers: Vector[Int],
                       fieldOptionIntegersEmpty: List[Int],
@@ -148,6 +166,8 @@ case class CaseClassA(field: String,
                       fieldMapDiffType: Map[String, Int])
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
+
+case class CaseClassD(fieldGpb: Seq[CaseClassB])
 
 case class CaseClassC(field: StringWrapperClass,
                       @GpbName("fieldIntName")
