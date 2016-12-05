@@ -47,6 +47,7 @@ message Data {
     optional Data2      field_gpb = 10;   		            // REQUIRED
     optional bytes      field_blob = 11;                    // REQUIRED
     repeated MapMessage field_map = 12;                     // OPTIONAL
+    repeated Data2      field_gpb_repeated = 13;            // OPTIONAL
 }
 
 message Data2 {
@@ -78,6 +79,7 @@ case class CaseClassA(
   fieldGpb: CaseClassB,
   fieldGpbOption: Option[CaseClassB],
   fieldGpbOptionEmpty: Option[CaseClassB],
+  fieldGpbRepeated: Seq[CaseClassB],
   fieldStrings: immutable.Seq[String],
   fieldOptionIntegers: Seq[Int],
   fieldOptionIntegersEmpty: List[Int],
@@ -99,6 +101,8 @@ object Test extends App {
    .setFieldBlob(ByteString.copyFromUtf8("text"))
    .build()
   
+  val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
+  
   val gpb = TestMessage.Data.newBuilder()
    .setField("ahoj")
    .setFieldIntName(9)
@@ -110,6 +114,7 @@ object Test extends App {
    .addAllFieldStringsName(Seq("a").asJava)
    .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
    .addAllFieldMap(map.map { case (key, value) => TestMessage.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
+   .addAllFieldGpbRepeated(dataRepeated.asJava)
    .build()
 
   gpb.asCaseClass[CaseClassA] match {
@@ -147,6 +152,7 @@ message Data {
     optional Data2      field_gpb_option_empty = 9;         // OPTIONAL
     optional Data2      field_gpb = 10;   		            // REQUIRED
     optional bytes      field_blob = 11;                    // REQUIRED
+    repeated Data2      field_gpb_repeated = 12;            // OPTIONAL
 }
 
 message Data2 {
@@ -168,6 +174,7 @@ case class CaseClassA(field: String,
   fieldGpb: CaseClassB,
   fieldGpbOption: Option[CaseClassB],
   fieldGpbOptionEmpty: Option[CaseClassB],
+  fieldGpbRepeated: Seq[CaseClassB],
   fieldStringsList: Seq[String],
   fieldOptionIntegersList: Option[Seq[Int]],
   fieldOptionIntegersEmptyList: Option[List[Int]])
@@ -178,6 +185,10 @@ case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: St
 object Test extends App {
   import com.avast.cactus._
   
+  val caseClassB = CaseClassB(0.9, "text")
+  
+  val caseClassBRepeated = Seq(caseClassB, caseClassB, caseClassB)
+  
   val caseClass = CaseClassA(
     field = "ahoj",
     fieldInt = 9,
@@ -185,8 +196,9 @@ object Test extends App {
     fieldBlob = ByteString.EMPTY,
     fieldStrings2 = Vector("a"),
     fieldGpb = CaseClassB(0.9, "text"),
-    fieldGpbOption = Some(CaseClassB(0.9, "text")),
+    fieldGpbOption = Some(caseClassB),
     fieldGpbOptionEmpty = None,
+    fieldGpbRepeated = caseClassBRepeated,
     fieldStringsList = Seq("a", "b"),
     fieldOptionIntegersList = Some(Seq(3, 6)),
     fieldOptionIntegersEmptyList = None
