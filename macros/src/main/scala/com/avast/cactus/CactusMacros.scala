@@ -30,16 +30,8 @@ object CactusMacros {
     classOf[java.lang.String].getName // consider String as primitive
   )
 
-  implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
-    CollAToCollBGenerator[A, B, T].apply(coll)
-  }
-
-  implicit def CollAToCollBGenerator[A, B, T[X] <: TraversableLike[X, T[X]]](implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): Converter[T[A], T[B]] = Converter {
-    _.map(aToBConverter.apply)
-  }
-
-  implicit def OrAToOrB[A, B](implicit aToBConverter: Converter[A, B]): Converter[Or[A, Every[CactusFailure]], Or[B, Every[CactusFailure]]] = Converter {
-    _.map(aToBConverter.apply)
+  def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
+    coll.map(aToBConverter.apply)
   }
 
   implicit def AToB[A, B](a: A)(implicit aToBConverter: Converter[A, B]): B = {
@@ -133,7 +125,7 @@ object CactusMacros {
 
     def createConverter(c: whitebox.Context)
                        (caseClassType: c.universe.Type, gpbType: c.universe.Type, gpb: c.Tree)
-                       (implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
+                       (implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
       import c.universe._
 
       val i = initialize(c)(caseClassType, gpbType)
@@ -225,7 +217,7 @@ object CactusMacros {
           fieldAnnotations.find { case (key, _) => key == classOf[GpbMap].getName } match {
             case Some((_, annot)) =>
               val keyFieldName = annot.getOrElse("key", c.abort(c.enclosingPosition, s"GpbMap annotation need 'key' to be filled in"))
-              val valueFieldName = annot.getOrElse("value", c.abort(c.enclosingPosition, s"GpbMap annotation need 'key' to be filled in"))
+              val valueFieldName = annot.getOrElse("value", c.abort(c.enclosingPosition, s"GpbMap annotation need 'value' to be filled in"))
 
               if (Debug) {
                 println(s"Converting $srcTypeSymbol to Map from message with key = '$keyFieldName' and value = '$valueFieldName'")
@@ -284,14 +276,18 @@ object CactusMacros {
                 }
 
                 val srcTypeArg = srcTypeArgOpt.getOrElse {
-                  if (srcResultType.typeSymbol.fullName == ProtocolStringList) typeOf[String] else c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
+                  if (srcResultType.typeSymbol.fullName == ProtocolStringList) {
+                    typeOf[String]
+                  } else {
+                    c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
+                  }
                 }
 
                 if (srcTypeArg == dstTypeArg || srcTypeArg.baseClasses.contains(dstTypeArg)) {
                   q" Good($toFinalCollection($getter.asScala.toVector)) "
                 } else {
-
                   val wrappedDstTypeArg = wrapDstType(c)(dstTypeArg)
+
                   newConverter(c)(srcTypeArg, wrappedDstTypeArg) {
                     q" (a: $srcTypeArg) =>  { ${processEndType(c)(fieldName, fieldAnnotations, nameInGpb, dstTypeArg, srcTypeArg)(None, q" a ", srcTypeArg)} } "
                   }
@@ -367,9 +363,9 @@ object CactusMacros {
         val setterParam = gpbSetter.paramLists.headOption.flatMap(_.headOption)
           .getOrElse(c.abort(c.enclosingPosition, s"Could not extract param from setter for field $field"))
 
-        val assignment = processEndType(c)(q"$caseClass.$fieldName", annotations, dstType)(gpbType, setterParam.typeSignature, q"builder.${gpbSetter.name}", upper)
+        val assgn = processEndType(c)(q"$caseClass.$fieldName", annotations, dstType)(gpbType, setterParam.typeSignature, q"builder.${gpbSetter.name}", upper)
 
-        c.Expr(q" $assignment ")
+        c.Expr(q" $assgn ")
       }
 
       q"""
@@ -487,7 +483,12 @@ object CactusMacros {
               case (Some(dstTypeArg), srcTypeArgOpt) =>
 
                 val srcTypeArg = srcTypeArgOpt.getOrElse {
-                  if (srcResultType.typeSymbol.fullName == ProtocolStringList) typeOf[String] else c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
+                  if (srcResultType.typeSymbol.fullName == ProtocolStringList) {
+                    typeOf[String]
+                  }
+                  else {
+                    c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
+                  }
                 }
 
                 if (srcTypeArg == dstTypeArg || srcTypeArg.baseClasses.contains(dstTypeArg)) {
