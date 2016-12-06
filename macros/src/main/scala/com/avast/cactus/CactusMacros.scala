@@ -701,30 +701,24 @@ object CactusMacros {
 
   private def newConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)
                           (f: c.Tree)
-                          (implicit converters: mutable.Map[String, c.universe.Tree]): Boolean = {
+                          (implicit converters: mutable.Map[String, c.universe.Tree]): Unit = {
     import c.universe._
 
     // skip primitive types, conversions already defined
     if (!(isPrimitive(c)(from) && isPrimitive(c)(to))) {
       val key = toConverterKey(c)(from, to)
 
-      converters.get(key) match {
-        case Some(_) => false
-        case None =>
-          if (Debug) {
-            println(s"Defining converter from $from to $to")
-          }
+      converters.getOrElse(key, {
+        if (Debug) {
+          println(s"Defining converter from $from to $to")
+        }
 
-          converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:Converter[$from, $to] = Converter($f) "
-
-          true
-      }
+        converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:Converter[$from, $to] = Converter($f) "
+      })
     } else {
       if (Debug) {
         println(s"Skipping definition of converter from $from to $to")
       }
-
-      false
     }
   }
 
