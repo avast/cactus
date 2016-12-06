@@ -18,7 +18,7 @@ class CactusMacrosTest extends FunSuite {
   implicit val StringToStringWrapperConverter: Converter[String, StringWrapperClass] = Converter((b: String) => StringWrapperClass(b))
 
   implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter(_.asScala.mkString(", "))
-  implicit val StringJavaIntegerListConverter: Converter[String, java.util.List[Integer]] = Converter(_.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
+  implicit val StringJavaIntegerListConverter: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter(_.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
 
   implicit val StringIntConverter: Converter[String, Int] = Converter(_.toInt)
   implicit val IntStringConverter: Converter[Int, String] = Converter(_.toString)
