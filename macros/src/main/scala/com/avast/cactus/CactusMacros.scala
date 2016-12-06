@@ -11,13 +11,24 @@ import scala.reflect.macros._
 //noinspection TypeAnnotation
 object CactusMacros {
 
-  private val Debug = true
+  private val Debug = false
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
   private val ProtocolStringList = "com.google.protobuf.ProtocolStringList"
   private val ByteString = "com.google.protobuf.ByteString"
 
+  private val JavaPrimitiveTypes = Set(
+    classOf[java.lang.Boolean].getName,
+    classOf[java.lang.Byte].getName,
+    classOf[java.lang.Character].getName,
+    classOf[java.lang.Short].getName,
+    classOf[java.lang.Integer].getName,
+    classOf[java.lang.Long].getName,
+    classOf[java.lang.Double].getName,
+    classOf[java.lang.Float].getName,
+    classOf[java.lang.String].getName // consider String as primitive
+  )
 
   implicit def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
     CollAToCollBGenerator[A, B, T].apply(coll)
@@ -43,9 +54,16 @@ object CactusMacros {
 
     val variableName = getVariableName(c)
 
+
     c.Expr[CaseClass Or Every[CactusFailure]] {
       val caseClassType = weakTypeOf[CaseClass]
       val gpbType = gpbSymbol.typeSignature.asInstanceOf[c.universe.Type]
+
+      val generatedConverters: mutable.Map[String, c.Tree] = mutable.Map.empty
+
+      val converter = GpbToCaseClass.createConverter(c)(caseClassType, gpbType, variableName)(generatedConverters)
+
+      val finalConverters = generatedConverters.values
 
       val tree =
         q""" {
@@ -58,7 +76,9 @@ object CactusMacros {
           import scala.util.Try
           import scala.collection.JavaConverters._
 
-          ${GpbToCaseClass.createConverter(c)(caseClassType, gpbType, variableName)}
+          ..$finalConverters
+
+          $converter
          }
         """
 
@@ -80,7 +100,6 @@ object CactusMacros {
       val caseClassType = caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type]
       val gpbType = weakTypeOf[Gpb]
 
-      // TODO prefill standard converters
       val generatedConverters: mutable.Map[String, c.Tree] = mutable.Map.empty
 
       val converter = CaseClassToGpb.createConverter(c)(caseClassType, gpbType, variableName)(generatedConverters)
@@ -112,7 +131,9 @@ object CactusMacros {
 
   private object GpbToCaseClass {
 
-    def createConverter(c: whitebox.Context)(caseClassType: c.universe.Type, gpbType: c.universe.Type, gpb: c.Tree): c.Tree = {
+    def createConverter(c: whitebox.Context)
+                       (caseClassType: c.universe.Type, gpbType: c.universe.Type, gpb: c.Tree)
+                       (implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
       import c.universe._
 
       val i = initialize(c)(caseClassType, gpbType)
@@ -151,10 +172,10 @@ object CactusMacros {
        """
     }
 
-
     private def processEndType(c: whitebox.Context)
                               (fieldName: c.universe.TermName, fieldAnnotations: Map[String, Map[String, String]], nameInGpb: String, returnType: c.universe.Type, gpbType: c.universe.Type)
-                              (query: Option[c.universe.Tree], getter: c.universe.Tree, getterReturnType: c.universe.Type): c.Tree = {
+                              (query: Option[c.universe.Tree], getter: c.universe.Tree, getterReturnType: c.universe.Type)
+                              (implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
       import c.universe._
 
       val dstResultType = returnType.resultType
@@ -164,30 +185,42 @@ object CactusMacros {
       val dstTypeSymbol = dstResultType.typeSymbol
 
       dstResultType.toString match {
-        case OptPattern(t) => // Option[T]
-          val typeArg = dstResultType.typeArgs.head // it's an Option, so it has 1 type arg
+        case OptPattern(_) => // Option[T]
+          val dstTypeArg = dstResultType.typeArgs.head // it's an Option, so it has 1 type arg
+
+          val wrappedDstType = wrapDstType(c)(dstTypeArg)
+
+          newConverter(c)(srcResultType, wrappedDstType) {
+            q" (t: $srcResultType) => ${processEndType(c)(fieldName, fieldAnnotations, nameInGpb, dstTypeArg, gpbType)(query, q" t ", getterReturnType)} "
+          }
 
           q""" {
-                 val value: $typeArg Or Every[CactusFailure] = {${processEndType(c)(fieldName, fieldAnnotations, nameInGpb, typeArg, gpbType)(query, getter, getterReturnType)}}
+                 val value: $dstTypeArg Or Every[CactusFailure] = CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter)
 
                  value.map(Option(_)).recover(_ => None)
                }
            """
 
-        case t if caseClassAndGpb(c)(dstTypeSymbol, getterReturnType) => // GPB -> case class
+        case _ if caseClassAndGpb(c)(dstTypeSymbol, getterReturnType) => // GPB -> case class
           if (Debug) {
             println(s"Internal case class $srcTypeSymbol, GPB type: $getterReturnType")
           }
 
-          val conv = q" ${createConverter(c)(returnType, getterReturnType, q"$getter ")} "
+          val wrappedDstType = wrapDstType(c)(dstResultType)
+
+          newConverter(c)(srcResultType, wrappedDstType) {
+            q" (t: $srcResultType) => ${createConverter(c)(returnType, getterReturnType, q" t ")} "
+          }
+
+          val value = q" CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter) "
 
           query match {
-            case Some(q) => q" if ($q) $conv else Bad(One(MissingFieldFailure($nameInGpb))) "
-            case None => conv
+            case Some(q) => q" if ($q) $value else Bad(One(MissingFieldFailure($nameInGpb))) "
+            case None => value
           }
 
 
-        case t if isScalaMap(c)(dstTypeSymbol) =>
+        case _ if isScalaMap(c)(dstTypeSymbol) =>
 
           fieldAnnotations.find { case (key, _) => key == classOf[GpbMap].getName } match {
             case Some((_, annot)) =>
@@ -211,21 +244,23 @@ object CactusMacros {
               val srcKeyType = gpbGenType.member(getKeyField).asMethod.returnType
               val srcValueType = gpbGenType.member(getValueField).asMethod.returnType
 
-              val keyField = if (srcKeyType != dstKeyType) {
-                q" CactusMacros.AToB[$srcKeyType, $dstKeyType](f.$getKeyField) "
-              } else {
+              val keyField = if (srcKeyType == dstKeyType || srcKeyType.baseClasses.contains(dstKeyType)) {
                 q" f.$getKeyField "
-              }
-
-              val valueField = if (srcValueType != dstValueType) {
-                q" CactusMacros.AToB[$srcValueType, $dstValueType](f.$getValueField) "
               } else {
-                q" f.$getValueField "
+                q" CactusMacros.AToB[$srcKeyType, $dstKeyType](f.$getKeyField) "
               }
 
-              q"""
-                Good($getter.asScala.map(f => $keyField -> $valueField ).toMap)
-               """
+              val valueField = if (srcValueType == dstValueType || srcValueType.baseClasses.contains(dstValueType)) {
+                q" f.$getValueField "
+              } else {
+                q" CactusMacros.AToB[$srcValueType, $dstValueType](f.$getValueField) "
+              }
+
+              newConverter(c)(srcResultType, dstResultType) {
+                q" (a: $srcResultType) => { a.asScala.map(f => $keyField -> $valueField).toMap } "
+              }
+
+              q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($getter)) "
 
             case None =>
               if (Debug) {
@@ -235,7 +270,7 @@ object CactusMacros {
               q" CactusMacros.AToB[$srcResultType, $dstResultType]($getter) "
           }
 
-        case t if isScalaCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
+        case _ if isScalaCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
 
           if (isJavaCollection(c)(srcTypeSymbol)) {
             (dstResultType.typeArgs.headOption, srcResultType.typeArgs.headOption) match {
@@ -252,18 +287,16 @@ object CactusMacros {
                   if (srcResultType.typeSymbol.fullName == ProtocolStringList) typeOf[String] else c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
                 }
 
-                if (srcTypeArg == dstTypeArg) {
+                if (srcTypeArg == dstTypeArg || srcTypeArg.baseClasses.contains(dstTypeArg)) {
                   q" Good($toFinalCollection($getter.asScala.toVector)) "
                 } else {
 
-                  q"""
-                     {
-                       val conv = (a: $srcTypeArg) =>  {${processEndType(c)(fieldName, fieldAnnotations, nameInGpb, dstTypeArg, srcTypeArg)(None, q" a ", srcTypeArg)}}
+                  val wrappedDstTypeArg = wrapDstType(c)(dstTypeArg)
+                  newConverter(c)(srcTypeArg, wrappedDstTypeArg) {
+                    q" (a: $srcTypeArg) =>  { ${processEndType(c)(fieldName, fieldAnnotations, nameInGpb, dstTypeArg, srcTypeArg)(None, q" a ", srcTypeArg)} } "
+                  }
 
-                       $getter.asScala.map(conv).toVector.combined.map($toFinalCollection)
-                     }
-
-                   """
+                  q" $getter.asScala.map(CactusMacros.AToB[$srcTypeArg, $wrappedDstTypeArg]).toVector.combined.map($toFinalCollection) "
                 }
 
               case (_, _) =>
@@ -283,20 +316,21 @@ object CactusMacros {
             q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($getter)) "
           }
 
-        case t if isJavaCollection(c)(srcTypeSymbol) => // this means raw conversion, because otherwise it would have match before
+        case _ if isJavaCollection(c)(srcTypeSymbol) => // this means raw conversion, because otherwise it would have match before
 
           q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($getter)) "
 
-        case t => // plain type
+        case _ => // plain type
 
-          val value = if (srcTypeSymbol != dstTypeSymbol) {
+          val value = if (srcResultType == dstResultType || srcResultType.baseClasses.contains(dstResultType)) {
+            q" $getter "
+          } else {
             if (Debug) {
-              println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
+              println(s"Requires converter from $srcResultType to $dstResultType")
             }
 
             q" CactusMacros.AToB[$srcResultType, $dstResultType]($getter) "
-          } else
-            q" $getter "
+          }
 
           query match {
             case Some(q) => q" if ($q) Good($value) else Bad(One(MissingFieldFailure($nameInGpb))) "
@@ -304,6 +338,11 @@ object CactusMacros {
           }
       }
     }
+
+    private def wrapDstType(c: whitebox.Context)(t: c.universe.Type): c.universe.Type = {
+      extractType(c)(s"org.scalactic.Good[$t](???).orBad[org.scalactic.Every[CactusFailure]]")
+    }
+
   }
 
   private object CaseClassToGpb {
@@ -365,10 +404,10 @@ object CactusMacros {
         case _ if caseClassAndGpb(c)(srcTypeSymbol, dstResultType) => // case class -> GPB
 
           newConverter(c)(srcResultType, dstResultType) {
-            q" (a:${toFullName(c)(srcResultType)}) => ${createConverter(c)(srcResultType, setterRequiredType, q" $field ")} "
+            q" (a:$srcResultType) => ${createConverter(c)(srcResultType, setterRequiredType, q" $field ")} "
           }
-          q" $setter(CactusMacros.AToB[${toFullName(c)(srcResultType)}, ${toFullName(c)(dstResultType)}]($field)) "
 
+          q" $setter(CactusMacros.AToB[$srcResultType, $dstResultType]($field)) "
 
         case _ if isScalaMap(c)(srcTypeSymbol) => // Map[A, B]
           val addMethod = setter
@@ -398,21 +437,21 @@ object CactusMacros {
               val keyField = if (srcKeyType == dstKeyType || srcKeyType.baseClasses.contains(dstKeyType)) {
                 q" key "
               } else {
-                q" CactusMacros.AToB[${toFullName(c)(srcKeyType)}, ${toFullName(c)(dstKeyType)}](key) "
+                q" CactusMacros.AToB[$srcKeyType, $dstKeyType](key) "
               }
 
               val valueField = if (srcValueType == dstValueType || srcValueType.baseClasses.contains(dstValueType)) {
                 q" value "
               } else {
-                q" CactusMacros.AToB[${toFullName(c)(srcValueType)}, ${toFullName(c)(dstValueType)}](value) "
+                q" CactusMacros.AToB[$srcValueType, $dstValueType](value) "
               }
 
               val mapGpb = gpbGenType.companion
 
               newConverter(c)(srcResultType, dstResultType) {
                 q"""
-                   (a: ${toFullName(c)(srcResultType)}) =>
-                    a.map{ _ match { case (key, value) =>
+                   (t: $srcResultType) =>
+                    t.map{ _ match { case (key, value) =>
                           $mapGpb.newBuilder()
                           .${TermName("set" + firstUpper(keyFieldName))}($keyField)
                           .${TermName("set" + firstUpper(valueFieldName))}($valueField)
@@ -424,7 +463,7 @@ object CactusMacros {
 
               q"""
                 $addMethod(
-                   CactusMacros.AToB[${toFullName(c)(srcResultType)}, ${toFullName(c)(dstResultType)}]($field)
+                   CactusMacros.AToB[$srcResultType, $dstResultType]($field)
                 )
                """
 
@@ -433,7 +472,7 @@ object CactusMacros {
                 println(s"Map field $field without annotation, fallback to raw conversion")
               }
 
-              q" $addMethod(CactusMacros.AToB[${toFullName(c)(srcResultType)}, ${toFullName(c)(dstResultType)}]($field)) "
+              q" $addMethod(CactusMacros.AToB[$srcResultType, $dstResultType]($field)) "
           }
 
         case _ if isScalaCollection(c)(srcTypeSymbol) || srcTypeSymbol.name == TypeName("Array") => // collection
@@ -459,15 +498,15 @@ object CactusMacros {
                     q" (a: $srcTypeArg) =>  { ${processEndType(c)(q"a", fieldAnnotations, srcTypeArg)(dstTypeArg, dstTypeArg, q"identity", " a ")} } "
                   }
 
-                  q" $addMethod(CactusMacros.CollAToCollB[${toFullName(c)(srcTypeArg)}, ${toFullName(c)(dstTypeArg)}, Seq]($field.toSeq).asJava) "
+                  q" $addMethod(CactusMacros.CollAToCollB[$srcTypeArg, $dstTypeArg, Seq]($field.toSeq).asJava) "
                 }
 
               case (_, _) =>
                 if (Debug) {
-                  println(s"Converting $srcResultType to $dstResultType, fallback to conversion ${toFullName(c)(srcResultType)} -> Seq[$getterGenType]")
+                  println(s"Converting $srcResultType to $dstResultType, fallback to conversion $srcResultType -> Seq[$getterGenType]")
                 }
 
-                q" $addMethod(CactusMacros.AToB[${toFullName(c)(srcResultType)}, Seq[$getterGenType]]($field).asJava) "
+                q" $addMethod(CactusMacros.AToB[$srcResultType, Seq[$getterGenType]]($field).asJava) "
 
             }
 
@@ -476,7 +515,7 @@ object CactusMacros {
               println(s"Converting $srcResultType to $dstResultType, fallback to raw conversion")
             }
 
-            q" $addMethod(CactusMacros.AToB[${toFullName(c)(srcResultType)}, ${toFullName(c)(dstResultType)}]($field)) "
+            q" $addMethod(CactusMacros.AToB[$srcResultType, $dstResultType]($field)) "
           }
 
         case _ if isJavaCollection(c)(dstTypeSymbol) => // this means raw conversion, because otherwise it would have match before
@@ -487,7 +526,7 @@ object CactusMacros {
             println(s"Converting $srcResultType to $dstResultType, fallback to raw conversion")
           }
 
-          q" $addMethod(CactusMacros.AToB[${toFullName(c)(srcResultType)}, ${toFullName(c)(dstResultType)}]($field)) "
+          q" $addMethod(CactusMacros.AToB[$srcResultType, $dstResultType]($field)) "
 
         case _ => // plain type
 
@@ -498,7 +537,7 @@ object CactusMacros {
               println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
             }
 
-            q" CactusMacros.AToB[${toFullName(c)(srcResultType)}, ${toFullName(c)(dstResultType)}]($field) "
+            q" CactusMacros.AToB[$srcResultType, $dstResultType]($field) "
           }
 
           q" $setter($value) "
@@ -512,13 +551,13 @@ object CactusMacros {
     import c.universe._
 
     if (!caseClassType.typeSymbol.isClass) {
-      c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a class")
+      c.abort(c.enclosingPosition, s"Provided type $caseClassType is not t class")
     }
 
     val caseClassSymbol = caseClassType.typeSymbol.asClass
 
     if (!caseClassSymbol.isCaseClass) {
-      c.abort(c.enclosingPosition, s"Provided type $caseClassType is not a case class")
+      c.abort(c.enclosingPosition, s"Provided type $caseClassType is not t case class")
     }
 
     val ctor = caseClassType.decls.collectFirst {
@@ -581,7 +620,6 @@ object CactusMacros {
       }
 
     // find setter for the field in GPB
-    // try *List first for case it's a repeated field and user didn't name it *List in the case class
     val gpbSetter = gpbSetters
       .find(_.name.toString == s"addAll$upper") // collection ?
       .orElse(gpbSetters.find(_.name.toString == s"set$upper"))
@@ -621,6 +659,10 @@ object CactusMacros {
     }).symbol
   }
 
+  private def extractType(c: whitebox.Context)(q: String): c.universe.Type = {
+    c.typecheck(c.parse(q)).tpe
+  }
+
   private def getVariableName[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
     import c.universe._
 
@@ -656,27 +698,39 @@ object CactusMacros {
     s.charAt(0).toUpper + s.substring(1)
   }
 
-  private def newConverter(c: whitebox.Context)(a: c.universe.Type, b: c.universe.Type)
+  private def newConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)
                           (f: c.Tree)
                           (implicit converters: mutable.Map[String, c.universe.Tree]): Boolean = {
     import c.universe._
 
     // skip primitive types, conversions already defined
-    if (!(a.typeSymbol.asClass.baseClasses.exists(s => s.fullName == "scala.AnyVal") || a.typeSymbol.fullName == "java.lang.String")) {
-      val key = toConverterKey(c)(a, b)
+    if (!(isPrimitive(c)(from) && isPrimitive(c)(to))) {
+      val key = toConverterKey(c)(from, to)
 
       converters.get(key) match {
         case Some(_) => false
         case None =>
           if (Debug) {
-            println(s"Defining converter fro $a to $b")
+            println(s"Defining converter from $from to $to")
           }
 
-          converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:Converter[${toFullName(c)(a)}, ${toFullName(c)(b)}] = Converter($f) "
+          converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:Converter[$from, $to] = Converter($f) "
 
           true
       }
-    } else false
+    } else {
+      if (Debug) {
+        println(s"Skipping definition of converter from $from to $to")
+      }
+
+      false
+    }
+  }
+
+  private def isPrimitive(c: whitebox.Context)(t: c.universe.Type) = {
+    val typeSymbol = t.typeSymbol
+
+    typeSymbol.asClass.baseClasses.exists(_.fullName == "scala.AnyVal") || JavaPrimitiveTypes.contains(typeSymbol.fullName)
   }
 
   private def toConverterKey(c: whitebox.Context)(a: c.universe.Type, b: c.universe.Type): String = {
@@ -685,11 +739,6 @@ object CactusMacros {
 
     val key = s"${aKey}__$bKey"
     key
-  }
-
-  def toFullName(c: whitebox.Context)(t: c.universe.Type) = {
-    import c.universe._
-    t
   }
 
 }
