@@ -29,6 +29,9 @@ to (and from) Scala `Map` is supported via `GpbMap` annotation - see the `CaseCl
 Mapping of complex messages (message contains another message which contains another message) is supported.
 However **recursive** mapping (field with `Data` type in `Data` class) is **NOT supported**. 
 
+When using your own converters, please note it's necessary to use exactly the same type as present in the GPB instance/case class.
+For example see `JavaIntegerListStringConverter` in [test](macros/src/test/scala/com/avast/cactus/CactusMacrosTest.scala). 
+
 ### Example
 
 GPB:
@@ -134,6 +137,9 @@ Another option is to use `scala.collection.immutable.List[T]` - you have to use 
 By specifying `scala.collection.Seq[T]`, which can contain also mutable collections, you get the `Vector[T]`.
 
 ## Case class to GPB
+
+When using your own converters, please note it's necessary to use exactly the same type as present in the GPB builder/case class.
+For example see `StringJavaIntegerListConverter` in [test](macros/src/test/scala/com/avast/cactus/CactusMacrosTest.scala).
 
 ### Example
 
