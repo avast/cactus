@@ -236,13 +236,13 @@ object CactusMacros {
               val srcKeyType = gpbGenType.member(getKeyField).asMethod.returnType
               val srcValueType = gpbGenType.member(getValueField).asMethod.returnType
 
-              val keyField = if (srcKeyType == dstKeyType || srcKeyType.baseClasses.contains(dstKeyType)) {
+              val keyField = if (srcKeyType.typeSymbol == dstKeyType.typeSymbol || srcKeyType.baseClasses.contains(dstKeyType.typeSymbol)) {
                 q" f.$getKeyField "
               } else {
                 q" CactusMacros.AToB[$srcKeyType, $dstKeyType](f.$getKeyField) "
               }
 
-              val valueField = if (srcValueType == dstValueType || srcValueType.baseClasses.contains(dstValueType)) {
+              val valueField = if (srcValueType.typeSymbol == dstValueType.typeSymbol || srcValueType.baseClasses.contains(dstValueType.typeSymbol)) {
                 q" f.$getValueField "
               } else {
                 q" CactusMacros.AToB[$srcValueType, $dstValueType](f.$getValueField) "
@@ -276,14 +276,14 @@ object CactusMacros {
                 }
 
                 val srcTypeArg = srcTypeArgOpt.getOrElse {
-                  if (srcResultType.typeSymbol.fullName == ProtocolStringList) {
+                  if (srcTypeSymbol.fullName == ProtocolStringList) {
                     typeOf[String]
                   } else {
                     c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
                   }
                 }
 
-                if (srcTypeArg == dstTypeArg || srcTypeArg.baseClasses.contains(dstTypeArg)) {
+                if (srcTypeArg.typeSymbol == dstTypeArg.typeSymbol || srcTypeArg.baseClasses.contains(dstTypeArg.typeSymbol)) {
                   q" Good($toFinalCollection($getter.asScala.toVector)) "
                 } else {
                   val wrappedDstTypeArg = wrapDstType(c)(dstTypeArg)
@@ -318,7 +318,7 @@ object CactusMacros {
 
         case _ => // plain type
 
-          val value = if (srcResultType == dstResultType || srcResultType.baseClasses.contains(dstResultType)) {
+          val value = if (srcTypeSymbol == dstTypeSymbol || srcResultType.baseClasses.contains(dstTypeSymbol)) {
             q" $getter "
           } else {
             if (Debug) {
@@ -430,13 +430,13 @@ object CactusMacros {
               val dstKeyType = gpbGenType.member(getKeyField).asMethod.returnType
               val dstValueType = gpbGenType.member(getValueField).asMethod.returnType
 
-              val keyField = if (srcKeyType == dstKeyType || srcKeyType.baseClasses.contains(dstKeyType)) {
+              val keyField = if (srcKeyType.typeSymbol == dstKeyType.typeSymbol || srcKeyType.baseClasses.contains(dstKeyType.typeSymbol)) {
                 q" key "
               } else {
                 q" CactusMacros.AToB[$srcKeyType, $dstKeyType](key) "
               }
 
-              val valueField = if (srcValueType == dstValueType || srcValueType.baseClasses.contains(dstValueType)) {
+              val valueField = if (srcValueType.typeSymbol == dstValueType.typeSymbol || srcValueType.baseClasses.contains(dstValueType.typeSymbol)) {
                 q" value "
               } else {
                 q" CactusMacros.AToB[$srcValueType, $dstValueType](value) "
@@ -491,8 +491,15 @@ object CactusMacros {
                   }
                 }
 
-                if (srcTypeArg == dstTypeArg || srcTypeArg.baseClasses.contains(dstTypeArg)) {
-                  q" $addMethod($field.asJava) "
+                if (srcTypeArg.typeSymbol == dstTypeArg.typeSymbol || srcTypeArg.baseClasses.contains(dstTypeArg.typeSymbol)) {
+
+                  val javaIterable = if (srcTypeSymbol.name != TypeName("Array")) {
+                    q" $field.asJava "
+                  } else {
+                    q" java.util.Arrays.asList($field: _*) "
+                  }
+
+                  q" $addMethod($javaIterable) "
                 } else {
 
                   newConverter(c)(srcTypeArg, dstTypeArg) {
@@ -531,7 +538,7 @@ object CactusMacros {
 
         case _ => // plain type
 
-          val value = if (srcResultType == dstResultType || srcResultType.baseClasses.contains(dstResultType)) {
+          val value = if (srcTypeSymbol == dstTypeSymbol || srcResultType.baseClasses.contains(dstTypeSymbol)) {
             q" $field "
           } else {
             if (Debug) {
