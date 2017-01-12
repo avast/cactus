@@ -506,7 +506,7 @@ object CactusMacros {
                     q" (a: $srcTypeArg) =>  { ${processEndType(c)(q"a", fieldAnnotations, srcTypeArg)(dstTypeArg, dstTypeArg, q"identity", " a ")} } "
                   }
 
-                  q" $addMethod(CactusMacros.CollAToCollB[$srcTypeArg, $dstTypeArg, Seq]($field.toSeq).asJava) "
+                  q" $addMethod(CactusMacros.CollAToCollB[$srcTypeArg, $dstTypeArg, scala.collection.Seq]($field.toSeq).asJava) "
                 }
 
               case (_, _) =>
@@ -514,7 +514,7 @@ object CactusMacros {
                   println(s"Converting $srcResultType to $dstResultType, fallback to conversion $srcResultType -> Seq[$getterGenType]")
                 }
 
-                q" $addMethod(CactusMacros.AToB[$srcResultType, Seq[$getterGenType]]($field).asJava) "
+                q" $addMethod(CactusMacros.AToB[$srcResultType, scala.collection.Seq[$getterGenType]]($field).asJava) "
 
             }
 
