@@ -400,7 +400,7 @@ object CactusMacros {
         case _ if caseClassAndGpb(c)(srcTypeSymbol, dstResultType) => // case class -> GPB
 
           newConverter(c)(srcResultType, dstResultType) {
-            q" (a:$srcResultType) => ${createConverter(c)(srcResultType, setterRequiredType, q" $field ")} "
+            q" (a: $srcResultType) => ${createConverter(c)(srcResultType, setterRequiredType, q" a ")} "
           }
 
           q" $setter(CactusMacros.AToB[$srcResultType, $dstResultType]($field)) "
