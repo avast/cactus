@@ -41,7 +41,7 @@ class CactusMacrosTest extends FunSuite {
     val gpb = TestMessage.Data.newBuilder()
       .setField("ahoj")
       .setFieldIntName(9)
-      .setFieldOption(13)
+      //.setFieldOption(13) -> will become None
       .setFieldBlob(ByteString.EMPTY)
       .setFieldGpb(gpbInternal)
       .setFieldGpbOption(gpbInternal)
@@ -59,7 +59,8 @@ class CactusMacrosTest extends FunSuite {
 
     val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
 
-    val expected = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val expected = CaseClassA("ahoj", 9, None, ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+
     assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
   }
 

@@ -183,15 +183,27 @@ object CactusMacros {
           val wrappedDstType = wrapDstType(c)(dstTypeArg)
 
           newConverter(c)(srcResultType, wrappedDstType) {
-            q" (t: $srcResultType) => ${processEndType(c)(fieldName, fieldAnnotations, nameInGpb, dstTypeArg, gpbType)(query, q" t ", getterReturnType)} "
+            q" (t: $srcResultType) => ${processEndType(c)(fieldName, fieldAnnotations, nameInGpb, dstTypeArg, gpbType)(None, q" t ", getterReturnType)} "
           }
 
+          query match {
+            case Some(q) =>
+              q""" {
+                 if ($q) {
+                   val value: $dstTypeArg Or Every[CactusFailure] = CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter)
+
+                   value.map(Option(_)).recover(_ => None)
+                 } else { Good[Option[$dstTypeArg]](None).orBad[Every[CactusFailure]] }
+               }
+           """
+            case None =>
           q""" {
                  val value: $dstTypeArg Or Every[CactusFailure] = CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter)
 
                  value.map(Option(_)).recover(_ => None)
                }
            """
+          }
 
         case _ if caseClassAndGpb(c)(dstTypeSymbol, getterReturnType) => // GPB -> case class
           if (Debug) {
