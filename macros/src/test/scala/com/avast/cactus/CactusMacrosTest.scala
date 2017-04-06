@@ -215,7 +215,7 @@ case class CaseClassC(field: StringWrapperClass,
 }
 
 // the `fieldIgnored` field is very unusually placed, but it has to be tested too...
-case class CaseClassE(field: String, @Ignored fieldIgnored: String = "hello", fieldOption: Option[String], @Ignored fieldIgnored2: String = "hello")
+case class CaseClassE(field: String, @GpbIgnored fieldIgnored: String = "hello", fieldOption: Option[String], @GpbIgnored fieldIgnored2: String = "hello")
 
 case class StringWrapperClass(value: String)
 

@@ -589,10 +589,10 @@ object CactusMacros {
     val fields = ctor.paramLists.flatten.flatMap { field =>
       val annotations = field.annotations.map(_.tree.tpe.toString)
 
-      annotations.find(_ == classOf[Ignored].getName) match {
+      annotations.find(_ == classOf[GpbIgnored].getName) match {
         case Some(_) =>
           if (!field.asTerm.isParamWithDefault) {
-            c.abort(c.enclosingPosition, s"Field '${field.name}' of type ${caseClassType.typeSymbol.fullName} is annotated as Ignored, but doesn't have default value")
+            c.abort(c.enclosingPosition, s"Field '${field.name}' of type ${caseClassType.typeSymbol.fullName} is annotated as GpbIgnored, but doesn't have default value")
           }
 
           None
