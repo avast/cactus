@@ -28,6 +28,11 @@ message Data3 {
     repeated Data2      field_gpb = 1;	  	                // REQUIRED
 }
 
+message Data4 {
+    optional string     field = 1;                          // REQUIRED
+    optional string     field_option = 2;                   // OPTIONAL
+}
+
 message MapMessage {
     optional string key = 1;                                // REQUIRED
     optional string value = 2;                              // REQUIRED

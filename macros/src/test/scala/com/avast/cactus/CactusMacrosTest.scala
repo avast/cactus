@@ -141,6 +141,14 @@ class CactusMacrosTest extends FunSuite {
 
     assertResult(Good(original))(converted.asCaseClass[CaseClassC])
   }
+
+  test("convert case class with ignored field to GPB and back") {
+    val original = CaseClassE(field = "ahoj", fieldOption = Some("ahoj2"))
+
+    val Good(converted) = original.asGpb[Data4]
+
+    assertResult(Good(original))(converted.asCaseClass[CaseClassE])
+  }
 }
 
 case class CaseClassA(field: String,
@@ -205,6 +213,9 @@ case class CaseClassC(field: StringWrapperClass,
     case _ => false
   }
 }
+
+// the `fieldIgnored` field is very unusually placed, but it has to be tested too...
+case class CaseClassE(field: String, @GpbIgnored fieldIgnored: String = "hello", fieldOption: Option[String], @GpbIgnored fieldIgnored2: String = "hello")
 
 case class StringWrapperClass(value: String)
 

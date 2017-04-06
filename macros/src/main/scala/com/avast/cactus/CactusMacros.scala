@@ -147,6 +147,8 @@ object CactusMacros {
       }
 
       val fieldNames = fields.map(_.name.toTermName)
+      val fieldTypes = fields.map(_.typeSignature.resultType)
+      val fieldsWithTypes = (fieldNames zip fieldTypes).map { case (n, t) => q"$n:$t" }
 
       // prevent Deprecated warning from scalactic.Or
       val mappingFunction = if (fieldNames.size > 1) {
@@ -159,7 +161,7 @@ object CactusMacros {
          {
             ..$params
 
-            $mappingFunction { ${caseClassSymbol.companion}.apply }
+            $mappingFunction { ..$fieldsWithTypes => ${caseClassSymbol.companion}(..${fieldNames.map(f => q"$f = $f")}) }
          }
        """
     }
@@ -197,7 +199,7 @@ object CactusMacros {
                }
            """
             case None =>
-          q""" {
+              q""" {
                  val value: $dstTypeArg Or Every[CactusFailure] = CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter)
 
                  value.map(Option(_)).recover(_ => None)
@@ -584,7 +586,20 @@ object CactusMacros {
       case m: MethodSymbol if m.isPrimaryConstructor => m
     }.get
 
-    val fields = ctor.paramLists.flatten
+    val fields = ctor.paramLists.flatten.flatMap { field =>
+      val annotations = field.annotations.map(_.tree.tpe.toString)
+
+      annotations.find(_ == classOf[GpbIgnored].getName) match {
+        case Some(_) =>
+          if (!field.asTerm.isParamWithDefault) {
+            c.abort(c.enclosingPosition, s"Field '${field.name}' of type ${caseClassType.typeSymbol.fullName} is annotated as GpbIgnored, but doesn't have default value")
+          }
+
+          None
+
+        case None => Some(field)
+      }
+    }
 
     val gpbGetters = gpbType.decls.collect {
       case m: MethodSymbol if m.name.toString.startsWith("get") && !m.isStatic => m

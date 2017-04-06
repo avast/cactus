@@ -23,6 +23,9 @@ Currently there is only one possible failure (`MissingFieldFailure`) which conta
 It is common that the field has different name in the GPB and in the case class. You can use `GpbName` annotation 
 to override the expected name - see the example.
 
+Sometimes the case class has more fields than the GPB and you just want to ignore them during conversion. You can use `GpbIgnored` 
+annotation to achieve this. Please note that the ignored field in the case class **must** have default value!
+
 GPBs 2.x do not have map type and it's usually solved by using repeated field with message, which contains `key` and `value` fields. Automatic conversion
 to (and from) Scala `Map` is supported via `GpbMap` annotation - see the `CaseClassA` in example.
 
