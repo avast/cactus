@@ -33,7 +33,7 @@ lazy val commonSettings = Seq(
 
 lazy val macroSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.google.protobuf" % "protobuf-java" % "2.6.1",
+    "com.google.protobuf" % "protobuf-java" % "3.3.0" % "optional",
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     "org.scala-lang" % "scala-compiler" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.0",

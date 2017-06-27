@@ -15,8 +15,14 @@ object CactusMacros {
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
-  private val ProtocolStringList = "com.google.protobuf.ProtocolStringList"
-  private val ByteString = "com.google.protobuf.ByteString"
+  private[cactus] object ClassesNames {
+    val ProtocolStringList = "com.google.protobuf.ProtocolStringList"
+    val ByteString = "com.google.protobuf.ByteString"
+    val GeneratedMessageV3 = "com.google.protobuf.GeneratedMessageV3"
+
+    val AnyVal  = "scala.AnyVal"
+    val String  = "java.lang.String"
+  }
 
   private val JavaPrimitiveTypes = Set(
     classOf[java.lang.Boolean].getName,
@@ -139,9 +145,9 @@ object CactusMacros {
         val e = extractField(c)(field, gpbGetters, gpbSetters)
         import e._
 
-        val query = TermName(s"has$upper")
+        val query = protoVersion.getQuery(c)(gpb, upper, gpbGetter.returnType)
 
-        val value = processEndType(c)(fieldName, annotations, nameInGpb, dstType, gpbType)(Some(q"$gpb.$query"), q"$gpb.$gpbGetter", gpbGetter.returnType)
+        val value = processEndType(c)(fieldName, annotations, nameInGpb, dstType, gpbType)(query, q"$gpb.$gpbGetter", gpbGetter.returnType)
 
         c.Expr(q"val $fieldName: $dstType Or Every[CactusFailure] = { $value }")
       }
@@ -290,10 +296,10 @@ object CactusMacros {
                 }
 
                 val srcTypeArg = srcTypeArgOpt.getOrElse {
-                  if (srcTypeSymbol.fullName == ProtocolStringList) {
+                  if (srcTypeSymbol.fullName == ClassesNames.ProtocolStringList) {
                     typeOf[String]
                   } else {
-                    c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
+                    c.abort(c.enclosingPosition, s"Expected ${ClassesNames.ProtocolStringList}, $srcResultType present, please report this bug")
                   }
                 }
 
@@ -497,11 +503,11 @@ object CactusMacros {
               case (Some(dstTypeArg), srcTypeArgOpt) =>
 
                 val srcTypeArg = srcTypeArgOpt.getOrElse {
-                  if (srcResultType.typeSymbol.fullName == ProtocolStringList) {
+                  if (srcResultType.typeSymbol.fullName == ClassesNames.ProtocolStringList) {
                     typeOf[String]
                   }
                   else {
-                    c.abort(c.enclosingPosition, s"Expected $ProtocolStringList, $srcResultType present, please report this bug")
+                    c.abort(c.enclosingPosition, s"Expected ${ClassesNames.ProtocolStringList}, $srcResultType present, please report this bug")
                   }
                 }
 
@@ -582,6 +588,10 @@ object CactusMacros {
       c.abort(c.enclosingPosition, s"Provided type $caseClassType is not t case class")
     }
 
+    val isProto3 = gpbType.baseClasses.exists(_.asType.fullName == ClassesNames.GeneratedMessageV3)
+
+    val protoVersion = if (isProto3) ProtoVersion.V3 else ProtoVersion.V2
+
     val ctor = caseClassType.decls.collectFirst {
       case m: MethodSymbol if m.isPrimaryConstructor => m
     }.get
@@ -638,7 +648,7 @@ object CactusMacros {
       par.get("value")
     }.map(_.toString()).getOrElse(fieldName.toString)
 
-    val upper = firstUpper(nameInGpb.toString)
+    val upper = firstUpper(nameInGpb)
 
     // find getter for the field in GPB
     // try *List first for case it's a repeated field and user didn't name it *List in the case class
@@ -674,7 +684,7 @@ object CactusMacros {
     val getterResultType = getterReturnType.resultType
     val getterGenType = getterResultType.typeArgs.headOption
       .getOrElse {
-        if (getterResultType.toString == ProtocolStringList) {
+        if (getterResultType.toString == ClassesNames.ProtocolStringList) {
           typeOf[java.lang.String]
         } else {
           c.abort(c.enclosingPosition, s"Could not extract generic type from $getterResultType")
@@ -720,7 +730,7 @@ object CactusMacros {
   }
 
   private def isJavaCollection(c: whitebox.Context)(typeSymbol: c.universe.Symbol): Boolean = {
-    typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.fullName.toString).contains("java.lang.Iterable") && typeSymbol.fullName != ByteString
+    typeSymbol.isClass && typeSymbol.asClass.baseClasses.map(_.fullName.toString).contains("java.lang.Iterable") && typeSymbol.fullName != ClassesNames.ByteString
   }
 
   private def isScalaMap(c: whitebox.Context)(typeSymbol: c.universe.Symbol): Boolean = {

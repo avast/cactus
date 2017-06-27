@@ -1,7 +1,7 @@
 option java_package = "com.avast.cactus";
 
 message Data {
-    optional string     field = 1;                          // REQUIRED
+    optional string     fieldString = 1;                    // REQUIRED
     optional int32      field_int_name = 2;                 // REQUIRED
     optional int32      field_option = 3;                   // OPTIONAL
     repeated string     field_strings = 4;                  // REQUIRED
