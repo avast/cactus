@@ -20,6 +20,7 @@ message Data {
     repeated Data2      field_gpb_repeated = 15;            // OPTIONAL
     repeated Data3      field_gpb2_repeated_recurse = 16;   // OPTIONAL
              Data2      field_gpb2 = 17;   		            // REQUIRED
+             Data5      field_gpb3 = 18;   		            // REQUIRED
 }
 
 message Data2 {
@@ -39,6 +40,16 @@ message Data3 {
 message Data4 {
              string     fieldString = 1;                    // REQUIRED
              string     field_option = 2;                   // OPTIONAL
+}
+
+
+message Data5 {
+    repeated Data2      field_gpb = 1;	  	                // REQUIRED
+
+    oneof named_one_of {
+             int32      foo_int = 2;
+             string     foo_string = 3;
+    }
 }
 
 message MapMessage {

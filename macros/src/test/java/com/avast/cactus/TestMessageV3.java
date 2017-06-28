@@ -483,6 +483,31 @@ public final class TestMessageV3 {
      * <code>.Data2 field_gpb2 = 17;</code>
      */
     com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpb2OrBuilder();
+
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data5 field_gpb3 = 18;</code>
+     */
+    boolean hasFieldGpb3();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data5 field_gpb3 = 18;</code>
+     */
+    com.avast.cactus.TestMessageV3.Data5 getFieldGpb3();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data5 field_gpb3 = 18;</code>
+     */
+    com.avast.cactus.TestMessageV3.Data5OrBuilder getFieldGpb3OrBuilder();
   }
   /**
    * Protobuf type {@code Data}
@@ -722,6 +747,19 @@ public final class TestMessageV3 {
               if (subBuilder != null) {
                 subBuilder.mergeFrom(fieldGpb2_);
                 fieldGpb2_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 146: {
+              com.avast.cactus.TestMessageV3.Data5.Builder subBuilder = null;
+              if (fieldGpb3_ != null) {
+                subBuilder = fieldGpb3_.toBuilder();
+              }
+              fieldGpb3_ = input.readMessage(com.avast.cactus.TestMessageV3.Data5.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(fieldGpb3_);
+                fieldGpb3_ = subBuilder.buildPartial();
               }
 
               break;
@@ -1405,6 +1443,39 @@ public final class TestMessageV3 {
       return getFieldGpb2();
     }
 
+    public static final int FIELD_GPB3_FIELD_NUMBER = 18;
+    private com.avast.cactus.TestMessageV3.Data5 fieldGpb3_;
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data5 field_gpb3 = 18;</code>
+     */
+    public boolean hasFieldGpb3() {
+      return fieldGpb3_ != null;
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data5 field_gpb3 = 18;</code>
+     */
+    public com.avast.cactus.TestMessageV3.Data5 getFieldGpb3() {
+      return fieldGpb3_ == null ? com.avast.cactus.TestMessageV3.Data5.getDefaultInstance() : fieldGpb3_;
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data5 field_gpb3 = 18;</code>
+     */
+    public com.avast.cactus.TestMessageV3.Data5OrBuilder getFieldGpb3OrBuilder() {
+      return getFieldGpb3();
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1480,6 +1551,9 @@ public final class TestMessageV3 {
       }
       if (fieldGpb2_ != null) {
         output.writeMessage(17, getFieldGpb2());
+      }
+      if (fieldGpb3_ != null) {
+        output.writeMessage(18, getFieldGpb3());
       }
     }
 
@@ -1593,6 +1667,10 @@ public final class TestMessageV3 {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(17, getFieldGpb2());
       }
+      if (fieldGpb3_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(18, getFieldGpb3());
+      }
       memoizedSize = size;
       return size;
     }
@@ -1654,6 +1732,11 @@ public final class TestMessageV3 {
       if (hasFieldGpb2()) {
         result = result && getFieldGpb2()
             .equals(other.getFieldGpb2());
+      }
+      result = result && (hasFieldGpb3() == other.hasFieldGpb3());
+      if (hasFieldGpb3()) {
+        result = result && getFieldGpb3()
+            .equals(other.getFieldGpb3());
       }
       return result;
     }
@@ -1724,6 +1807,10 @@ public final class TestMessageV3 {
       if (hasFieldGpb2()) {
         hash = (37 * hash) + FIELD_GPB2_FIELD_NUMBER;
         hash = (53 * hash) + getFieldGpb2().hashCode();
+      }
+      if (hasFieldGpb3()) {
+        hash = (37 * hash) + FIELD_GPB3_FIELD_NUMBER;
+        hash = (53 * hash) + getFieldGpb3().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -1924,6 +2011,12 @@ public final class TestMessageV3 {
           fieldGpb2_ = null;
           fieldGpb2Builder_ = null;
         }
+        if (fieldGpb3Builder_ == null) {
+          fieldGpb3_ = null;
+        } else {
+          fieldGpb3_ = null;
+          fieldGpb3Builder_ = null;
+        }
         return this;
       }
 
@@ -2032,6 +2125,11 @@ public final class TestMessageV3 {
           result.fieldGpb2_ = fieldGpb2_;
         } else {
           result.fieldGpb2_ = fieldGpb2Builder_.build();
+        }
+        if (fieldGpb3Builder_ == null) {
+          result.fieldGpb3_ = fieldGpb3_;
+        } else {
+          result.fieldGpb3_ = fieldGpb3Builder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -2253,6 +2351,9 @@ public final class TestMessageV3 {
         }
         if (other.hasFieldGpb2()) {
           mergeFieldGpb2(other.getFieldGpb2());
+        }
+        if (other.hasFieldGpb3()) {
+          mergeFieldGpb3(other.getFieldGpb3());
         }
         onChanged();
         return this;
@@ -4888,6 +4989,159 @@ public final class TestMessageV3 {
         }
         return fieldGpb2Builder_;
       }
+
+      private com.avast.cactus.TestMessageV3.Data5 fieldGpb3_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.avast.cactus.TestMessageV3.Data5, com.avast.cactus.TestMessageV3.Data5.Builder, com.avast.cactus.TestMessageV3.Data5OrBuilder> fieldGpb3Builder_;
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data5 field_gpb3 = 18;</code>
+       */
+      public boolean hasFieldGpb3() {
+        return fieldGpb3Builder_ != null || fieldGpb3_ != null;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data5 field_gpb3 = 18;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data5 getFieldGpb3() {
+        if (fieldGpb3Builder_ == null) {
+          return fieldGpb3_ == null ? com.avast.cactus.TestMessageV3.Data5.getDefaultInstance() : fieldGpb3_;
+        } else {
+          return fieldGpb3Builder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data5 field_gpb3 = 18;</code>
+       */
+      public Builder setFieldGpb3(com.avast.cactus.TestMessageV3.Data5 value) {
+        if (fieldGpb3Builder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          fieldGpb3_ = value;
+          onChanged();
+        } else {
+          fieldGpb3Builder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data5 field_gpb3 = 18;</code>
+       */
+      public Builder setFieldGpb3(
+          com.avast.cactus.TestMessageV3.Data5.Builder builderForValue) {
+        if (fieldGpb3Builder_ == null) {
+          fieldGpb3_ = builderForValue.build();
+          onChanged();
+        } else {
+          fieldGpb3Builder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data5 field_gpb3 = 18;</code>
+       */
+      public Builder mergeFieldGpb3(com.avast.cactus.TestMessageV3.Data5 value) {
+        if (fieldGpb3Builder_ == null) {
+          if (fieldGpb3_ != null) {
+            fieldGpb3_ =
+              com.avast.cactus.TestMessageV3.Data5.newBuilder(fieldGpb3_).mergeFrom(value).buildPartial();
+          } else {
+            fieldGpb3_ = value;
+          }
+          onChanged();
+        } else {
+          fieldGpb3Builder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data5 field_gpb3 = 18;</code>
+       */
+      public Builder clearFieldGpb3() {
+        if (fieldGpb3Builder_ == null) {
+          fieldGpb3_ = null;
+          onChanged();
+        } else {
+          fieldGpb3_ = null;
+          fieldGpb3Builder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data5 field_gpb3 = 18;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data5.Builder getFieldGpb3Builder() {
+        
+        onChanged();
+        return getFieldGpb3FieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data5 field_gpb3 = 18;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data5OrBuilder getFieldGpb3OrBuilder() {
+        if (fieldGpb3Builder_ != null) {
+          return fieldGpb3Builder_.getMessageOrBuilder();
+        } else {
+          return fieldGpb3_ == null ?
+              com.avast.cactus.TestMessageV3.Data5.getDefaultInstance() : fieldGpb3_;
+        }
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data5 field_gpb3 = 18;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.avast.cactus.TestMessageV3.Data5, com.avast.cactus.TestMessageV3.Data5.Builder, com.avast.cactus.TestMessageV3.Data5OrBuilder> 
+          getFieldGpb3FieldBuilder() {
+        if (fieldGpb3Builder_ == null) {
+          fieldGpb3Builder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.avast.cactus.TestMessageV3.Data5, com.avast.cactus.TestMessageV3.Data5.Builder, com.avast.cactus.TestMessageV3.Data5OrBuilder>(
+                  getFieldGpb3(),
+                  getParentForChildren(),
+                  isClean());
+          fieldGpb3_ = null;
+        }
+        return fieldGpb3Builder_;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -7381,6 +7635,1178 @@ public final class TestMessageV3 {
 
   }
 
+  public interface Data5OrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Data5)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    java.util.List<com.avast.cactus.TestMessageV3.Data2> 
+        getFieldGpbList();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    com.avast.cactus.TestMessageV3.Data2 getFieldGpb(int index);
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    int getFieldGpbCount();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    java.util.List<? extends com.avast.cactus.TestMessageV3.Data2OrBuilder> 
+        getFieldGpbOrBuilderList();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpbOrBuilder(
+        int index);
+
+    /**
+     * <code>int32 foo_int = 2;</code>
+     */
+    int getFooInt();
+
+    /**
+     * <code>string foo_string = 3;</code>
+     */
+    java.lang.String getFooString();
+    /**
+     * <code>string foo_string = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getFooStringBytes();
+
+    public com.avast.cactus.TestMessageV3.Data5.NamedOneOfCase getNamedOneOfCase();
+  }
+  /**
+   * Protobuf type {@code Data5}
+   */
+  public  static final class Data5 extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:Data5)
+      Data5OrBuilder {
+    // Use Data5.newBuilder() to construct.
+    private Data5(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Data5() {
+      fieldGpb_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private Data5(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                fieldGpb_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.Data2>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              fieldGpb_.add(
+                  input.readMessage(com.avast.cactus.TestMessageV3.Data2.parser(), extensionRegistry));
+              break;
+            }
+            case 16: {
+              namedOneOfCase_ = 2;
+              namedOneOf_ = input.readInt32();
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+              namedOneOfCase_ = 3;
+              namedOneOf_ = s;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          fieldGpb_ = java.util.Collections.unmodifiableList(fieldGpb_);
+        }
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.avast.cactus.TestMessageV3.internal_static_Data5_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.avast.cactus.TestMessageV3.internal_static_Data5_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.avast.cactus.TestMessageV3.Data5.class, com.avast.cactus.TestMessageV3.Data5.Builder.class);
+    }
+
+    private int bitField0_;
+    private int namedOneOfCase_ = 0;
+    private java.lang.Object namedOneOf_;
+    public enum NamedOneOfCase
+        implements com.google.protobuf.Internal.EnumLite {
+      FOO_INT(2),
+      FOO_STRING(3),
+      NAMEDONEOF_NOT_SET(0);
+      private final int value;
+      private NamedOneOfCase(int value) {
+        this.value = value;
+      }
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static NamedOneOfCase valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static NamedOneOfCase forNumber(int value) {
+        switch (value) {
+          case 2: return FOO_INT;
+          case 3: return FOO_STRING;
+          case 0: return NAMEDONEOF_NOT_SET;
+          default: return null;
+        }
+      }
+      public int getNumber() {
+        return this.value;
+      }
+    };
+
+    public NamedOneOfCase
+    getNamedOneOfCase() {
+      return NamedOneOfCase.forNumber(
+          namedOneOfCase_);
+    }
+
+    public static final int FIELD_GPB_FIELD_NUMBER = 1;
+    private java.util.List<com.avast.cactus.TestMessageV3.Data2> fieldGpb_;
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    public java.util.List<com.avast.cactus.TestMessageV3.Data2> getFieldGpbList() {
+      return fieldGpb_;
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    public java.util.List<? extends com.avast.cactus.TestMessageV3.Data2OrBuilder> 
+        getFieldGpbOrBuilderList() {
+      return fieldGpb_;
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    public int getFieldGpbCount() {
+      return fieldGpb_.size();
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    public com.avast.cactus.TestMessageV3.Data2 getFieldGpb(int index) {
+      return fieldGpb_.get(index);
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>repeated .Data2 field_gpb = 1;</code>
+     */
+    public com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpbOrBuilder(
+        int index) {
+      return fieldGpb_.get(index);
+    }
+
+    public static final int FOO_INT_FIELD_NUMBER = 2;
+    /**
+     * <code>int32 foo_int = 2;</code>
+     */
+    public int getFooInt() {
+      if (namedOneOfCase_ == 2) {
+        return (java.lang.Integer) namedOneOf_;
+      }
+      return 0;
+    }
+
+    public static final int FOO_STRING_FIELD_NUMBER = 3;
+    /**
+     * <code>string foo_string = 3;</code>
+     */
+    public java.lang.String getFooString() {
+      java.lang.Object ref = "";
+      if (namedOneOfCase_ == 3) {
+        ref = namedOneOf_;
+      }
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (namedOneOfCase_ == 3) {
+          namedOneOf_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>string foo_string = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getFooStringBytes() {
+      java.lang.Object ref = "";
+      if (namedOneOfCase_ == 3) {
+        ref = namedOneOf_;
+      }
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        if (namedOneOfCase_ == 3) {
+          namedOneOf_ = b;
+        }
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < fieldGpb_.size(); i++) {
+        output.writeMessage(1, fieldGpb_.get(i));
+      }
+      if (namedOneOfCase_ == 2) {
+        output.writeInt32(
+            2, (int)((java.lang.Integer) namedOneOf_));
+      }
+      if (namedOneOfCase_ == 3) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, namedOneOf_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < fieldGpb_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, fieldGpb_.get(i));
+      }
+      if (namedOneOfCase_ == 2) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(
+              2, (int)((java.lang.Integer) namedOneOf_));
+      }
+      if (namedOneOfCase_ == 3) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, namedOneOf_);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.avast.cactus.TestMessageV3.Data5)) {
+        return super.equals(obj);
+      }
+      com.avast.cactus.TestMessageV3.Data5 other = (com.avast.cactus.TestMessageV3.Data5) obj;
+
+      boolean result = true;
+      result = result && getFieldGpbList()
+          .equals(other.getFieldGpbList());
+      result = result && getNamedOneOfCase().equals(
+          other.getNamedOneOfCase());
+      if (!result) return false;
+      switch (namedOneOfCase_) {
+        case 2:
+          result = result && (getFooInt()
+              == other.getFooInt());
+          break;
+        case 3:
+          result = result && getFooString()
+              .equals(other.getFooString());
+          break;
+        case 0:
+        default:
+      }
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (getFieldGpbCount() > 0) {
+        hash = (37 * hash) + FIELD_GPB_FIELD_NUMBER;
+        hash = (53 * hash) + getFieldGpbList().hashCode();
+      }
+      switch (namedOneOfCase_) {
+        case 2:
+          hash = (37 * hash) + FOO_INT_FIELD_NUMBER;
+          hash = (53 * hash) + getFooInt();
+          break;
+        case 3:
+          hash = (37 * hash) + FOO_STRING_FIELD_NUMBER;
+          hash = (53 * hash) + getFooString().hashCode();
+          break;
+        case 0:
+        default:
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.avast.cactus.TestMessageV3.Data5 parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.avast.cactus.TestMessageV3.Data5 prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code Data5}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Data5)
+        com.avast.cactus.TestMessageV3.Data5OrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.avast.cactus.TestMessageV3.internal_static_Data5_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.avast.cactus.TestMessageV3.internal_static_Data5_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.avast.cactus.TestMessageV3.Data5.class, com.avast.cactus.TestMessageV3.Data5.Builder.class);
+      }
+
+      // Construct using com.avast.cactus.TestMessageV3.Data5.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getFieldGpbFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (fieldGpbBuilder_ == null) {
+          fieldGpb_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          fieldGpbBuilder_.clear();
+        }
+        namedOneOfCase_ = 0;
+        namedOneOf_ = null;
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.avast.cactus.TestMessageV3.internal_static_Data5_descriptor;
+      }
+
+      public com.avast.cactus.TestMessageV3.Data5 getDefaultInstanceForType() {
+        return com.avast.cactus.TestMessageV3.Data5.getDefaultInstance();
+      }
+
+      public com.avast.cactus.TestMessageV3.Data5 build() {
+        com.avast.cactus.TestMessageV3.Data5 result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.avast.cactus.TestMessageV3.Data5 buildPartial() {
+        com.avast.cactus.TestMessageV3.Data5 result = new com.avast.cactus.TestMessageV3.Data5(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (fieldGpbBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            fieldGpb_ = java.util.Collections.unmodifiableList(fieldGpb_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.fieldGpb_ = fieldGpb_;
+        } else {
+          result.fieldGpb_ = fieldGpbBuilder_.build();
+        }
+        if (namedOneOfCase_ == 2) {
+          result.namedOneOf_ = namedOneOf_;
+        }
+        if (namedOneOfCase_ == 3) {
+          result.namedOneOf_ = namedOneOf_;
+        }
+        result.bitField0_ = to_bitField0_;
+        result.namedOneOfCase_ = namedOneOfCase_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.avast.cactus.TestMessageV3.Data5) {
+          return mergeFrom((com.avast.cactus.TestMessageV3.Data5)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.avast.cactus.TestMessageV3.Data5 other) {
+        if (other == com.avast.cactus.TestMessageV3.Data5.getDefaultInstance()) return this;
+        if (fieldGpbBuilder_ == null) {
+          if (!other.fieldGpb_.isEmpty()) {
+            if (fieldGpb_.isEmpty()) {
+              fieldGpb_ = other.fieldGpb_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureFieldGpbIsMutable();
+              fieldGpb_.addAll(other.fieldGpb_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.fieldGpb_.isEmpty()) {
+            if (fieldGpbBuilder_.isEmpty()) {
+              fieldGpbBuilder_.dispose();
+              fieldGpbBuilder_ = null;
+              fieldGpb_ = other.fieldGpb_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              fieldGpbBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getFieldGpbFieldBuilder() : null;
+            } else {
+              fieldGpbBuilder_.addAllMessages(other.fieldGpb_);
+            }
+          }
+        }
+        switch (other.getNamedOneOfCase()) {
+          case FOO_INT: {
+            setFooInt(other.getFooInt());
+            break;
+          }
+          case FOO_STRING: {
+            namedOneOfCase_ = 3;
+            namedOneOf_ = other.namedOneOf_;
+            onChanged();
+            break;
+          }
+          case NAMEDONEOF_NOT_SET: {
+            break;
+          }
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.avast.cactus.TestMessageV3.Data5 parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.avast.cactus.TestMessageV3.Data5) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int namedOneOfCase_ = 0;
+      private java.lang.Object namedOneOf_;
+      public NamedOneOfCase
+          getNamedOneOfCase() {
+        return NamedOneOfCase.forNumber(
+            namedOneOfCase_);
+      }
+
+      public Builder clearNamedOneOf() {
+        namedOneOfCase_ = 0;
+        namedOneOf_ = null;
+        onChanged();
+        return this;
+      }
+
+      private int bitField0_;
+
+      private java.util.List<com.avast.cactus.TestMessageV3.Data2> fieldGpb_ =
+        java.util.Collections.emptyList();
+      private void ensureFieldGpbIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          fieldGpb_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.Data2>(fieldGpb_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder> fieldGpbBuilder_;
+
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public java.util.List<com.avast.cactus.TestMessageV3.Data2> getFieldGpbList() {
+        if (fieldGpbBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(fieldGpb_);
+        } else {
+          return fieldGpbBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public int getFieldGpbCount() {
+        if (fieldGpbBuilder_ == null) {
+          return fieldGpb_.size();
+        } else {
+          return fieldGpbBuilder_.getCount();
+        }
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data2 getFieldGpb(int index) {
+        if (fieldGpbBuilder_ == null) {
+          return fieldGpb_.get(index);
+        } else {
+          return fieldGpbBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public Builder setFieldGpb(
+          int index, com.avast.cactus.TestMessageV3.Data2 value) {
+        if (fieldGpbBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFieldGpbIsMutable();
+          fieldGpb_.set(index, value);
+          onChanged();
+        } else {
+          fieldGpbBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public Builder setFieldGpb(
+          int index, com.avast.cactus.TestMessageV3.Data2.Builder builderForValue) {
+        if (fieldGpbBuilder_ == null) {
+          ensureFieldGpbIsMutable();
+          fieldGpb_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          fieldGpbBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public Builder addFieldGpb(com.avast.cactus.TestMessageV3.Data2 value) {
+        if (fieldGpbBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFieldGpbIsMutable();
+          fieldGpb_.add(value);
+          onChanged();
+        } else {
+          fieldGpbBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public Builder addFieldGpb(
+          int index, com.avast.cactus.TestMessageV3.Data2 value) {
+        if (fieldGpbBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFieldGpbIsMutable();
+          fieldGpb_.add(index, value);
+          onChanged();
+        } else {
+          fieldGpbBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public Builder addFieldGpb(
+          com.avast.cactus.TestMessageV3.Data2.Builder builderForValue) {
+        if (fieldGpbBuilder_ == null) {
+          ensureFieldGpbIsMutable();
+          fieldGpb_.add(builderForValue.build());
+          onChanged();
+        } else {
+          fieldGpbBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public Builder addFieldGpb(
+          int index, com.avast.cactus.TestMessageV3.Data2.Builder builderForValue) {
+        if (fieldGpbBuilder_ == null) {
+          ensureFieldGpbIsMutable();
+          fieldGpb_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          fieldGpbBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public Builder addAllFieldGpb(
+          java.lang.Iterable<? extends com.avast.cactus.TestMessageV3.Data2> values) {
+        if (fieldGpbBuilder_ == null) {
+          ensureFieldGpbIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, fieldGpb_);
+          onChanged();
+        } else {
+          fieldGpbBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public Builder clearFieldGpb() {
+        if (fieldGpbBuilder_ == null) {
+          fieldGpb_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          fieldGpbBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public Builder removeFieldGpb(int index) {
+        if (fieldGpbBuilder_ == null) {
+          ensureFieldGpbIsMutable();
+          fieldGpb_.remove(index);
+          onChanged();
+        } else {
+          fieldGpbBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data2.Builder getFieldGpbBuilder(
+          int index) {
+        return getFieldGpbFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpbOrBuilder(
+          int index) {
+        if (fieldGpbBuilder_ == null) {
+          return fieldGpb_.get(index);  } else {
+          return fieldGpbBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public java.util.List<? extends com.avast.cactus.TestMessageV3.Data2OrBuilder> 
+           getFieldGpbOrBuilderList() {
+        if (fieldGpbBuilder_ != null) {
+          return fieldGpbBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(fieldGpb_);
+        }
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data2.Builder addFieldGpbBuilder() {
+        return getFieldGpbFieldBuilder().addBuilder(
+            com.avast.cactus.TestMessageV3.Data2.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data2.Builder addFieldGpbBuilder(
+          int index) {
+        return getFieldGpbFieldBuilder().addBuilder(
+            index, com.avast.cactus.TestMessageV3.Data2.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>repeated .Data2 field_gpb = 1;</code>
+       */
+      public java.util.List<com.avast.cactus.TestMessageV3.Data2.Builder> 
+           getFieldGpbBuilderList() {
+        return getFieldGpbFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder> 
+          getFieldGpbFieldBuilder() {
+        if (fieldGpbBuilder_ == null) {
+          fieldGpbBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder>(
+                  fieldGpb_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          fieldGpb_ = null;
+        }
+        return fieldGpbBuilder_;
+      }
+
+      /**
+       * <code>int32 foo_int = 2;</code>
+       */
+      public int getFooInt() {
+        if (namedOneOfCase_ == 2) {
+          return (java.lang.Integer) namedOneOf_;
+        }
+        return 0;
+      }
+      /**
+       * <code>int32 foo_int = 2;</code>
+       */
+      public Builder setFooInt(int value) {
+        namedOneOfCase_ = 2;
+        namedOneOf_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 foo_int = 2;</code>
+       */
+      public Builder clearFooInt() {
+        if (namedOneOfCase_ == 2) {
+          namedOneOfCase_ = 0;
+          namedOneOf_ = null;
+          onChanged();
+        }
+        return this;
+      }
+
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public java.lang.String getFooString() {
+        java.lang.Object ref = "";
+        if (namedOneOfCase_ == 3) {
+          ref = namedOneOf_;
+        }
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (namedOneOfCase_ == 3) {
+            namedOneOf_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getFooStringBytes() {
+        java.lang.Object ref = "";
+        if (namedOneOfCase_ == 3) {
+          ref = namedOneOf_;
+        }
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          if (namedOneOfCase_ == 3) {
+            namedOneOf_ = b;
+          }
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public Builder setFooString(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  namedOneOfCase_ = 3;
+        namedOneOf_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public Builder clearFooString() {
+        if (namedOneOfCase_ == 3) {
+          namedOneOfCase_ = 0;
+          namedOneOf_ = null;
+          onChanged();
+        }
+        return this;
+      }
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public Builder setFooStringBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        namedOneOfCase_ = 3;
+        namedOneOf_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:Data5)
+    }
+
+    // @@protoc_insertion_point(class_scope:Data5)
+    private static final com.avast.cactus.TestMessageV3.Data5 DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.avast.cactus.TestMessageV3.Data5();
+    }
+
+    public static com.avast.cactus.TestMessageV3.Data5 getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Data5>
+        PARSER = new com.google.protobuf.AbstractParser<Data5>() {
+      public Data5 parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new Data5(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Data5> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Data5> getParserForType() {
+      return PARSER;
+    }
+
+    public com.avast.cactus.TestMessageV3.Data5 getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface MapMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:MapMessage)
       com.google.protobuf.MessageOrBuilder {
@@ -8298,6 +9724,11 @@ public final class TestMessageV3 {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_Data4_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_Data5_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_Data5_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_MapMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -8312,7 +9743,7 @@ public final class TestMessageV3 {
   static {
     java.lang.String[] descriptorData = {
       "\n/macros/src/test/resources/test_message" +
-      "_v3.proto\"\201\004\n\004Data\022\024\n\014field_string\030\001 \001(\t" +
+      "_v3.proto\"\235\004\n\004Data\022\024\n\014field_string\030\001 \001(\t" +
       "\022\026\n\016field_int_name\030\002 \001(\005\022\024\n\014field_option" +
       "\030\003 \001(\005\022\025\n\rfield_strings\030\004 \003(\t\022\032\n\022field_s" +
       "trings_name\030\005 \003(\t\022\035\n\025field_option_intege" +
@@ -8325,14 +9756,17 @@ public final class TestMessageV3 {
       "\003(\0132\013.MapMessage\022\"\n\022field_gpb_repeated\030\017" +
       " \003(\0132\006.Data2\022+\n\033field_gpb2_repeated_recu" +
       "rse\030\020 \003(\0132\006.Data3\022\032\n\nfield_gpb2\030\021 \001(\0132\006." +
-      "Data2\"1\n\005Data2\022\024\n\014field_double\030\001 \001(\001\022\022\n\n" +
-      "field_blob\030\002 \001(\014\"[\n\005Data3\022\031\n\tfield_gpb\030\001" +
-      " \003(\0132\006.Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_s" +
-      "tring\030\003 \001(\tH\000B\016\n\014named_one_of\"2\n\005Data4\022\023" +
-      "\n\013fieldString\030\001 \001(\t\022\024\n\014field_option\030\002 \001(" +
-      "\t\"7\n\nMapMessage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 ",
-      "\001(\t\022\r\n\005other\030\003 \001(\tB\022\n\020com.avast.cactusb\006" +
-      "proto3"
+      "Data2\022\032\n\nfield_gpb3\030\022 \001(\0132\006.Data5\"1\n\005Dat" +
+      "a2\022\024\n\014field_double\030\001 \001(\001\022\022\n\nfield_blob\030\002" +
+      " \001(\014\"[\n\005Data3\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2" +
+      "\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH" +
+      "\000B\016\n\014named_one_of\"2\n\005Data4\022\023\n\013fieldStrin" +
+      "g\030\001 \001(\t\022\024\n\014field_option\030\002 \001(\t\"[\n\005Data5\022\031",
+      "\n\tfield_gpb\030\001 \003(\0132\006.Data2\022\021\n\007foo_int\030\002 \001" +
+      "(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH\000B\016\n\014named_one_" +
+      "of\"7\n\nMapMessage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002" +
+      " \001(\t\022\r\n\005other\030\003 \001(\tB\022\n\020com.avast.cactusb" +
+      "\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -8351,7 +9785,7 @@ public final class TestMessageV3 {
     internal_static_Data_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Data_descriptor,
-        new java.lang.String[] { "FieldString", "FieldIntName", "FieldOption", "FieldStrings", "FieldStringsName", "FieldOptionIntegers", "FieldOptionIntegersEmpty", "FieldGpbOption", "FieldGpbOptionEmpty", "FieldGpb", "FieldBlob", "FieldMap", "FieldIntegers2", "FieldMap2", "FieldGpbRepeated", "FieldGpb2RepeatedRecurse", "FieldGpb2", });
+        new java.lang.String[] { "FieldString", "FieldIntName", "FieldOption", "FieldStrings", "FieldStringsName", "FieldOptionIntegers", "FieldOptionIntegersEmpty", "FieldGpbOption", "FieldGpbOptionEmpty", "FieldGpb", "FieldBlob", "FieldMap", "FieldIntegers2", "FieldMap2", "FieldGpbRepeated", "FieldGpb2RepeatedRecurse", "FieldGpb2", "FieldGpb3", });
     internal_static_Data2_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_Data2_fieldAccessorTable = new
@@ -8370,8 +9804,14 @@ public final class TestMessageV3 {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Data4_descriptor,
         new java.lang.String[] { "FieldString", "FieldOption", });
-    internal_static_MapMessage_descriptor =
+    internal_static_Data5_descriptor =
       getDescriptor().getMessageTypes().get(4);
+    internal_static_Data5_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_Data5_descriptor,
+        new java.lang.String[] { "FieldGpb", "FooInt", "FooString", "NamedOneOf", });
+    internal_static_MapMessage_descriptor =
+      getDescriptor().getMessageTypes().get(5);
     internal_static_MapMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_MapMessage_descriptor,

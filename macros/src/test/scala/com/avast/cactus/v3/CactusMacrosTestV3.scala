@@ -46,6 +46,7 @@ class CactusMacrosTestV3 extends FunSuite {
       .setFieldBlob(ByteString.EMPTY)
       .setFieldGpb(gpbInternal)
       .setFieldGpb2(gpbInternal)
+      .setFieldGpb3(Data5.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
       .setFieldGpbOption(gpbInternal)
       .addAllFieldGpbRepeated(dataRepeated.asJava)
       .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).setFooInt(9).build())
@@ -60,8 +61,9 @@ class CactusMacrosTestV3 extends FunSuite {
     val caseClassB = CaseClassB(0.9, "text")
 
     val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed.FooInt(9)))
+    val caseClassF = CaseClassF(Seq(caseClassB, caseClassB, caseClassB), None)
 
-    val expected = CaseClassA("ahoj", 9, Some(0), ByteString.EMPTY, List("a"), caseClassB, caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val expected = CaseClassA("ahoj", 9, Some(0), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
 
     assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
   }
@@ -81,6 +83,7 @@ class CactusMacrosTestV3 extends FunSuite {
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .addFieldGpb2RepeatedRecurse(Data3.newBuilder().build())
+      .setFieldGpb3(Data5.newBuilder().build())
       .build()
 
     val expected = List("fieldGpb", "fieldGpb2").map(MissingFieldFailure).sortBy(_.toString) :+ OneOfValueNotSetFailure("NamedOneOf")
@@ -161,6 +164,7 @@ case class CaseClassA(fieldString: String,
                       fieldStrings2: List[String],
                       fieldGpb: CaseClassB,
                       fieldGpb2: CaseClassB,
+                      fieldGpb3: CaseClassF,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
                       fieldGpbRepeated: Seq[CaseClassB],
@@ -180,11 +184,16 @@ case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: St
 
 case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf("NamedOneOf") oneOfNamed: OneOfNamed)
 
+case class CaseClassF(fieldGpb: Seq[CaseClassB], @GpbOneOf("NamedOneOf") oneOfNamed: Option[OneOfNamed])
+
 sealed trait OneOfNamed
 
 object OneOfNamed {
+
   case class FooInt(value: Int) extends OneOfNamed
+
   case class FooString(value: String) extends OneOfNamed
+
 }
 
 case class CaseClassC(fieldString: StringWrapperClass,

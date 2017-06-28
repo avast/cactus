@@ -191,9 +191,11 @@ object CactusMacros {
 
       val conv = ProtoVersion.V3.newOneOfConverter(c)(gpbType, oneOfClassType)(oneOfType)
 
-      //TODO check wrapping to option - recover from BAD
-
-      q" $conv($gpb) "
+      // be able to change NOT_SET state to `None`, if the type is wrapped in `Option`
+      oneOfClassType.resultType.toString match {
+        case OptPattern(_) => q""" ($conv($gpb)).map(Option(_)).recover( _=> None) """
+        case _ => q" $conv($gpb) "
+      }
     }
 
     private def processEndType(c: whitebox.Context)
@@ -714,11 +716,9 @@ object CactusMacros {
         FieldType.Normal[c.universe.MethodSymbol, c.universe.ClassSymbol](getter, setter)
       }).recover {
         case err if isProto3 => // give it one more chance, it can be ONE-OF
-          val typeSymbol = dstType.typeSymbol.asType
+          if (Debug) println(s"Testing ${dstType.typeSymbol} to being a ONE-OF")
 
-          if (Debug) println(s"Testing $typeSymbol to being a ONE-OF")
-
-          getOneOfType(c)(typeSymbol, annotations).getOrElse {
+          getOneOfType(c)(dstType, annotations).getOrElse {
             c.abort(c.enclosingPosition, err)
           }
       }.get // gets FieldType or stops the compilation in regular way
@@ -738,8 +738,15 @@ object CactusMacros {
     annotsTypes.zip(annotsParams).toMap
   }
 
-  private def getOneOfType(c: whitebox.Context)(fieldTypeSymbol: c.universe.TypeSymbol, fieldAnnotations: AnnotationsMap): Option[FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol]] = {
+  private def getOneOfType(c: whitebox.Context)(fieldType: c.universe.Type, fieldAnnotations: AnnotationsMap): Option[FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol]] = {
     import c.universe._
+
+    val resultType = fieldType.resultType
+
+    val fieldTypeSymbol = (resultType.toString match {
+      case OptPattern(_) => resultType.typeArgs.head
+      case _ => fieldType
+    }).typeSymbol.asType
 
     if (fieldTypeSymbol.isClass) {
       ProtoVersion.V3.extractNameOfOneOf(c)(fieldTypeSymbol, fieldAnnotations)
