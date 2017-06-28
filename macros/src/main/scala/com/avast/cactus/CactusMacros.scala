@@ -394,6 +394,7 @@ object CactusMacros {
       import c.universe._
 
       val i = initialize(c)(caseClassType, gpbType)
+      import i._
 
       val gpbClassSymbol = gpbType.typeSymbol.asClass
 
@@ -401,31 +402,33 @@ object CactusMacros {
         println(s"Converting ${caseClassType.typeSymbol} to ${gpbType.typeSymbol}")
       }
 
-      //      val params = fields.map { field =>
-      //        val e = extractField(c)(field, isProto3, gpbGetters, gpbSetters)
-      //        import e._
-      //
-      //        ???
-      //
-      //        val setterParam = gpbSetter.paramLists.headOption.flatMap(_.headOption)
-      //          .getOrElse(c.abort(c.enclosingPosition, s"Could not extract param from setter for field $field"))
-      //
-      //        val assgn = processEndType(c)(q"$caseClass.$fieldName", annotations, dstType)(gpbType, setterParam.typeSignature, q"builder.${gpbSetter.name}", upper)
-      //
-      //        c.Expr(q" $assgn ")
-      //      }
-      //
-      //      q"""
-      //        {
-      //          val builder = ${gpbClassSymbol.companion}.newBuilder()
-      //
-      //          ..$params
-      //
-      //          builder.build()
-      //        }
-      //       """
+      val params = fields.map { field =>
+        val e = extractField(c)(field, isProto3, gpbGetters, gpbSetters)
+        import e._
 
-      q""
+        fieldType match {
+          case n: FieldType.Normal[MethodSymbol, ClassSymbol] =>
+            val setterParam = n.setter.paramLists.headOption.flatMap(_.headOption)
+              .getOrElse(c.abort(c.enclosingPosition, s"Could not extract param from setter for field $field"))
+
+            val assgn = processEndType(c)(q"$caseClass.$fieldName", annotations, dstType)(gpbType, setterParam.typeSignature, q"builder.${n.setter.name}", upper)
+
+            c.Expr(q" $assgn ")
+
+          case o: FieldType.OneOf[MethodSymbol, ClassSymbol] =>
+            ???
+        }
+      }
+
+      q"""
+         {
+            val builder = ${gpbClassSymbol.companion}.newBuilder()
+
+            ..$params
+
+            builder.build()
+         }
+       """
     }
 
     private[cactus] def processEndType(c: whitebox.Context)
