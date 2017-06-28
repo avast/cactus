@@ -38,38 +38,74 @@ private[cactus] object ProtoVersion {
       }
     }
 
-    def newOneOfConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)(impls: Set[c.universe.ClassSymbol])
-                         (implicit converters: mutable.Map[String, c.universe.Tree]): Unit = {
+    def newOneOfConverter(c: whitebox.Context)
+                         (from: c.universe.Type, to: c.universe.Type)
+                         (oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol])
+                         (implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
       import c.universe._
+      import oneOfType._
 
+      val gpbClassSymbol = from.typeSymbol.asClass
 
-      if (CactusMacros.Debug) println(s"Generating ONE-OF converter from ${from.typeSymbol} to ${to.typeSymbol}")
+      CactusMacros.init(c)(gpbClassSymbol)
 
-      //      val r = q" (a: $from) =>  { ${processEndType(c)(q"a", fieldAnnotations, srcTypeArg)(dstTypeArg, dstTypeArg, q"identity", " a ")} } "
+      if (CactusMacros.Debug) println(s"Generating ONE-OF converter from ${from.typeSymbol} to ${to.typeSymbol}, GPB ONE-OF '$name'")
 
-      c.abort(c.enclosingPosition, s"END - ${impls}")
+      val getCaseMethod = gpbClassSymbol.typeSignature.decls.collectFirst {
+        case m if m.isMethod && m.name.toString == s"get${name}Case" => m.asMethod
+      }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method get${name}Case inside $gpbClassSymbol, needed for ONE-OF ${to.typeSymbol}"))
 
-      val r =
-        q""" (a: $from) => {
-           ss
-        } """
+      val implsSeq = impls.toSeq
 
-      CactusMacros.newConverter(c)(from, to)(r)
-    }
-
-    def extractNameOfOneOf(c: whitebox.Context)(typeSymbol: c.universe.TypeSymbol, annotations: AnnotationsMap): Option[String] = {
-      extractNameOfOneOf(typeSymbol.fullName.split("\\.").last)
-        .orElse{
-          annotations.collectFirst{
-            case (name, params) if name == classOf[GpbOneOf].getName => params("name")
-          }
+      val getters = implsSeq
+        .map(_.name.toString)
+        .map("get" + _)
+        .map { n =>
+          gpbClassSymbol.typeSignature.decls.collectFirst {
+            case m if m.isMethod && m.name.toString == n => m.asMethod
+          }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF ${to.typeSymbol}"))
         }
+
+      val enumValues = implsSeq
+        .map(n => splitByUppers(n.name.toString)
+          .map(_.toUpperCase).mkString("_"))
+        .map(TermName(_))
+
+      val enumClass = {
+        val enumClassName = s"${gpbClassSymbol.fullName}.${name}Case"
+        val cl = CactusMacros.extractType(c)(s"$enumClassName.${name.toUpperCase}_NOT_SET.asInstanceOf[$enumClassName]")
+
+        cl.typeSymbol.asClass.companion
+      }
+
+      val options = enumValues zip (implsSeq zip getters)
+
+      val cases = options.map { case (enum, (ccl, getter)) =>
+        cq""" $enumClass.$enum => Good(${ccl.companion}.apply(wholeGpb.$getter))  """
+      } :+
+        cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => Bad(One(OneOfValueNotSetFailure($name))) """
+
+      val f =
+        q""" {
+             (wholeGpb: $from) => wholeGpb.$getCaseMethod match {
+                case ..$cases
+             }
+        }
+       """
+
+      if (CactusMacros.Debug) println(s"ONE-OF converter from ${from.typeSymbol} to ${to.typeSymbol}: $f")
+
+      f
     }
 
-    def extractNameOfOneOf(name: String): Option[String] = {
-      if (name.startsWith("OneOf")) {
-        Option(name.substring(5).split("(?=\\p{Upper})").map(_.toLowerCase).mkString("_"))
-      } else None
+    def extractNameOfOneOf(c: whitebox.Context)(typeSymbol: c.universe.TypeSymbol, fieldAnnotations: AnnotationsMap): Option[String] = {
+      fieldAnnotations.collectFirst {
+        case (name, params) if name == classOf[GpbOneOf].getName => params("value")
+      }
+    }
+
+    private def splitByUppers(s: String): Array[String] = {
+      s.split("(?=\\p{Upper})")
     }
   }
 

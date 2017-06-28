@@ -254,31 +254,6 @@ public final class TestMessageV3 {
      * REQUIRED
      * </pre>
      *
-     * <code>.Data2 field_gpb2 = 17;</code>
-     */
-    boolean hasFieldGpb2();
-    /**
-     * <pre>
-     * REQUIRED
-     * </pre>
-     *
-     * <code>.Data2 field_gpb2 = 17;</code>
-     */
-    com.avast.cactus.TestMessageV3.Data2 getFieldGpb2();
-    /**
-     * <pre>
-     * REQUIRED
-     * </pre>
-     *
-     * <code>.Data2 field_gpb2 = 17;</code>
-     */
-    com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpb2OrBuilder();
-
-    /**
-     * <pre>
-     * REQUIRED
-     * </pre>
-     *
      * <code>bytes field_blob = 11;</code>
      */
     com.google.protobuf.ByteString getFieldBlob();
@@ -483,6 +458,31 @@ public final class TestMessageV3 {
      */
     com.avast.cactus.TestMessageV3.Data3OrBuilder getFieldGpb2RepeatedRecurseOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data2 field_gpb2 = 17;</code>
+     */
+    boolean hasFieldGpb2();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data2 field_gpb2 = 17;</code>
+     */
+    com.avast.cactus.TestMessageV3.Data2 getFieldGpb2();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data2 field_gpb2 = 17;</code>
+     */
+    com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpb2OrBuilder();
   }
   /**
    * Protobuf type {@code Data}
@@ -657,18 +657,18 @@ public final class TestMessageV3 {
               break;
             }
             case 98: {
-              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+              if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
                 fieldMap_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.MapMessage>();
-                mutable_bitField0_ |= 0x00001000;
+                mutable_bitField0_ |= 0x00000800;
               }
               fieldMap_.add(
                   input.readMessage(com.avast.cactus.TestMessageV3.MapMessage.parser(), extensionRegistry));
               break;
             }
             case 104: {
-              if (!((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
                 fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00002000;
+                mutable_bitField0_ |= 0x00001000;
               }
               fieldIntegers2_.add(input.readInt32());
               break;
@@ -676,9 +676,9 @@ public final class TestMessageV3 {
             case 106: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00002000) == 0x00002000) && input.getBytesUntilLimit() > 0) {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000) && input.getBytesUntilLimit() > 0) {
                 fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00002000;
+                mutable_bitField0_ |= 0x00001000;
               }
               while (input.getBytesUntilLimit() > 0) {
                 fieldIntegers2_.add(input.readInt32());
@@ -687,27 +687,27 @@ public final class TestMessageV3 {
               break;
             }
             case 114: {
-              if (!((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
+              if (!((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
                 fieldMap2_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.MapMessage>();
-                mutable_bitField0_ |= 0x00004000;
+                mutable_bitField0_ |= 0x00002000;
               }
               fieldMap2_.add(
                   input.readMessage(com.avast.cactus.TestMessageV3.MapMessage.parser(), extensionRegistry));
               break;
             }
             case 122: {
-              if (!((mutable_bitField0_ & 0x00008000) == 0x00008000)) {
+              if (!((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
                 fieldGpbRepeated_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.Data2>();
-                mutable_bitField0_ |= 0x00008000;
+                mutable_bitField0_ |= 0x00004000;
               }
               fieldGpbRepeated_.add(
                   input.readMessage(com.avast.cactus.TestMessageV3.Data2.parser(), extensionRegistry));
               break;
             }
             case 130: {
-              if (!((mutable_bitField0_ & 0x00010000) == 0x00010000)) {
+              if (!((mutable_bitField0_ & 0x00008000) == 0x00008000)) {
                 fieldGpb2RepeatedRecurse_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.Data3>();
-                mutable_bitField0_ |= 0x00010000;
+                mutable_bitField0_ |= 0x00008000;
               }
               fieldGpb2RepeatedRecurse_.add(
                   input.readMessage(com.avast.cactus.TestMessageV3.Data3.parser(), extensionRegistry));
@@ -746,19 +746,19 @@ public final class TestMessageV3 {
         if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           fieldOptionIntegersEmpty_ = java.util.Collections.unmodifiableList(fieldOptionIntegersEmpty_);
         }
-        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+        if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
           fieldMap_ = java.util.Collections.unmodifiableList(fieldMap_);
         }
-        if (((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
+        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
           fieldIntegers2_ = java.util.Collections.unmodifiableList(fieldIntegers2_);
         }
-        if (((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
+        if (((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
           fieldMap2_ = java.util.Collections.unmodifiableList(fieldMap2_);
         }
-        if (((mutable_bitField0_ & 0x00008000) == 0x00008000)) {
+        if (((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
           fieldGpbRepeated_ = java.util.Collections.unmodifiableList(fieldGpbRepeated_);
         }
-        if (((mutable_bitField0_ & 0x00010000) == 0x00010000)) {
+        if (((mutable_bitField0_ & 0x00008000) == 0x00008000)) {
           fieldGpb2RepeatedRecurse_ = java.util.Collections.unmodifiableList(fieldGpb2RepeatedRecurse_);
         }
         makeExtensionsImmutable();
@@ -1104,39 +1104,6 @@ public final class TestMessageV3 {
       return getFieldGpb();
     }
 
-    public static final int FIELD_GPB2_FIELD_NUMBER = 17;
-    private com.avast.cactus.TestMessageV3.Data2 fieldGpb2_;
-    /**
-     * <pre>
-     * REQUIRED
-     * </pre>
-     *
-     * <code>.Data2 field_gpb2 = 17;</code>
-     */
-    public boolean hasFieldGpb2() {
-      return fieldGpb2_ != null;
-    }
-    /**
-     * <pre>
-     * REQUIRED
-     * </pre>
-     *
-     * <code>.Data2 field_gpb2 = 17;</code>
-     */
-    public com.avast.cactus.TestMessageV3.Data2 getFieldGpb2() {
-      return fieldGpb2_ == null ? com.avast.cactus.TestMessageV3.Data2.getDefaultInstance() : fieldGpb2_;
-    }
-    /**
-     * <pre>
-     * REQUIRED
-     * </pre>
-     *
-     * <code>.Data2 field_gpb2 = 17;</code>
-     */
-    public com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpb2OrBuilder() {
-      return getFieldGpb2();
-    }
-
     public static final int FIELD_BLOB_FIELD_NUMBER = 11;
     private com.google.protobuf.ByteString fieldBlob_;
     /**
@@ -1405,6 +1372,39 @@ public final class TestMessageV3 {
       return fieldGpb2RepeatedRecurse_.get(index);
     }
 
+    public static final int FIELD_GPB2_FIELD_NUMBER = 17;
+    private com.avast.cactus.TestMessageV3.Data2 fieldGpb2_;
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data2 field_gpb2 = 17;</code>
+     */
+    public boolean hasFieldGpb2() {
+      return fieldGpb2_ != null;
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data2 field_gpb2 = 17;</code>
+     */
+    public com.avast.cactus.TestMessageV3.Data2 getFieldGpb2() {
+      return fieldGpb2_ == null ? com.avast.cactus.TestMessageV3.Data2.getDefaultInstance() : fieldGpb2_;
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>.Data2 field_gpb2 = 17;</code>
+     */
+    public com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpb2OrBuilder() {
+      return getFieldGpb2();
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1638,11 +1638,6 @@ public final class TestMessageV3 {
         result = result && getFieldGpb()
             .equals(other.getFieldGpb());
       }
-      result = result && (hasFieldGpb2() == other.hasFieldGpb2());
-      if (hasFieldGpb2()) {
-        result = result && getFieldGpb2()
-            .equals(other.getFieldGpb2());
-      }
       result = result && getFieldBlob()
           .equals(other.getFieldBlob());
       result = result && getFieldMapList()
@@ -1655,6 +1650,11 @@ public final class TestMessageV3 {
           .equals(other.getFieldGpbRepeatedList());
       result = result && getFieldGpb2RepeatedRecurseList()
           .equals(other.getFieldGpb2RepeatedRecurseList());
+      result = result && (hasFieldGpb2() == other.hasFieldGpb2());
+      if (hasFieldGpb2()) {
+        result = result && getFieldGpb2()
+            .equals(other.getFieldGpb2());
+      }
       return result;
     }
 
@@ -1699,10 +1699,6 @@ public final class TestMessageV3 {
         hash = (37 * hash) + FIELD_GPB_FIELD_NUMBER;
         hash = (53 * hash) + getFieldGpb().hashCode();
       }
-      if (hasFieldGpb2()) {
-        hash = (37 * hash) + FIELD_GPB2_FIELD_NUMBER;
-        hash = (53 * hash) + getFieldGpb2().hashCode();
-      }
       hash = (37 * hash) + FIELD_BLOB_FIELD_NUMBER;
       hash = (53 * hash) + getFieldBlob().hashCode();
       if (getFieldMapCount() > 0) {
@@ -1724,6 +1720,10 @@ public final class TestMessageV3 {
       if (getFieldGpb2RepeatedRecurseCount() > 0) {
         hash = (37 * hash) + FIELD_GPB2_REPEATED_RECURSE_FIELD_NUMBER;
         hash = (53 * hash) + getFieldGpb2RepeatedRecurseList().hashCode();
+      }
+      if (hasFieldGpb2()) {
+        hash = (37 * hash) + FIELD_GPB2_FIELD_NUMBER;
+        hash = (53 * hash) + getFieldGpb2().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -1890,39 +1890,39 @@ public final class TestMessageV3 {
           fieldGpb_ = null;
           fieldGpbBuilder_ = null;
         }
-        if (fieldGpb2Builder_ == null) {
-          fieldGpb2_ = null;
-        } else {
-          fieldGpb2_ = null;
-          fieldGpb2Builder_ = null;
-        }
         fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
 
         if (fieldMapBuilder_ == null) {
           fieldMap_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00001000);
+          bitField0_ = (bitField0_ & ~0x00000800);
         } else {
           fieldMapBuilder_.clear();
         }
         fieldIntegers2_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00002000);
+        bitField0_ = (bitField0_ & ~0x00001000);
         if (fieldMap2Builder_ == null) {
           fieldMap2_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00004000);
+          bitField0_ = (bitField0_ & ~0x00002000);
         } else {
           fieldMap2Builder_.clear();
         }
         if (fieldGpbRepeatedBuilder_ == null) {
           fieldGpbRepeated_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00008000);
+          bitField0_ = (bitField0_ & ~0x00004000);
         } else {
           fieldGpbRepeatedBuilder_.clear();
         }
         if (fieldGpb2RepeatedRecurseBuilder_ == null) {
           fieldGpb2RepeatedRecurse_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00010000);
+          bitField0_ = (bitField0_ & ~0x00008000);
         } else {
           fieldGpb2RepeatedRecurseBuilder_.clear();
+        }
+        if (fieldGpb2Builder_ == null) {
+          fieldGpb2_ = null;
+        } else {
+          fieldGpb2_ = null;
+          fieldGpb2Builder_ = null;
         }
         return this;
       }
@@ -1986,52 +1986,52 @@ public final class TestMessageV3 {
         } else {
           result.fieldGpb_ = fieldGpbBuilder_.build();
         }
-        if (fieldGpb2Builder_ == null) {
-          result.fieldGpb2_ = fieldGpb2_;
-        } else {
-          result.fieldGpb2_ = fieldGpb2Builder_.build();
-        }
         result.fieldBlob_ = fieldBlob_;
         if (fieldMapBuilder_ == null) {
-          if (((bitField0_ & 0x00001000) == 0x00001000)) {
+          if (((bitField0_ & 0x00000800) == 0x00000800)) {
             fieldMap_ = java.util.Collections.unmodifiableList(fieldMap_);
-            bitField0_ = (bitField0_ & ~0x00001000);
+            bitField0_ = (bitField0_ & ~0x00000800);
           }
           result.fieldMap_ = fieldMap_;
         } else {
           result.fieldMap_ = fieldMapBuilder_.build();
         }
-        if (((bitField0_ & 0x00002000) == 0x00002000)) {
+        if (((bitField0_ & 0x00001000) == 0x00001000)) {
           fieldIntegers2_ = java.util.Collections.unmodifiableList(fieldIntegers2_);
-          bitField0_ = (bitField0_ & ~0x00002000);
+          bitField0_ = (bitField0_ & ~0x00001000);
         }
         result.fieldIntegers2_ = fieldIntegers2_;
         if (fieldMap2Builder_ == null) {
-          if (((bitField0_ & 0x00004000) == 0x00004000)) {
+          if (((bitField0_ & 0x00002000) == 0x00002000)) {
             fieldMap2_ = java.util.Collections.unmodifiableList(fieldMap2_);
-            bitField0_ = (bitField0_ & ~0x00004000);
+            bitField0_ = (bitField0_ & ~0x00002000);
           }
           result.fieldMap2_ = fieldMap2_;
         } else {
           result.fieldMap2_ = fieldMap2Builder_.build();
         }
         if (fieldGpbRepeatedBuilder_ == null) {
-          if (((bitField0_ & 0x00008000) == 0x00008000)) {
+          if (((bitField0_ & 0x00004000) == 0x00004000)) {
             fieldGpbRepeated_ = java.util.Collections.unmodifiableList(fieldGpbRepeated_);
-            bitField0_ = (bitField0_ & ~0x00008000);
+            bitField0_ = (bitField0_ & ~0x00004000);
           }
           result.fieldGpbRepeated_ = fieldGpbRepeated_;
         } else {
           result.fieldGpbRepeated_ = fieldGpbRepeatedBuilder_.build();
         }
         if (fieldGpb2RepeatedRecurseBuilder_ == null) {
-          if (((bitField0_ & 0x00010000) == 0x00010000)) {
+          if (((bitField0_ & 0x00008000) == 0x00008000)) {
             fieldGpb2RepeatedRecurse_ = java.util.Collections.unmodifiableList(fieldGpb2RepeatedRecurse_);
-            bitField0_ = (bitField0_ & ~0x00010000);
+            bitField0_ = (bitField0_ & ~0x00008000);
           }
           result.fieldGpb2RepeatedRecurse_ = fieldGpb2RepeatedRecurse_;
         } else {
           result.fieldGpb2RepeatedRecurse_ = fieldGpb2RepeatedRecurseBuilder_.build();
+        }
+        if (fieldGpb2Builder_ == null) {
+          result.fieldGpb2_ = fieldGpb2_;
+        } else {
+          result.fieldGpb2_ = fieldGpb2Builder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -2134,9 +2134,6 @@ public final class TestMessageV3 {
         if (other.hasFieldGpb()) {
           mergeFieldGpb(other.getFieldGpb());
         }
-        if (other.hasFieldGpb2()) {
-          mergeFieldGpb2(other.getFieldGpb2());
-        }
         if (other.getFieldBlob() != com.google.protobuf.ByteString.EMPTY) {
           setFieldBlob(other.getFieldBlob());
         }
@@ -2144,7 +2141,7 @@ public final class TestMessageV3 {
           if (!other.fieldMap_.isEmpty()) {
             if (fieldMap_.isEmpty()) {
               fieldMap_ = other.fieldMap_;
-              bitField0_ = (bitField0_ & ~0x00001000);
+              bitField0_ = (bitField0_ & ~0x00000800);
             } else {
               ensureFieldMapIsMutable();
               fieldMap_.addAll(other.fieldMap_);
@@ -2157,7 +2154,7 @@ public final class TestMessageV3 {
               fieldMapBuilder_.dispose();
               fieldMapBuilder_ = null;
               fieldMap_ = other.fieldMap_;
-              bitField0_ = (bitField0_ & ~0x00001000);
+              bitField0_ = (bitField0_ & ~0x00000800);
               fieldMapBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getFieldMapFieldBuilder() : null;
@@ -2169,7 +2166,7 @@ public final class TestMessageV3 {
         if (!other.fieldIntegers2_.isEmpty()) {
           if (fieldIntegers2_.isEmpty()) {
             fieldIntegers2_ = other.fieldIntegers2_;
-            bitField0_ = (bitField0_ & ~0x00002000);
+            bitField0_ = (bitField0_ & ~0x00001000);
           } else {
             ensureFieldIntegers2IsMutable();
             fieldIntegers2_.addAll(other.fieldIntegers2_);
@@ -2180,7 +2177,7 @@ public final class TestMessageV3 {
           if (!other.fieldMap2_.isEmpty()) {
             if (fieldMap2_.isEmpty()) {
               fieldMap2_ = other.fieldMap2_;
-              bitField0_ = (bitField0_ & ~0x00004000);
+              bitField0_ = (bitField0_ & ~0x00002000);
             } else {
               ensureFieldMap2IsMutable();
               fieldMap2_.addAll(other.fieldMap2_);
@@ -2193,7 +2190,7 @@ public final class TestMessageV3 {
               fieldMap2Builder_.dispose();
               fieldMap2Builder_ = null;
               fieldMap2_ = other.fieldMap2_;
-              bitField0_ = (bitField0_ & ~0x00004000);
+              bitField0_ = (bitField0_ & ~0x00002000);
               fieldMap2Builder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getFieldMap2FieldBuilder() : null;
@@ -2206,7 +2203,7 @@ public final class TestMessageV3 {
           if (!other.fieldGpbRepeated_.isEmpty()) {
             if (fieldGpbRepeated_.isEmpty()) {
               fieldGpbRepeated_ = other.fieldGpbRepeated_;
-              bitField0_ = (bitField0_ & ~0x00008000);
+              bitField0_ = (bitField0_ & ~0x00004000);
             } else {
               ensureFieldGpbRepeatedIsMutable();
               fieldGpbRepeated_.addAll(other.fieldGpbRepeated_);
@@ -2219,7 +2216,7 @@ public final class TestMessageV3 {
               fieldGpbRepeatedBuilder_.dispose();
               fieldGpbRepeatedBuilder_ = null;
               fieldGpbRepeated_ = other.fieldGpbRepeated_;
-              bitField0_ = (bitField0_ & ~0x00008000);
+              bitField0_ = (bitField0_ & ~0x00004000);
               fieldGpbRepeatedBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getFieldGpbRepeatedFieldBuilder() : null;
@@ -2232,7 +2229,7 @@ public final class TestMessageV3 {
           if (!other.fieldGpb2RepeatedRecurse_.isEmpty()) {
             if (fieldGpb2RepeatedRecurse_.isEmpty()) {
               fieldGpb2RepeatedRecurse_ = other.fieldGpb2RepeatedRecurse_;
-              bitField0_ = (bitField0_ & ~0x00010000);
+              bitField0_ = (bitField0_ & ~0x00008000);
             } else {
               ensureFieldGpb2RepeatedRecurseIsMutable();
               fieldGpb2RepeatedRecurse_.addAll(other.fieldGpb2RepeatedRecurse_);
@@ -2245,7 +2242,7 @@ public final class TestMessageV3 {
               fieldGpb2RepeatedRecurseBuilder_.dispose();
               fieldGpb2RepeatedRecurseBuilder_ = null;
               fieldGpb2RepeatedRecurse_ = other.fieldGpb2RepeatedRecurse_;
-              bitField0_ = (bitField0_ & ~0x00010000);
+              bitField0_ = (bitField0_ & ~0x00008000);
               fieldGpb2RepeatedRecurseBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getFieldGpb2RepeatedRecurseFieldBuilder() : null;
@@ -2253,6 +2250,9 @@ public final class TestMessageV3 {
               fieldGpb2RepeatedRecurseBuilder_.addAllMessages(other.fieldGpb2RepeatedRecurse_);
             }
           }
+        }
+        if (other.hasFieldGpb2()) {
+          mergeFieldGpb2(other.getFieldGpb2());
         }
         onChanged();
         return this;
@@ -3353,159 +3353,6 @@ public final class TestMessageV3 {
         return fieldGpbBuilder_;
       }
 
-      private com.avast.cactus.TestMessageV3.Data2 fieldGpb2_ = null;
-      private com.google.protobuf.SingleFieldBuilderV3<
-          com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder> fieldGpb2Builder_;
-      /**
-       * <pre>
-       * REQUIRED
-       * </pre>
-       *
-       * <code>.Data2 field_gpb2 = 17;</code>
-       */
-      public boolean hasFieldGpb2() {
-        return fieldGpb2Builder_ != null || fieldGpb2_ != null;
-      }
-      /**
-       * <pre>
-       * REQUIRED
-       * </pre>
-       *
-       * <code>.Data2 field_gpb2 = 17;</code>
-       */
-      public com.avast.cactus.TestMessageV3.Data2 getFieldGpb2() {
-        if (fieldGpb2Builder_ == null) {
-          return fieldGpb2_ == null ? com.avast.cactus.TestMessageV3.Data2.getDefaultInstance() : fieldGpb2_;
-        } else {
-          return fieldGpb2Builder_.getMessage();
-        }
-      }
-      /**
-       * <pre>
-       * REQUIRED
-       * </pre>
-       *
-       * <code>.Data2 field_gpb2 = 17;</code>
-       */
-      public Builder setFieldGpb2(com.avast.cactus.TestMessageV3.Data2 value) {
-        if (fieldGpb2Builder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          fieldGpb2_ = value;
-          onChanged();
-        } else {
-          fieldGpb2Builder_.setMessage(value);
-        }
-
-        return this;
-      }
-      /**
-       * <pre>
-       * REQUIRED
-       * </pre>
-       *
-       * <code>.Data2 field_gpb2 = 17;</code>
-       */
-      public Builder setFieldGpb2(
-          com.avast.cactus.TestMessageV3.Data2.Builder builderForValue) {
-        if (fieldGpb2Builder_ == null) {
-          fieldGpb2_ = builderForValue.build();
-          onChanged();
-        } else {
-          fieldGpb2Builder_.setMessage(builderForValue.build());
-        }
-
-        return this;
-      }
-      /**
-       * <pre>
-       * REQUIRED
-       * </pre>
-       *
-       * <code>.Data2 field_gpb2 = 17;</code>
-       */
-      public Builder mergeFieldGpb2(com.avast.cactus.TestMessageV3.Data2 value) {
-        if (fieldGpb2Builder_ == null) {
-          if (fieldGpb2_ != null) {
-            fieldGpb2_ =
-              com.avast.cactus.TestMessageV3.Data2.newBuilder(fieldGpb2_).mergeFrom(value).buildPartial();
-          } else {
-            fieldGpb2_ = value;
-          }
-          onChanged();
-        } else {
-          fieldGpb2Builder_.mergeFrom(value);
-        }
-
-        return this;
-      }
-      /**
-       * <pre>
-       * REQUIRED
-       * </pre>
-       *
-       * <code>.Data2 field_gpb2 = 17;</code>
-       */
-      public Builder clearFieldGpb2() {
-        if (fieldGpb2Builder_ == null) {
-          fieldGpb2_ = null;
-          onChanged();
-        } else {
-          fieldGpb2_ = null;
-          fieldGpb2Builder_ = null;
-        }
-
-        return this;
-      }
-      /**
-       * <pre>
-       * REQUIRED
-       * </pre>
-       *
-       * <code>.Data2 field_gpb2 = 17;</code>
-       */
-      public com.avast.cactus.TestMessageV3.Data2.Builder getFieldGpb2Builder() {
-        
-        onChanged();
-        return getFieldGpb2FieldBuilder().getBuilder();
-      }
-      /**
-       * <pre>
-       * REQUIRED
-       * </pre>
-       *
-       * <code>.Data2 field_gpb2 = 17;</code>
-       */
-      public com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpb2OrBuilder() {
-        if (fieldGpb2Builder_ != null) {
-          return fieldGpb2Builder_.getMessageOrBuilder();
-        } else {
-          return fieldGpb2_ == null ?
-              com.avast.cactus.TestMessageV3.Data2.getDefaultInstance() : fieldGpb2_;
-        }
-      }
-      /**
-       * <pre>
-       * REQUIRED
-       * </pre>
-       *
-       * <code>.Data2 field_gpb2 = 17;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilderV3<
-          com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder> 
-          getFieldGpb2FieldBuilder() {
-        if (fieldGpb2Builder_ == null) {
-          fieldGpb2Builder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder>(
-                  getFieldGpb2(),
-                  getParentForChildren(),
-                  isClean());
-          fieldGpb2_ = null;
-        }
-        return fieldGpb2Builder_;
-      }
-
       private com.google.protobuf.ByteString fieldBlob_ = com.google.protobuf.ByteString.EMPTY;
       /**
        * <pre>
@@ -3550,9 +3397,9 @@ public final class TestMessageV3 {
       private java.util.List<com.avast.cactus.TestMessageV3.MapMessage> fieldMap_ =
         java.util.Collections.emptyList();
       private void ensureFieldMapIsMutable() {
-        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
+        if (!((bitField0_ & 0x00000800) == 0x00000800)) {
           fieldMap_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.MapMessage>(fieldMap_);
-          bitField0_ |= 0x00001000;
+          bitField0_ |= 0x00000800;
          }
       }
 
@@ -3746,7 +3593,7 @@ public final class TestMessageV3 {
       public Builder clearFieldMap() {
         if (fieldMapBuilder_ == null) {
           fieldMap_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00001000);
+          bitField0_ = (bitField0_ & ~0x00000800);
           onChanged();
         } else {
           fieldMapBuilder_.clear();
@@ -3851,7 +3698,7 @@ public final class TestMessageV3 {
           fieldMapBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.avast.cactus.TestMessageV3.MapMessage, com.avast.cactus.TestMessageV3.MapMessage.Builder, com.avast.cactus.TestMessageV3.MapMessageOrBuilder>(
                   fieldMap_,
-                  ((bitField0_ & 0x00001000) == 0x00001000),
+                  ((bitField0_ & 0x00000800) == 0x00000800),
                   getParentForChildren(),
                   isClean());
           fieldMap_ = null;
@@ -3861,9 +3708,9 @@ public final class TestMessageV3 {
 
       private java.util.List<java.lang.Integer> fieldIntegers2_ = java.util.Collections.emptyList();
       private void ensureFieldIntegers2IsMutable() {
-        if (!((bitField0_ & 0x00002000) == 0x00002000)) {
+        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
           fieldIntegers2_ = new java.util.ArrayList<java.lang.Integer>(fieldIntegers2_);
-          bitField0_ |= 0x00002000;
+          bitField0_ |= 0x00001000;
          }
       }
       /**
@@ -3948,7 +3795,7 @@ public final class TestMessageV3 {
        */
       public Builder clearFieldIntegers2() {
         fieldIntegers2_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00002000);
+        bitField0_ = (bitField0_ & ~0x00001000);
         onChanged();
         return this;
       }
@@ -3956,9 +3803,9 @@ public final class TestMessageV3 {
       private java.util.List<com.avast.cactus.TestMessageV3.MapMessage> fieldMap2_ =
         java.util.Collections.emptyList();
       private void ensureFieldMap2IsMutable() {
-        if (!((bitField0_ & 0x00004000) == 0x00004000)) {
+        if (!((bitField0_ & 0x00002000) == 0x00002000)) {
           fieldMap2_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.MapMessage>(fieldMap2_);
-          bitField0_ |= 0x00004000;
+          bitField0_ |= 0x00002000;
          }
       }
 
@@ -4152,7 +3999,7 @@ public final class TestMessageV3 {
       public Builder clearFieldMap2() {
         if (fieldMap2Builder_ == null) {
           fieldMap2_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00004000);
+          bitField0_ = (bitField0_ & ~0x00002000);
           onChanged();
         } else {
           fieldMap2Builder_.clear();
@@ -4257,7 +4104,7 @@ public final class TestMessageV3 {
           fieldMap2Builder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.avast.cactus.TestMessageV3.MapMessage, com.avast.cactus.TestMessageV3.MapMessage.Builder, com.avast.cactus.TestMessageV3.MapMessageOrBuilder>(
                   fieldMap2_,
-                  ((bitField0_ & 0x00004000) == 0x00004000),
+                  ((bitField0_ & 0x00002000) == 0x00002000),
                   getParentForChildren(),
                   isClean());
           fieldMap2_ = null;
@@ -4268,9 +4115,9 @@ public final class TestMessageV3 {
       private java.util.List<com.avast.cactus.TestMessageV3.Data2> fieldGpbRepeated_ =
         java.util.Collections.emptyList();
       private void ensureFieldGpbRepeatedIsMutable() {
-        if (!((bitField0_ & 0x00008000) == 0x00008000)) {
+        if (!((bitField0_ & 0x00004000) == 0x00004000)) {
           fieldGpbRepeated_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.Data2>(fieldGpbRepeated_);
-          bitField0_ |= 0x00008000;
+          bitField0_ |= 0x00004000;
          }
       }
 
@@ -4464,7 +4311,7 @@ public final class TestMessageV3 {
       public Builder clearFieldGpbRepeated() {
         if (fieldGpbRepeatedBuilder_ == null) {
           fieldGpbRepeated_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00008000);
+          bitField0_ = (bitField0_ & ~0x00004000);
           onChanged();
         } else {
           fieldGpbRepeatedBuilder_.clear();
@@ -4569,7 +4416,7 @@ public final class TestMessageV3 {
           fieldGpbRepeatedBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder>(
                   fieldGpbRepeated_,
-                  ((bitField0_ & 0x00008000) == 0x00008000),
+                  ((bitField0_ & 0x00004000) == 0x00004000),
                   getParentForChildren(),
                   isClean());
           fieldGpbRepeated_ = null;
@@ -4580,9 +4427,9 @@ public final class TestMessageV3 {
       private java.util.List<com.avast.cactus.TestMessageV3.Data3> fieldGpb2RepeatedRecurse_ =
         java.util.Collections.emptyList();
       private void ensureFieldGpb2RepeatedRecurseIsMutable() {
-        if (!((bitField0_ & 0x00010000) == 0x00010000)) {
+        if (!((bitField0_ & 0x00008000) == 0x00008000)) {
           fieldGpb2RepeatedRecurse_ = new java.util.ArrayList<com.avast.cactus.TestMessageV3.Data3>(fieldGpb2RepeatedRecurse_);
-          bitField0_ |= 0x00010000;
+          bitField0_ |= 0x00008000;
          }
       }
 
@@ -4776,7 +4623,7 @@ public final class TestMessageV3 {
       public Builder clearFieldGpb2RepeatedRecurse() {
         if (fieldGpb2RepeatedRecurseBuilder_ == null) {
           fieldGpb2RepeatedRecurse_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00010000);
+          bitField0_ = (bitField0_ & ~0x00008000);
           onChanged();
         } else {
           fieldGpb2RepeatedRecurseBuilder_.clear();
@@ -4881,12 +4728,165 @@ public final class TestMessageV3 {
           fieldGpb2RepeatedRecurseBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.avast.cactus.TestMessageV3.Data3, com.avast.cactus.TestMessageV3.Data3.Builder, com.avast.cactus.TestMessageV3.Data3OrBuilder>(
                   fieldGpb2RepeatedRecurse_,
-                  ((bitField0_ & 0x00010000) == 0x00010000),
+                  ((bitField0_ & 0x00008000) == 0x00008000),
                   getParentForChildren(),
                   isClean());
           fieldGpb2RepeatedRecurse_ = null;
         }
         return fieldGpb2RepeatedRecurseBuilder_;
+      }
+
+      private com.avast.cactus.TestMessageV3.Data2 fieldGpb2_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder> fieldGpb2Builder_;
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data2 field_gpb2 = 17;</code>
+       */
+      public boolean hasFieldGpb2() {
+        return fieldGpb2Builder_ != null || fieldGpb2_ != null;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data2 field_gpb2 = 17;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data2 getFieldGpb2() {
+        if (fieldGpb2Builder_ == null) {
+          return fieldGpb2_ == null ? com.avast.cactus.TestMessageV3.Data2.getDefaultInstance() : fieldGpb2_;
+        } else {
+          return fieldGpb2Builder_.getMessage();
+        }
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data2 field_gpb2 = 17;</code>
+       */
+      public Builder setFieldGpb2(com.avast.cactus.TestMessageV3.Data2 value) {
+        if (fieldGpb2Builder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          fieldGpb2_ = value;
+          onChanged();
+        } else {
+          fieldGpb2Builder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data2 field_gpb2 = 17;</code>
+       */
+      public Builder setFieldGpb2(
+          com.avast.cactus.TestMessageV3.Data2.Builder builderForValue) {
+        if (fieldGpb2Builder_ == null) {
+          fieldGpb2_ = builderForValue.build();
+          onChanged();
+        } else {
+          fieldGpb2Builder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data2 field_gpb2 = 17;</code>
+       */
+      public Builder mergeFieldGpb2(com.avast.cactus.TestMessageV3.Data2 value) {
+        if (fieldGpb2Builder_ == null) {
+          if (fieldGpb2_ != null) {
+            fieldGpb2_ =
+              com.avast.cactus.TestMessageV3.Data2.newBuilder(fieldGpb2_).mergeFrom(value).buildPartial();
+          } else {
+            fieldGpb2_ = value;
+          }
+          onChanged();
+        } else {
+          fieldGpb2Builder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data2 field_gpb2 = 17;</code>
+       */
+      public Builder clearFieldGpb2() {
+        if (fieldGpb2Builder_ == null) {
+          fieldGpb2_ = null;
+          onChanged();
+        } else {
+          fieldGpb2_ = null;
+          fieldGpb2Builder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data2 field_gpb2 = 17;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data2.Builder getFieldGpb2Builder() {
+        
+        onChanged();
+        return getFieldGpb2FieldBuilder().getBuilder();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data2 field_gpb2 = 17;</code>
+       */
+      public com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpb2OrBuilder() {
+        if (fieldGpb2Builder_ != null) {
+          return fieldGpb2Builder_.getMessageOrBuilder();
+        } else {
+          return fieldGpb2_ == null ?
+              com.avast.cactus.TestMessageV3.Data2.getDefaultInstance() : fieldGpb2_;
+        }
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>.Data2 field_gpb2 = 17;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder> 
+          getFieldGpb2FieldBuilder() {
+        if (fieldGpb2Builder_ == null) {
+          fieldGpb2Builder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.avast.cactus.TestMessageV3.Data2, com.avast.cactus.TestMessageV3.Data2.Builder, com.avast.cactus.TestMessageV3.Data2OrBuilder>(
+                  getFieldGpb2(),
+                  getParentForChildren(),
+                  isClean());
+          fieldGpb2_ = null;
+        }
+        return fieldGpb2Builder_;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -5533,6 +5533,23 @@ public final class TestMessageV3 {
      */
     com.avast.cactus.TestMessageV3.Data2OrBuilder getFieldGpbOrBuilder(
         int index);
+
+    /**
+     * <code>int32 foo_int = 2;</code>
+     */
+    int getFooInt();
+
+    /**
+     * <code>string foo_string = 3;</code>
+     */
+    java.lang.String getFooString();
+    /**
+     * <code>string foo_string = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getFooStringBytes();
+
+    public com.avast.cactus.TestMessageV3.Data3.NamedOneOfCase getNamedOneOfCase();
   }
   /**
    * Protobuf type {@code Data3}
@@ -5583,6 +5600,17 @@ public final class TestMessageV3 {
                   input.readMessage(com.avast.cactus.TestMessageV3.Data2.parser(), extensionRegistry));
               break;
             }
+            case 16: {
+              namedOneOfCase_ = 2;
+              namedOneOf_ = input.readInt32();
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+              namedOneOfCase_ = 3;
+              namedOneOf_ = s;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -5607,6 +5635,45 @@ public final class TestMessageV3 {
       return com.avast.cactus.TestMessageV3.internal_static_Data3_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.avast.cactus.TestMessageV3.Data3.class, com.avast.cactus.TestMessageV3.Data3.Builder.class);
+    }
+
+    private int bitField0_;
+    private int namedOneOfCase_ = 0;
+    private java.lang.Object namedOneOf_;
+    public enum NamedOneOfCase
+        implements com.google.protobuf.Internal.EnumLite {
+      FOO_INT(2),
+      FOO_STRING(3),
+      NAMEDONEOF_NOT_SET(0);
+      private final int value;
+      private NamedOneOfCase(int value) {
+        this.value = value;
+      }
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static NamedOneOfCase valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static NamedOneOfCase forNumber(int value) {
+        switch (value) {
+          case 2: return FOO_INT;
+          case 3: return FOO_STRING;
+          case 0: return NAMEDONEOF_NOT_SET;
+          default: return null;
+        }
+      }
+      public int getNumber() {
+        return this.value;
+      }
+    };
+
+    public NamedOneOfCase
+    getNamedOneOfCase() {
+      return NamedOneOfCase.forNumber(
+          namedOneOfCase_);
     }
 
     public static final int FIELD_GPB_FIELD_NUMBER = 1;
@@ -5664,6 +5731,60 @@ public final class TestMessageV3 {
       return fieldGpb_.get(index);
     }
 
+    public static final int FOO_INT_FIELD_NUMBER = 2;
+    /**
+     * <code>int32 foo_int = 2;</code>
+     */
+    public int getFooInt() {
+      if (namedOneOfCase_ == 2) {
+        return (java.lang.Integer) namedOneOf_;
+      }
+      return 0;
+    }
+
+    public static final int FOO_STRING_FIELD_NUMBER = 3;
+    /**
+     * <code>string foo_string = 3;</code>
+     */
+    public java.lang.String getFooString() {
+      java.lang.Object ref = "";
+      if (namedOneOfCase_ == 3) {
+        ref = namedOneOf_;
+      }
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (namedOneOfCase_ == 3) {
+          namedOneOf_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>string foo_string = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getFooStringBytes() {
+      java.lang.Object ref = "";
+      if (namedOneOfCase_ == 3) {
+        ref = namedOneOf_;
+      }
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        if (namedOneOfCase_ == 3) {
+          namedOneOf_ = b;
+        }
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -5679,6 +5800,13 @@ public final class TestMessageV3 {
       for (int i = 0; i < fieldGpb_.size(); i++) {
         output.writeMessage(1, fieldGpb_.get(i));
       }
+      if (namedOneOfCase_ == 2) {
+        output.writeInt32(
+            2, (int)((java.lang.Integer) namedOneOf_));
+      }
+      if (namedOneOfCase_ == 3) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, namedOneOf_);
+      }
     }
 
     public int getSerializedSize() {
@@ -5689,6 +5817,14 @@ public final class TestMessageV3 {
       for (int i = 0; i < fieldGpb_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, fieldGpb_.get(i));
+      }
+      if (namedOneOfCase_ == 2) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(
+              2, (int)((java.lang.Integer) namedOneOf_));
+      }
+      if (namedOneOfCase_ == 3) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, namedOneOf_);
       }
       memoizedSize = size;
       return size;
@@ -5708,6 +5844,21 @@ public final class TestMessageV3 {
       boolean result = true;
       result = result && getFieldGpbList()
           .equals(other.getFieldGpbList());
+      result = result && getNamedOneOfCase().equals(
+          other.getNamedOneOfCase());
+      if (!result) return false;
+      switch (namedOneOfCase_) {
+        case 2:
+          result = result && (getFooInt()
+              == other.getFooInt());
+          break;
+        case 3:
+          result = result && getFooString()
+              .equals(other.getFooString());
+          break;
+        case 0:
+        default:
+      }
       return result;
     }
 
@@ -5721,6 +5872,18 @@ public final class TestMessageV3 {
       if (getFieldGpbCount() > 0) {
         hash = (37 * hash) + FIELD_GPB_FIELD_NUMBER;
         hash = (53 * hash) + getFieldGpbList().hashCode();
+      }
+      switch (namedOneOfCase_) {
+        case 2:
+          hash = (37 * hash) + FOO_INT_FIELD_NUMBER;
+          hash = (53 * hash) + getFooInt();
+          break;
+        case 3:
+          hash = (37 * hash) + FOO_STRING_FIELD_NUMBER;
+          hash = (53 * hash) + getFooString().hashCode();
+          break;
+        case 0:
+        default:
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -5858,6 +6021,8 @@ public final class TestMessageV3 {
         } else {
           fieldGpbBuilder_.clear();
         }
+        namedOneOfCase_ = 0;
+        namedOneOf_ = null;
         return this;
       }
 
@@ -5881,6 +6046,7 @@ public final class TestMessageV3 {
       public com.avast.cactus.TestMessageV3.Data3 buildPartial() {
         com.avast.cactus.TestMessageV3.Data3 result = new com.avast.cactus.TestMessageV3.Data3(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (fieldGpbBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
             fieldGpb_ = java.util.Collections.unmodifiableList(fieldGpb_);
@@ -5890,6 +6056,14 @@ public final class TestMessageV3 {
         } else {
           result.fieldGpb_ = fieldGpbBuilder_.build();
         }
+        if (namedOneOfCase_ == 2) {
+          result.namedOneOf_ = namedOneOf_;
+        }
+        if (namedOneOfCase_ == 3) {
+          result.namedOneOf_ = namedOneOf_;
+        }
+        result.bitField0_ = to_bitField0_;
+        result.namedOneOfCase_ = namedOneOfCase_;
         onBuilt();
         return result;
       }
@@ -5957,6 +6131,21 @@ public final class TestMessageV3 {
             }
           }
         }
+        switch (other.getNamedOneOfCase()) {
+          case FOO_INT: {
+            setFooInt(other.getFooInt());
+            break;
+          }
+          case FOO_STRING: {
+            namedOneOfCase_ = 3;
+            namedOneOf_ = other.namedOneOf_;
+            onChanged();
+            break;
+          }
+          case NAMEDONEOF_NOT_SET: {
+            break;
+          }
+        }
         onChanged();
         return this;
       }
@@ -5982,6 +6171,21 @@ public final class TestMessageV3 {
         }
         return this;
       }
+      private int namedOneOfCase_ = 0;
+      private java.lang.Object namedOneOf_;
+      public NamedOneOfCase
+          getNamedOneOfCase() {
+        return NamedOneOfCase.forNumber(
+            namedOneOfCase_);
+      }
+
+      public Builder clearNamedOneOf() {
+        namedOneOfCase_ = 0;
+        namedOneOf_ = null;
+        onChanged();
+        return this;
+      }
+
       private int bitField0_;
 
       private java.util.List<com.avast.cactus.TestMessageV3.Data2> fieldGpb_ =
@@ -6294,6 +6498,116 @@ public final class TestMessageV3 {
           fieldGpb_ = null;
         }
         return fieldGpbBuilder_;
+      }
+
+      /**
+       * <code>int32 foo_int = 2;</code>
+       */
+      public int getFooInt() {
+        if (namedOneOfCase_ == 2) {
+          return (java.lang.Integer) namedOneOf_;
+        }
+        return 0;
+      }
+      /**
+       * <code>int32 foo_int = 2;</code>
+       */
+      public Builder setFooInt(int value) {
+        namedOneOfCase_ = 2;
+        namedOneOf_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 foo_int = 2;</code>
+       */
+      public Builder clearFooInt() {
+        if (namedOneOfCase_ == 2) {
+          namedOneOfCase_ = 0;
+          namedOneOf_ = null;
+          onChanged();
+        }
+        return this;
+      }
+
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public java.lang.String getFooString() {
+        java.lang.Object ref = "";
+        if (namedOneOfCase_ == 3) {
+          ref = namedOneOf_;
+        }
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (namedOneOfCase_ == 3) {
+            namedOneOf_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getFooStringBytes() {
+        java.lang.Object ref = "";
+        if (namedOneOfCase_ == 3) {
+          ref = namedOneOf_;
+        }
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          if (namedOneOfCase_ == 3) {
+            namedOneOf_ = b;
+          }
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public Builder setFooString(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  namedOneOfCase_ = 3;
+        namedOneOf_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public Builder clearFooString() {
+        if (namedOneOfCase_ == 3) {
+          namedOneOfCase_ = 0;
+          namedOneOf_ = null;
+          onChanged();
+        }
+        return this;
+      }
+      /**
+       * <code>string foo_string = 3;</code>
+       */
+      public Builder setFooStringBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        namedOneOfCase_ = 3;
+        namedOneOf_ = value;
+        onChanged();
+        return this;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -8005,18 +8319,20 @@ public final class TestMessageV3 {
       "rs\030\006 \003(\005\022#\n\033field_option_integers_empty\030" +
       "\007 \003(\005\022 \n\020field_gpb_option\030\010 \001(\0132\006.Data2\022" +
       "&\n\026field_gpb_option_empty\030\t \001(\0132\006.Data2\022" +
-      "\031\n\tfield_gpb\030\n \001(\0132\006.Data2\022\032\n\nfield_gpb2" +
-      "\030\021 \001(\0132\006.Data2\022\022\n\nfield_blob\030\013 \001(\014\022\036\n\tfi",
-      "eld_map\030\014 \003(\0132\013.MapMessage\022\027\n\017field_inte" +
-      "gers2\030\r \003(\005\022\037\n\nfield_map2\030\016 \003(\0132\013.MapMes" +
-      "sage\022\"\n\022field_gpb_repeated\030\017 \003(\0132\006.Data2" +
-      "\022+\n\033field_gpb2_repeated_recurse\030\020 \003(\0132\006." +
-      "Data3\"1\n\005Data2\022\024\n\014field_double\030\001 \001(\001\022\022\n\n" +
-      "field_blob\030\002 \001(\014\"\"\n\005Data3\022\031\n\tfield_gpb\030\001" +
-      " \003(\0132\006.Data2\"2\n\005Data4\022\023\n\013fieldString\030\001 \001" +
-      "(\t\022\024\n\014field_option\030\002 \001(\t\"7\n\nMapMessage\022\013" +
-      "\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005other\030\003 \001(" +
-      "\tB\022\n\020com.avast.cactusb\006proto3"
+      "\031\n\tfield_gpb\030\n \001(\0132\006.Data2\022\022\n\nfield_blob" +
+      "\030\013 \001(\014\022\036\n\tfield_map\030\014 \003(\0132\013.MapMessage\022\027",
+      "\n\017field_integers2\030\r \003(\005\022\037\n\nfield_map2\030\016 " +
+      "\003(\0132\013.MapMessage\022\"\n\022field_gpb_repeated\030\017" +
+      " \003(\0132\006.Data2\022+\n\033field_gpb2_repeated_recu" +
+      "rse\030\020 \003(\0132\006.Data3\022\032\n\nfield_gpb2\030\021 \001(\0132\006." +
+      "Data2\"1\n\005Data2\022\024\n\014field_double\030\001 \001(\001\022\022\n\n" +
+      "field_blob\030\002 \001(\014\"[\n\005Data3\022\031\n\tfield_gpb\030\001" +
+      " \003(\0132\006.Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_s" +
+      "tring\030\003 \001(\tH\000B\016\n\014named_one_of\"2\n\005Data4\022\023" +
+      "\n\013fieldString\030\001 \001(\t\022\024\n\014field_option\030\002 \001(" +
+      "\t\"7\n\nMapMessage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 ",
+      "\001(\t\022\r\n\005other\030\003 \001(\tB\022\n\020com.avast.cactusb\006" +
+      "proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -8035,7 +8351,7 @@ public final class TestMessageV3 {
     internal_static_Data_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Data_descriptor,
-        new java.lang.String[] { "FieldString", "FieldIntName", "FieldOption", "FieldStrings", "FieldStringsName", "FieldOptionIntegers", "FieldOptionIntegersEmpty", "FieldGpbOption", "FieldGpbOptionEmpty", "FieldGpb", "FieldGpb2", "FieldBlob", "FieldMap", "FieldIntegers2", "FieldMap2", "FieldGpbRepeated", "FieldGpb2RepeatedRecurse", });
+        new java.lang.String[] { "FieldString", "FieldIntName", "FieldOption", "FieldStrings", "FieldStringsName", "FieldOptionIntegers", "FieldOptionIntegersEmpty", "FieldGpbOption", "FieldGpbOptionEmpty", "FieldGpb", "FieldBlob", "FieldMap", "FieldIntegers2", "FieldMap2", "FieldGpbRepeated", "FieldGpb2RepeatedRecurse", "FieldGpb2", });
     internal_static_Data2_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_Data2_fieldAccessorTable = new
@@ -8047,7 +8363,7 @@ public final class TestMessageV3 {
     internal_static_Data3_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Data3_descriptor,
-        new java.lang.String[] { "FieldGpb", });
+        new java.lang.String[] { "FieldGpb", "FooInt", "FooString", "NamedOneOf", });
     internal_static_Data4_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_Data4_fieldAccessorTable = new

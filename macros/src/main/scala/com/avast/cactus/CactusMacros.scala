@@ -150,15 +150,14 @@ object CactusMacros {
         if (Debug) println(s"$fieldName field type: $fieldType")
 
         val value: c.Tree = fieldType match {
-          case n: FieldType.Normal[c.universe.MethodSymbol, c.universe.ClassSymbol] =>
+          case n: FieldType.Normal[MethodSymbol, ClassSymbol] =>
             val returnType = n.getter.returnType
             val query = protoVersion.getQuery(c)(gpb, upper, returnType)
 
             processEndType(c)(fieldName, annotations, nameInGpb, dstType, gpbType)(query, q"$gpb.${n.getter}", returnType)
 
-          case o: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol] =>
-
-            processOneOf(c)(gpbType, gpb)(dstType, o.impls)
+          case o: FieldType.OneOf[MethodSymbol, ClassSymbol] =>
+            processOneOf(c)(gpbType, gpb)(dstType, o)
         }
 
         c.Expr(q"val $fieldName: $dstType Or Every[CactusFailure] = { $value }")
@@ -186,17 +185,15 @@ object CactusMacros {
 
     private def processOneOf(c: whitebox.Context)
                             (gpbType: c.universe.Type, gpb: c.Tree)
-                            (oneOfClassType: c.universe.Type, impls: Set[c.universe.ClassSymbol])
+                            (oneOfClassType: c.universe.Type, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol])
                             (implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
       import c.universe._
 
-      ProtoVersion.V3.newOneOfConverter(c)(gpbType, oneOfClassType)(impls)
+      val conv = ProtoVersion.V3.newOneOfConverter(c)(gpbType, oneOfClassType)(oneOfType)
 
-      if (Debug) {
-        println(s"Requires ONE-OF converter from ${gpbType.typeSymbol} to ${oneOfClassType.typeSymbol}")
-      }
+      //TODO check wrapping to option - recover from BAD
 
-      q" Good(CactusMacros.AToB[$gpbType, $oneOfClassType]($gpb))"
+      q" $conv($gpb) "
     }
 
     private def processEndType(c: whitebox.Context)
@@ -741,11 +738,11 @@ object CactusMacros {
     annotsTypes.zip(annotsParams).toMap
   }
 
-  private def getOneOfType(c: whitebox.Context)(fieldTypeSymbol: c.universe.TypeSymbol, annotations: AnnotationsMap): Option[FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol]] = {
+  private def getOneOfType(c: whitebox.Context)(fieldTypeSymbol: c.universe.TypeSymbol, fieldAnnotations: AnnotationsMap): Option[FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol]] = {
     import c.universe._
 
     if (fieldTypeSymbol.isClass) {
-      ProtoVersion.V3.extractNameOfOneOf(c)(fieldTypeSymbol, annotations)
+      ProtoVersion.V3.extractNameOfOneOf(c)(fieldTypeSymbol, fieldAnnotations)
         .flatMap { name =>
           val asClass = fieldTypeSymbol.asClass
 
@@ -765,22 +762,24 @@ object CactusMacros {
   private def getImpls(c: whitebox.Context)(cl: c.universe.ClassSymbol): Set[c.universe.ClassSymbol] = {
     import c.universe._
 
-    // this is a hack - we need to force the initialization of the class before knowing it's impls
-    def init(s: Symbol) = {
-      s.typeSignature.decls.foreach {
-        case a: ClassSymbol => a.selfType.baseClasses
-        case _ =>
-      }
-    }
-
-    init(cl.owner)
+    init(c)(cl.owner)
 
     val companion = cl.companion
     if (companion.isModule) {
-      init(companion)
+      init(c)(companion)
     }
 
     cl.knownDirectSubclasses.collect { case s if s.isClass => s.asClass }
+  }
+
+  // this is a hack - we need to force the initialization of the class before knowing it's impls
+  private[cactus] def init(c: whitebox.Context)(s: c.universe.Symbol) = {
+    import c.universe._
+
+    s.typeSignature.decls.foreach {
+      case a: ClassSymbol => a.selfType.baseClasses
+      case _ =>
+    }
   }
 
   private def extractGpbGenType(c: whitebox.Context)(getterReturnType: c.universe.Type) = {
@@ -809,7 +808,7 @@ object CactusMacros {
     }).symbol
   }
 
-  private def extractType(c: whitebox.Context)(q: String): c.universe.Type = {
+  private[cactus] def extractType(c: whitebox.Context)(q: String): c.universe.Type = {
     c.typecheck(c.parse(q)).tpe
   }
 
