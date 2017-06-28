@@ -1,9 +1,9 @@
 import sbt.Keys._
 
-crossScalaVersions := Seq("2.11.8", "2.12.0")
+crossScalaVersions := Seq("2.11.11", "2.12.2")
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.11.8",
+  scalaVersion := "2.11.11",
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
@@ -48,6 +48,6 @@ lazy val macros = Project(
   id = "macros",
   base = file("./macros"),
   settings = commonSettings ++ macroSettings ++ Seq(
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
   )
 )

@@ -190,10 +190,6 @@ object CactusMacros {
                             (implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
       import c.universe._
 
-      if (impls.isEmpty) {
-        c.abort(c.enclosingPosition, s"Didn't find any implementations for ${oneOfClassType.typeSymbol}")
-      }
-
       ProtoVersion.V3.newOneOfConverter(c)(gpbType, oneOfClassType)(impls)
 
       if (Debug) {
@@ -754,18 +750,37 @@ object CactusMacros {
           val asClass = fieldTypeSymbol.asClass
 
           if (asClass.isSealed) {
-            // this is a workaround for known bug
-            // see https://issues.scala-lang.org/browse/SI-7046?focusedCommentId=75039&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-75039
-            val impls = asClass.owner.typeSignature.decls.collect {
-              case c: ClassSymbol if asClass != c && c.selfType.baseClasses.contains(asClass) => c
-            }.toSet
+            val impls = getImpls(c)(asClass)
 
-            if (Debug) println(s"$fieldTypeSymbol is a ONE-OF, name '$name'")
+            if (impls.isEmpty) c.abort(c.enclosingPosition, s"Didn't find any implementations for $fieldTypeSymbol")
+
+            if (Debug) println(s"$fieldTypeSymbol is a ONE-OF, name '$name', impls $impls")
 
             Some(FieldType.OneOf[MethodSymbol, ClassSymbol](name, impls))
           } else None
         }
     } else None
+  }
+
+  private def getImpls(c: whitebox.Context)(cl: c.universe.ClassSymbol): Set[c.universe.ClassSymbol] = {
+    import c.universe._
+
+    // this is a hack - we need to force the initialization of the class before knowing it's impls
+    def init(s: Symbol) = {
+      s.typeSignature.decls.foreach {
+        case a: ClassSymbol => a.selfType.baseClasses
+        case _ =>
+      }
+    }
+
+    init(cl.owner)
+
+    val companion = cl.companion
+    if (companion.isModule) {
+      init(companion)
+    }
+
+    cl.knownDirectSubclasses.collect { case s if s.isClass => s.asClass }
   }
 
   private def extractGpbGenType(c: whitebox.Context)(getterReturnType: c.universe.Type) = {
