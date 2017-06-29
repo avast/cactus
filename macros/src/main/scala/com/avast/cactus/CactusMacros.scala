@@ -52,7 +52,7 @@ object CactusMacros {
     // unpack the implicit ClassTag tree
     val gpbSymbol = extractSymbolFromClassTag(c)(gpbCt)
 
-    val variableName = getVariableName(c)
+    val variableName = getVariable(c)
 
 
     c.Expr[CaseClass Or Every[CactusFailure]] {
@@ -94,7 +94,7 @@ object CactusMacros {
     // unpack the implicit ClassTag tree
     val caseClassSymbol = extractSymbolFromClassTag(c)(caseClassCt)
 
-    val variableName = getVariableName(c)
+    val variable = getVariable(c)
 
     c.Expr[Gpb Or Every[CactusFailure]] {
       val caseClassType = caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type]
@@ -102,7 +102,7 @@ object CactusMacros {
 
       val generatedConverters: mutable.Map[String, c.Tree] = mutable.Map.empty
 
-      val converter = CaseClassToGpb.createConverter(c)(caseClassType, gpbType, variableName)(generatedConverters)
+      val converter = CaseClassToGpb.createConverter(c)(caseClassType, gpbType, variable)(generatedConverters)
 
       val finalConverters = generatedConverters.values
 
@@ -150,14 +150,14 @@ object CactusMacros {
         if (Debug) println(s"$fieldName field type: $fieldType")
 
         val value: c.Tree = fieldType match {
-          case n: FieldType.Normal[MethodSymbol, ClassSymbol] =>
+          case n: FieldType.Normal[MethodSymbol, ClassSymbol, Type] =>
             val returnType = n.getter.returnType
             val query = protoVersion.getQuery(c)(gpb, upper, returnType)
 
             processEndType(c)(fieldName, annotations, nameInGpb, dstType, gpbType)(query, q"$gpb.${n.getter}", returnType)
 
-          case o: FieldType.OneOf[MethodSymbol, ClassSymbol] =>
-            processOneOf(c)(gpbType, gpb)(dstType, o)
+          case o: FieldType.OneOf[MethodSymbol, ClassSymbol, Type] =>
+            processOneOf(c)(gpbType, gpb)(o)
         }
 
         c.Expr(q"val $fieldName: $dstType Or Every[CactusFailure] = { $value }")
@@ -185,16 +185,15 @@ object CactusMacros {
 
     private def processOneOf(c: whitebox.Context)
                             (gpbType: c.universe.Type, gpb: c.Tree)
-                            (oneOfClassType: c.universe.Type, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol])
-                            (implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
+                            (oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
       import c.universe._
 
-      val conv = ProtoVersion.V3.newOneOfConverter(c)(gpbType, oneOfClassType)(oneOfType)
+      val conv = ProtoVersion.V3.newOneOfConverterToCaseClass(c)(gpbType, oneOfType)
 
       // TODO support conversion of types inside ONE-OF impls
 
       // be able to change NOT_SET state to `None`, if the type is wrapped in `Option`
-      oneOfClassType.resultType.toString match {
+      oneOfType.classType.resultType.toString match {
         case OptPattern(_) => q""" ($conv($gpb)).map(Option(_)).recover( _=> None) """
         case _ => q" $conv($gpb) "
       }
@@ -408,18 +407,18 @@ object CactusMacros {
         val e = extractField(c)(field, isProto3, gpbGetters, gpbSetters)
         import e._
 
-        fieldType match {
-          case n: FieldType.Normal[MethodSymbol, ClassSymbol] =>
+        val assgn = fieldType match {
+          case n: FieldType.Normal[MethodSymbol, ClassSymbol, Type] =>
             val setterParam = n.setter.paramLists.headOption.flatMap(_.headOption)
               .getOrElse(c.abort(c.enclosingPosition, s"Could not extract param from setter for field $field"))
 
-            val assgn = processEndType(c)(q"$caseClass.$fieldName", annotations, dstType)(gpbType, setterParam.typeSignature, q"builder.${n.setter.name}", upper)
+            processEndType(c)(q"$caseClass.$fieldName", annotations, dstType)(gpbType, setterParam.typeSignature, q"builder.${n.setter.name}", upper)
 
-            c.Expr(q" $assgn ")
-
-          case o: FieldType.OneOf[MethodSymbol, ClassSymbol] =>
-            ???
+          case o: FieldType.OneOf[MethodSymbol, ClassSymbol, Type] =>
+            processOneOf(c)(gpbType, gpbSetters)(q"$caseClass.$fieldName", o)
         }
+
+        c.Expr(q" $assgn ")
       }
 
       q"""
@@ -431,6 +430,21 @@ object CactusMacros {
             builder.build()
          }
        """
+    }
+
+    private def processOneOf(c: whitebox.Context)
+                            (gpbType: c.universe.Type, gpbSetters: Iterable[c.universe.MethodSymbol])
+                            (field: c.universe.Tree, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+      import c.universe._
+
+      def conv(finalType: c.universe.Type) = ProtoVersion.V3.newOneOfConverterToGpb(c)(gpbType, gpbSetters)(field, oneOfType.copy(classType = finalType))
+
+      // TODO support conversion of types inside ONE-OF impls
+
+      oneOfType.classType.resultType.toString match {
+        case OptPattern(_) => q""" $field.foreach(${conv(oneOfType.classType.resultType.typeArgs.head)}) """
+        case _ => q" ${conv(oneOfType.classType)}($field) "
+      }
     }
 
     private[cactus] def processEndType(c: whitebox.Context)
@@ -679,8 +693,7 @@ object CactusMacros {
 
     val upper = firstUpper(nameInGpb)
 
-    val fieldType: FieldType[c.universe.MethodSymbol, c.universe.ClassSymbol] = {
-
+    val fieldType: FieldType[MethodSymbol, ClassSymbol, Type] = {
       // find getter for the field in GPB
       // try *List first for case it's a repeated field and user didn't name it *List in the case class
       val gpbGetter = {
@@ -718,7 +731,7 @@ object CactusMacros {
         getter <- gpbGetter
         setter <- gpbSetter
       } yield {
-        FieldType.Normal[c.universe.MethodSymbol, c.universe.ClassSymbol](getter, setter)
+        FieldType.Normal[MethodSymbol, ClassSymbol, Type](getter, setter)
       }).recover {
         case err if isProto3 => // give it one more chance, it can be ONE-OF
           if (Debug) println(s"Testing ${dstType.typeSymbol} to being a ONE-OF")
@@ -743,7 +756,7 @@ object CactusMacros {
     annotsTypes.zip(annotsParams).toMap
   }
 
-  private def getOneOfType(c: whitebox.Context)(fieldType: c.universe.Type, fieldAnnotations: AnnotationsMap): Option[FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol]] = {
+  private def getOneOfType(c: whitebox.Context)(fieldType: c.universe.Type, fieldAnnotations: AnnotationsMap): Option[FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]] = {
     import c.universe._
 
     val resultType = fieldType.resultType
@@ -761,11 +774,19 @@ object CactusMacros {
           if (asClass.isSealed) {
             val impls = getImpls(c)(asClass)
 
+            // checks format of impls - single parameter
+            impls.foreach { t =>
+              t.typeSignature.decls.collectFirst {
+                case m if m.isMethod && m.asMethod.isPrimaryConstructor =>
+                  if (m.asMethod.paramLists.flatten.size != 1) c.abort(c.enclosingPosition, s"ONE-OF trait implementations has to have exactly one parameter - check $t")
+              }
+            }
+
             if (impls.isEmpty) c.abort(c.enclosingPosition, s"Didn't find any implementations for $fieldTypeSymbol")
 
             if (Debug) println(s"$fieldTypeSymbol is a ONE-OF, name '$name', impls $impls")
 
-            Some(FieldType.OneOf[MethodSymbol, ClassSymbol](name, impls))
+            Some(FieldType.OneOf[MethodSymbol, ClassSymbol, Type](name, fieldType, impls))
           } else None
         }
     } else None
@@ -824,17 +845,17 @@ object CactusMacros {
     c.typecheck(c.parse(q)).tpe
   }
 
-  private def getVariableName[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
+  private def getVariable[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
     import c.universe._
 
-    val variableName = c.prefix.tree match {
+    val variable = c.prefix.tree match {
       case q"cactus.this.`package`.${_}[${_}]($n)" => n
       case q"com.avast.cactus.`package`.${_}[${_}]($n)" => n
 
       case t => c.abort(c.enclosingPosition, s"Cannot process the conversion - variable name extraction from tree '$t' failed")
     }
 
-    q" $variableName "
+    q" $variable "
   }
 
   private def caseClassAndGpb(c: whitebox.Context)(caseClassTypeSymbol: c.universe.Symbol, getterReturnType: c.universe.Type): Boolean = {

@@ -2,7 +2,6 @@ package com.avast.cactus
 
 import com.avast.cactus.CactusMacros.{AnnotationsMap, ClassesNames}
 
-import scala.collection.mutable
 import scala.reflect.macros.whitebox
 
 private[cactus] sealed trait ProtoVersion {
@@ -38,22 +37,21 @@ private[cactus] object ProtoVersion {
       }
     }
 
-    def newOneOfConverter(c: whitebox.Context)
-                         (from: c.universe.Type, to: c.universe.Type)
-                         (oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol])
-                         (implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
+    def newOneOfConverterToCaseClass(c: whitebox.Context)
+                                    (from: c.universe.Type, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
       import c.universe._
       import oneOfType._
 
       val gpbClassSymbol = from.typeSymbol.asClass
+      val oneOfTypeSymbol = classType.typeSymbol
 
       CactusMacros.init(c)(gpbClassSymbol)
 
-      if (CactusMacros.Debug) println(s"Generating ONE-OF converter from ${from.typeSymbol} to ${to.typeSymbol}, GPB ONE-OF '$name'")
+      if (CactusMacros.Debug) println(s"Generating ONE-OF converter from $gpbClassSymbol to $oneOfTypeSymbol, GPB ONE-OF '$name'")
 
       val getCaseMethod = gpbClassSymbol.typeSignature.decls.collectFirst {
         case m if m.isMethod && m.name.toString == s"get${name}Case" => m.asMethod
-      }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method get${name}Case inside $gpbClassSymbol, needed for ONE-OF ${to.typeSymbol}"))
+      }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method get${name}Case inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol"))
 
       val implsSeq = impls.toSeq
 
@@ -63,7 +61,7 @@ private[cactus] object ProtoVersion {
         .map { n =>
           gpbClassSymbol.typeSignature.decls.collectFirst {
             case m if m.isMethod && m.name.toString == n => m.asMethod
-          }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF ${to.typeSymbol}"))
+          }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol"))
         }
 
       val enumValues = implsSeq
@@ -93,7 +91,55 @@ private[cactus] object ProtoVersion {
         }
        """
 
-      if (CactusMacros.Debug) println(s"ONE-OF converter from ${from.typeSymbol} to ${to.typeSymbol}: $f")
+      if (CactusMacros.Debug) println(s"ONE-OF converter from $gpbClassSymbol to $oneOfTypeSymbol: $f")
+
+      f
+    }
+
+    def newOneOfConverterToGpb(c: whitebox.Context)
+                              (gpbType: c.universe.Type, gpbSetters: Iterable[c.universe.MethodSymbol])
+                              (field: c.universe.Tree, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+      import c.universe._
+      import oneOfType._
+
+      val gpbClassSymbol = gpbType.typeSymbol.asClass
+      val oneOfTypeSymbol = classType.typeSymbol
+
+      val implsSeq = impls.toSeq
+
+      val setters = implsSeq
+        .map(_.name.toString)
+        .map("set" + _)
+        .map { n =>
+          gpbSetters
+            .find {
+              _.name.toString == n
+            }
+            .getOrElse(c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol"))
+        }
+
+      val fieldNames = implsSeq
+        .map { t =>
+          t.typeSignature.decls.collectFirst {
+            case m if m.isMethod && m.asMethod.isPrimaryConstructor => m.asMethod.paramLists.head.head.asTerm.name.toTermName
+          }.getOrElse(c.abort(c.enclosingPosition, s"Could not extract value field name from $t, needed for ONE-OF $oneOfTypeSymbol"))
+        }
+
+      val options = implsSeq zip (setters zip fieldNames)
+
+      val cases = options.map { case (ccl, (setter, fieldName)) =>
+        cq" v: $ccl => builder.$setter(v.$fieldName)"
+      }
+
+      val f =
+        q""" (field: $classType) => {
+          field match {
+            case ..$cases
+          }
+        }
+       """
+
+      if (CactusMacros.Debug) println(s"ONE-OF converter from $oneOfTypeSymbol to $gpbClassSymbol: $f")
 
       f
     }
