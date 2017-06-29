@@ -5803,6 +5803,11 @@ public final class TestMessageV3 {
     com.google.protobuf.ByteString
         getFooStringBytes();
 
+    /**
+     * <code>bytes foo_bytes = 4;</code>
+     */
+    com.google.protobuf.ByteString getFooBytes();
+
     public com.avast.cactus.TestMessageV3.Data3.NamedOneOfCase getNamedOneOfCase();
   }
   /**
@@ -5865,6 +5870,11 @@ public final class TestMessageV3 {
               namedOneOf_ = s;
               break;
             }
+            case 34: {
+              namedOneOfCase_ = 4;
+              namedOneOf_ = input.readBytes();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -5898,6 +5908,7 @@ public final class TestMessageV3 {
         implements com.google.protobuf.Internal.EnumLite {
       FOO_INT(2),
       FOO_STRING(3),
+      FOO_BYTES(4),
       NAMEDONEOF_NOT_SET(0);
       private final int value;
       private NamedOneOfCase(int value) {
@@ -5915,6 +5926,7 @@ public final class TestMessageV3 {
         switch (value) {
           case 2: return FOO_INT;
           case 3: return FOO_STRING;
+          case 4: return FOO_BYTES;
           case 0: return NAMEDONEOF_NOT_SET;
           default: return null;
         }
@@ -6039,6 +6051,17 @@ public final class TestMessageV3 {
       }
     }
 
+    public static final int FOO_BYTES_FIELD_NUMBER = 4;
+    /**
+     * <code>bytes foo_bytes = 4;</code>
+     */
+    public com.google.protobuf.ByteString getFooBytes() {
+      if (namedOneOfCase_ == 4) {
+        return (com.google.protobuf.ByteString) namedOneOf_;
+      }
+      return com.google.protobuf.ByteString.EMPTY;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -6061,6 +6084,10 @@ public final class TestMessageV3 {
       if (namedOneOfCase_ == 3) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 3, namedOneOf_);
       }
+      if (namedOneOfCase_ == 4) {
+        output.writeBytes(
+            4, (com.google.protobuf.ByteString) namedOneOf_);
+      }
     }
 
     public int getSerializedSize() {
@@ -6079,6 +6106,11 @@ public final class TestMessageV3 {
       }
       if (namedOneOfCase_ == 3) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, namedOneOf_);
+      }
+      if (namedOneOfCase_ == 4) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(
+              4, (com.google.protobuf.ByteString) namedOneOf_);
       }
       memoizedSize = size;
       return size;
@@ -6110,6 +6142,10 @@ public final class TestMessageV3 {
           result = result && getFooString()
               .equals(other.getFooString());
           break;
+        case 4:
+          result = result && getFooBytes()
+              .equals(other.getFooBytes());
+          break;
         case 0:
         default:
       }
@@ -6135,6 +6171,10 @@ public final class TestMessageV3 {
         case 3:
           hash = (37 * hash) + FOO_STRING_FIELD_NUMBER;
           hash = (53 * hash) + getFooString().hashCode();
+          break;
+        case 4:
+          hash = (37 * hash) + FOO_BYTES_FIELD_NUMBER;
+          hash = (53 * hash) + getFooBytes().hashCode();
           break;
         case 0:
         default:
@@ -6316,6 +6356,9 @@ public final class TestMessageV3 {
         if (namedOneOfCase_ == 3) {
           result.namedOneOf_ = namedOneOf_;
         }
+        if (namedOneOfCase_ == 4) {
+          result.namedOneOf_ = namedOneOf_;
+        }
         result.bitField0_ = to_bitField0_;
         result.namedOneOfCase_ = namedOneOfCase_;
         onBuilt();
@@ -6394,6 +6437,10 @@ public final class TestMessageV3 {
             namedOneOfCase_ = 3;
             namedOneOf_ = other.namedOneOf_;
             onChanged();
+            break;
+          }
+          case FOO_BYTES: {
+            setFooBytes(other.getFooBytes());
             break;
           }
           case NAMEDONEOF_NOT_SET: {
@@ -6861,6 +6908,39 @@ public final class TestMessageV3 {
         namedOneOfCase_ = 3;
         namedOneOf_ = value;
         onChanged();
+        return this;
+      }
+
+      /**
+       * <code>bytes foo_bytes = 4;</code>
+       */
+      public com.google.protobuf.ByteString getFooBytes() {
+        if (namedOneOfCase_ == 4) {
+          return (com.google.protobuf.ByteString) namedOneOf_;
+        }
+        return com.google.protobuf.ByteString.EMPTY;
+      }
+      /**
+       * <code>bytes foo_bytes = 4;</code>
+       */
+      public Builder setFooBytes(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  namedOneOfCase_ = 4;
+        namedOneOf_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bytes foo_bytes = 4;</code>
+       */
+      public Builder clearFooBytes() {
+        if (namedOneOfCase_ == 4) {
+          namedOneOfCase_ = 0;
+          namedOneOf_ = null;
+          onChanged();
+        }
         return this;
       }
       public final Builder setUnknownFields(
@@ -9758,15 +9838,15 @@ public final class TestMessageV3 {
       "rse\030\020 \003(\0132\006.Data3\022\032\n\nfield_gpb2\030\021 \001(\0132\006." +
       "Data2\022\032\n\nfield_gpb3\030\022 \001(\0132\006.Data5\"1\n\005Dat" +
       "a2\022\024\n\014field_double\030\001 \001(\001\022\022\n\nfield_blob\030\002" +
-      " \001(\014\"[\n\005Data3\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2" +
+      " \001(\014\"p\n\005Data3\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2" +
       "\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH" +
-      "\000B\016\n\014named_one_of\"2\n\005Data4\022\023\n\013fieldStrin" +
-      "g\030\001 \001(\t\022\024\n\014field_option\030\002 \001(\t\"[\n\005Data5\022\031",
-      "\n\tfield_gpb\030\001 \003(\0132\006.Data2\022\021\n\007foo_int\030\002 \001" +
-      "(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH\000B\016\n\014named_one_" +
-      "of\"7\n\nMapMessage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002" +
-      " \001(\t\022\r\n\005other\030\003 \001(\tB\022\n\020com.avast.cactusb" +
-      "\006proto3"
+      "\000\022\023\n\tfoo_bytes\030\004 \001(\014H\000B\016\n\014named_one_of\"2" +
+      "\n\005Data4\022\023\n\013fieldString\030\001 \001(\t\022\024\n\014field_op",
+      "tion\030\002 \001(\t\"[\n\005Data5\022\031\n\tfield_gpb\030\001 \003(\0132\006" +
+      ".Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030" +
+      "\003 \001(\tH\000B\016\n\014named_one_of\"7\n\nMapMessage\022\013\n" +
+      "\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005other\030\003 \001(\t" +
+      "B\022\n\020com.avast.cactusb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -9797,7 +9877,7 @@ public final class TestMessageV3 {
     internal_static_Data3_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Data3_descriptor,
-        new java.lang.String[] { "FieldGpb", "FooInt", "FooString", "NamedOneOf", });
+        new java.lang.String[] { "FieldGpb", "FooInt", "FooString", "FooBytes", "NamedOneOf", });
     internal_static_Data4_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_Data4_fieldAccessorTable = new

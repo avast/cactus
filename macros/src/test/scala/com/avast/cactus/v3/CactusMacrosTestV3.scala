@@ -29,9 +29,11 @@ class CactusMacrosTestV3 extends FunSuite {
   implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
 
   test("GPB to case class") {
+    val text = "textěščřžýáíé"
+
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
-      .setFieldBlob(ByteString.copyFromUtf8("text"))
+      .setFieldBlob(ByteString.copyFromUtf8(text))
       .build()
 
     val map = Map("first" -> "1", "second" -> "2")
@@ -58,9 +60,9 @@ class CactusMacrosTestV3 extends FunSuite {
       .addAllFieldMap2(map.map { case (key, value) => TestMessageV3.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
       .build()
 
-    val caseClassB = CaseClassB(0.9, "text")
+    val caseClassB = CaseClassB(0.9, text)
 
-    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed.FooInt(9)))
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed2.FooInt(9)))
     val caseClassF = CaseClassF(Seq(caseClassB, caseClassB, caseClassB), None)
 
     val expected = CaseClassA("ahoj", 9, Some(0), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
@@ -102,7 +104,7 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val caseClassB = CaseClassB(0.9, "text")
 
-    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed.FooInt(9)))
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed2.FooInt(9)))
     val caseClassF = CaseClassF(Seq(caseClassB, caseClassB, caseClassB), None)
 
     val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
@@ -184,7 +186,7 @@ case class CaseClassA(fieldString: String,
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
-case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf("NamedOneOf") oneOfNamed: OneOfNamed)
+case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf("NamedOneOf") oneOfNamed: OneOfNamed2)
 
 case class CaseClassF(fieldGpb: Seq[CaseClassB], @GpbOneOf("NamedOneOf") oneOfNamed: Option[OneOfNamed])
 
@@ -195,6 +197,19 @@ object OneOfNamed {
   case class FooInt(value: Int) extends OneOfNamed
 
   case class FooString(value: String) extends OneOfNamed
+
+}
+
+
+sealed trait OneOfNamed2
+
+object OneOfNamed2 {
+
+  case class FooInt(value: Int) extends OneOfNamed2
+
+  case class FooString(value: String) extends OneOfNamed2
+
+  case class FooBytes(value: String) extends OneOfNamed2
 
 }
 

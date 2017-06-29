@@ -43,15 +43,14 @@ private[cactus] object ProtoVersion {
       import oneOfType._
 
       val gpbClassSymbol = from.typeSymbol.asClass
-      val oneOfTypeSymbol = classType.typeSymbol
 
       CactusMacros.init(c)(gpbClassSymbol)
 
-      if (CactusMacros.Debug) println(s"Generating ONE-OF converter from $gpbClassSymbol to $oneOfTypeSymbol, GPB ONE-OF '$name'")
+      if (CactusMacros.Debug) println(s"Generating ONE-OF converter from $gpbClassSymbol to ${classType.resultType}, GPB ONE-OF '$name'")
 
       val getCaseMethod = gpbClassSymbol.typeSignature.decls.collectFirst {
         case m if m.isMethod && m.name.toString == s"get${name}Case" => m.asMethod
-      }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method get${name}Case inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol"))
+      }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method get${name}Case inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}"))
 
       val implsSeq = impls.toSeq
 
@@ -61,7 +60,7 @@ private[cactus] object ProtoVersion {
         .map { n =>
           gpbClassSymbol.typeSignature.decls.collectFirst {
             case m if m.isMethod && m.name.toString == n => m.asMethod
-          }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol"))
+          }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}"))
         }
 
       val enumValues = implsSeq
@@ -79,7 +78,10 @@ private[cactus] object ProtoVersion {
       val options = enumValues zip (implsSeq zip getters)
 
       val cases = options.map { case (enum, (ccl, getter)) =>
-        cq""" $enumClass.$enum => Good(${ccl.companion}.apply(wholeGpb.$getter))  """
+        val ctorType = getCtorParamType(c)(ccl)
+        val value = CactusMacros.convertIfNeeded(c)(getter.returnType, ctorType)(q"wholeGpb.$getter")
+
+        cq""" $enumClass.$enum => Good(${ccl.companion}.apply($value))  """
       } :+
         cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => Bad(One(OneOfValueNotSetFailure($name))) """
 
@@ -91,14 +93,14 @@ private[cactus] object ProtoVersion {
         }
        """
 
-      if (CactusMacros.Debug) println(s"ONE-OF converter from $gpbClassSymbol to $oneOfTypeSymbol: $f")
+      if (CactusMacros.Debug) println(s"ONE-OF converter from $gpbClassSymbol to ${classType.resultType}: $f")
 
       f
     }
 
     def newOneOfConverterToGpb(c: whitebox.Context)
                               (gpbType: c.universe.Type, gpbSetters: Iterable[c.universe.MethodSymbol])
-                              (field: c.universe.Tree, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+                              (oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
       import c.universe._
       import oneOfType._
 
@@ -118,17 +120,23 @@ private[cactus] object ProtoVersion {
             .getOrElse(c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol"))
         }
 
-      val fieldNames = implsSeq
+      val fields = implsSeq
         .map { t =>
           t.typeSignature.decls.collectFirst {
-            case m if m.isMethod && m.asMethod.isPrimaryConstructor => m.asMethod.paramLists.head.head.asTerm.name.toTermName
+            case m if m.isMethod && m.asMethod.isPrimaryConstructor => m.asMethod.paramLists.head.head
           }.getOrElse(c.abort(c.enclosingPosition, s"Could not extract value field name from $t, needed for ONE-OF $oneOfTypeSymbol"))
         }
 
-      val options = implsSeq zip (setters zip fieldNames)
+      val options = implsSeq zip (setters zip fields)
 
-      val cases = options.map { case (ccl, (setter, fieldName)) =>
-        cq" v: $ccl => builder.$setter(v.$fieldName)"
+      val cases = options.map { case (ccl, (setter, field)) =>
+        val fieldName = field.name.toTermName
+
+        val setterArgType = getParamType(c)(setter)
+
+        val value = CactusMacros.convertIfNeeded(c)(field.typeSignature, setterArgType)(q"v.$fieldName")
+
+        cq" v: $ccl => builder.$setter($value)"
       }
 
       val f =
@@ -155,4 +163,13 @@ private[cactus] object ProtoVersion {
     }
   }
 
+  private def getParamType(c: whitebox.Context)(setter: c.universe.MethodSymbol): c.universe.Type = {
+    setter.paramLists.head.head.typeSignature
+  }
+
+  private def getCtorParamType(c: whitebox.Context)(ccl: c.universe.ClassSymbol): c.universe.Type = {
+    ccl.typeSignature.decls.collectFirst {
+      case m if m.isMethod && m.asMethod.isPrimaryConstructor => getParamType(c)(m.asMethod)
+    }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate parameter of ctor for $ccl, it is probably a bug"))
+  }
 }

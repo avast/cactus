@@ -190,8 +190,6 @@ object CactusMacros {
 
       val conv = ProtoVersion.V3.newOneOfConverterToCaseClass(c)(gpbType, oneOfType)
 
-      // TODO support conversion of types inside ONE-OF impls
-
       // be able to change NOT_SET state to `None`, if the type is wrapped in `Option`
       oneOfType.classType.resultType.toString match {
         case OptPattern(_) => q""" ($conv($gpb)).map(Option(_)).recover( _=> None) """
@@ -429,9 +427,7 @@ object CactusMacros {
                             (field: c.universe.Tree, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
       import c.universe._
 
-      def conv(finalType: c.universe.Type) = ProtoVersion.V3.newOneOfConverterToGpb(c)(gpbType, gpbSetters)(field, oneOfType.copy(classType = finalType))
-
-      // TODO support conversion of types inside ONE-OF impls
+      def conv(finalType: c.universe.Type) = ProtoVersion.V3.newOneOfConverterToGpb(c)(gpbType, gpbSetters)(oneOfType.copy(classType = finalType))
 
       oneOfType.classType.resultType.toString match {
         case OptPattern(_) => q""" $field.foreach(${conv(oneOfType.classType.resultType.typeArgs.head)}) """
@@ -864,18 +860,18 @@ object CactusMacros {
     s.charAt(0).toUpper + s.substring(1)
   }
 
-  private def typesEqual(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): Boolean = {
+  private[cactus] def typesEqual(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): Boolean = {
     val srcTypeSymbol = srcType.typeSymbol
     val dstTypeSymbol = dstType.typeSymbol
 
     symbolsEqual(c)(srcTypeSymbol, dstTypeSymbol)
   }
 
-  private def symbolsEqual(c: whitebox.Context)(srcTypeSymbol: c.universe.Symbol, dstTypeSymbol: c.universe.Symbol): Boolean = {
+  private[cactus] def symbolsEqual(c: whitebox.Context)(srcTypeSymbol: c.universe.Symbol, dstTypeSymbol: c.universe.Symbol): Boolean = {
     srcTypeSymbol == dstTypeSymbol || (srcTypeSymbol.isClass && srcTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol))
   }
 
-  private def convertIfNeeded(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type)(value: c.Tree): c.Tree = {
+  private[cactus] def convertIfNeeded(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type)(value: c.Tree): c.Tree = {
     import c.universe._
 
     val srcTypeSymbol = srcType.typeSymbol

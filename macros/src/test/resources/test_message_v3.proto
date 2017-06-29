@@ -34,6 +34,7 @@ message Data3 {
     oneof named_one_of {
              int32      foo_int = 2;
              string     foo_string = 3;
+             bytes      foo_bytes = 4;
     }
 }
 
@@ -46,7 +47,7 @@ message Data4 {
 message Data5 {
     repeated Data2      field_gpb = 1;	  	                // REQUIRED
 
-    oneof named_one_of {
+    oneof named_one_of {                                    // OPTIONAL
              int32      foo_int = 2;
              string     foo_string = 3;
     }
