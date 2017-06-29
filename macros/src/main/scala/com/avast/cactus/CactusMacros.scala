@@ -191,6 +191,8 @@ object CactusMacros {
 
       val conv = ProtoVersion.V3.newOneOfConverter(c)(gpbType, oneOfClassType)(oneOfType)
 
+      // TODO support conversion of types inside ONE-OF impls
+
       // be able to change NOT_SET state to `None`, if the type is wrapped in `Option`
       oneOfClassType.resultType.toString match {
         case OptPattern(_) => q""" ($conv($gpb)).map(Option(_)).recover( _=> None) """
