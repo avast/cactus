@@ -716,7 +716,7 @@ object CactusMacros {
         case err if isProto3 => // give it one more chance, it can be ONE-OF
           if (Debug) println(s"Testing ${dstType.typeSymbol} to being a ONE-OF")
 
-          getOneOfType(c)(dstType, annotations).getOrElse {
+          getOneOfType(c)(upper, dstType, annotations).getOrElse {
             c.abort(c.enclosingPosition, err)
           }
       }.get // gets FieldType or stops the compilation in regular way
@@ -736,7 +736,7 @@ object CactusMacros {
     annotsTypes.zip(annotsParams).toMap
   }
 
-  private def getOneOfType(c: whitebox.Context)(fieldType: c.universe.Type, fieldAnnotations: AnnotationsMap): Option[FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]] = {
+  private def getOneOfType(c: whitebox.Context)(fieldNameUpper:String, fieldType: c.universe.Type, fieldAnnotations: AnnotationsMap): Option[FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]] = {
     import c.universe._
 
     val resultType = fieldType.resultType
@@ -747,7 +747,7 @@ object CactusMacros {
     }).typeSymbol.asType
 
     if (fieldTypeSymbol.isClass) {
-      ProtoVersion.V3.extractNameOfOneOf(c)(fieldTypeSymbol, fieldAnnotations)
+      ProtoVersion.V3.extractNameOfOneOf(c)(fieldNameUpper, fieldAnnotations)
         .flatMap { name =>
           val asClass = fieldTypeSymbol.asClass
 

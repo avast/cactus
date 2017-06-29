@@ -186,9 +186,9 @@ case class CaseClassA(fieldString: String,
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
-case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf("NamedOneOf") oneOfNamed: OneOfNamed2)
+case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf @GpbName("NamedOneOf") oneOfNamed: OneOfNamed2)
 
-case class CaseClassF(fieldGpb: Seq[CaseClassB], @GpbOneOf("NamedOneOf") oneOfNamed: Option[OneOfNamed])
+case class CaseClassF(fieldGpb: Seq[CaseClassB], @GpbOneOf namedOneOf: Option[OneOfNamed])
 
 sealed trait OneOfNamed
 

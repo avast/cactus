@@ -152,10 +152,15 @@ private[cactus] object ProtoVersion {
       f
     }
 
-    def extractNameOfOneOf(c: whitebox.Context)(typeSymbol: c.universe.TypeSymbol, fieldAnnotations: AnnotationsMap): Option[String] = {
-      fieldAnnotations.collectFirst {
-        case (name, params) if name == classOf[GpbOneOf].getName => params("value")
-      }
+    def extractNameOfOneOf(c: whitebox.Context)(fieldNameUpper: String, fieldAnnotations: AnnotationsMap): Option[String] = {
+      // has to be annotated with GpbOneOf and optionally with GpbName
+      if (fieldAnnotations.exists(_._1 == classOf[GpbOneOf].getName)) {
+        Option {
+          fieldAnnotations.collectFirst {
+            case (name, params) if name == classOf[GpbName].getName => params("value")
+          }.getOrElse(fieldNameUpper)
+        }
+      } else None
     }
 
     private def splitByUppers(s: String): Array[String] = {
