@@ -283,13 +283,13 @@ object CactusMacros {
               val srcKeyType = gpbGenType.member(getKeyField).asMethod.returnType
               val srcValueType = gpbGenType.member(getValueField).asMethod.returnType
 
-              val keyField = if (srcKeyType.typeSymbol == dstKeyType.typeSymbol || srcKeyType.baseClasses.contains(dstKeyType.typeSymbol)) {
+              val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
                 q" f.$getKeyField "
               } else {
                 q" CactusMacros.AToB[$srcKeyType, $dstKeyType](f.$getKeyField) "
               }
 
-              val valueField = if (srcValueType.typeSymbol == dstValueType.typeSymbol || srcValueType.baseClasses.contains(dstValueType.typeSymbol)) {
+              val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
                 q" f.$getValueField "
               } else {
                 q" CactusMacros.AToB[$srcValueType, $dstValueType](f.$getValueField) "
@@ -316,10 +316,10 @@ object CactusMacros {
               case (Some(dstTypeArg), srcTypeArgOpt) =>
                 val vectorTypeSymbol = typeOf[Vector[_]].typeSymbol
 
-                val toFinalCollection = if (dstTypeSymbol != vectorTypeSymbol && !vectorTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol)) {
-                  q" CactusMacros.AToB[Vector[$dstTypeArg],${dstTypeSymbol.name.toTypeName}[$dstTypeArg]] "
-                } else {
+                val toFinalCollection = if (symbolsEqual(c)(vectorTypeSymbol, dstTypeSymbol)) {
                   q" identity "
+                } else {
+                  q" CactusMacros.AToB[Vector[$dstTypeArg],${dstTypeSymbol.name.toTypeName}[$dstTypeArg]] "
                 }
 
                 val srcTypeArg = srcTypeArgOpt.getOrElse {
@@ -330,7 +330,7 @@ object CactusMacros {
                   }
                 }
 
-                if (srcTypeArg.typeSymbol == dstTypeArg.typeSymbol || srcTypeArg.baseClasses.contains(dstTypeArg.typeSymbol)) {
+                if (typesEqual(c)(srcTypeArg, dstTypeArg)) {
                   q" Good($toFinalCollection($getter.asScala.toVector)) "
                 } else {
                   val wrappedDstTypeArg = wrapDstType(c)(dstTypeArg)
@@ -365,15 +365,7 @@ object CactusMacros {
 
         case _ => // plain type
 
-          val value = if (srcTypeSymbol == dstTypeSymbol || srcResultType.baseClasses.contains(dstTypeSymbol)) {
-            q" $getter "
-          } else {
-            if (Debug) {
-              println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
-            }
-
-            q" CactusMacros.AToB[$srcResultType, $dstResultType]($getter) "
-          }
+          val value = convertIfNeeded(c)(srcResultType, dstResultType)(getter)
 
           query match {
             case Some(q) => q" if ($q) Good($value) else Bad(One(MissingFieldFailure($nameInGpb))) "
@@ -498,13 +490,13 @@ object CactusMacros {
               val dstKeyType = gpbGenType.member(getKeyField).asMethod.returnType
               val dstValueType = gpbGenType.member(getValueField).asMethod.returnType
 
-              val keyField = if (srcKeyType.typeSymbol == dstKeyType.typeSymbol || srcKeyType.baseClasses.contains(dstKeyType.typeSymbol)) {
+              val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
                 q" key "
               } else {
                 q" CactusMacros.AToB[$srcKeyType, $dstKeyType](key) "
               }
 
-              val valueField = if (srcValueType.typeSymbol == dstValueType.typeSymbol || srcValueType.baseClasses.contains(dstValueType.typeSymbol)) {
+              val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
                 q" value "
               } else {
                 q" CactusMacros.AToB[$srcValueType, $dstValueType](value) "
@@ -559,7 +551,7 @@ object CactusMacros {
                   }
                 }
 
-                if (srcTypeArg.typeSymbol == dstTypeArg.typeSymbol || srcTypeArg.baseClasses.contains(dstTypeArg.typeSymbol)) {
+                if (typesEqual(c)(srcTypeArg, dstTypeArg)) {
 
                   val javaIterable = if (srcTypeSymbol.name != TypeName("Array")) {
                     q" $field.asJava "
@@ -606,15 +598,7 @@ object CactusMacros {
 
         case _ => // plain type
 
-          val value = if (srcTypeSymbol == dstTypeSymbol || srcResultType.baseClasses.contains(dstTypeSymbol)) {
-            q" $field "
-          } else {
-            if (Debug) {
-              println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
-            }
-
-            q" CactusMacros.AToB[$srcResultType, $dstResultType]($field) "
-          }
+          val value = convertIfNeeded(c)(srcResultType, dstResultType)(field)
 
           q" $setter($value) "
       }
@@ -878,6 +862,34 @@ object CactusMacros {
 
   private def firstUpper(s: String): String = {
     s.charAt(0).toUpper + s.substring(1)
+  }
+
+  private def typesEqual(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): Boolean = {
+    val srcTypeSymbol = srcType.typeSymbol
+    val dstTypeSymbol = dstType.typeSymbol
+
+    symbolsEqual(c)(srcTypeSymbol, dstTypeSymbol)
+  }
+
+  private def symbolsEqual(c: whitebox.Context)(srcTypeSymbol: c.universe.Symbol, dstTypeSymbol: c.universe.Symbol): Boolean = {
+    srcTypeSymbol == dstTypeSymbol || (srcTypeSymbol.isClass && srcTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol))
+  }
+
+  private def convertIfNeeded(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type)(value: c.Tree): c.Tree = {
+    import c.universe._
+
+    val srcTypeSymbol = srcType.typeSymbol
+    val dstTypeSymbol = dstType.typeSymbol
+
+    if (typesEqual(c)(srcType, dstType)) {
+      q" $value "
+    } else {
+      if (Debug) {
+        println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
+      }
+
+      q" CactusMacros.AToB[$srcType, $dstType]($value) "
+    }
   }
 
   private[cactus] def newConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)
