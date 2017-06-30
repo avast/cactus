@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option java_package = "com.avast.cactus";
+
+message Data {
+             string     field_string = 1;                   // REQUIRED
+             int32      field_int_name = 2;                 // REQUIRED
+             int32      field_option = 3;                   // OPTIONAL
+    repeated string     field_strings = 4;                  // REQUIRED
+    repeated string     field_strings_name = 5;             // REQUIRED
+    repeated int32      field_option_integers = 6;          // OPTIONAL
+    repeated int32      field_option_integers_empty = 7;    // OPTIONAL
+             Data2      field_gpb_option = 8; 	            // OPTIONAL
+             Data2      field_gpb_option_empty = 9;         // OPTIONAL
+             Data2      field_gpb = 10;   		            // REQUIRED
+             bytes      field_blob = 11;                    // REQUIRED
+    repeated MapMessage field_map = 12;                     // OPTIONAL
+    repeated int32      field_integers2 = 13;               // REQUIRED
+    repeated MapMessage field_map2 = 14;                    // OPTIONAL
+    repeated Data2      field_gpb_repeated = 15;            // OPTIONAL
+    repeated Data3      field_gpb2_repeated_recurse = 16;   // OPTIONAL
+             Data2      field_gpb2 = 17;   		            // REQUIRED
+             Data5      field_gpb3 = 18;   		            // REQUIRED
+}
+
+message Data2 {
+             double     field_double = 1;	  	            // REQUIRED
+             bytes      field_blob = 2;	                    // REQUIRED
+}
+
+message Data3 {
+    repeated Data2      field_gpb = 1;	  	                // REQUIRED
+
+    oneof named_one_of {
+             int32      foo_int = 2;
+             string     foo_string = 3;
+             bytes      foo_bytes = 4;
+    }
+}
+
+message Data4 {
+             string     fieldString = 1;                    // REQUIRED
+             string     field_option = 2;                   // OPTIONAL
+}
+
+
+message Data5 {
+    repeated Data2      field_gpb = 1;	  	                // REQUIRED
+
+    oneof named_one_of {                                    // OPTIONAL
+             int32      foo_int = 2;
+             string     foo_string = 3;
+    }
+}
+
+message MapMessage {
+             string key = 1;                                // REQUIRED
+             string value = 2;                              // REQUIRED
+             string other = 3;                              // OPTIONAL
+}

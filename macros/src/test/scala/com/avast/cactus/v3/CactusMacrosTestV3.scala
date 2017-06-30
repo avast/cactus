@@ -1,6 +1,7 @@
-package com.avast.cactus
+package com.avast.cactus.v3
 
-import com.avast.cactus.TestMessage._
+import com.avast.cactus.TestMessageV3._
+import com.avast.cactus._
 import com.google.protobuf.ByteString
 import org.scalactic.{Bad, Good}
 import org.scalatest.FunSuite
@@ -8,7 +9,7 @@ import org.scalatest.FunSuite
 import scala.collection.JavaConverters._
 import scala.collection.immutable
 
-class CactusMacrosTest extends FunSuite {
+class CactusMacrosTestV3 extends FunSuite {
 
   // user specified converters
   implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))
@@ -28,9 +29,11 @@ class CactusMacrosTest extends FunSuite {
   implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
 
   test("GPB to case class") {
+    val text = "textěščřžýáíé"
+
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
-      .setFieldBlob(ByteString.copyFromUtf8("text"))
+      .setFieldBlob(ByteString.copyFromUtf8(text))
       .build()
 
     val map = Map("first" -> "1", "second" -> "2")
@@ -38,28 +41,31 @@ class CactusMacrosTest extends FunSuite {
 
     val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
 
-    val gpb = TestMessage.Data.newBuilder()
-      .setField("ahoj")
+    val gpb = TestMessageV3.Data.newBuilder()
+      .setFieldString("ahoj")
       .setFieldIntName(9)
-      //.setFieldOption(13) -> will become None
+      //.setFieldOption(13) -> will have 0 value
       .setFieldBlob(ByteString.EMPTY)
       .setFieldGpb(gpbInternal)
+      .setFieldGpb2(gpbInternal)
+      .setFieldGpb3(Data5.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
       .setFieldGpbOption(gpbInternal)
       .addAllFieldGpbRepeated(dataRepeated.asJava)
-      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
+      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).setFooInt(9).build())
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
-      .addAllFieldMap(map.map { case (key, value) => TestMessage.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
-      .addAllFieldMap2(map.map { case (key, value) => TestMessage.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
+      .addAllFieldMap(map.map { case (key, value) => TestMessageV3.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
+      .addAllFieldMap2(map.map { case (key, value) => TestMessageV3.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
       .build()
 
-    val caseClassB = CaseClassB(0.9, "text")
+    val caseClassB = CaseClassB(0.9, text)
 
-    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed2.FooInt(9)))
+    val caseClassF = CaseClassF(Seq(caseClassB, caseClassB, caseClassB), None)
 
-    val expected = CaseClassA("ahoj", 9, None, ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val expected = CaseClassA("ahoj", 9, Some(0), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
 
     assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
   }
@@ -71,19 +77,18 @@ class CactusMacrosTest extends FunSuite {
       .build()
 
     // fields commented out are REQUIRED
-    val gpb = TestMessage.Data.newBuilder()
-      //      .setField("ahoj")
-      //      .setFieldIntName(9)
+    val gpb = TestMessageV3.Data.newBuilder()
       .setFieldOption(13)
       .setFieldBlob(ByteString.EMPTY)
-      .setFieldGpb(gpbInternal)
+      //      .setFieldGpb(gpbInternal)
       .setFieldGpbOption(gpbInternal)
-      //      .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
+      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().build())
+      .setFieldGpb3(Data5.newBuilder().build())
       .build()
 
-    val expected = List("field", "fieldIntName").map(MissingFieldFailure).sortBy(_.toString)
+    val expected = List("fieldGpb", "fieldGpb2").map(MissingFieldFailure).sortBy(_.toString) :+ OneOfValueNotSetFailure("NamedOneOf")
 
     gpb.asCaseClass[CaseClassA] match {
       case Bad(e) =>
@@ -99,9 +104,10 @@ class CactusMacrosTest extends FunSuite {
 
     val caseClassB = CaseClassB(0.9, "text")
 
-    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed2.FooInt(9)))
+    val caseClassF = CaseClassF(Seq(caseClassB, caseClassB, caseClassB), None)
 
-    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
 
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
@@ -110,20 +116,22 @@ class CactusMacrosTest extends FunSuite {
 
     val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
 
-    val expectedGpb = TestMessage.Data.newBuilder()
-      .setField("ahoj")
+    val expectedGpb = TestMessageV3.Data.newBuilder()
+      .setFieldString("ahoj")
       .setFieldIntName(9)
       .setFieldOption(13)
       .setFieldBlob(ByteString.EMPTY)
       .setFieldGpb(gpbInternal)
+      .setFieldGpb2(gpbInternal)
+      .setFieldGpb3(Data5.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
       .setFieldGpbOption(gpbInternal)
       .addAllFieldGpbRepeated(dataRepeated.asJava)
-      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
+      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).setFooInt(9).build())
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
-      .addAllFieldMap(map.map { case (key, value) => TestMessage.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
-      .addAllFieldMap2(map2.map { case (key, value) => TestMessage.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
+      .addAllFieldMap(map.map { case (key, value) => TestMessageV3.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
+      .addAllFieldMap2(map2.map { case (key, value) => TestMessageV3.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
       .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
       .build()
 
@@ -143,7 +151,7 @@ class CactusMacrosTest extends FunSuite {
   }
 
   test("convert case class with ignored field to GPB and back") {
-    val original = CaseClassE(field = "ahoj", fieldOption = Some("ahoj2"))
+    val original = CaseClassE(fieldString = "ahoj", fieldOption = Some("ahoj2"))
 
     val Good(converted) = original.asGpb[Data4]
 
@@ -151,7 +159,7 @@ class CactusMacrosTest extends FunSuite {
   }
 }
 
-case class CaseClassA(field: String,
+case class CaseClassA(fieldString: String,
                       @GpbName("fieldIntName")
                       fieldInt: Int,
                       fieldOption: Option[Int],
@@ -159,6 +167,8 @@ case class CaseClassA(field: String,
                       @GpbName("fieldStringsName")
                       fieldStrings2: List[String],
                       fieldGpb: CaseClassB,
+                      fieldGpb2: CaseClassB,
+                      fieldGpb3: CaseClassF,
                       fieldGpbOption: Option[CaseClassB],
                       fieldGpbOptionEmpty: Option[CaseClassB],
                       fieldGpbRepeated: Seq[CaseClassB],
@@ -176,9 +186,34 @@ case class CaseClassA(field: String,
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
-case class CaseClassD(fieldGpb: Seq[CaseClassB])
+case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf @GpbName("NamedOneOf") oneOfNamed: OneOfNamed2)
 
-case class CaseClassC(field: StringWrapperClass,
+case class CaseClassF(fieldGpb: Seq[CaseClassB], @GpbOneOf namedOneOf: Option[OneOfNamed])
+
+sealed trait OneOfNamed
+
+object OneOfNamed {
+
+  case class FooInt(value: Int) extends OneOfNamed
+
+  case class FooString(value: String) extends OneOfNamed
+
+}
+
+
+sealed trait OneOfNamed2
+
+object OneOfNamed2 {
+
+  case class FooInt(value: Int) extends OneOfNamed2
+
+  case class FooString(value: String) extends OneOfNamed2
+
+  case class FooBytes(value: String) extends OneOfNamed2
+
+}
+
+case class CaseClassC(fieldString: StringWrapperClass,
                       @GpbName("fieldIntName")
                       fieldInt: Int,
                       fieldOption: Option[Int],
@@ -197,7 +232,7 @@ case class CaseClassC(field: StringWrapperClass,
   // needed because of the array
   override def equals(obj: scala.Any): Boolean = obj match {
     case that: CaseClassC =>
-      field == that.field &&
+      fieldString == that.fieldString &&
         fieldInt == that.fieldInt &&
         fieldOption == that.fieldOption &&
         fieldBlob == that.fieldBlob &&
@@ -215,7 +250,7 @@ case class CaseClassC(field: StringWrapperClass,
 }
 
 // the `fieldIgnored` field is very unusually placed, but it has to be tested too...
-case class CaseClassE(field: String, @GpbIgnored fieldIgnored: String = "hello", fieldOption: Option[String], @GpbIgnored fieldIgnored2: String = "hello")
+case class CaseClassE(fieldString: String, @GpbIgnored fieldIgnored: String = "hello", fieldOption: Option[String], @GpbIgnored fieldIgnored2: String = "hello")
 
 case class StringWrapperClass(value: String)
 
