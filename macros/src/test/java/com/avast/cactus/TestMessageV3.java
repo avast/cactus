@@ -9783,6 +9783,2323 @@ public final class TestMessageV3 {
 
   }
 
+  public interface ExtensionsMessageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:ExtensionsMessage)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+     */
+    boolean hasBoolValue();
+    /**
+     * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+     */
+    com.google.protobuf.BoolValue getBoolValue();
+    /**
+     * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+     */
+    com.google.protobuf.BoolValueOrBuilder getBoolValueOrBuilder();
+
+    /**
+     * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+     */
+    boolean hasInt32Value();
+    /**
+     * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+     */
+    com.google.protobuf.Int32Value getInt32Value();
+    /**
+     * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+     */
+    com.google.protobuf.Int32ValueOrBuilder getInt32ValueOrBuilder();
+
+    /**
+     * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+     */
+    boolean hasInt64Value();
+    /**
+     * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+     */
+    com.google.protobuf.Int64Value getInt64Value();
+    /**
+     * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+     */
+    com.google.protobuf.Int64ValueOrBuilder getInt64ValueOrBuilder();
+
+    /**
+     * <code>.google.protobuf.FloatValue float_value = 6;</code>
+     */
+    boolean hasFloatValue();
+    /**
+     * <code>.google.protobuf.FloatValue float_value = 6;</code>
+     */
+    com.google.protobuf.FloatValue getFloatValue();
+    /**
+     * <code>.google.protobuf.FloatValue float_value = 6;</code>
+     */
+    com.google.protobuf.FloatValueOrBuilder getFloatValueOrBuilder();
+
+    /**
+     * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+     */
+    boolean hasDoubleValue();
+    /**
+     * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+     */
+    com.google.protobuf.DoubleValue getDoubleValue();
+    /**
+     * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+     */
+    com.google.protobuf.DoubleValueOrBuilder getDoubleValueOrBuilder();
+
+    /**
+     * <code>.google.protobuf.StringValue string_value = 8;</code>
+     */
+    boolean hasStringValue();
+    /**
+     * <code>.google.protobuf.StringValue string_value = 8;</code>
+     */
+    com.google.protobuf.StringValue getStringValue();
+    /**
+     * <code>.google.protobuf.StringValue string_value = 8;</code>
+     */
+    com.google.protobuf.StringValueOrBuilder getStringValueOrBuilder();
+
+    /**
+     * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+     */
+    boolean hasBytesValue();
+    /**
+     * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+     */
+    com.google.protobuf.BytesValue getBytesValue();
+    /**
+     * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+     */
+    com.google.protobuf.BytesValueOrBuilder getBytesValueOrBuilder();
+
+    /**
+     * <code>.google.protobuf.Duration duration = 10;</code>
+     */
+    boolean hasDuration();
+    /**
+     * <code>.google.protobuf.Duration duration = 10;</code>
+     */
+    com.google.protobuf.Duration getDuration();
+    /**
+     * <code>.google.protobuf.Duration duration = 10;</code>
+     */
+    com.google.protobuf.DurationOrBuilder getDurationOrBuilder();
+
+    /**
+     * <code>.google.protobuf.ListValue list_value = 11;</code>
+     */
+    boolean hasListValue();
+    /**
+     * <code>.google.protobuf.ListValue list_value = 11;</code>
+     */
+    com.google.protobuf.ListValue getListValue();
+    /**
+     * <code>.google.protobuf.ListValue list_value = 11;</code>
+     */
+    com.google.protobuf.ListValueOrBuilder getListValueOrBuilder();
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+     */
+    com.google.protobuf.TimestampOrBuilder getTimestampOrBuilder();
+  }
+  /**
+   * Protobuf type {@code ExtensionsMessage}
+   */
+  public  static final class ExtensionsMessage extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:ExtensionsMessage)
+      ExtensionsMessageOrBuilder {
+    // Use ExtensionsMessage.newBuilder() to construct.
+    private ExtensionsMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private ExtensionsMessage() {
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private ExtensionsMessage(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.BoolValue.Builder subBuilder = null;
+              if (boolValue_ != null) {
+                subBuilder = boolValue_.toBuilder();
+              }
+              boolValue_ = input.readMessage(com.google.protobuf.BoolValue.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(boolValue_);
+                boolValue_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 18: {
+              com.google.protobuf.Int32Value.Builder subBuilder = null;
+              if (int32Value_ != null) {
+                subBuilder = int32Value_.toBuilder();
+              }
+              int32Value_ = input.readMessage(com.google.protobuf.Int32Value.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(int32Value_);
+                int32Value_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 26: {
+              com.google.protobuf.Int64Value.Builder subBuilder = null;
+              if (int64Value_ != null) {
+                subBuilder = int64Value_.toBuilder();
+              }
+              int64Value_ = input.readMessage(com.google.protobuf.Int64Value.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(int64Value_);
+                int64Value_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 50: {
+              com.google.protobuf.FloatValue.Builder subBuilder = null;
+              if (floatValue_ != null) {
+                subBuilder = floatValue_.toBuilder();
+              }
+              floatValue_ = input.readMessage(com.google.protobuf.FloatValue.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(floatValue_);
+                floatValue_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 58: {
+              com.google.protobuf.DoubleValue.Builder subBuilder = null;
+              if (doubleValue_ != null) {
+                subBuilder = doubleValue_.toBuilder();
+              }
+              doubleValue_ = input.readMessage(com.google.protobuf.DoubleValue.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(doubleValue_);
+                doubleValue_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 66: {
+              com.google.protobuf.StringValue.Builder subBuilder = null;
+              if (stringValue_ != null) {
+                subBuilder = stringValue_.toBuilder();
+              }
+              stringValue_ = input.readMessage(com.google.protobuf.StringValue.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(stringValue_);
+                stringValue_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 74: {
+              com.google.protobuf.BytesValue.Builder subBuilder = null;
+              if (bytesValue_ != null) {
+                subBuilder = bytesValue_.toBuilder();
+              }
+              bytesValue_ = input.readMessage(com.google.protobuf.BytesValue.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(bytesValue_);
+                bytesValue_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 82: {
+              com.google.protobuf.Duration.Builder subBuilder = null;
+              if (duration_ != null) {
+                subBuilder = duration_.toBuilder();
+              }
+              duration_ = input.readMessage(com.google.protobuf.Duration.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(duration_);
+                duration_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 90: {
+              com.google.protobuf.ListValue.Builder subBuilder = null;
+              if (listValue_ != null) {
+                subBuilder = listValue_.toBuilder();
+              }
+              listValue_ = input.readMessage(com.google.protobuf.ListValue.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(listValue_);
+                listValue_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 98: {
+              com.google.protobuf.Timestamp.Builder subBuilder = null;
+              if (timestamp_ != null) {
+                subBuilder = timestamp_.toBuilder();
+              }
+              timestamp_ = input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(timestamp_);
+                timestamp_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.avast.cactus.TestMessageV3.internal_static_ExtensionsMessage_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.avast.cactus.TestMessageV3.internal_static_ExtensionsMessage_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.avast.cactus.TestMessageV3.ExtensionsMessage.class, com.avast.cactus.TestMessageV3.ExtensionsMessage.Builder.class);
+    }
+
+    public static final int BOOL_VALUE_FIELD_NUMBER = 1;
+    private com.google.protobuf.BoolValue boolValue_;
+    /**
+     * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+     */
+    public boolean hasBoolValue() {
+      return boolValue_ != null;
+    }
+    /**
+     * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+     */
+    public com.google.protobuf.BoolValue getBoolValue() {
+      return boolValue_ == null ? com.google.protobuf.BoolValue.getDefaultInstance() : boolValue_;
+    }
+    /**
+     * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+     */
+    public com.google.protobuf.BoolValueOrBuilder getBoolValueOrBuilder() {
+      return getBoolValue();
+    }
+
+    public static final int INT32_VALUE_FIELD_NUMBER = 2;
+    private com.google.protobuf.Int32Value int32Value_;
+    /**
+     * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+     */
+    public boolean hasInt32Value() {
+      return int32Value_ != null;
+    }
+    /**
+     * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+     */
+    public com.google.protobuf.Int32Value getInt32Value() {
+      return int32Value_ == null ? com.google.protobuf.Int32Value.getDefaultInstance() : int32Value_;
+    }
+    /**
+     * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+     */
+    public com.google.protobuf.Int32ValueOrBuilder getInt32ValueOrBuilder() {
+      return getInt32Value();
+    }
+
+    public static final int INT64_VALUE_FIELD_NUMBER = 3;
+    private com.google.protobuf.Int64Value int64Value_;
+    /**
+     * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+     */
+    public boolean hasInt64Value() {
+      return int64Value_ != null;
+    }
+    /**
+     * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+     */
+    public com.google.protobuf.Int64Value getInt64Value() {
+      return int64Value_ == null ? com.google.protobuf.Int64Value.getDefaultInstance() : int64Value_;
+    }
+    /**
+     * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+     */
+    public com.google.protobuf.Int64ValueOrBuilder getInt64ValueOrBuilder() {
+      return getInt64Value();
+    }
+
+    public static final int FLOAT_VALUE_FIELD_NUMBER = 6;
+    private com.google.protobuf.FloatValue floatValue_;
+    /**
+     * <code>.google.protobuf.FloatValue float_value = 6;</code>
+     */
+    public boolean hasFloatValue() {
+      return floatValue_ != null;
+    }
+    /**
+     * <code>.google.protobuf.FloatValue float_value = 6;</code>
+     */
+    public com.google.protobuf.FloatValue getFloatValue() {
+      return floatValue_ == null ? com.google.protobuf.FloatValue.getDefaultInstance() : floatValue_;
+    }
+    /**
+     * <code>.google.protobuf.FloatValue float_value = 6;</code>
+     */
+    public com.google.protobuf.FloatValueOrBuilder getFloatValueOrBuilder() {
+      return getFloatValue();
+    }
+
+    public static final int DOUBLE_VALUE_FIELD_NUMBER = 7;
+    private com.google.protobuf.DoubleValue doubleValue_;
+    /**
+     * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+     */
+    public boolean hasDoubleValue() {
+      return doubleValue_ != null;
+    }
+    /**
+     * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+     */
+    public com.google.protobuf.DoubleValue getDoubleValue() {
+      return doubleValue_ == null ? com.google.protobuf.DoubleValue.getDefaultInstance() : doubleValue_;
+    }
+    /**
+     * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+     */
+    public com.google.protobuf.DoubleValueOrBuilder getDoubleValueOrBuilder() {
+      return getDoubleValue();
+    }
+
+    public static final int STRING_VALUE_FIELD_NUMBER = 8;
+    private com.google.protobuf.StringValue stringValue_;
+    /**
+     * <code>.google.protobuf.StringValue string_value = 8;</code>
+     */
+    public boolean hasStringValue() {
+      return stringValue_ != null;
+    }
+    /**
+     * <code>.google.protobuf.StringValue string_value = 8;</code>
+     */
+    public com.google.protobuf.StringValue getStringValue() {
+      return stringValue_ == null ? com.google.protobuf.StringValue.getDefaultInstance() : stringValue_;
+    }
+    /**
+     * <code>.google.protobuf.StringValue string_value = 8;</code>
+     */
+    public com.google.protobuf.StringValueOrBuilder getStringValueOrBuilder() {
+      return getStringValue();
+    }
+
+    public static final int BYTES_VALUE_FIELD_NUMBER = 9;
+    private com.google.protobuf.BytesValue bytesValue_;
+    /**
+     * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+     */
+    public boolean hasBytesValue() {
+      return bytesValue_ != null;
+    }
+    /**
+     * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+     */
+    public com.google.protobuf.BytesValue getBytesValue() {
+      return bytesValue_ == null ? com.google.protobuf.BytesValue.getDefaultInstance() : bytesValue_;
+    }
+    /**
+     * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+     */
+    public com.google.protobuf.BytesValueOrBuilder getBytesValueOrBuilder() {
+      return getBytesValue();
+    }
+
+    public static final int DURATION_FIELD_NUMBER = 10;
+    private com.google.protobuf.Duration duration_;
+    /**
+     * <code>.google.protobuf.Duration duration = 10;</code>
+     */
+    public boolean hasDuration() {
+      return duration_ != null;
+    }
+    /**
+     * <code>.google.protobuf.Duration duration = 10;</code>
+     */
+    public com.google.protobuf.Duration getDuration() {
+      return duration_ == null ? com.google.protobuf.Duration.getDefaultInstance() : duration_;
+    }
+    /**
+     * <code>.google.protobuf.Duration duration = 10;</code>
+     */
+    public com.google.protobuf.DurationOrBuilder getDurationOrBuilder() {
+      return getDuration();
+    }
+
+    public static final int LIST_VALUE_FIELD_NUMBER = 11;
+    private com.google.protobuf.ListValue listValue_;
+    /**
+     * <code>.google.protobuf.ListValue list_value = 11;</code>
+     */
+    public boolean hasListValue() {
+      return listValue_ != null;
+    }
+    /**
+     * <code>.google.protobuf.ListValue list_value = 11;</code>
+     */
+    public com.google.protobuf.ListValue getListValue() {
+      return listValue_ == null ? com.google.protobuf.ListValue.getDefaultInstance() : listValue_;
+    }
+    /**
+     * <code>.google.protobuf.ListValue list_value = 11;</code>
+     */
+    public com.google.protobuf.ListValueOrBuilder getListValueOrBuilder() {
+      return getListValue();
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 12;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+     */
+    public boolean hasTimestamp() {
+      return timestamp_ != null;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+     */
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+     */
+    public com.google.protobuf.TimestampOrBuilder getTimestampOrBuilder() {
+      return getTimestamp();
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (boolValue_ != null) {
+        output.writeMessage(1, getBoolValue());
+      }
+      if (int32Value_ != null) {
+        output.writeMessage(2, getInt32Value());
+      }
+      if (int64Value_ != null) {
+        output.writeMessage(3, getInt64Value());
+      }
+      if (floatValue_ != null) {
+        output.writeMessage(6, getFloatValue());
+      }
+      if (doubleValue_ != null) {
+        output.writeMessage(7, getDoubleValue());
+      }
+      if (stringValue_ != null) {
+        output.writeMessage(8, getStringValue());
+      }
+      if (bytesValue_ != null) {
+        output.writeMessage(9, getBytesValue());
+      }
+      if (duration_ != null) {
+        output.writeMessage(10, getDuration());
+      }
+      if (listValue_ != null) {
+        output.writeMessage(11, getListValue());
+      }
+      if (timestamp_ != null) {
+        output.writeMessage(12, getTimestamp());
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (boolValue_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, getBoolValue());
+      }
+      if (int32Value_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, getInt32Value());
+      }
+      if (int64Value_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, getInt64Value());
+      }
+      if (floatValue_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(6, getFloatValue());
+      }
+      if (doubleValue_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, getDoubleValue());
+      }
+      if (stringValue_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(8, getStringValue());
+      }
+      if (bytesValue_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(9, getBytesValue());
+      }
+      if (duration_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(10, getDuration());
+      }
+      if (listValue_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(11, getListValue());
+      }
+      if (timestamp_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(12, getTimestamp());
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.avast.cactus.TestMessageV3.ExtensionsMessage)) {
+        return super.equals(obj);
+      }
+      com.avast.cactus.TestMessageV3.ExtensionsMessage other = (com.avast.cactus.TestMessageV3.ExtensionsMessage) obj;
+
+      boolean result = true;
+      result = result && (hasBoolValue() == other.hasBoolValue());
+      if (hasBoolValue()) {
+        result = result && getBoolValue()
+            .equals(other.getBoolValue());
+      }
+      result = result && (hasInt32Value() == other.hasInt32Value());
+      if (hasInt32Value()) {
+        result = result && getInt32Value()
+            .equals(other.getInt32Value());
+      }
+      result = result && (hasInt64Value() == other.hasInt64Value());
+      if (hasInt64Value()) {
+        result = result && getInt64Value()
+            .equals(other.getInt64Value());
+      }
+      result = result && (hasFloatValue() == other.hasFloatValue());
+      if (hasFloatValue()) {
+        result = result && getFloatValue()
+            .equals(other.getFloatValue());
+      }
+      result = result && (hasDoubleValue() == other.hasDoubleValue());
+      if (hasDoubleValue()) {
+        result = result && getDoubleValue()
+            .equals(other.getDoubleValue());
+      }
+      result = result && (hasStringValue() == other.hasStringValue());
+      if (hasStringValue()) {
+        result = result && getStringValue()
+            .equals(other.getStringValue());
+      }
+      result = result && (hasBytesValue() == other.hasBytesValue());
+      if (hasBytesValue()) {
+        result = result && getBytesValue()
+            .equals(other.getBytesValue());
+      }
+      result = result && (hasDuration() == other.hasDuration());
+      if (hasDuration()) {
+        result = result && getDuration()
+            .equals(other.getDuration());
+      }
+      result = result && (hasListValue() == other.hasListValue());
+      if (hasListValue()) {
+        result = result && getListValue()
+            .equals(other.getListValue());
+      }
+      result = result && (hasTimestamp() == other.hasTimestamp());
+      if (hasTimestamp()) {
+        result = result && getTimestamp()
+            .equals(other.getTimestamp());
+      }
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasBoolValue()) {
+        hash = (37 * hash) + BOOL_VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getBoolValue().hashCode();
+      }
+      if (hasInt32Value()) {
+        hash = (37 * hash) + INT32_VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getInt32Value().hashCode();
+      }
+      if (hasInt64Value()) {
+        hash = (37 * hash) + INT64_VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getInt64Value().hashCode();
+      }
+      if (hasFloatValue()) {
+        hash = (37 * hash) + FLOAT_VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getFloatValue().hashCode();
+      }
+      if (hasDoubleValue()) {
+        hash = (37 * hash) + DOUBLE_VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getDoubleValue().hashCode();
+      }
+      if (hasStringValue()) {
+        hash = (37 * hash) + STRING_VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getStringValue().hashCode();
+      }
+      if (hasBytesValue()) {
+        hash = (37 * hash) + BYTES_VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getBytesValue().hashCode();
+      }
+      if (hasDuration()) {
+        hash = (37 * hash) + DURATION_FIELD_NUMBER;
+        hash = (53 * hash) + getDuration().hashCode();
+      }
+      if (hasListValue()) {
+        hash = (37 * hash) + LIST_VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getListValue().hashCode();
+      }
+      if (hasTimestamp()) {
+        hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
+        hash = (53 * hash) + getTimestamp().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.avast.cactus.TestMessageV3.ExtensionsMessage prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code ExtensionsMessage}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:ExtensionsMessage)
+        com.avast.cactus.TestMessageV3.ExtensionsMessageOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.avast.cactus.TestMessageV3.internal_static_ExtensionsMessage_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.avast.cactus.TestMessageV3.internal_static_ExtensionsMessage_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.avast.cactus.TestMessageV3.ExtensionsMessage.class, com.avast.cactus.TestMessageV3.ExtensionsMessage.Builder.class);
+      }
+
+      // Construct using com.avast.cactus.TestMessageV3.ExtensionsMessage.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (boolValueBuilder_ == null) {
+          boolValue_ = null;
+        } else {
+          boolValue_ = null;
+          boolValueBuilder_ = null;
+        }
+        if (int32ValueBuilder_ == null) {
+          int32Value_ = null;
+        } else {
+          int32Value_ = null;
+          int32ValueBuilder_ = null;
+        }
+        if (int64ValueBuilder_ == null) {
+          int64Value_ = null;
+        } else {
+          int64Value_ = null;
+          int64ValueBuilder_ = null;
+        }
+        if (floatValueBuilder_ == null) {
+          floatValue_ = null;
+        } else {
+          floatValue_ = null;
+          floatValueBuilder_ = null;
+        }
+        if (doubleValueBuilder_ == null) {
+          doubleValue_ = null;
+        } else {
+          doubleValue_ = null;
+          doubleValueBuilder_ = null;
+        }
+        if (stringValueBuilder_ == null) {
+          stringValue_ = null;
+        } else {
+          stringValue_ = null;
+          stringValueBuilder_ = null;
+        }
+        if (bytesValueBuilder_ == null) {
+          bytesValue_ = null;
+        } else {
+          bytesValue_ = null;
+          bytesValueBuilder_ = null;
+        }
+        if (durationBuilder_ == null) {
+          duration_ = null;
+        } else {
+          duration_ = null;
+          durationBuilder_ = null;
+        }
+        if (listValueBuilder_ == null) {
+          listValue_ = null;
+        } else {
+          listValue_ = null;
+          listValueBuilder_ = null;
+        }
+        if (timestampBuilder_ == null) {
+          timestamp_ = null;
+        } else {
+          timestamp_ = null;
+          timestampBuilder_ = null;
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.avast.cactus.TestMessageV3.internal_static_ExtensionsMessage_descriptor;
+      }
+
+      public com.avast.cactus.TestMessageV3.ExtensionsMessage getDefaultInstanceForType() {
+        return com.avast.cactus.TestMessageV3.ExtensionsMessage.getDefaultInstance();
+      }
+
+      public com.avast.cactus.TestMessageV3.ExtensionsMessage build() {
+        com.avast.cactus.TestMessageV3.ExtensionsMessage result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.avast.cactus.TestMessageV3.ExtensionsMessage buildPartial() {
+        com.avast.cactus.TestMessageV3.ExtensionsMessage result = new com.avast.cactus.TestMessageV3.ExtensionsMessage(this);
+        if (boolValueBuilder_ == null) {
+          result.boolValue_ = boolValue_;
+        } else {
+          result.boolValue_ = boolValueBuilder_.build();
+        }
+        if (int32ValueBuilder_ == null) {
+          result.int32Value_ = int32Value_;
+        } else {
+          result.int32Value_ = int32ValueBuilder_.build();
+        }
+        if (int64ValueBuilder_ == null) {
+          result.int64Value_ = int64Value_;
+        } else {
+          result.int64Value_ = int64ValueBuilder_.build();
+        }
+        if (floatValueBuilder_ == null) {
+          result.floatValue_ = floatValue_;
+        } else {
+          result.floatValue_ = floatValueBuilder_.build();
+        }
+        if (doubleValueBuilder_ == null) {
+          result.doubleValue_ = doubleValue_;
+        } else {
+          result.doubleValue_ = doubleValueBuilder_.build();
+        }
+        if (stringValueBuilder_ == null) {
+          result.stringValue_ = stringValue_;
+        } else {
+          result.stringValue_ = stringValueBuilder_.build();
+        }
+        if (bytesValueBuilder_ == null) {
+          result.bytesValue_ = bytesValue_;
+        } else {
+          result.bytesValue_ = bytesValueBuilder_.build();
+        }
+        if (durationBuilder_ == null) {
+          result.duration_ = duration_;
+        } else {
+          result.duration_ = durationBuilder_.build();
+        }
+        if (listValueBuilder_ == null) {
+          result.listValue_ = listValue_;
+        } else {
+          result.listValue_ = listValueBuilder_.build();
+        }
+        if (timestampBuilder_ == null) {
+          result.timestamp_ = timestamp_;
+        } else {
+          result.timestamp_ = timestampBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.avast.cactus.TestMessageV3.ExtensionsMessage) {
+          return mergeFrom((com.avast.cactus.TestMessageV3.ExtensionsMessage)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.avast.cactus.TestMessageV3.ExtensionsMessage other) {
+        if (other == com.avast.cactus.TestMessageV3.ExtensionsMessage.getDefaultInstance()) return this;
+        if (other.hasBoolValue()) {
+          mergeBoolValue(other.getBoolValue());
+        }
+        if (other.hasInt32Value()) {
+          mergeInt32Value(other.getInt32Value());
+        }
+        if (other.hasInt64Value()) {
+          mergeInt64Value(other.getInt64Value());
+        }
+        if (other.hasFloatValue()) {
+          mergeFloatValue(other.getFloatValue());
+        }
+        if (other.hasDoubleValue()) {
+          mergeDoubleValue(other.getDoubleValue());
+        }
+        if (other.hasStringValue()) {
+          mergeStringValue(other.getStringValue());
+        }
+        if (other.hasBytesValue()) {
+          mergeBytesValue(other.getBytesValue());
+        }
+        if (other.hasDuration()) {
+          mergeDuration(other.getDuration());
+        }
+        if (other.hasListValue()) {
+          mergeListValue(other.getListValue());
+        }
+        if (other.hasTimestamp()) {
+          mergeTimestamp(other.getTimestamp());
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.avast.cactus.TestMessageV3.ExtensionsMessage parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.avast.cactus.TestMessageV3.ExtensionsMessage) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private com.google.protobuf.BoolValue boolValue_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.BoolValue, com.google.protobuf.BoolValue.Builder, com.google.protobuf.BoolValueOrBuilder> boolValueBuilder_;
+      /**
+       * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+       */
+      public boolean hasBoolValue() {
+        return boolValueBuilder_ != null || boolValue_ != null;
+      }
+      /**
+       * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+       */
+      public com.google.protobuf.BoolValue getBoolValue() {
+        if (boolValueBuilder_ == null) {
+          return boolValue_ == null ? com.google.protobuf.BoolValue.getDefaultInstance() : boolValue_;
+        } else {
+          return boolValueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+       */
+      public Builder setBoolValue(com.google.protobuf.BoolValue value) {
+        if (boolValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          boolValue_ = value;
+          onChanged();
+        } else {
+          boolValueBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+       */
+      public Builder setBoolValue(
+          com.google.protobuf.BoolValue.Builder builderForValue) {
+        if (boolValueBuilder_ == null) {
+          boolValue_ = builderForValue.build();
+          onChanged();
+        } else {
+          boolValueBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+       */
+      public Builder mergeBoolValue(com.google.protobuf.BoolValue value) {
+        if (boolValueBuilder_ == null) {
+          if (boolValue_ != null) {
+            boolValue_ =
+              com.google.protobuf.BoolValue.newBuilder(boolValue_).mergeFrom(value).buildPartial();
+          } else {
+            boolValue_ = value;
+          }
+          onChanged();
+        } else {
+          boolValueBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+       */
+      public Builder clearBoolValue() {
+        if (boolValueBuilder_ == null) {
+          boolValue_ = null;
+          onChanged();
+        } else {
+          boolValue_ = null;
+          boolValueBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+       */
+      public com.google.protobuf.BoolValue.Builder getBoolValueBuilder() {
+        
+        onChanged();
+        return getBoolValueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+       */
+      public com.google.protobuf.BoolValueOrBuilder getBoolValueOrBuilder() {
+        if (boolValueBuilder_ != null) {
+          return boolValueBuilder_.getMessageOrBuilder();
+        } else {
+          return boolValue_ == null ?
+              com.google.protobuf.BoolValue.getDefaultInstance() : boolValue_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.BoolValue bool_value = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.BoolValue, com.google.protobuf.BoolValue.Builder, com.google.protobuf.BoolValueOrBuilder> 
+          getBoolValueFieldBuilder() {
+        if (boolValueBuilder_ == null) {
+          boolValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.BoolValue, com.google.protobuf.BoolValue.Builder, com.google.protobuf.BoolValueOrBuilder>(
+                  getBoolValue(),
+                  getParentForChildren(),
+                  isClean());
+          boolValue_ = null;
+        }
+        return boolValueBuilder_;
+      }
+
+      private com.google.protobuf.Int32Value int32Value_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Int32Value, com.google.protobuf.Int32Value.Builder, com.google.protobuf.Int32ValueOrBuilder> int32ValueBuilder_;
+      /**
+       * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+       */
+      public boolean hasInt32Value() {
+        return int32ValueBuilder_ != null || int32Value_ != null;
+      }
+      /**
+       * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+       */
+      public com.google.protobuf.Int32Value getInt32Value() {
+        if (int32ValueBuilder_ == null) {
+          return int32Value_ == null ? com.google.protobuf.Int32Value.getDefaultInstance() : int32Value_;
+        } else {
+          return int32ValueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+       */
+      public Builder setInt32Value(com.google.protobuf.Int32Value value) {
+        if (int32ValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          int32Value_ = value;
+          onChanged();
+        } else {
+          int32ValueBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+       */
+      public Builder setInt32Value(
+          com.google.protobuf.Int32Value.Builder builderForValue) {
+        if (int32ValueBuilder_ == null) {
+          int32Value_ = builderForValue.build();
+          onChanged();
+        } else {
+          int32ValueBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+       */
+      public Builder mergeInt32Value(com.google.protobuf.Int32Value value) {
+        if (int32ValueBuilder_ == null) {
+          if (int32Value_ != null) {
+            int32Value_ =
+              com.google.protobuf.Int32Value.newBuilder(int32Value_).mergeFrom(value).buildPartial();
+          } else {
+            int32Value_ = value;
+          }
+          onChanged();
+        } else {
+          int32ValueBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+       */
+      public Builder clearInt32Value() {
+        if (int32ValueBuilder_ == null) {
+          int32Value_ = null;
+          onChanged();
+        } else {
+          int32Value_ = null;
+          int32ValueBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+       */
+      public com.google.protobuf.Int32Value.Builder getInt32ValueBuilder() {
+        
+        onChanged();
+        return getInt32ValueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+       */
+      public com.google.protobuf.Int32ValueOrBuilder getInt32ValueOrBuilder() {
+        if (int32ValueBuilder_ != null) {
+          return int32ValueBuilder_.getMessageOrBuilder();
+        } else {
+          return int32Value_ == null ?
+              com.google.protobuf.Int32Value.getDefaultInstance() : int32Value_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.Int32Value int32_value = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Int32Value, com.google.protobuf.Int32Value.Builder, com.google.protobuf.Int32ValueOrBuilder> 
+          getInt32ValueFieldBuilder() {
+        if (int32ValueBuilder_ == null) {
+          int32ValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.Int32Value, com.google.protobuf.Int32Value.Builder, com.google.protobuf.Int32ValueOrBuilder>(
+                  getInt32Value(),
+                  getParentForChildren(),
+                  isClean());
+          int32Value_ = null;
+        }
+        return int32ValueBuilder_;
+      }
+
+      private com.google.protobuf.Int64Value int64Value_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Int64Value, com.google.protobuf.Int64Value.Builder, com.google.protobuf.Int64ValueOrBuilder> int64ValueBuilder_;
+      /**
+       * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+       */
+      public boolean hasInt64Value() {
+        return int64ValueBuilder_ != null || int64Value_ != null;
+      }
+      /**
+       * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+       */
+      public com.google.protobuf.Int64Value getInt64Value() {
+        if (int64ValueBuilder_ == null) {
+          return int64Value_ == null ? com.google.protobuf.Int64Value.getDefaultInstance() : int64Value_;
+        } else {
+          return int64ValueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+       */
+      public Builder setInt64Value(com.google.protobuf.Int64Value value) {
+        if (int64ValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          int64Value_ = value;
+          onChanged();
+        } else {
+          int64ValueBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+       */
+      public Builder setInt64Value(
+          com.google.protobuf.Int64Value.Builder builderForValue) {
+        if (int64ValueBuilder_ == null) {
+          int64Value_ = builderForValue.build();
+          onChanged();
+        } else {
+          int64ValueBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+       */
+      public Builder mergeInt64Value(com.google.protobuf.Int64Value value) {
+        if (int64ValueBuilder_ == null) {
+          if (int64Value_ != null) {
+            int64Value_ =
+              com.google.protobuf.Int64Value.newBuilder(int64Value_).mergeFrom(value).buildPartial();
+          } else {
+            int64Value_ = value;
+          }
+          onChanged();
+        } else {
+          int64ValueBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+       */
+      public Builder clearInt64Value() {
+        if (int64ValueBuilder_ == null) {
+          int64Value_ = null;
+          onChanged();
+        } else {
+          int64Value_ = null;
+          int64ValueBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+       */
+      public com.google.protobuf.Int64Value.Builder getInt64ValueBuilder() {
+        
+        onChanged();
+        return getInt64ValueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+       */
+      public com.google.protobuf.Int64ValueOrBuilder getInt64ValueOrBuilder() {
+        if (int64ValueBuilder_ != null) {
+          return int64ValueBuilder_.getMessageOrBuilder();
+        } else {
+          return int64Value_ == null ?
+              com.google.protobuf.Int64Value.getDefaultInstance() : int64Value_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.Int64Value int64_value = 3;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Int64Value, com.google.protobuf.Int64Value.Builder, com.google.protobuf.Int64ValueOrBuilder> 
+          getInt64ValueFieldBuilder() {
+        if (int64ValueBuilder_ == null) {
+          int64ValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.Int64Value, com.google.protobuf.Int64Value.Builder, com.google.protobuf.Int64ValueOrBuilder>(
+                  getInt64Value(),
+                  getParentForChildren(),
+                  isClean());
+          int64Value_ = null;
+        }
+        return int64ValueBuilder_;
+      }
+
+      private com.google.protobuf.FloatValue floatValue_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.FloatValue, com.google.protobuf.FloatValue.Builder, com.google.protobuf.FloatValueOrBuilder> floatValueBuilder_;
+      /**
+       * <code>.google.protobuf.FloatValue float_value = 6;</code>
+       */
+      public boolean hasFloatValue() {
+        return floatValueBuilder_ != null || floatValue_ != null;
+      }
+      /**
+       * <code>.google.protobuf.FloatValue float_value = 6;</code>
+       */
+      public com.google.protobuf.FloatValue getFloatValue() {
+        if (floatValueBuilder_ == null) {
+          return floatValue_ == null ? com.google.protobuf.FloatValue.getDefaultInstance() : floatValue_;
+        } else {
+          return floatValueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.FloatValue float_value = 6;</code>
+       */
+      public Builder setFloatValue(com.google.protobuf.FloatValue value) {
+        if (floatValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          floatValue_ = value;
+          onChanged();
+        } else {
+          floatValueBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.FloatValue float_value = 6;</code>
+       */
+      public Builder setFloatValue(
+          com.google.protobuf.FloatValue.Builder builderForValue) {
+        if (floatValueBuilder_ == null) {
+          floatValue_ = builderForValue.build();
+          onChanged();
+        } else {
+          floatValueBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.FloatValue float_value = 6;</code>
+       */
+      public Builder mergeFloatValue(com.google.protobuf.FloatValue value) {
+        if (floatValueBuilder_ == null) {
+          if (floatValue_ != null) {
+            floatValue_ =
+              com.google.protobuf.FloatValue.newBuilder(floatValue_).mergeFrom(value).buildPartial();
+          } else {
+            floatValue_ = value;
+          }
+          onChanged();
+        } else {
+          floatValueBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.FloatValue float_value = 6;</code>
+       */
+      public Builder clearFloatValue() {
+        if (floatValueBuilder_ == null) {
+          floatValue_ = null;
+          onChanged();
+        } else {
+          floatValue_ = null;
+          floatValueBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.FloatValue float_value = 6;</code>
+       */
+      public com.google.protobuf.FloatValue.Builder getFloatValueBuilder() {
+        
+        onChanged();
+        return getFloatValueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.FloatValue float_value = 6;</code>
+       */
+      public com.google.protobuf.FloatValueOrBuilder getFloatValueOrBuilder() {
+        if (floatValueBuilder_ != null) {
+          return floatValueBuilder_.getMessageOrBuilder();
+        } else {
+          return floatValue_ == null ?
+              com.google.protobuf.FloatValue.getDefaultInstance() : floatValue_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.FloatValue float_value = 6;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.FloatValue, com.google.protobuf.FloatValue.Builder, com.google.protobuf.FloatValueOrBuilder> 
+          getFloatValueFieldBuilder() {
+        if (floatValueBuilder_ == null) {
+          floatValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.FloatValue, com.google.protobuf.FloatValue.Builder, com.google.protobuf.FloatValueOrBuilder>(
+                  getFloatValue(),
+                  getParentForChildren(),
+                  isClean());
+          floatValue_ = null;
+        }
+        return floatValueBuilder_;
+      }
+
+      private com.google.protobuf.DoubleValue doubleValue_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.DoubleValue, com.google.protobuf.DoubleValue.Builder, com.google.protobuf.DoubleValueOrBuilder> doubleValueBuilder_;
+      /**
+       * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+       */
+      public boolean hasDoubleValue() {
+        return doubleValueBuilder_ != null || doubleValue_ != null;
+      }
+      /**
+       * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+       */
+      public com.google.protobuf.DoubleValue getDoubleValue() {
+        if (doubleValueBuilder_ == null) {
+          return doubleValue_ == null ? com.google.protobuf.DoubleValue.getDefaultInstance() : doubleValue_;
+        } else {
+          return doubleValueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+       */
+      public Builder setDoubleValue(com.google.protobuf.DoubleValue value) {
+        if (doubleValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          doubleValue_ = value;
+          onChanged();
+        } else {
+          doubleValueBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+       */
+      public Builder setDoubleValue(
+          com.google.protobuf.DoubleValue.Builder builderForValue) {
+        if (doubleValueBuilder_ == null) {
+          doubleValue_ = builderForValue.build();
+          onChanged();
+        } else {
+          doubleValueBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+       */
+      public Builder mergeDoubleValue(com.google.protobuf.DoubleValue value) {
+        if (doubleValueBuilder_ == null) {
+          if (doubleValue_ != null) {
+            doubleValue_ =
+              com.google.protobuf.DoubleValue.newBuilder(doubleValue_).mergeFrom(value).buildPartial();
+          } else {
+            doubleValue_ = value;
+          }
+          onChanged();
+        } else {
+          doubleValueBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+       */
+      public Builder clearDoubleValue() {
+        if (doubleValueBuilder_ == null) {
+          doubleValue_ = null;
+          onChanged();
+        } else {
+          doubleValue_ = null;
+          doubleValueBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+       */
+      public com.google.protobuf.DoubleValue.Builder getDoubleValueBuilder() {
+        
+        onChanged();
+        return getDoubleValueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+       */
+      public com.google.protobuf.DoubleValueOrBuilder getDoubleValueOrBuilder() {
+        if (doubleValueBuilder_ != null) {
+          return doubleValueBuilder_.getMessageOrBuilder();
+        } else {
+          return doubleValue_ == null ?
+              com.google.protobuf.DoubleValue.getDefaultInstance() : doubleValue_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.DoubleValue double_value = 7;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.DoubleValue, com.google.protobuf.DoubleValue.Builder, com.google.protobuf.DoubleValueOrBuilder> 
+          getDoubleValueFieldBuilder() {
+        if (doubleValueBuilder_ == null) {
+          doubleValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.DoubleValue, com.google.protobuf.DoubleValue.Builder, com.google.protobuf.DoubleValueOrBuilder>(
+                  getDoubleValue(),
+                  getParentForChildren(),
+                  isClean());
+          doubleValue_ = null;
+        }
+        return doubleValueBuilder_;
+      }
+
+      private com.google.protobuf.StringValue stringValue_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.StringValue, com.google.protobuf.StringValue.Builder, com.google.protobuf.StringValueOrBuilder> stringValueBuilder_;
+      /**
+       * <code>.google.protobuf.StringValue string_value = 8;</code>
+       */
+      public boolean hasStringValue() {
+        return stringValueBuilder_ != null || stringValue_ != null;
+      }
+      /**
+       * <code>.google.protobuf.StringValue string_value = 8;</code>
+       */
+      public com.google.protobuf.StringValue getStringValue() {
+        if (stringValueBuilder_ == null) {
+          return stringValue_ == null ? com.google.protobuf.StringValue.getDefaultInstance() : stringValue_;
+        } else {
+          return stringValueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.StringValue string_value = 8;</code>
+       */
+      public Builder setStringValue(com.google.protobuf.StringValue value) {
+        if (stringValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          stringValue_ = value;
+          onChanged();
+        } else {
+          stringValueBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.StringValue string_value = 8;</code>
+       */
+      public Builder setStringValue(
+          com.google.protobuf.StringValue.Builder builderForValue) {
+        if (stringValueBuilder_ == null) {
+          stringValue_ = builderForValue.build();
+          onChanged();
+        } else {
+          stringValueBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.StringValue string_value = 8;</code>
+       */
+      public Builder mergeStringValue(com.google.protobuf.StringValue value) {
+        if (stringValueBuilder_ == null) {
+          if (stringValue_ != null) {
+            stringValue_ =
+              com.google.protobuf.StringValue.newBuilder(stringValue_).mergeFrom(value).buildPartial();
+          } else {
+            stringValue_ = value;
+          }
+          onChanged();
+        } else {
+          stringValueBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.StringValue string_value = 8;</code>
+       */
+      public Builder clearStringValue() {
+        if (stringValueBuilder_ == null) {
+          stringValue_ = null;
+          onChanged();
+        } else {
+          stringValue_ = null;
+          stringValueBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.StringValue string_value = 8;</code>
+       */
+      public com.google.protobuf.StringValue.Builder getStringValueBuilder() {
+        
+        onChanged();
+        return getStringValueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.StringValue string_value = 8;</code>
+       */
+      public com.google.protobuf.StringValueOrBuilder getStringValueOrBuilder() {
+        if (stringValueBuilder_ != null) {
+          return stringValueBuilder_.getMessageOrBuilder();
+        } else {
+          return stringValue_ == null ?
+              com.google.protobuf.StringValue.getDefaultInstance() : stringValue_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.StringValue string_value = 8;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.StringValue, com.google.protobuf.StringValue.Builder, com.google.protobuf.StringValueOrBuilder> 
+          getStringValueFieldBuilder() {
+        if (stringValueBuilder_ == null) {
+          stringValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.StringValue, com.google.protobuf.StringValue.Builder, com.google.protobuf.StringValueOrBuilder>(
+                  getStringValue(),
+                  getParentForChildren(),
+                  isClean());
+          stringValue_ = null;
+        }
+        return stringValueBuilder_;
+      }
+
+      private com.google.protobuf.BytesValue bytesValue_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.BytesValue, com.google.protobuf.BytesValue.Builder, com.google.protobuf.BytesValueOrBuilder> bytesValueBuilder_;
+      /**
+       * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+       */
+      public boolean hasBytesValue() {
+        return bytesValueBuilder_ != null || bytesValue_ != null;
+      }
+      /**
+       * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+       */
+      public com.google.protobuf.BytesValue getBytesValue() {
+        if (bytesValueBuilder_ == null) {
+          return bytesValue_ == null ? com.google.protobuf.BytesValue.getDefaultInstance() : bytesValue_;
+        } else {
+          return bytesValueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+       */
+      public Builder setBytesValue(com.google.protobuf.BytesValue value) {
+        if (bytesValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          bytesValue_ = value;
+          onChanged();
+        } else {
+          bytesValueBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+       */
+      public Builder setBytesValue(
+          com.google.protobuf.BytesValue.Builder builderForValue) {
+        if (bytesValueBuilder_ == null) {
+          bytesValue_ = builderForValue.build();
+          onChanged();
+        } else {
+          bytesValueBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+       */
+      public Builder mergeBytesValue(com.google.protobuf.BytesValue value) {
+        if (bytesValueBuilder_ == null) {
+          if (bytesValue_ != null) {
+            bytesValue_ =
+              com.google.protobuf.BytesValue.newBuilder(bytesValue_).mergeFrom(value).buildPartial();
+          } else {
+            bytesValue_ = value;
+          }
+          onChanged();
+        } else {
+          bytesValueBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+       */
+      public Builder clearBytesValue() {
+        if (bytesValueBuilder_ == null) {
+          bytesValue_ = null;
+          onChanged();
+        } else {
+          bytesValue_ = null;
+          bytesValueBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+       */
+      public com.google.protobuf.BytesValue.Builder getBytesValueBuilder() {
+        
+        onChanged();
+        return getBytesValueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+       */
+      public com.google.protobuf.BytesValueOrBuilder getBytesValueOrBuilder() {
+        if (bytesValueBuilder_ != null) {
+          return bytesValueBuilder_.getMessageOrBuilder();
+        } else {
+          return bytesValue_ == null ?
+              com.google.protobuf.BytesValue.getDefaultInstance() : bytesValue_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.BytesValue bytes_value = 9;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.BytesValue, com.google.protobuf.BytesValue.Builder, com.google.protobuf.BytesValueOrBuilder> 
+          getBytesValueFieldBuilder() {
+        if (bytesValueBuilder_ == null) {
+          bytesValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.BytesValue, com.google.protobuf.BytesValue.Builder, com.google.protobuf.BytesValueOrBuilder>(
+                  getBytesValue(),
+                  getParentForChildren(),
+                  isClean());
+          bytesValue_ = null;
+        }
+        return bytesValueBuilder_;
+      }
+
+      private com.google.protobuf.Duration duration_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Duration, com.google.protobuf.Duration.Builder, com.google.protobuf.DurationOrBuilder> durationBuilder_;
+      /**
+       * <code>.google.protobuf.Duration duration = 10;</code>
+       */
+      public boolean hasDuration() {
+        return durationBuilder_ != null || duration_ != null;
+      }
+      /**
+       * <code>.google.protobuf.Duration duration = 10;</code>
+       */
+      public com.google.protobuf.Duration getDuration() {
+        if (durationBuilder_ == null) {
+          return duration_ == null ? com.google.protobuf.Duration.getDefaultInstance() : duration_;
+        } else {
+          return durationBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.Duration duration = 10;</code>
+       */
+      public Builder setDuration(com.google.protobuf.Duration value) {
+        if (durationBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          duration_ = value;
+          onChanged();
+        } else {
+          durationBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Duration duration = 10;</code>
+       */
+      public Builder setDuration(
+          com.google.protobuf.Duration.Builder builderForValue) {
+        if (durationBuilder_ == null) {
+          duration_ = builderForValue.build();
+          onChanged();
+        } else {
+          durationBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Duration duration = 10;</code>
+       */
+      public Builder mergeDuration(com.google.protobuf.Duration value) {
+        if (durationBuilder_ == null) {
+          if (duration_ != null) {
+            duration_ =
+              com.google.protobuf.Duration.newBuilder(duration_).mergeFrom(value).buildPartial();
+          } else {
+            duration_ = value;
+          }
+          onChanged();
+        } else {
+          durationBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Duration duration = 10;</code>
+       */
+      public Builder clearDuration() {
+        if (durationBuilder_ == null) {
+          duration_ = null;
+          onChanged();
+        } else {
+          duration_ = null;
+          durationBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Duration duration = 10;</code>
+       */
+      public com.google.protobuf.Duration.Builder getDurationBuilder() {
+        
+        onChanged();
+        return getDurationFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.Duration duration = 10;</code>
+       */
+      public com.google.protobuf.DurationOrBuilder getDurationOrBuilder() {
+        if (durationBuilder_ != null) {
+          return durationBuilder_.getMessageOrBuilder();
+        } else {
+          return duration_ == null ?
+              com.google.protobuf.Duration.getDefaultInstance() : duration_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.Duration duration = 10;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Duration, com.google.protobuf.Duration.Builder, com.google.protobuf.DurationOrBuilder> 
+          getDurationFieldBuilder() {
+        if (durationBuilder_ == null) {
+          durationBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.Duration, com.google.protobuf.Duration.Builder, com.google.protobuf.DurationOrBuilder>(
+                  getDuration(),
+                  getParentForChildren(),
+                  isClean());
+          duration_ = null;
+        }
+        return durationBuilder_;
+      }
+
+      private com.google.protobuf.ListValue listValue_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.ListValue, com.google.protobuf.ListValue.Builder, com.google.protobuf.ListValueOrBuilder> listValueBuilder_;
+      /**
+       * <code>.google.protobuf.ListValue list_value = 11;</code>
+       */
+      public boolean hasListValue() {
+        return listValueBuilder_ != null || listValue_ != null;
+      }
+      /**
+       * <code>.google.protobuf.ListValue list_value = 11;</code>
+       */
+      public com.google.protobuf.ListValue getListValue() {
+        if (listValueBuilder_ == null) {
+          return listValue_ == null ? com.google.protobuf.ListValue.getDefaultInstance() : listValue_;
+        } else {
+          return listValueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.ListValue list_value = 11;</code>
+       */
+      public Builder setListValue(com.google.protobuf.ListValue value) {
+        if (listValueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          listValue_ = value;
+          onChanged();
+        } else {
+          listValueBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.ListValue list_value = 11;</code>
+       */
+      public Builder setListValue(
+          com.google.protobuf.ListValue.Builder builderForValue) {
+        if (listValueBuilder_ == null) {
+          listValue_ = builderForValue.build();
+          onChanged();
+        } else {
+          listValueBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.ListValue list_value = 11;</code>
+       */
+      public Builder mergeListValue(com.google.protobuf.ListValue value) {
+        if (listValueBuilder_ == null) {
+          if (listValue_ != null) {
+            listValue_ =
+              com.google.protobuf.ListValue.newBuilder(listValue_).mergeFrom(value).buildPartial();
+          } else {
+            listValue_ = value;
+          }
+          onChanged();
+        } else {
+          listValueBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.ListValue list_value = 11;</code>
+       */
+      public Builder clearListValue() {
+        if (listValueBuilder_ == null) {
+          listValue_ = null;
+          onChanged();
+        } else {
+          listValue_ = null;
+          listValueBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.ListValue list_value = 11;</code>
+       */
+      public com.google.protobuf.ListValue.Builder getListValueBuilder() {
+        
+        onChanged();
+        return getListValueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.ListValue list_value = 11;</code>
+       */
+      public com.google.protobuf.ListValueOrBuilder getListValueOrBuilder() {
+        if (listValueBuilder_ != null) {
+          return listValueBuilder_.getMessageOrBuilder();
+        } else {
+          return listValue_ == null ?
+              com.google.protobuf.ListValue.getDefaultInstance() : listValue_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.ListValue list_value = 11;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.ListValue, com.google.protobuf.ListValue.Builder, com.google.protobuf.ListValueOrBuilder> 
+          getListValueFieldBuilder() {
+        if (listValueBuilder_ == null) {
+          listValueBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.ListValue, com.google.protobuf.ListValue.Builder, com.google.protobuf.ListValueOrBuilder>(
+                  getListValue(),
+                  getParentForChildren(),
+                  isClean());
+          listValue_ = null;
+        }
+        return listValueBuilder_;
+      }
+
+      private com.google.protobuf.Timestamp timestamp_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> timestampBuilder_;
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+       */
+      public boolean hasTimestamp() {
+        return timestampBuilder_ != null || timestamp_ != null;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+       */
+      public com.google.protobuf.Timestamp getTimestamp() {
+        if (timestampBuilder_ == null) {
+          return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+        } else {
+          return timestampBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        if (timestampBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          timestamp_ = value;
+          onChanged();
+        } else {
+          timestampBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        if (timestampBuilder_ == null) {
+          timestamp_ = builderForValue.build();
+          onChanged();
+        } else {
+          timestampBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        if (timestampBuilder_ == null) {
+          if (timestamp_ != null) {
+            timestamp_ =
+              com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+          } else {
+            timestamp_ = value;
+          }
+          onChanged();
+        } else {
+          timestampBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+       */
+      public Builder clearTimestamp() {
+        if (timestampBuilder_ == null) {
+          timestamp_ = null;
+          onChanged();
+        } else {
+          timestamp_ = null;
+          timestampBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+       */
+      public com.google.protobuf.Timestamp.Builder getTimestampBuilder() {
+        
+        onChanged();
+        return getTimestampFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+       */
+      public com.google.protobuf.TimestampOrBuilder getTimestampOrBuilder() {
+        if (timestampBuilder_ != null) {
+          return timestampBuilder_.getMessageOrBuilder();
+        } else {
+          return timestamp_ == null ?
+              com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 12;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> 
+          getTimestampFieldBuilder() {
+        if (timestampBuilder_ == null) {
+          timestampBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
+                  getTimestamp(),
+                  getParentForChildren(),
+                  isClean());
+          timestamp_ = null;
+        }
+        return timestampBuilder_;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:ExtensionsMessage)
+    }
+
+    // @@protoc_insertion_point(class_scope:ExtensionsMessage)
+    private static final com.avast.cactus.TestMessageV3.ExtensionsMessage DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.avast.cactus.TestMessageV3.ExtensionsMessage();
+    }
+
+    public static com.avast.cactus.TestMessageV3.ExtensionsMessage getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ExtensionsMessage>
+        PARSER = new com.google.protobuf.AbstractParser<ExtensionsMessage>() {
+      public ExtensionsMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new ExtensionsMessage(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<ExtensionsMessage> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ExtensionsMessage> getParserForType() {
+      return PARSER;
+    }
+
+    public com.avast.cactus.TestMessageV3.ExtensionsMessage getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Data_descriptor;
   private static final 
@@ -9813,6 +12130,11 @@ public final class TestMessageV3 {
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_MapMessage_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ExtensionsMessage_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ExtensionsMessage_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -9823,30 +12145,46 @@ public final class TestMessageV3 {
   static {
     java.lang.String[] descriptorData = {
       "\n/macros/src/test/resources/test_message" +
-      "_v3.proto\"\235\004\n\004Data\022\024\n\014field_string\030\001 \001(\t" +
-      "\022\026\n\016field_int_name\030\002 \001(\005\022\024\n\014field_option" +
-      "\030\003 \001(\005\022\025\n\rfield_strings\030\004 \003(\t\022\032\n\022field_s" +
-      "trings_name\030\005 \003(\t\022\035\n\025field_option_intege" +
-      "rs\030\006 \003(\005\022#\n\033field_option_integers_empty\030" +
-      "\007 \003(\005\022 \n\020field_gpb_option\030\010 \001(\0132\006.Data2\022" +
-      "&\n\026field_gpb_option_empty\030\t \001(\0132\006.Data2\022" +
-      "\031\n\tfield_gpb\030\n \001(\0132\006.Data2\022\022\n\nfield_blob" +
-      "\030\013 \001(\014\022\036\n\tfield_map\030\014 \003(\0132\013.MapMessage\022\027",
-      "\n\017field_integers2\030\r \003(\005\022\037\n\nfield_map2\030\016 " +
-      "\003(\0132\013.MapMessage\022\"\n\022field_gpb_repeated\030\017" +
-      " \003(\0132\006.Data2\022+\n\033field_gpb2_repeated_recu" +
-      "rse\030\020 \003(\0132\006.Data3\022\032\n\nfield_gpb2\030\021 \001(\0132\006." +
-      "Data2\022\032\n\nfield_gpb3\030\022 \001(\0132\006.Data5\"1\n\005Dat" +
-      "a2\022\024\n\014field_double\030\001 \001(\001\022\022\n\nfield_blob\030\002" +
-      " \001(\014\"p\n\005Data3\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2" +
-      "\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH" +
-      "\000\022\023\n\tfoo_bytes\030\004 \001(\014H\000B\016\n\014named_one_of\"2" +
-      "\n\005Data4\022\023\n\013fieldString\030\001 \001(\t\022\024\n\014field_op",
-      "tion\030\002 \001(\t\"[\n\005Data5\022\031\n\tfield_gpb\030\001 \003(\0132\006" +
-      ".Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030" +
-      "\003 \001(\tH\000B\016\n\014named_one_of\"7\n\nMapMessage\022\013\n" +
-      "\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005other\030\003 \001(\t" +
-      "B\022\n\020com.avast.cactusb\006proto3"
+      "_v3.proto\032\036google/protobuf/duration.prot" +
+      "o\032\037google/protobuf/timestamp.proto\032\036goog" +
+      "le/protobuf/wrappers.proto\032\034google/proto" +
+      "buf/struct.proto\"\235\004\n\004Data\022\024\n\014field_strin" +
+      "g\030\001 \001(\t\022\026\n\016field_int_name\030\002 \001(\005\022\024\n\014field" +
+      "_option\030\003 \001(\005\022\025\n\rfield_strings\030\004 \003(\t\022\032\n\022" +
+      "field_strings_name\030\005 \003(\t\022\035\n\025field_option" +
+      "_integers\030\006 \003(\005\022#\n\033field_option_integers" +
+      "_empty\030\007 \003(\005\022 \n\020field_gpb_option\030\010 \001(\0132\006",
+      ".Data2\022&\n\026field_gpb_option_empty\030\t \001(\0132\006" +
+      ".Data2\022\031\n\tfield_gpb\030\n \001(\0132\006.Data2\022\022\n\nfie" +
+      "ld_blob\030\013 \001(\014\022\036\n\tfield_map\030\014 \003(\0132\013.MapMe" +
+      "ssage\022\027\n\017field_integers2\030\r \003(\005\022\037\n\nfield_" +
+      "map2\030\016 \003(\0132\013.MapMessage\022\"\n\022field_gpb_rep" +
+      "eated\030\017 \003(\0132\006.Data2\022+\n\033field_gpb2_repeat" +
+      "ed_recurse\030\020 \003(\0132\006.Data3\022\032\n\nfield_gpb2\030\021" +
+      " \001(\0132\006.Data2\022\032\n\nfield_gpb3\030\022 \001(\0132\006.Data5" +
+      "\"1\n\005Data2\022\024\n\014field_double\030\001 \001(\001\022\022\n\nfield" +
+      "_blob\030\002 \001(\014\"p\n\005Data3\022\031\n\tfield_gpb\030\001 \003(\0132",
+      "\006.Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_string" +
+      "\030\003 \001(\tH\000\022\023\n\tfoo_bytes\030\004 \001(\014H\000B\016\n\014named_o" +
+      "ne_of\"2\n\005Data4\022\023\n\013fieldString\030\001 \001(\t\022\024\n\014f" +
+      "ield_option\030\002 \001(\t\"[\n\005Data5\022\031\n\tfield_gpb\030" +
+      "\001 \003(\0132\006.Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_" +
+      "string\030\003 \001(\tH\000B\016\n\014named_one_of\"7\n\nMapMes" +
+      "sage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005othe" +
+      "r\030\003 \001(\t\"\377\003\n\021ExtensionsMessage\022.\n\nbool_va" +
+      "lue\030\001 \001(\0132\032.google.protobuf.BoolValue\0220\n" +
+      "\013int32_value\030\002 \001(\0132\033.google.protobuf.Int",
+      "32Value\0220\n\013int64_value\030\003 \001(\0132\033.google.pr" +
+      "otobuf.Int64Value\0220\n\013float_value\030\006 \001(\0132\033" +
+      ".google.protobuf.FloatValue\0222\n\014double_va" +
+      "lue\030\007 \001(\0132\034.google.protobuf.DoubleValue\022" +
+      "2\n\014string_value\030\010 \001(\0132\034.google.protobuf." +
+      "StringValue\0220\n\013bytes_value\030\t \001(\0132\033.googl" +
+      "e.protobuf.BytesValue\022+\n\010duration\030\n \001(\0132" +
+      "\031.google.protobuf.Duration\022.\n\nlist_value" +
+      "\030\013 \001(\0132\032.google.protobuf.ListValue\022-\n\tti" +
+      "mestamp\030\014 \001(\0132\032.google.protobuf.Timestam",
+      "pB\022\n\020com.avast.cactusb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -9859,6 +12197,10 @@ public final class TestMessageV3 {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
+          com.google.protobuf.DurationProto.getDescriptor(),
+          com.google.protobuf.TimestampProto.getDescriptor(),
+          com.google.protobuf.WrappersProto.getDescriptor(),
+          com.google.protobuf.StructProto.getDescriptor(),
         }, assigner);
     internal_static_Data_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -9896,6 +12238,16 @@ public final class TestMessageV3 {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_MapMessage_descriptor,
         new java.lang.String[] { "Key", "Value", "Other", });
+    internal_static_ExtensionsMessage_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_ExtensionsMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ExtensionsMessage_descriptor,
+        new java.lang.String[] { "BoolValue", "Int32Value", "Int64Value", "FloatValue", "DoubleValue", "StringValue", "BytesValue", "Duration", "ListValue", "Timestamp", });
+    com.google.protobuf.DurationProto.getDescriptor();
+    com.google.protobuf.TimestampProto.getDescriptor();
+    com.google.protobuf.WrappersProto.getDescriptor();
+    com.google.protobuf.StructProto.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)
