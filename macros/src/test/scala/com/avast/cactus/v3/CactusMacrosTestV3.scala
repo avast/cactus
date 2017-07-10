@@ -5,7 +5,7 @@ import java.time.{Duration, Instant}
 import com.avast.cactus.TestMessageV3._
 import com.avast.cactus._
 import com.avast.cactus.v3.ValueOneOf.NumberValue
-import com.google.protobuf.{BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
+import com.google.protobuf.{BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
 import org.scalactic.{Bad, Good}
 import org.scalatest.FunSuite
 
@@ -173,6 +173,7 @@ class CactusMacrosTestV3 extends FunSuite {
       .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
       .setListValue2(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
       .setListValue3(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+      .setStruct(Struct.newBuilder().putFields("mapKey", Value.newBuilder().setNumberValue(42).build()))
       .build()
 
     val expected = CaseClassExtensions(
@@ -188,7 +189,8 @@ class CactusMacrosTestV3 extends FunSuite {
       listValue = ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)).build(),
       listValue2 = Seq(NumberValue(456.789)),
       listValue3 = Some(Seq(NumberValue(456.789))),
-      listValue4 = None
+      listValue4 = None,
+      struct = Map("mapKey" -> NumberValue(42))
     )
 
     val Good(converted) = gpb.asCaseClass[CaseClassExtensions]
@@ -275,7 +277,8 @@ case class CaseClassExtensions(boolValue: BoolValue,
                                listValue3: Option[Seq[ValueOneOf]],
                                listValue4: Option[Seq[ValueOneOf]],
                                duration: GpbDuration,
-                               timestamp: GpbTimestamp)
+                               timestamp: GpbTimestamp,
+                               struct: Map[String, ValueOneOf])
 
 case class CaseClassExtensionsScala(boolValue: Boolean,
                                     int32Value: Int,

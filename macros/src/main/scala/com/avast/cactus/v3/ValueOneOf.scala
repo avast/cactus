@@ -15,7 +15,9 @@ object ValueOneOf {
     case Value.KindCase.NUMBER_VALUE => NumberValue(v.getNumberValue)
     case Value.KindCase.STRING_VALUE => StringValue(v.getStringValue)
     case Value.KindCase.BOOL_VALUE => BooleanValue(v.getBoolValue)
-    case Value.KindCase.STRUCT_VALUE => StructValue(v.getStructValue)
+    case Value.KindCase.STRUCT_VALUE => StructValue {
+      v.getStructValue.getFieldsMap.asScala.mapValues(ValueOneOf.apply).toMap
+    }
     case Value.KindCase.LIST_VALUE => ListValue(Converter.listValue2SeqConverter.apply(v.getListValue))
   }
 
@@ -25,7 +27,7 @@ object ValueOneOf {
     case NumberValue(v) => Value.newBuilder().setNumberValue(v).build()
     case StringValue(v) => Value.newBuilder().setStringValue(v).build()
     case BooleanValue(v) => Value.newBuilder().setBoolValue(v).build()
-    case StructValue(v) => Value.newBuilder().setStructValue(v).build()
+    case StructValue(v) => Value.newBuilder().setStructValue(Struct.newBuilder().putAllFields(v.mapValues(toGpbValue).asJava)).build()
     case ListValue(v) => Value.newBuilder().setListValue(GpbListValue.newBuilder().addAllValues(v.map(toGpbValue).asJava)).build()
   }
 
@@ -39,7 +41,7 @@ object ValueOneOf {
 
   case class BooleanValue(value: Boolean) extends ValueOneOf
 
-  case class StructValue(value: Struct) extends ValueOneOf
+  case class StructValue(value: Map[String, ValueOneOf]) extends ValueOneOf
 
   case class ListValue(value: Seq[ValueOneOf]) extends ValueOneOf
 

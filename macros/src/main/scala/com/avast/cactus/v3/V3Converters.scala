@@ -16,6 +16,14 @@ trait V3Converters {
     ListValue.newBuilder().addAllValues(values.map(ValueOneOf.toGpbValue).asJava).build()
   }
 
+  implicit val struct2MapConverter: Converter[com.google.protobuf.Struct, Map[String, ValueOneOf]] = Converter { struct =>
+    struct.getFieldsMap.asScala.mapValues(ValueOneOf.apply).toMap
+  }
+
+  implicit val map2StructConverter: Converter[Map[String, ValueOneOf], com.google.protobuf.Struct] = Converter { m =>
+    Struct.newBuilder().putAllFields(m.mapValues(ValueOneOf.toGpbValue).asJava).build()
+  }
+
   implicit val doubleValue2Double: Converter[DoubleValue, Double] = Converter(_.getValue)
   implicit val stringValue2String: Converter[StringValue, String] = Converter(_.getValue)
   implicit val floatValue2Float: Converter[FloatValue, Float] = Converter(_.getValue)

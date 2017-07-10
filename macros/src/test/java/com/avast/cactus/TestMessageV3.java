@@ -9955,6 +9955,19 @@ public final class TestMessageV3 {
      * <code>.google.protobuf.ListValue list_value4 = 13;</code>
      */
     com.google.protobuf.ListValueOrBuilder getListValue4OrBuilder();
+
+    /**
+     * <code>.google.protobuf.Struct struct = 14;</code>
+     */
+    boolean hasStruct();
+    /**
+     * <code>.google.protobuf.Struct struct = 14;</code>
+     */
+    com.google.protobuf.Struct getStruct();
+    /**
+     * <code>.google.protobuf.Struct struct = 14;</code>
+     */
+    com.google.protobuf.StructOrBuilder getStructOrBuilder();
   }
   /**
    * Protobuf type {@code ExtensionsMessage}
@@ -10160,6 +10173,19 @@ public final class TestMessageV3 {
               if (subBuilder != null) {
                 subBuilder.mergeFrom(listValue4_);
                 listValue4_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 114: {
+              com.google.protobuf.Struct.Builder subBuilder = null;
+              if (struct_ != null) {
+                subBuilder = struct_.toBuilder();
+              }
+              struct_ = input.readMessage(com.google.protobuf.Struct.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(struct_);
+                struct_ = subBuilder.buildPartial();
               }
 
               break;
@@ -10460,6 +10486,27 @@ public final class TestMessageV3 {
       return getListValue4();
     }
 
+    public static final int STRUCT_FIELD_NUMBER = 14;
+    private com.google.protobuf.Struct struct_;
+    /**
+     * <code>.google.protobuf.Struct struct = 14;</code>
+     */
+    public boolean hasStruct() {
+      return struct_ != null;
+    }
+    /**
+     * <code>.google.protobuf.Struct struct = 14;</code>
+     */
+    public com.google.protobuf.Struct getStruct() {
+      return struct_ == null ? com.google.protobuf.Struct.getDefaultInstance() : struct_;
+    }
+    /**
+     * <code>.google.protobuf.Struct struct = 14;</code>
+     */
+    public com.google.protobuf.StructOrBuilder getStructOrBuilder() {
+      return getStruct();
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -10510,6 +10557,9 @@ public final class TestMessageV3 {
       }
       if (listValue4_ != null) {
         output.writeMessage(13, getListValue4());
+      }
+      if (struct_ != null) {
+        output.writeMessage(14, getStruct());
       }
     }
 
@@ -10569,6 +10619,10 @@ public final class TestMessageV3 {
       if (listValue4_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(13, getListValue4());
+      }
+      if (struct_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(14, getStruct());
       }
       memoizedSize = size;
       return size;
@@ -10651,6 +10705,11 @@ public final class TestMessageV3 {
         result = result && getListValue4()
             .equals(other.getListValue4());
       }
+      result = result && (hasStruct() == other.hasStruct());
+      if (hasStruct()) {
+        result = result && getStruct()
+            .equals(other.getStruct());
+      }
       return result;
     }
 
@@ -10712,6 +10771,10 @@ public final class TestMessageV3 {
       if (hasListValue4()) {
         hash = (37 * hash) + LIST_VALUE4_FIELD_NUMBER;
         hash = (53 * hash) + getListValue4().hashCode();
+      }
+      if (hasStruct()) {
+        hash = (37 * hash) + STRUCT_FIELD_NUMBER;
+        hash = (53 * hash) + getStruct().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -10920,6 +10983,12 @@ public final class TestMessageV3 {
           listValue4_ = null;
           listValue4Builder_ = null;
         }
+        if (structBuilder_ == null) {
+          struct_ = null;
+        } else {
+          struct_ = null;
+          structBuilder_ = null;
+        }
         return this;
       }
 
@@ -11007,6 +11076,11 @@ public final class TestMessageV3 {
         } else {
           result.listValue4_ = listValue4Builder_.build();
         }
+        if (structBuilder_ == null) {
+          result.struct_ = struct_;
+        } else {
+          result.struct_ = structBuilder_.build();
+        }
         onBuilt();
         return result;
       }
@@ -11086,6 +11160,9 @@ public final class TestMessageV3 {
         }
         if (other.hasListValue4()) {
           mergeListValue4(other.getListValue4());
+        }
+        if (other.hasStruct()) {
+          mergeStruct(other.getStruct());
         }
         onChanged();
         return this;
@@ -12633,6 +12710,123 @@ public final class TestMessageV3 {
         }
         return listValue4Builder_;
       }
+
+      private com.google.protobuf.Struct struct_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Struct, com.google.protobuf.Struct.Builder, com.google.protobuf.StructOrBuilder> structBuilder_;
+      /**
+       * <code>.google.protobuf.Struct struct = 14;</code>
+       */
+      public boolean hasStruct() {
+        return structBuilder_ != null || struct_ != null;
+      }
+      /**
+       * <code>.google.protobuf.Struct struct = 14;</code>
+       */
+      public com.google.protobuf.Struct getStruct() {
+        if (structBuilder_ == null) {
+          return struct_ == null ? com.google.protobuf.Struct.getDefaultInstance() : struct_;
+        } else {
+          return structBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.Struct struct = 14;</code>
+       */
+      public Builder setStruct(com.google.protobuf.Struct value) {
+        if (structBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          struct_ = value;
+          onChanged();
+        } else {
+          structBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Struct struct = 14;</code>
+       */
+      public Builder setStruct(
+          com.google.protobuf.Struct.Builder builderForValue) {
+        if (structBuilder_ == null) {
+          struct_ = builderForValue.build();
+          onChanged();
+        } else {
+          structBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Struct struct = 14;</code>
+       */
+      public Builder mergeStruct(com.google.protobuf.Struct value) {
+        if (structBuilder_ == null) {
+          if (struct_ != null) {
+            struct_ =
+              com.google.protobuf.Struct.newBuilder(struct_).mergeFrom(value).buildPartial();
+          } else {
+            struct_ = value;
+          }
+          onChanged();
+        } else {
+          structBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Struct struct = 14;</code>
+       */
+      public Builder clearStruct() {
+        if (structBuilder_ == null) {
+          struct_ = null;
+          onChanged();
+        } else {
+          struct_ = null;
+          structBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Struct struct = 14;</code>
+       */
+      public com.google.protobuf.Struct.Builder getStructBuilder() {
+        
+        onChanged();
+        return getStructFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.Struct struct = 14;</code>
+       */
+      public com.google.protobuf.StructOrBuilder getStructOrBuilder() {
+        if (structBuilder_ != null) {
+          return structBuilder_.getMessageOrBuilder();
+        } else {
+          return struct_ == null ?
+              com.google.protobuf.Struct.getDefaultInstance() : struct_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.Struct struct = 14;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Struct, com.google.protobuf.Struct.Builder, com.google.protobuf.StructOrBuilder> 
+          getStructFieldBuilder() {
+        if (structBuilder_ == null) {
+          structBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.Struct, com.google.protobuf.Struct.Builder, com.google.protobuf.StructOrBuilder>(
+                  getStruct(),
+                  getParentForChildren(),
+                  isClean());
+          struct_ = null;
+        }
+        return structBuilder_;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -12753,7 +12947,7 @@ public final class TestMessageV3 {
       "\001 \003(\0132\006.Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_" +
       "string\030\003 \001(\tH\000B\016\n\014named_one_of\"7\n\nMapMes" +
       "sage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005othe" +
-      "r\030\003 \001(\t\"\222\005\n\021ExtensionsMessage\022.\n\nbool_va" +
+      "r\030\003 \001(\t\"\273\005\n\021ExtensionsMessage\022.\n\nbool_va" +
       "lue\030\001 \001(\0132\032.google.protobuf.BoolValue\0220\n" +
       "\013int32_value\030\002 \001(\0132\033.google.protobuf.Int",
       "32Value\0220\n\013int64_value\030\003 \001(\0132\033.google.pr" +
@@ -12769,8 +12963,9 @@ public final class TestMessageV3 {
       "e\022/\n\013list_value2\030\013 \001(\0132\032.google.protobuf" +
       ".ListValue\022/\n\013list_value3\030\014 \001(\0132\032.google" +
       ".protobuf.ListValue\022/\n\013list_value4\030\r \001(\013" +
-      "2\032.google.protobuf.ListValueB\022\n\020com.avas" +
-      "t.cactusb\006proto3"
+      "2\032.google.protobuf.ListValue\022\'\n\006struct\030\016" +
+      " \001(\0132\027.google.protobuf.StructB\022\n\020com.ava" +
+      "st.cactusb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -12829,7 +13024,7 @@ public final class TestMessageV3 {
     internal_static_ExtensionsMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ExtensionsMessage_descriptor,
-        new java.lang.String[] { "BoolValue", "Int32Value", "Int64Value", "FloatValue", "DoubleValue", "StringValue", "BytesValue", "Duration", "Timestamp", "ListValue", "ListValue2", "ListValue3", "ListValue4", });
+        new java.lang.String[] { "BoolValue", "Int32Value", "Int64Value", "FloatValue", "DoubleValue", "StringValue", "BytesValue", "Duration", "Timestamp", "ListValue", "ListValue2", "ListValue3", "ListValue4", "Struct", });
     com.google.protobuf.DurationProto.getDescriptor();
     com.google.protobuf.TimestampProto.getDescriptor();
     com.google.protobuf.WrappersProto.getDescriptor();

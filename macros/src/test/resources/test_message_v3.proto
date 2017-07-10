@@ -79,4 +79,6 @@ message ExtensionsMessage {
              google.protobuf.ListValue list_value2 = 11;
              google.protobuf.ListValue list_value3 = 12;
              google.protobuf.ListValue list_value4 = 13;
+
+             google.protobuf.Struct struct = 14;
 }

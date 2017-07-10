@@ -305,7 +305,7 @@ object CactusMacros {
                 println(s"Map field $fieldName without annotation, fallback to raw conversion")
               }
 
-              q" CactusMacros.AToB[$srcResultType, $dstResultType]($getter) "
+              q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($getter)) "
           }
 
         case _ if isScalaCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
