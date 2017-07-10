@@ -1,6 +1,7 @@
 package com.avast
 
-import com.google.protobuf.MessageLite
+import com.avast.cactus.v3.AnyValue
+import com.google.protobuf.{Message, MessageLite}
 import org.scalactic.{Every, Or}
 
 import scala.language.experimental.macros
@@ -14,6 +15,10 @@ package object cactus {
 
   implicit class CaseClassToGpbConverter[CaseClass](val caseClass: CaseClass) extends AnyVal {
     def asGpb[Gpb <: MessageLite](implicit caseClassCt: ClassTag[CaseClass]): Gpb Or Every[CactusFailure] = macro CactusMacros.convertCaseClassToGpb[Gpb]
+  }
+
+  implicit class AnyValueParser(val anyValue: AnyValue) extends AnyVal {
+    def asGpb[Gpb <: Message]: Gpb Or Every[CactusFailure] = macro ProtoVersion.V3.tryParseAny[Gpb]
   }
 
 }

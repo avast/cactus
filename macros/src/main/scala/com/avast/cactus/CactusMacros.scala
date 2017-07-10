@@ -812,7 +812,7 @@ object CactusMacros {
     getterGenType
   }
 
-  private def extractSymbolFromClassTag[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree) = {
+  private[cactus] def extractSymbolFromClassTag[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree) = {
     import c.universe._
 
     (gpbCt match {
@@ -826,12 +826,14 @@ object CactusMacros {
     c.typecheck(c.parse(q)).tpe
   }
 
-  private def getVariable[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
+  private[cactus] def getVariable[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
     import c.universe._
 
     val variable = c.prefix.tree match {
       case q"cactus.this.`package`.${_}[${_}]($n)" => n
+      case q"cactus.this.`package`.${_}($n)" => n
       case q"com.avast.cactus.`package`.${_}[${_}]($n)" => n
+      case q"com.avast.cactus.`package`.${_}($n)" => n
 
       case t => c.abort(c.enclosingPosition, s"Cannot process the conversion - variable name extraction from tree '$t' failed")
     }

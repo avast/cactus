@@ -6,6 +6,7 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/any.proto";
 
 message Data {
              string     field_string = 1;                   // REQUIRED
@@ -81,4 +82,11 @@ message ExtensionsMessage {
              google.protobuf.ListValue list_value4 = 13;
 
              google.protobuf.Struct struct = 14;
+
+             google.protobuf.Any any = 15;
+}
+
+message MessageInsideAnyField {
+             string     string_field = 1;
+             int32      int_field = 2;
 }

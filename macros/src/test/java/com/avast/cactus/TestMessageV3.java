@@ -9968,6 +9968,19 @@ public final class TestMessageV3 {
      * <code>.google.protobuf.Struct struct = 14;</code>
      */
     com.google.protobuf.StructOrBuilder getStructOrBuilder();
+
+    /**
+     * <code>.google.protobuf.Any any = 15;</code>
+     */
+    boolean hasAny();
+    /**
+     * <code>.google.protobuf.Any any = 15;</code>
+     */
+    com.google.protobuf.Any getAny();
+    /**
+     * <code>.google.protobuf.Any any = 15;</code>
+     */
+    com.google.protobuf.AnyOrBuilder getAnyOrBuilder();
   }
   /**
    * Protobuf type {@code ExtensionsMessage}
@@ -10186,6 +10199,19 @@ public final class TestMessageV3 {
               if (subBuilder != null) {
                 subBuilder.mergeFrom(struct_);
                 struct_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
+            case 122: {
+              com.google.protobuf.Any.Builder subBuilder = null;
+              if (any_ != null) {
+                subBuilder = any_.toBuilder();
+              }
+              any_ = input.readMessage(com.google.protobuf.Any.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(any_);
+                any_ = subBuilder.buildPartial();
               }
 
               break;
@@ -10507,6 +10533,27 @@ public final class TestMessageV3 {
       return getStruct();
     }
 
+    public static final int ANY_FIELD_NUMBER = 15;
+    private com.google.protobuf.Any any_;
+    /**
+     * <code>.google.protobuf.Any any = 15;</code>
+     */
+    public boolean hasAny() {
+      return any_ != null;
+    }
+    /**
+     * <code>.google.protobuf.Any any = 15;</code>
+     */
+    public com.google.protobuf.Any getAny() {
+      return any_ == null ? com.google.protobuf.Any.getDefaultInstance() : any_;
+    }
+    /**
+     * <code>.google.protobuf.Any any = 15;</code>
+     */
+    public com.google.protobuf.AnyOrBuilder getAnyOrBuilder() {
+      return getAny();
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -10560,6 +10607,9 @@ public final class TestMessageV3 {
       }
       if (struct_ != null) {
         output.writeMessage(14, getStruct());
+      }
+      if (any_ != null) {
+        output.writeMessage(15, getAny());
       }
     }
 
@@ -10623,6 +10673,10 @@ public final class TestMessageV3 {
       if (struct_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(14, getStruct());
+      }
+      if (any_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(15, getAny());
       }
       memoizedSize = size;
       return size;
@@ -10710,6 +10764,11 @@ public final class TestMessageV3 {
         result = result && getStruct()
             .equals(other.getStruct());
       }
+      result = result && (hasAny() == other.hasAny());
+      if (hasAny()) {
+        result = result && getAny()
+            .equals(other.getAny());
+      }
       return result;
     }
 
@@ -10775,6 +10834,10 @@ public final class TestMessageV3 {
       if (hasStruct()) {
         hash = (37 * hash) + STRUCT_FIELD_NUMBER;
         hash = (53 * hash) + getStruct().hashCode();
+      }
+      if (hasAny()) {
+        hash = (37 * hash) + ANY_FIELD_NUMBER;
+        hash = (53 * hash) + getAny().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -10989,6 +11052,12 @@ public final class TestMessageV3 {
           struct_ = null;
           structBuilder_ = null;
         }
+        if (anyBuilder_ == null) {
+          any_ = null;
+        } else {
+          any_ = null;
+          anyBuilder_ = null;
+        }
         return this;
       }
 
@@ -11081,6 +11150,11 @@ public final class TestMessageV3 {
         } else {
           result.struct_ = structBuilder_.build();
         }
+        if (anyBuilder_ == null) {
+          result.any_ = any_;
+        } else {
+          result.any_ = anyBuilder_.build();
+        }
         onBuilt();
         return result;
       }
@@ -11163,6 +11237,9 @@ public final class TestMessageV3 {
         }
         if (other.hasStruct()) {
           mergeStruct(other.getStruct());
+        }
+        if (other.hasAny()) {
+          mergeAny(other.getAny());
         }
         onChanged();
         return this;
@@ -12827,6 +12904,123 @@ public final class TestMessageV3 {
         }
         return structBuilder_;
       }
+
+      private com.google.protobuf.Any any_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder> anyBuilder_;
+      /**
+       * <code>.google.protobuf.Any any = 15;</code>
+       */
+      public boolean hasAny() {
+        return anyBuilder_ != null || any_ != null;
+      }
+      /**
+       * <code>.google.protobuf.Any any = 15;</code>
+       */
+      public com.google.protobuf.Any getAny() {
+        if (anyBuilder_ == null) {
+          return any_ == null ? com.google.protobuf.Any.getDefaultInstance() : any_;
+        } else {
+          return anyBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.Any any = 15;</code>
+       */
+      public Builder setAny(com.google.protobuf.Any value) {
+        if (anyBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          any_ = value;
+          onChanged();
+        } else {
+          anyBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Any any = 15;</code>
+       */
+      public Builder setAny(
+          com.google.protobuf.Any.Builder builderForValue) {
+        if (anyBuilder_ == null) {
+          any_ = builderForValue.build();
+          onChanged();
+        } else {
+          anyBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Any any = 15;</code>
+       */
+      public Builder mergeAny(com.google.protobuf.Any value) {
+        if (anyBuilder_ == null) {
+          if (any_ != null) {
+            any_ =
+              com.google.protobuf.Any.newBuilder(any_).mergeFrom(value).buildPartial();
+          } else {
+            any_ = value;
+          }
+          onChanged();
+        } else {
+          anyBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Any any = 15;</code>
+       */
+      public Builder clearAny() {
+        if (anyBuilder_ == null) {
+          any_ = null;
+          onChanged();
+        } else {
+          any_ = null;
+          anyBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Any any = 15;</code>
+       */
+      public com.google.protobuf.Any.Builder getAnyBuilder() {
+        
+        onChanged();
+        return getAnyFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.Any any = 15;</code>
+       */
+      public com.google.protobuf.AnyOrBuilder getAnyOrBuilder() {
+        if (anyBuilder_ != null) {
+          return anyBuilder_.getMessageOrBuilder();
+        } else {
+          return any_ == null ?
+              com.google.protobuf.Any.getDefaultInstance() : any_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.Any any = 15;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder> 
+          getAnyFieldBuilder() {
+        if (anyBuilder_ == null) {
+          anyBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.google.protobuf.Any, com.google.protobuf.Any.Builder, com.google.protobuf.AnyOrBuilder>(
+                  getAny(),
+                  getParentForChildren(),
+                  isClean());
+          any_ = null;
+        }
+        return anyBuilder_;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -12876,6 +13070,583 @@ public final class TestMessageV3 {
 
   }
 
+  public interface MessageInsideAnyFieldOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:MessageInsideAnyField)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string string_field = 1;</code>
+     */
+    java.lang.String getStringField();
+    /**
+     * <code>string string_field = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getStringFieldBytes();
+
+    /**
+     * <code>int32 int_field = 2;</code>
+     */
+    int getIntField();
+  }
+  /**
+   * Protobuf type {@code MessageInsideAnyField}
+   */
+  public  static final class MessageInsideAnyField extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:MessageInsideAnyField)
+      MessageInsideAnyFieldOrBuilder {
+    // Use MessageInsideAnyField.newBuilder() to construct.
+    private MessageInsideAnyField(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private MessageInsideAnyField() {
+      stringField_ = "";
+      intField_ = 0;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private MessageInsideAnyField(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              stringField_ = s;
+              break;
+            }
+            case 16: {
+
+              intField_ = input.readInt32();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.avast.cactus.TestMessageV3.internal_static_MessageInsideAnyField_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.avast.cactus.TestMessageV3.internal_static_MessageInsideAnyField_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.avast.cactus.TestMessageV3.MessageInsideAnyField.class, com.avast.cactus.TestMessageV3.MessageInsideAnyField.Builder.class);
+    }
+
+    public static final int STRING_FIELD_FIELD_NUMBER = 1;
+    private volatile java.lang.Object stringField_;
+    /**
+     * <code>string string_field = 1;</code>
+     */
+    public java.lang.String getStringField() {
+      java.lang.Object ref = stringField_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        stringField_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string string_field = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getStringFieldBytes() {
+      java.lang.Object ref = stringField_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        stringField_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int INT_FIELD_FIELD_NUMBER = 2;
+    private int intField_;
+    /**
+     * <code>int32 int_field = 2;</code>
+     */
+    public int getIntField() {
+      return intField_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getStringFieldBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, stringField_);
+      }
+      if (intField_ != 0) {
+        output.writeInt32(2, intField_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getStringFieldBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, stringField_);
+      }
+      if (intField_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, intField_);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.avast.cactus.TestMessageV3.MessageInsideAnyField)) {
+        return super.equals(obj);
+      }
+      com.avast.cactus.TestMessageV3.MessageInsideAnyField other = (com.avast.cactus.TestMessageV3.MessageInsideAnyField) obj;
+
+      boolean result = true;
+      result = result && getStringField()
+          .equals(other.getStringField());
+      result = result && (getIntField()
+          == other.getIntField());
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + STRING_FIELD_FIELD_NUMBER;
+      hash = (53 * hash) + getStringField().hashCode();
+      hash = (37 * hash) + INT_FIELD_FIELD_NUMBER;
+      hash = (53 * hash) + getIntField();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.avast.cactus.TestMessageV3.MessageInsideAnyField prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code MessageInsideAnyField}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:MessageInsideAnyField)
+        com.avast.cactus.TestMessageV3.MessageInsideAnyFieldOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.avast.cactus.TestMessageV3.internal_static_MessageInsideAnyField_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.avast.cactus.TestMessageV3.internal_static_MessageInsideAnyField_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.avast.cactus.TestMessageV3.MessageInsideAnyField.class, com.avast.cactus.TestMessageV3.MessageInsideAnyField.Builder.class);
+      }
+
+      // Construct using com.avast.cactus.TestMessageV3.MessageInsideAnyField.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        stringField_ = "";
+
+        intField_ = 0;
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.avast.cactus.TestMessageV3.internal_static_MessageInsideAnyField_descriptor;
+      }
+
+      public com.avast.cactus.TestMessageV3.MessageInsideAnyField getDefaultInstanceForType() {
+        return com.avast.cactus.TestMessageV3.MessageInsideAnyField.getDefaultInstance();
+      }
+
+      public com.avast.cactus.TestMessageV3.MessageInsideAnyField build() {
+        com.avast.cactus.TestMessageV3.MessageInsideAnyField result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.avast.cactus.TestMessageV3.MessageInsideAnyField buildPartial() {
+        com.avast.cactus.TestMessageV3.MessageInsideAnyField result = new com.avast.cactus.TestMessageV3.MessageInsideAnyField(this);
+        result.stringField_ = stringField_;
+        result.intField_ = intField_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.avast.cactus.TestMessageV3.MessageInsideAnyField) {
+          return mergeFrom((com.avast.cactus.TestMessageV3.MessageInsideAnyField)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.avast.cactus.TestMessageV3.MessageInsideAnyField other) {
+        if (other == com.avast.cactus.TestMessageV3.MessageInsideAnyField.getDefaultInstance()) return this;
+        if (!other.getStringField().isEmpty()) {
+          stringField_ = other.stringField_;
+          onChanged();
+        }
+        if (other.getIntField() != 0) {
+          setIntField(other.getIntField());
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.avast.cactus.TestMessageV3.MessageInsideAnyField parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.avast.cactus.TestMessageV3.MessageInsideAnyField) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object stringField_ = "";
+      /**
+       * <code>string string_field = 1;</code>
+       */
+      public java.lang.String getStringField() {
+        java.lang.Object ref = stringField_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          stringField_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string string_field = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getStringFieldBytes() {
+        java.lang.Object ref = stringField_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          stringField_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string string_field = 1;</code>
+       */
+      public Builder setStringField(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        stringField_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string string_field = 1;</code>
+       */
+      public Builder clearStringField() {
+        
+        stringField_ = getDefaultInstance().getStringField();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string string_field = 1;</code>
+       */
+      public Builder setStringFieldBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        stringField_ = value;
+        onChanged();
+        return this;
+      }
+
+      private int intField_ ;
+      /**
+       * <code>int32 int_field = 2;</code>
+       */
+      public int getIntField() {
+        return intField_;
+      }
+      /**
+       * <code>int32 int_field = 2;</code>
+       */
+      public Builder setIntField(int value) {
+        
+        intField_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int32 int_field = 2;</code>
+       */
+      public Builder clearIntField() {
+        
+        intField_ = 0;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:MessageInsideAnyField)
+    }
+
+    // @@protoc_insertion_point(class_scope:MessageInsideAnyField)
+    private static final com.avast.cactus.TestMessageV3.MessageInsideAnyField DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.avast.cactus.TestMessageV3.MessageInsideAnyField();
+    }
+
+    public static com.avast.cactus.TestMessageV3.MessageInsideAnyField getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<MessageInsideAnyField>
+        PARSER = new com.google.protobuf.AbstractParser<MessageInsideAnyField>() {
+      public MessageInsideAnyField parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new MessageInsideAnyField(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<MessageInsideAnyField> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MessageInsideAnyField> getParserForType() {
+      return PARSER;
+    }
+
+    public com.avast.cactus.TestMessageV3.MessageInsideAnyField getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Data_descriptor;
   private static final 
@@ -12911,6 +13682,11 @@ public final class TestMessageV3 {
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ExtensionsMessage_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_MessageInsideAnyField_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_MessageInsideAnyField_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -12924,48 +13700,51 @@ public final class TestMessageV3 {
       "_v3.proto\032\036google/protobuf/duration.prot" +
       "o\032\037google/protobuf/timestamp.proto\032\036goog" +
       "le/protobuf/wrappers.proto\032\034google/proto" +
-      "buf/struct.proto\"\235\004\n\004Data\022\024\n\014field_strin" +
-      "g\030\001 \001(\t\022\026\n\016field_int_name\030\002 \001(\005\022\024\n\014field" +
-      "_option\030\003 \001(\005\022\025\n\rfield_strings\030\004 \003(\t\022\032\n\022" +
-      "field_strings_name\030\005 \003(\t\022\035\n\025field_option" +
-      "_integers\030\006 \003(\005\022#\n\033field_option_integers" +
-      "_empty\030\007 \003(\005\022 \n\020field_gpb_option\030\010 \001(\0132\006",
-      ".Data2\022&\n\026field_gpb_option_empty\030\t \001(\0132\006" +
-      ".Data2\022\031\n\tfield_gpb\030\n \001(\0132\006.Data2\022\022\n\nfie" +
-      "ld_blob\030\013 \001(\014\022\036\n\tfield_map\030\014 \003(\0132\013.MapMe" +
-      "ssage\022\027\n\017field_integers2\030\r \003(\005\022\037\n\nfield_" +
-      "map2\030\016 \003(\0132\013.MapMessage\022\"\n\022field_gpb_rep" +
-      "eated\030\017 \003(\0132\006.Data2\022+\n\033field_gpb2_repeat" +
-      "ed_recurse\030\020 \003(\0132\006.Data3\022\032\n\nfield_gpb2\030\021" +
-      " \001(\0132\006.Data2\022\032\n\nfield_gpb3\030\022 \001(\0132\006.Data5" +
-      "\"1\n\005Data2\022\024\n\014field_double\030\001 \001(\001\022\022\n\nfield" +
-      "_blob\030\002 \001(\014\"p\n\005Data3\022\031\n\tfield_gpb\030\001 \003(\0132",
-      "\006.Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_string" +
-      "\030\003 \001(\tH\000\022\023\n\tfoo_bytes\030\004 \001(\014H\000B\016\n\014named_o" +
-      "ne_of\"2\n\005Data4\022\023\n\013fieldString\030\001 \001(\t\022\024\n\014f" +
-      "ield_option\030\002 \001(\t\"[\n\005Data5\022\031\n\tfield_gpb\030" +
-      "\001 \003(\0132\006.Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_" +
-      "string\030\003 \001(\tH\000B\016\n\014named_one_of\"7\n\nMapMes" +
-      "sage\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005othe" +
-      "r\030\003 \001(\t\"\273\005\n\021ExtensionsMessage\022.\n\nbool_va" +
-      "lue\030\001 \001(\0132\032.google.protobuf.BoolValue\0220\n" +
-      "\013int32_value\030\002 \001(\0132\033.google.protobuf.Int",
-      "32Value\0220\n\013int64_value\030\003 \001(\0132\033.google.pr" +
-      "otobuf.Int64Value\0220\n\013float_value\030\004 \001(\0132\033" +
-      ".google.protobuf.FloatValue\0222\n\014double_va" +
-      "lue\030\005 \001(\0132\034.google.protobuf.DoubleValue\022" +
-      "2\n\014string_value\030\006 \001(\0132\034.google.protobuf." +
-      "StringValue\0220\n\013bytes_value\030\007 \001(\0132\033.googl" +
-      "e.protobuf.BytesValue\022+\n\010duration\030\010 \001(\0132" +
-      "\031.google.protobuf.Duration\022-\n\ttimestamp\030" +
-      "\t \001(\0132\032.google.protobuf.Timestamp\022.\n\nlis" +
-      "t_value\030\n \001(\0132\032.google.protobuf.ListValu",
-      "e\022/\n\013list_value2\030\013 \001(\0132\032.google.protobuf" +
-      ".ListValue\022/\n\013list_value3\030\014 \001(\0132\032.google" +
-      ".protobuf.ListValue\022/\n\013list_value4\030\r \001(\013" +
-      "2\032.google.protobuf.ListValue\022\'\n\006struct\030\016" +
-      " \001(\0132\027.google.protobuf.StructB\022\n\020com.ava" +
-      "st.cactusb\006proto3"
+      "buf/struct.proto\032\031google/protobuf/any.pr" +
+      "oto\"\235\004\n\004Data\022\024\n\014field_string\030\001 \001(\t\022\026\n\016fi" +
+      "eld_int_name\030\002 \001(\005\022\024\n\014field_option\030\003 \001(\005" +
+      "\022\025\n\rfield_strings\030\004 \003(\t\022\032\n\022field_strings" +
+      "_name\030\005 \003(\t\022\035\n\025field_option_integers\030\006 \003" +
+      "(\005\022#\n\033field_option_integers_empty\030\007 \003(\005\022",
+      " \n\020field_gpb_option\030\010 \001(\0132\006.Data2\022&\n\026fie" +
+      "ld_gpb_option_empty\030\t \001(\0132\006.Data2\022\031\n\tfie" +
+      "ld_gpb\030\n \001(\0132\006.Data2\022\022\n\nfield_blob\030\013 \001(\014" +
+      "\022\036\n\tfield_map\030\014 \003(\0132\013.MapMessage\022\027\n\017fiel" +
+      "d_integers2\030\r \003(\005\022\037\n\nfield_map2\030\016 \003(\0132\013." +
+      "MapMessage\022\"\n\022field_gpb_repeated\030\017 \003(\0132\006" +
+      ".Data2\022+\n\033field_gpb2_repeated_recurse\030\020 " +
+      "\003(\0132\006.Data3\022\032\n\nfield_gpb2\030\021 \001(\0132\006.Data2\022" +
+      "\032\n\nfield_gpb3\030\022 \001(\0132\006.Data5\"1\n\005Data2\022\024\n\014" +
+      "field_double\030\001 \001(\001\022\022\n\nfield_blob\030\002 \001(\014\"p",
+      "\n\005Data3\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2\022\021\n\007fo" +
+      "o_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH\000\022\023\n\tf" +
+      "oo_bytes\030\004 \001(\014H\000B\016\n\014named_one_of\"2\n\005Data" +
+      "4\022\023\n\013fieldString\030\001 \001(\t\022\024\n\014field_option\030\002" +
+      " \001(\t\"[\n\005Data5\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2" +
+      "\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH" +
+      "\000B\016\n\014named_one_of\"7\n\nMapMessage\022\013\n\003key\030\001" +
+      " \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005other\030\003 \001(\t\"\336\005\n\021E" +
+      "xtensionsMessage\022.\n\nbool_value\030\001 \001(\0132\032.g" +
+      "oogle.protobuf.BoolValue\0220\n\013int32_value\030",
+      "\002 \001(\0132\033.google.protobuf.Int32Value\0220\n\013in" +
+      "t64_value\030\003 \001(\0132\033.google.protobuf.Int64V" +
+      "alue\0220\n\013float_value\030\004 \001(\0132\033.google.proto" +
+      "buf.FloatValue\0222\n\014double_value\030\005 \001(\0132\034.g" +
+      "oogle.protobuf.DoubleValue\0222\n\014string_val" +
+      "ue\030\006 \001(\0132\034.google.protobuf.StringValue\0220" +
+      "\n\013bytes_value\030\007 \001(\0132\033.google.protobuf.By" +
+      "tesValue\022+\n\010duration\030\010 \001(\0132\031.google.prot" +
+      "obuf.Duration\022-\n\ttimestamp\030\t \001(\0132\032.googl" +
+      "e.protobuf.Timestamp\022.\n\nlist_value\030\n \001(\013",
+      "2\032.google.protobuf.ListValue\022/\n\013list_val" +
+      "ue2\030\013 \001(\0132\032.google.protobuf.ListValue\022/\n" +
+      "\013list_value3\030\014 \001(\0132\032.google.protobuf.Lis" +
+      "tValue\022/\n\013list_value4\030\r \001(\0132\032.google.pro" +
+      "tobuf.ListValue\022\'\n\006struct\030\016 \001(\0132\027.google" +
+      ".protobuf.Struct\022!\n\003any\030\017 \001(\0132\024.google.p" +
+      "rotobuf.Any\"@\n\025MessageInsideAnyField\022\024\n\014" +
+      "string_field\030\001 \001(\t\022\021\n\tint_field\030\002 \001(\005B\022\n" +
+      "\020com.avast.cactusb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -12982,6 +13761,7 @@ public final class TestMessageV3 {
           com.google.protobuf.TimestampProto.getDescriptor(),
           com.google.protobuf.WrappersProto.getDescriptor(),
           com.google.protobuf.StructProto.getDescriptor(),
+          com.google.protobuf.AnyProto.getDescriptor(),
         }, assigner);
     internal_static_Data_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -13024,11 +13804,18 @@ public final class TestMessageV3 {
     internal_static_ExtensionsMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ExtensionsMessage_descriptor,
-        new java.lang.String[] { "BoolValue", "Int32Value", "Int64Value", "FloatValue", "DoubleValue", "StringValue", "BytesValue", "Duration", "Timestamp", "ListValue", "ListValue2", "ListValue3", "ListValue4", "Struct", });
+        new java.lang.String[] { "BoolValue", "Int32Value", "Int64Value", "FloatValue", "DoubleValue", "StringValue", "BytesValue", "Duration", "Timestamp", "ListValue", "ListValue2", "ListValue3", "ListValue4", "Struct", "Any", });
+    internal_static_MessageInsideAnyField_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_MessageInsideAnyField_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_MessageInsideAnyField_descriptor,
+        new java.lang.String[] { "StringField", "IntField", });
     com.google.protobuf.DurationProto.getDescriptor();
     com.google.protobuf.TimestampProto.getDescriptor();
     com.google.protobuf.WrappersProto.getDescriptor();
     com.google.protobuf.StructProto.getDescriptor();
+    com.google.protobuf.AnyProto.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

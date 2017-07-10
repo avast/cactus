@@ -11,3 +11,7 @@ case class MissingFieldFailure(fieldName: String) extends CactusFailure {
 case class OneOfValueNotSetFailure(oneOfName: String) extends CactusFailure {
   override def message: String = s"ONE-OF '$oneOfName' does not have set value"
 }
+
+case class WrongAnyTypeFailure(declared: String, required: String) extends CactusFailure {
+  override def message: String = s"Declared type_url in message is '$declared', required '$required'"
+}

@@ -5,7 +5,7 @@ import java.time.{Duration, Instant}
 import com.avast.cactus.TestMessageV3._
 import com.avast.cactus._
 import com.avast.cactus.v3.ValueOneOf.NumberValue
-import com.google.protobuf.{BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
+import com.google.protobuf.{Any, BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
 import org.scalactic.{Bad, Good}
 import org.scalatest.FunSuite
 
@@ -231,6 +231,23 @@ class CactusMacrosTestV3 extends FunSuite {
 
     assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
   }
+
+  test("any extension to GPB and back") {
+    val innerMessage = MessageInsideAnyField.newBuilder().setIntField(42).setStringField("ahoj").build()
+
+    val orig = ExtClass(Instant.ofEpochSecond(12345), AnyValue.of(innerMessage))
+
+    val expected = ExtensionsMessage.newBuilder().setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345)).setAny(Any.pack(innerMessage)).build()
+
+    val Good(converted) = orig.asGpb[ExtensionsMessage]
+
+    assertResult(expected)(converted)
+
+    val actual = converted.asCaseClass[ExtClass]
+
+    assertResult(Good(orig))(actual)
+    assertResult(Good(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
+  }
 }
 
 case class CaseClassA(fieldString: String,
@@ -291,6 +308,8 @@ case class CaseClassExtensionsScala(boolValue: Boolean,
                                     listValue: Seq[ValueOneOf],
                                     duration: Duration,
                                     timestamp: Instant)
+
+case class ExtClass(timestamp: Instant, any: AnyValue)
 
 sealed trait OneOfNamed
 
