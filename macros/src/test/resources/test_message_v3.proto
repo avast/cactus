@@ -68,12 +68,15 @@ message ExtensionsMessage {
              google.protobuf.BoolValue bool_value = 1;
              google.protobuf.Int32Value int32_value = 2;
              google.protobuf.Int64Value int64_value = 3;
-             google.protobuf.FloatValue float_value = 6;
-             google.protobuf.DoubleValue double_value = 7;
-             google.protobuf.StringValue string_value = 8;
-             google.protobuf.BytesValue bytes_value = 9;
+             google.protobuf.FloatValue float_value = 4;
+             google.protobuf.DoubleValue double_value = 5;
+             google.protobuf.StringValue string_value = 6;
+             google.protobuf.BytesValue bytes_value = 7;
 
-             google.protobuf.Duration duration = 10;
-             google.protobuf.Timestamp timestamp = 12;
-             google.protobuf.ListValue list_value = 11;
+             google.protobuf.Duration duration = 8;
+             google.protobuf.Timestamp timestamp = 9;
+             google.protobuf.ListValue list_value = 10;
+             google.protobuf.ListValue list_value2 = 11;
+             google.protobuf.ListValue list_value3 = 12;
+             google.protobuf.ListValue list_value4 = 13;
 }

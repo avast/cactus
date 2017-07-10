@@ -19,6 +19,7 @@ object CactusMacros {
 
   private[cactus] object ClassesNames {
     val ProtocolStringList = "com.google.protobuf.ProtocolStringList"
+    val ListValue = "com.google.protobuf.ListValue"
     val ByteString = "com.google.protobuf.ByteString"
     val GeneratedMessageV3 = "com.google.protobuf.GeneratedMessageV3"
 
@@ -801,10 +802,10 @@ object CactusMacros {
     val getterResultType = getterReturnType.resultType
     val getterGenType = getterResultType.typeArgs.headOption
       .getOrElse {
-        if (getterResultType.toString == ClassesNames.ProtocolStringList) {
-          typeOf[java.lang.String]
-        } else {
-          c.abort(c.enclosingPosition, s"Could not extract generic type from $getterResultType")
+        getterResultType.toString match {
+          case ClassesNames.ProtocolStringList => typeOf[java.lang.String]
+          case ClassesNames.ListValue => typeOf[com.google.protobuf.Value]
+          case _ => c.abort(c.enclosingPosition, s"Could not extract generic type from $getterResultType")
         }
       }
 

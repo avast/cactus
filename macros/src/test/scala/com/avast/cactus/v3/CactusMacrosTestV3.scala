@@ -2,6 +2,7 @@ package com.avast.cactus.v3
 
 import com.avast.cactus.TestMessageV3._
 import com.avast.cactus._
+import com.avast.cactus.v3.ValueOneOf.NumberValue
 import com.google.protobuf.{BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
 import org.scalactic.{Bad, Good}
 import org.scalatest.FunSuite
@@ -164,25 +165,28 @@ class CactusMacrosTestV3 extends FunSuite {
       .setInt32Value(Int32Value.newBuilder().setValue(123))
       .setInt64Value(Int64Value.newBuilder().setValue(456))
       .setFloatValue(FloatValue.newBuilder().setValue(123.456f))
-      .setDoubleValue(DoubleValue.newBuilder().setValue(123.456))
-      .setStringValue(StringValue.newBuilder().setValue("theText"))
       .setBytesValue(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")))
       .setDuration(GpbDuration.newBuilder().setSeconds(123).setNanos(456))
       .setTimestamp(GpbTimestamp.newBuilder().setSeconds(123).setNanos(456))
       .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+      .setListValue2(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+      .setListValue3(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
       .build()
 
     val expected = CaseClassExtensions(
       boolValue = BoolValue.newBuilder().setValue(true).build(),
       int32Value = Int32Value.newBuilder().setValue(123).build(),
       longValue = Int64Value.newBuilder().setValue(456).build(),
-      floatValue = FloatValue.newBuilder().setValue(123.456f).build(),
-      doubleValue = DoubleValue.newBuilder().setValue(123.456).build(),
-      stringValue = StringValue.newBuilder().setValue("theText").build(),
+      floatValue = Some(FloatValue.newBuilder().setValue(123.456f).build()),
+      doubleValue = None,
+      stringValue = None,
       bytesValue = BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")).build(),
       duration = GpbDuration.newBuilder().setSeconds(123).setNanos(456).build(),
       timestamp = GpbTimestamp.newBuilder().setSeconds(123).setNanos(456).build(),
-      listValue = ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)).build()
+      listValue = ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)).build(),
+      listValue2 = Seq(NumberValue(456.789)),
+      listValue3 = Some(Seq(NumberValue(456.789))),
+      listValue4 = None
     )
 
     val Good(converted) = gpb.asCaseClass[CaseClassExtensions]
@@ -228,11 +232,14 @@ case class CaseClassExtensions(boolValue: BoolValue,
                                int32Value: Int32Value,
                                @GpbName("int64Value")
                                longValue: Int64Value,
-                               floatValue: FloatValue,
-                               doubleValue: DoubleValue,
-                               stringValue: StringValue,
+                               floatValue: Option[FloatValue],
+                               doubleValue: Option[DoubleValue],
+                               stringValue: Option[StringValue],
                                bytesValue: BytesValue,
                                listValue: ListValue,
+                               listValue2: Seq[ValueOneOf],
+                               listValue3: Option[Seq[ValueOneOf]],
+                               listValue4: Option[Seq[ValueOneOf]],
                                duration: GpbDuration,
                                timestamp: GpbTimestamp)
 

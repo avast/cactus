@@ -1,6 +1,10 @@
 package com.avast.cactus
 
+import com.avast.cactus.v3.ValueOneOf
+import com.google.protobuf.ListValue
+
 import scala.annotation.implicitNotFound
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
@@ -36,6 +40,15 @@ object Converter {
   implicit val Float2floatConverter: Converter[java.lang.Float, Float] = Converter(Float2float)
   implicit val Double2doubleConverter: Converter[java.lang.Double, Double] = Converter(Double2double)
   implicit val Boolean2booleanConverter: Converter[java.lang.Boolean, Boolean] = Converter(Boolean2boolean)
+
+  // v3 conversions:
+  implicit val listValue2SeqConverter: Converter[com.google.protobuf.ListValue, Seq[ValueOneOf]] = Converter { listValue =>
+    listValue.getValuesList.asScala.map(ValueOneOf.apply)
+  }
+
+  implicit val seq2ListValueConverter: Converter[Seq[ValueOneOf], com.google.protobuf.ListValue] = Converter { values =>
+    ListValue.newBuilder().addAllValues(values.map(ValueOneOf.toGpbValue).asJava).build()
+  }
 
   // conversions generators:
 
