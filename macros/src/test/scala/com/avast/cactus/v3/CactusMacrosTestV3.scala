@@ -1,5 +1,7 @@
 package com.avast.cactus.v3
 
+import java.time.{Duration, Instant}
+
 import com.avast.cactus.TestMessageV3._
 import com.avast.cactus._
 import com.avast.cactus.v3.ValueOneOf.NumberValue
@@ -159,7 +161,7 @@ class CactusMacrosTestV3 extends FunSuite {
     assertResult(Good(original))(converted.asCaseClass[CaseClassE])
   }
 
-  test("extensions from GPB anc back") {
+  test("extensions from GPB and back") {
     val gpb = ExtensionsMessage.newBuilder()
       .setBoolValue(BoolValue.newBuilder().setValue(true))
       .setInt32Value(Int32Value.newBuilder().setValue(123))
@@ -190,6 +192,38 @@ class CactusMacrosTestV3 extends FunSuite {
     )
 
     val Good(converted) = gpb.asCaseClass[CaseClassExtensions]
+
+    assertResult(expected)(converted)
+
+    assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
+  }
+
+  test("extensions from GPB and back - scala types") {
+    val gpb = ExtensionsMessage.newBuilder()
+      .setBoolValue(BoolValue.newBuilder().setValue(true))
+      .setInt32Value(Int32Value.newBuilder().setValue(123))
+      .setInt64Value(Int64Value.newBuilder().setValue(456))
+      .setFloatValue(FloatValue.newBuilder().setValue(123.456f))
+      .setBytesValue(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")))
+      .setDuration(GpbDuration.newBuilder().setSeconds(123).setNanos(456))
+      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(123).setNanos(456))
+      .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+      .build()
+
+    val expected = CaseClassExtensionsScala(
+      boolValue = true,
+      int32Value = 123,
+      longValue = 456,
+      floatValue = Some(123.456f),
+      doubleValue = None,
+      stringValue = None,
+      bytesValue = ByteString.copyFromUtf8("+ěščřžýáíé"),
+      duration = Duration.ofSeconds(123, 456),
+      timestamp = Instant.ofEpochSecond(123, 456),
+      listValue = Seq(NumberValue(456.789))
+    )
+
+    val Good(converted) = gpb.asCaseClass[CaseClassExtensionsScala]
 
     assertResult(expected)(converted)
 
@@ -242,6 +276,18 @@ case class CaseClassExtensions(boolValue: BoolValue,
                                listValue4: Option[Seq[ValueOneOf]],
                                duration: GpbDuration,
                                timestamp: GpbTimestamp)
+
+case class CaseClassExtensionsScala(boolValue: Boolean,
+                                    int32Value: Int,
+                                    @GpbName("int64Value")
+                                    longValue: Long,
+                                    floatValue: Option[Float],
+                                    doubleValue: Option[Double],
+                                    stringValue: Option[String],
+                                    bytesValue: ByteString,
+                                    listValue: Seq[ValueOneOf],
+                                    duration: Duration,
+                                    timestamp: Instant)
 
 sealed trait OneOfNamed
 

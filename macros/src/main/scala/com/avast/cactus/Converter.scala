@@ -1,7 +1,6 @@
 package com.avast.cactus
 
-import com.avast.cactus.v3.ValueOneOf
-import com.google.protobuf.ListValue
+import com.avast.cactus.v3.V3Converters
 
 import scala.annotation.implicitNotFound
 import scala.collection.JavaConverters._
@@ -12,7 +11,7 @@ trait Converter[A, B] {
   def apply(a: A): B
 }
 
-object Converter {
+object Converter extends V3Converters {
 
   def apply[A, B](f: A => B): Converter[A, B] = new Converter[A, B] {
     override def apply(a: A): B = f(a)
@@ -41,14 +40,7 @@ object Converter {
   implicit val Double2doubleConverter: Converter[java.lang.Double, Double] = Converter(Double2double)
   implicit val Boolean2booleanConverter: Converter[java.lang.Boolean, Boolean] = Converter(Boolean2boolean)
 
-  // v3 conversions:
-  implicit val listValue2SeqConverter: Converter[com.google.protobuf.ListValue, Seq[ValueOneOf]] = Converter { listValue =>
-    listValue.getValuesList.asScala.map(ValueOneOf.apply)
-  }
-
-  implicit val seq2ListValueConverter: Converter[Seq[ValueOneOf], com.google.protobuf.ListValue] = Converter { values =>
-    ListValue.newBuilder().addAllValues(values.map(ValueOneOf.toGpbValue).asJava).build()
-  }
+  // v3 conversions inherited from V3Converters
 
   // conversions generators:
 
