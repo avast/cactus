@@ -35,6 +35,11 @@ message Data4 {
 
 message MapMessage {
     optional string key = 1;                                // REQUIRED
-    optional string value = 2;                              // REQUIRED
+    optional MapInnerMessage value = 2;                     // REQUIRED
     optional string other = 3;                              // OPTIONAL
+
+    message MapInnerMessage {
+       optional string     field_string = 1;                // REQUIRED
+       optional int32      field_int = 2;                   // REQUIRED
+    }
 }

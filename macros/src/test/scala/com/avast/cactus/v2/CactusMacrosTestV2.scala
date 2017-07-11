@@ -1,5 +1,6 @@
 package com.avast.cactus.v2
 
+import com.avast.cactus.TestMessageV2.MapMessage.MapInnerMessage
 import com.avast.cactus.TestMessageV2._
 import com.avast.cactus._
 import com.google.protobuf.ByteString
@@ -21,8 +22,8 @@ class CactusMacrosTestV2 extends FunSuite {
   implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter(_.asScala.mkString(", "))
   implicit val StringJavaIntegerListConverter: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter(_.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
 
-  implicit val StringIntConverter: Converter[String, Int] = Converter(_.toInt)
-  implicit val IntStringConverter: Converter[Int, String] = Converter(_.toString)
+  implicit val MapInnerMessageIntConverter: Converter[MapInnerMessage, Int] = Converter(_.getFieldInt)
+  implicit val IntMapInnerMessageConverter: Converter[Int, MapInnerMessage] = Converter(MapInnerMessage.newBuilder().setFieldString("str").setFieldInt(_).build())
 
   // these are not needed, but they are here to be sure it won't cause trouble to the user
   implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter((b: Array[Byte]) => ByteString.copyFrom(b))
@@ -34,7 +35,7 @@ class CactusMacrosTestV2 extends FunSuite {
       .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
 
-    val map = Map("first" -> "1", "second" -> "2")
+    val map = Map("first" -> CaseClassMapInnerMessage("str", 1), "second" -> CaseClassMapInnerMessage("str", 2))
     val map2 = Map("first" -> 1, "second" -> 2)
 
     val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
@@ -52,8 +53,12 @@ class CactusMacrosTestV2 extends FunSuite {
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
-      .addAllFieldMap(map.map { case (key, value) => TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
-      .addAllFieldMap2(map.map { case (key, value) => TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
+      .addAllFieldMap(map.map { case (key, value) =>
+        TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString)).build()
+      }.asJava)
+      .addAllFieldMap2(map.map { case (key, value) =>
+        TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString)).build()
+      }.asJava)
       .build()
 
     val caseClassB = CaseClassB(0.9, "text")
@@ -95,7 +100,7 @@ class CactusMacrosTestV2 extends FunSuite {
   }
 
   test("Case class to GPB") {
-    val map = Map("first" -> "1", "second" -> "2")
+    val map = Map("first" -> CaseClassMapInnerMessage("str", 1), "second" -> CaseClassMapInnerMessage("str", 2))
     val map2 = Map("first" -> 1, "second" -> 2)
 
     val caseClassB = CaseClassB(0.9, "text")
@@ -123,8 +128,12 @@ class CactusMacrosTestV2 extends FunSuite {
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
-      .addAllFieldMap(map.map { case (key, value) => TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
-      .addAllFieldMap2(map2.map { case (key, value) => TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
+      .addAllFieldMap(map.map { case (key, value) =>
+        TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString)).build()
+      }.asJava)
+      .addAllFieldMap2(map.map { case (key, value) =>
+        TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString)).build()
+      }.asJava)
       .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
       .build()
 
@@ -134,7 +143,7 @@ class CactusMacrosTestV2 extends FunSuite {
   }
 
   test("convert case class to GPB and back") {
-    val map = Map("first" -> "1", "second" -> "2")
+    val map = Map("first" -> CaseClassMapInnerMessage("str", 1), "second" -> CaseClassMapInnerMessage("str", 2))
 
     val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), Vector(3, 6), List(), map)
 
@@ -170,10 +179,12 @@ case class CaseClassA(fieldString: String,
                       @GpbName("fieldIntegers2")
                       fieldIntegersString: String,
                       @GpbMap(key = "key", value = "value")
-                      fieldMap: Map[String, String],
+                      fieldMap: Map[String, CaseClassMapInnerMessage],
                       @GpbName("fieldMap2")
                       @GpbMap(key = "key", value = "value")
                       fieldMapDiffType: Map[String, Int])
+
+case class CaseClassMapInnerMessage(fieldString: String, fieldInt: Int)
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
@@ -193,7 +204,7 @@ case class CaseClassC(fieldString: StringWrapperClass,
                       fieldOptionIntegers: Seq[Int],
                       fieldOptionIntegersEmpty: Seq[Int],
                       @GpbMap(key = "key", value = "value")
-                      fieldMap: Map[String, String]) {
+                      fieldMap: Map[String, CaseClassMapInnerMessage]) {
 
   // needed because of the array
   override def equals(obj: scala.Any): Boolean = obj match {

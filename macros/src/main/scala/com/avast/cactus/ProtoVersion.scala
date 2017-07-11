@@ -219,7 +219,7 @@ private[cactus] object ProtoVersion {
       val (dstKeyType, dstValueType) = (dstTypeArgs.head, dstTypeArgs.tail.head)
 
       val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
-        q" key "
+        q" Good(key).orBad[Every[com.avast.cactus.CactusFailure]] "
       } else {
         val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstKeyType)
 
@@ -227,11 +227,11 @@ private[cactus] object ProtoVersion {
           q" (t: $srcKeyType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType)} "
         }
 
-        q" CactusMacros.AToB[$srcKeyType, $dstKeyType](key) "
+        q" CactusMacros.AToB[$srcKeyType, $wrappedDstType](key) "
       }
 
       val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
-        q" value "
+        q" Good(value).orBad[Every[com.avast.cactus.CactusFailure]] "
       } else {
         val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstValueType)
 
@@ -246,7 +246,7 @@ private[cactus] object ProtoVersion {
             (sm: $srcType) => {
                 sm.asScala.map { case (key, value) =>
                     $keyField -> $valueField
-                }.toSeq.map{ case(key, or) => or.map(key -> _) }.combined.map(_.toMap)
+                }.toSeq.map{ case(key, or) => withGood(key, or)(_ -> _) }.combined.map(_.toMap)
             }
          """
     }
