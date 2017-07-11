@@ -1,6 +1,6 @@
 package com.avast.cactus
 
-import com.avast.cactus.CactusMacros.{AnnotationsMap, ClassesNames}
+import com.avast.cactus.CactusMacros.{AnnotationsMap, ClassesNames, typesEqual}
 import org.scalactic.{Every, Or}
 
 import scala.reflect.macros.whitebox
@@ -26,7 +26,7 @@ private[cactus] object ProtoVersion {
 
     private def isPrimitiveType(c: whitebox.Context)(fieldType: c.universe.Type): Boolean = {
       fieldType.baseClasses.exists { t =>
-        CactusMacros.isPrimitive(c)(fieldType) || t.asType.fullName == ClassesNames.ByteString
+        CactusMacros.isPrimitive(c)(fieldType) || t.asType.fullName == ClassesNames.Protobuf.ByteString
       }
     }
 
@@ -162,6 +162,66 @@ private[cactus] object ProtoVersion {
           }.getOrElse(fieldNameUpper)
         }
       } else None
+    }
+
+    def newConverterScalaToJavaMap(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): c.Tree = {
+      import c.universe._
+
+      val srcTypeArgs = srcType.typeArgs
+      val (srcKeyType, srcValueType) = (srcTypeArgs.head, srcTypeArgs.tail.head)
+
+      val dstTypeArgs = dstType.typeArgs
+      val (dstKeyType, dstValueType) = (dstTypeArgs.head, dstTypeArgs.tail.head)
+
+      val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
+        q" key "
+      } else {
+        q" CactusMacros.AToB[$srcKeyType, $dstKeyType](key) "
+      }
+
+      val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
+        q" value "
+      } else {
+        q" CactusMacros.AToB[$srcValueType, $dstValueType](value) "
+      }
+
+      q"""
+            (sm: $srcType) => {
+                sm.map { case (key, value) =>
+                    $keyField -> $valueField
+                }.asJava
+            }
+         """
+    }
+
+    def newConverterJavaToScalaMap(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): c.Tree = {
+      import c.universe._
+
+      val srcTypeArgs = srcType.typeArgs
+      val (srcKeyType, srcValueType) = (srcTypeArgs.head, srcTypeArgs.tail.head)
+
+      val dstTypeArgs = dstType.typeArgs
+      val (dstKeyType, dstValueType) = (dstTypeArgs.head, dstTypeArgs.tail.head)
+
+      val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
+        q" key "
+      } else {
+        q" CactusMacros.AToB[$srcKeyType, $dstKeyType](key) "
+      }
+
+      val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
+        q" value "
+      } else {
+        q" CactusMacros.AToB[$srcValueType, $dstValueType](value) "
+      }
+
+      q"""
+            (sm: $srcType) => {
+                sm.asScala.map { case (key, value) =>
+                    $keyField -> $valueField
+                }.toMap
+            }
+         """
     }
 
     def tryParseAny[Gpb: c.WeakTypeTag](c: whitebox.Context): c.Expr[Gpb Or Every[CactusFailure]] = {

@@ -7031,6 +7031,60 @@ public final class TestMessageV3 {
      */
     com.google.protobuf.ByteString
         getFieldOptionBytes();
+
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, int32&gt; field_map = 3;</code>
+     */
+    int getFieldMapCount();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, int32&gt; field_map = 3;</code>
+     */
+    boolean containsFieldMap(
+        java.lang.String key);
+    /**
+     * Use {@link #getFieldMapMap()} instead.
+     */
+    @java.lang.Deprecated
+    java.util.Map<java.lang.String, java.lang.Integer>
+    getFieldMap();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, int32&gt; field_map = 3;</code>
+     */
+    java.util.Map<java.lang.String, java.lang.Integer>
+    getFieldMapMap();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, int32&gt; field_map = 3;</code>
+     */
+
+    int getFieldMapOrDefault(
+        java.lang.String key,
+        int defaultValue);
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, int32&gt; field_map = 3;</code>
+     */
+
+    int getFieldMapOrThrow(
+        java.lang.String key);
   }
   /**
    * Protobuf type {@code Data4}
@@ -7085,6 +7139,19 @@ public final class TestMessageV3 {
               fieldOption_ = s;
               break;
             }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                fieldMap_ = com.google.protobuf.MapField.newMapField(
+                    FieldMapDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000004;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.Integer>
+              fieldMap__ = input.readMessage(
+                  FieldMapDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              fieldMap_.getMutableMap().put(
+                  fieldMap__.getKey(), fieldMap__.getValue());
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -7101,6 +7168,17 @@ public final class TestMessageV3 {
       return com.avast.cactus.TestMessageV3.internal_static_Data4_descriptor;
     }
 
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapField internalGetMapField(
+        int number) {
+      switch (number) {
+        case 3:
+          return internalGetFieldMap();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return com.avast.cactus.TestMessageV3.internal_static_Data4_fieldAccessorTable
@@ -7108,6 +7186,7 @@ public final class TestMessageV3 {
               com.avast.cactus.TestMessageV3.Data4.class, com.avast.cactus.TestMessageV3.Data4.Builder.class);
     }
 
+    private int bitField0_;
     public static final int FIELDSTRING_FIELD_NUMBER = 1;
     private volatile java.lang.Object fieldString_;
     /**
@@ -7192,6 +7271,98 @@ public final class TestMessageV3 {
       }
     }
 
+    public static final int FIELD_MAP_FIELD_NUMBER = 3;
+    private static final class FieldMapDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.Integer> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.Integer>newDefaultInstance(
+                  com.avast.cactus.TestMessageV3.internal_static_Data4_FieldMapEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.INT32,
+                  0);
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.Integer> fieldMap_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.Integer>
+    internalGetFieldMap() {
+      if (fieldMap_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            FieldMapDefaultEntryHolder.defaultEntry);
+      }
+      return fieldMap_;
+    }
+
+    public int getFieldMapCount() {
+      return internalGetFieldMap().getMap().size();
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, int32&gt; field_map = 3;</code>
+     */
+
+    public boolean containsFieldMap(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      return internalGetFieldMap().getMap().containsKey(key);
+    }
+    /**
+     * Use {@link #getFieldMapMap()} instead.
+     */
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, java.lang.Integer> getFieldMap() {
+      return getFieldMapMap();
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, int32&gt; field_map = 3;</code>
+     */
+
+    public java.util.Map<java.lang.String, java.lang.Integer> getFieldMapMap() {
+      return internalGetFieldMap().getMap();
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, int32&gt; field_map = 3;</code>
+     */
+
+    public int getFieldMapOrDefault(
+        java.lang.String key,
+        int defaultValue) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.Integer> map =
+          internalGetFieldMap().getMap();
+      return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, int32&gt; field_map = 3;</code>
+     */
+
+    public int getFieldMapOrThrow(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.Integer> map =
+          internalGetFieldMap().getMap();
+      if (!map.containsKey(key)) {
+        throw new java.lang.IllegalArgumentException();
+      }
+      return map.get(key);
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -7210,6 +7381,12 @@ public final class TestMessageV3 {
       if (!getFieldOptionBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, fieldOption_);
       }
+      com.google.protobuf.GeneratedMessageV3
+        .serializeStringMapTo(
+          output,
+          internalGetFieldMap(),
+          FieldMapDefaultEntryHolder.defaultEntry,
+          3);
     }
 
     public int getSerializedSize() {
@@ -7222,6 +7399,16 @@ public final class TestMessageV3 {
       }
       if (!getFieldOptionBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, fieldOption_);
+      }
+      for (java.util.Map.Entry<java.lang.String, java.lang.Integer> entry
+           : internalGetFieldMap().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.Integer>
+        fieldMap__ = FieldMapDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(3, fieldMap__);
       }
       memoizedSize = size;
       return size;
@@ -7243,6 +7430,8 @@ public final class TestMessageV3 {
           .equals(other.getFieldString());
       result = result && getFieldOption()
           .equals(other.getFieldOption());
+      result = result && internalGetFieldMap().equals(
+          other.internalGetFieldMap());
       return result;
     }
 
@@ -7257,6 +7446,10 @@ public final class TestMessageV3 {
       hash = (53 * hash) + getFieldString().hashCode();
       hash = (37 * hash) + FIELD_OPTION_FIELD_NUMBER;
       hash = (53 * hash) + getFieldOption().hashCode();
+      if (!internalGetFieldMap().getMap().isEmpty()) {
+        hash = (37 * hash) + FIELD_MAP_FIELD_NUMBER;
+        hash = (53 * hash) + internalGetFieldMap().hashCode();
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -7362,6 +7555,28 @@ public final class TestMessageV3 {
         return com.avast.cactus.TestMessageV3.internal_static_Data4_descriptor;
       }
 
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMapField(
+          int number) {
+        switch (number) {
+          case 3:
+            return internalGetFieldMap();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMutableMapField(
+          int number) {
+        switch (number) {
+          case 3:
+            return internalGetMutableFieldMap();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.avast.cactus.TestMessageV3.internal_static_Data4_fieldAccessorTable
@@ -7390,6 +7605,7 @@ public final class TestMessageV3 {
 
         fieldOption_ = "";
 
+        internalGetMutableFieldMap().clear();
         return this;
       }
 
@@ -7412,8 +7628,13 @@ public final class TestMessageV3 {
 
       public com.avast.cactus.TestMessageV3.Data4 buildPartial() {
         com.avast.cactus.TestMessageV3.Data4 result = new com.avast.cactus.TestMessageV3.Data4(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         result.fieldString_ = fieldString_;
         result.fieldOption_ = fieldOption_;
+        result.fieldMap_ = internalGetFieldMap();
+        result.fieldMap_.makeImmutable();
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -7463,6 +7684,8 @@ public final class TestMessageV3 {
           fieldOption_ = other.fieldOption_;
           onChanged();
         }
+        internalGetMutableFieldMap().mergeFrom(
+            other.internalGetFieldMap());
         onChanged();
         return this;
       }
@@ -7488,6 +7711,7 @@ public final class TestMessageV3 {
         }
         return this;
       }
+      private int bitField0_;
 
       private java.lang.Object fieldString_ = "";
       /**
@@ -7664,6 +7888,157 @@ public final class TestMessageV3 {
         
         fieldOption_ = value;
         onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.MapField<
+          java.lang.String, java.lang.Integer> fieldMap_;
+      private com.google.protobuf.MapField<java.lang.String, java.lang.Integer>
+      internalGetFieldMap() {
+        if (fieldMap_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              FieldMapDefaultEntryHolder.defaultEntry);
+        }
+        return fieldMap_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, java.lang.Integer>
+      internalGetMutableFieldMap() {
+        onChanged();;
+        if (fieldMap_ == null) {
+          fieldMap_ = com.google.protobuf.MapField.newMapField(
+              FieldMapDefaultEntryHolder.defaultEntry);
+        }
+        if (!fieldMap_.isMutable()) {
+          fieldMap_ = fieldMap_.copy();
+        }
+        return fieldMap_;
+      }
+
+      public int getFieldMapCount() {
+        return internalGetFieldMap().getMap().size();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, int32&gt; field_map = 3;</code>
+       */
+
+      public boolean containsFieldMap(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        return internalGetFieldMap().getMap().containsKey(key);
+      }
+      /**
+       * Use {@link #getFieldMapMap()} instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.Integer> getFieldMap() {
+        return getFieldMapMap();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, int32&gt; field_map = 3;</code>
+       */
+
+      public java.util.Map<java.lang.String, java.lang.Integer> getFieldMapMap() {
+        return internalGetFieldMap().getMap();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, int32&gt; field_map = 3;</code>
+       */
+
+      public int getFieldMapOrDefault(
+          java.lang.String key,
+          int defaultValue) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.Integer> map =
+            internalGetFieldMap().getMap();
+        return map.containsKey(key) ? map.get(key) : defaultValue;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, int32&gt; field_map = 3;</code>
+       */
+
+      public int getFieldMapOrThrow(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.Integer> map =
+            internalGetFieldMap().getMap();
+        if (!map.containsKey(key)) {
+          throw new java.lang.IllegalArgumentException();
+        }
+        return map.get(key);
+      }
+
+      public Builder clearFieldMap() {
+        internalGetMutableFieldMap().getMutableMap()
+            .clear();
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, int32&gt; field_map = 3;</code>
+       */
+
+      public Builder removeFieldMap(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        internalGetMutableFieldMap().getMutableMap()
+            .remove(key);
+        return this;
+      }
+      /**
+       * Use alternate mutation accessors instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.Integer>
+      getMutableFieldMap() {
+        return internalGetMutableFieldMap().getMutableMap();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, int32&gt; field_map = 3;</code>
+       */
+      public Builder putFieldMap(
+          java.lang.String key,
+          int value) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        
+        internalGetMutableFieldMap().getMutableMap()
+            .put(key, value);
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, int32&gt; field_map = 3;</code>
+       */
+
+      public Builder putAllFieldMap(
+          java.util.Map<java.lang.String, java.lang.Integer> values) {
+        internalGetMutableFieldMap().getMutableMap()
+            .putAll(values);
         return this;
       }
       public final Builder setUnknownFields(
@@ -13668,6 +14043,11 @@ public final class TestMessageV3 {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_Data4_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_Data4_FieldMapEntry_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_Data4_FieldMapEntry_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Data5_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -13718,33 +14098,35 @@ public final class TestMessageV3 {
       "field_double\030\001 \001(\001\022\022\n\nfield_blob\030\002 \001(\014\"p",
       "\n\005Data3\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2\022\021\n\007fo" +
       "o_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH\000\022\023\n\tf" +
-      "oo_bytes\030\004 \001(\014H\000B\016\n\014named_one_of\"2\n\005Data" +
-      "4\022\023\n\013fieldString\030\001 \001(\t\022\024\n\014field_option\030\002" +
-      " \001(\t\"[\n\005Data5\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2" +
-      "\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH" +
-      "\000B\016\n\014named_one_of\"7\n\nMapMessage\022\013\n\003key\030\001" +
-      " \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005other\030\003 \001(\t\"\336\005\n\021E" +
-      "xtensionsMessage\022.\n\nbool_value\030\001 \001(\0132\032.g" +
-      "oogle.protobuf.BoolValue\0220\n\013int32_value\030",
-      "\002 \001(\0132\033.google.protobuf.Int32Value\0220\n\013in" +
-      "t64_value\030\003 \001(\0132\033.google.protobuf.Int64V" +
-      "alue\0220\n\013float_value\030\004 \001(\0132\033.google.proto" +
-      "buf.FloatValue\0222\n\014double_value\030\005 \001(\0132\034.g" +
-      "oogle.protobuf.DoubleValue\0222\n\014string_val" +
-      "ue\030\006 \001(\0132\034.google.protobuf.StringValue\0220" +
-      "\n\013bytes_value\030\007 \001(\0132\033.google.protobuf.By" +
-      "tesValue\022+\n\010duration\030\010 \001(\0132\031.google.prot" +
-      "obuf.Duration\022-\n\ttimestamp\030\t \001(\0132\032.googl" +
-      "e.protobuf.Timestamp\022.\n\nlist_value\030\n \001(\013",
-      "2\032.google.protobuf.ListValue\022/\n\013list_val" +
-      "ue2\030\013 \001(\0132\032.google.protobuf.ListValue\022/\n" +
-      "\013list_value3\030\014 \001(\0132\032.google.protobuf.Lis" +
-      "tValue\022/\n\013list_value4\030\r \001(\0132\032.google.pro" +
-      "tobuf.ListValue\022\'\n\006struct\030\016 \001(\0132\027.google" +
-      ".protobuf.Struct\022!\n\003any\030\017 \001(\0132\024.google.p" +
-      "rotobuf.Any\"@\n\025MessageInsideAnyField\022\024\n\014" +
-      "string_field\030\001 \001(\t\022\021\n\tint_field\030\002 \001(\005B\022\n" +
-      "\020com.avast.cactusb\006proto3"
+      "oo_bytes\030\004 \001(\014H\000B\016\n\014named_one_of\"\214\001\n\005Dat" +
+      "a4\022\023\n\013fieldString\030\001 \001(\t\022\024\n\014field_option\030" +
+      "\002 \001(\t\022\'\n\tfield_map\030\003 \003(\0132\024.Data4.FieldMa" +
+      "pEntry\032/\n\rFieldMapEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005" +
+      "value\030\002 \001(\005:\0028\001\"[\n\005Data5\022\031\n\tfield_gpb\030\001 " +
+      "\003(\0132\006.Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_st" +
+      "ring\030\003 \001(\tH\000B\016\n\014named_one_of\"7\n\nMapMessa" +
+      "ge\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005other\030",
+      "\003 \001(\t\"\336\005\n\021ExtensionsMessage\022.\n\nbool_valu" +
+      "e\030\001 \001(\0132\032.google.protobuf.BoolValue\0220\n\013i" +
+      "nt32_value\030\002 \001(\0132\033.google.protobuf.Int32" +
+      "Value\0220\n\013int64_value\030\003 \001(\0132\033.google.prot" +
+      "obuf.Int64Value\0220\n\013float_value\030\004 \001(\0132\033.g" +
+      "oogle.protobuf.FloatValue\0222\n\014double_valu" +
+      "e\030\005 \001(\0132\034.google.protobuf.DoubleValue\0222\n" +
+      "\014string_value\030\006 \001(\0132\034.google.protobuf.St" +
+      "ringValue\0220\n\013bytes_value\030\007 \001(\0132\033.google." +
+      "protobuf.BytesValue\022+\n\010duration\030\010 \001(\0132\031.",
+      "google.protobuf.Duration\022-\n\ttimestamp\030\t " +
+      "\001(\0132\032.google.protobuf.Timestamp\022.\n\nlist_" +
+      "value\030\n \001(\0132\032.google.protobuf.ListValue\022" +
+      "/\n\013list_value2\030\013 \001(\0132\032.google.protobuf.L" +
+      "istValue\022/\n\013list_value3\030\014 \001(\0132\032.google.p" +
+      "rotobuf.ListValue\022/\n\013list_value4\030\r \001(\0132\032" +
+      ".google.protobuf.ListValue\022\'\n\006struct\030\016 \001" +
+      "(\0132\027.google.protobuf.Struct\022!\n\003any\030\017 \001(\013" +
+      "2\024.google.protobuf.Any\"@\n\025MessageInsideA" +
+      "nyField\022\024\n\014string_field\030\001 \001(\t\022\021\n\tint_fie",
+      "ld\030\002 \001(\005B\022\n\020com.avast.cactusb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -13786,7 +14168,13 @@ public final class TestMessageV3 {
     internal_static_Data4_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Data4_descriptor,
-        new java.lang.String[] { "FieldString", "FieldOption", });
+        new java.lang.String[] { "FieldString", "FieldOption", "FieldMap", });
+    internal_static_Data4_FieldMapEntry_descriptor =
+      internal_static_Data4_descriptor.getNestedTypes().get(0);
+    internal_static_Data4_FieldMapEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_Data4_FieldMapEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
     internal_static_Data5_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_Data5_fieldAccessorTable = new

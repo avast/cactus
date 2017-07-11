@@ -45,8 +45,9 @@ message Data3 {
 }
 
 message Data4 {
-             string     fieldString = 1;                    // REQUIRED
+             string     field_string = 1;                   // REQUIRED
              string     field_option = 2;                   // OPTIONAL
+             map<string, int32> field_map = 3;              // REQUIRED
 }
 
 
