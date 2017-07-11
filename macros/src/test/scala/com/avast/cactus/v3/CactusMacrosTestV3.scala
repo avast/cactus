@@ -161,6 +161,18 @@ class CactusMacrosTestV3 extends FunSuite {
     assertResult(Good(original))(converted.asCaseClass[CaseClassE])
   }
 
+  test("gpb3 map to GPB and back") {
+    val original = CaseClassG(fieldString = "ahoj",
+      fieldOption = Some("ahoj2"),
+      fieldMap = Map("one" -> 1, "two" -> 2),
+      fieldMap2 = Map("one" -> CaseClassMapInnerMessage("str", 42))
+    )
+
+    val Good(converted) = original.asGpb[Data4]
+
+    assertResult(Good(original))(converted.asCaseClass[CaseClassG])
+  }
+
   test("extensions from GPB and back") {
     val gpb = ExtensionsMessage.newBuilder()
       .setBoolValue(BoolValue.newBuilder().setValue(true))
@@ -233,7 +245,7 @@ class CactusMacrosTestV3 extends FunSuite {
   }
 
   test("any extension to GPB and back") {
-    val innerMessage = MessageInsideAnyField.newBuilder().setIntField(42).setStringField("ahoj").build()
+    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
 
     val orig = ExtClass(Instant.ofEpochSecond(12345), AnyValue.of(innerMessage))
 
@@ -372,6 +384,13 @@ case class CaseClassC(fieldString: StringWrapperClass,
 
 // the `fieldIgnored` field is very unusually placed, but it has to be tested too...
 case class CaseClassE(fieldString: String, @GpbIgnored fieldIgnored: String = "hello", fieldOption: Option[String], @GpbIgnored fieldIgnored2: String = "hello")
+
+case class CaseClassG(fieldString: String,
+                      fieldOption: Option[String],
+                      fieldMap: Map[String, Int],
+                      fieldMap2: Map[String, CaseClassMapInnerMessage])
+
+case class CaseClassMapInnerMessage(fieldString: String, fieldInt: Int)
 
 case class StringWrapperClass(value: String)
 
