@@ -1,8 +1,9 @@
 package com.avast.cactus
 
-import com.avast.cactus.CactusMacros.{AnnotationsMap, ClassesNames, typesEqual}
+import com.avast.cactus.CactusMacros.{AnnotationsMap, ClassesNames, newConverter, typesEqual}
 import org.scalactic.{Every, Or}
 
+import scala.collection.mutable
 import scala.reflect.macros.whitebox
 
 private[cactus] sealed trait ProtoVersion {
@@ -164,7 +165,9 @@ private[cactus] object ProtoVersion {
       } else None
     }
 
-    def newConverterScalaToJavaMap(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): c.Tree = {
+    def newConverterScalaToJavaMap(c: whitebox.Context)
+                                  (srcType: c.universe.Type, dstType: c.universe.Type)
+                                  (implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
       import c.universe._
 
       val srcTypeArgs = srcType.typeArgs
@@ -176,25 +179,37 @@ private[cactus] object ProtoVersion {
       val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
         q" key "
       } else {
+        newConverter(c)(srcKeyType, dstKeyType) {
+          q" (a: $srcKeyType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", Map(), srcKeyType)(dstKeyType, q" identity  ", "")} "
+        }
+
         q" CactusMacros.AToB[$srcKeyType, $dstKeyType](key) "
       }
 
       val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
         q" value "
       } else {
+        newConverter(c)(srcValueType, dstValueType) {
+          q" (a: $srcValueType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", Map(), srcValueType)(dstValueType, q" identity  ", "")} "
+        }
+
         q" CactusMacros.AToB[$srcValueType, $dstValueType](value) "
       }
 
       q"""
             (sm: $srcType) => {
-                sm.map { case (key, value) =>
+                val map: Map[$dstKeyType, $dstValueType] = sm.map { case (key, value) =>
                     $keyField -> $valueField
-                }.asJava
+                }
+
+                map.asJava
             }
          """
     }
 
-    def newConverterJavaToScalaMap(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): c.Tree = {
+    def newConverterJavaToScalaMap(c: whitebox.Context)
+                                  (srcType: c.universe.Type, dstType: c.universe.Type)
+                                  (implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
       import c.universe._
 
       val srcTypeArgs = srcType.typeArgs
@@ -206,20 +221,32 @@ private[cactus] object ProtoVersion {
       val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
         q" key "
       } else {
+        val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstKeyType)
+
+        newConverter(c)(srcKeyType, wrappedDstType) {
+          q" (t: $srcKeyType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType)} "
+        }
+
         q" CactusMacros.AToB[$srcKeyType, $dstKeyType](key) "
       }
 
       val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
         q" value "
       } else {
-        q" CactusMacros.AToB[$srcValueType, $dstValueType](value) "
+        val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstValueType)
+
+        newConverter(c)(srcValueType, wrappedDstType) {
+          q" (t: $srcValueType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType)} "
+        }
+
+        q" CactusMacros.AToB[$srcValueType, $wrappedDstType](value) "
       }
 
       q"""
             (sm: $srcType) => {
                 sm.asScala.map { case (key, value) =>
                     $keyField -> $valueField
-                }.toMap
+                }.toSeq.map{ case(key, or) => or.map(key -> _) }.combined.map(_.toMap)
             }
          """
     }

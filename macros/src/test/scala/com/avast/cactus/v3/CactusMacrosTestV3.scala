@@ -162,7 +162,11 @@ class CactusMacrosTestV3 extends FunSuite {
   }
 
   test("gpb3 map to GPB and back") {
-    val original = CaseClassG(fieldString = "ahoj", fieldOption = Some("ahoj2"), fieldMap = Map("one" -> 1, "two" -> 2))
+    val original = CaseClassG(fieldString = "ahoj",
+      fieldOption = Some("ahoj2"),
+      fieldMap = Map("one" -> 1, "two" -> 2),
+      fieldMap2 = Map("one" -> CaseClassMapInnerMessage("str", 42))
+    )
 
     val Good(converted) = original.asGpb[Data4]
 
@@ -383,7 +387,10 @@ case class CaseClassE(fieldString: String, @GpbIgnored fieldIgnored: String = "h
 
 case class CaseClassG(fieldString: String,
                       fieldOption: Option[String],
-                      fieldMap: Map[String, Int])
+                      fieldMap: Map[String, Int],
+                      fieldMap2: Map[String, CaseClassMapInnerMessage])
+
+case class CaseClassMapInnerMessage(fieldString: String, fieldInt: Int)
 
 case class StringWrapperClass(value: String)
 
