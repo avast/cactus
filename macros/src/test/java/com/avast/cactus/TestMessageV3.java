@@ -7270,9 +7270,14 @@ public final class TestMessageV3 {
           getFieldStringBytes();
 
       /**
-       * <code>int32 field_int = 2;</code>
+       * <code>string field_int = 2;</code>
        */
-      int getFieldInt();
+      java.lang.String getFieldInt();
+      /**
+       * <code>string field_int = 2;</code>
+       */
+      com.google.protobuf.ByteString
+          getFieldIntBytes();
     }
     /**
      * Protobuf type {@code Data4.MapInnerMessage}
@@ -7287,7 +7292,7 @@ public final class TestMessageV3 {
       }
       private MapInnerMessage() {
         fieldString_ = "";
-        fieldInt_ = 0;
+        fieldInt_ = "";
       }
 
       @java.lang.Override
@@ -7321,9 +7326,10 @@ public final class TestMessageV3 {
                 fieldString_ = s;
                 break;
               }
-              case 16: {
+              case 18: {
+                java.lang.String s = input.readStringRequireUtf8();
 
-                fieldInt_ = input.readInt32();
+                fieldInt_ = s;
                 break;
               }
             }
@@ -7384,12 +7390,37 @@ public final class TestMessageV3 {
       }
 
       public static final int FIELD_INT_FIELD_NUMBER = 2;
-      private int fieldInt_;
+      private volatile java.lang.Object fieldInt_;
       /**
-       * <code>int32 field_int = 2;</code>
+       * <code>string field_int = 2;</code>
        */
-      public int getFieldInt() {
-        return fieldInt_;
+      public java.lang.String getFieldInt() {
+        java.lang.Object ref = fieldInt_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          fieldInt_ = s;
+          return s;
+        }
+      }
+      /**
+       * <code>string field_int = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getFieldIntBytes() {
+        java.lang.Object ref = fieldInt_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          fieldInt_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
       }
 
       private byte memoizedIsInitialized = -1;
@@ -7407,8 +7438,8 @@ public final class TestMessageV3 {
         if (!getFieldStringBytes().isEmpty()) {
           com.google.protobuf.GeneratedMessageV3.writeString(output, 1, fieldString_);
         }
-        if (fieldInt_ != 0) {
-          output.writeInt32(2, fieldInt_);
+        if (!getFieldIntBytes().isEmpty()) {
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 2, fieldInt_);
         }
       }
 
@@ -7420,9 +7451,8 @@ public final class TestMessageV3 {
         if (!getFieldStringBytes().isEmpty()) {
           size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, fieldString_);
         }
-        if (fieldInt_ != 0) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeInt32Size(2, fieldInt_);
+        if (!getFieldIntBytes().isEmpty()) {
+          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, fieldInt_);
         }
         memoizedSize = size;
         return size;
@@ -7442,8 +7472,8 @@ public final class TestMessageV3 {
         boolean result = true;
         result = result && getFieldString()
             .equals(other.getFieldString());
-        result = result && (getFieldInt()
-            == other.getFieldInt());
+        result = result && getFieldInt()
+            .equals(other.getFieldInt());
         return result;
       }
 
@@ -7457,7 +7487,7 @@ public final class TestMessageV3 {
         hash = (37 * hash) + FIELD_STRING_FIELD_NUMBER;
         hash = (53 * hash) + getFieldString().hashCode();
         hash = (37 * hash) + FIELD_INT_FIELD_NUMBER;
-        hash = (53 * hash) + getFieldInt();
+        hash = (53 * hash) + getFieldInt().hashCode();
         hash = (29 * hash) + unknownFields.hashCode();
         memoizedHashCode = hash;
         return hash;
@@ -7589,7 +7619,7 @@ public final class TestMessageV3 {
           super.clear();
           fieldString_ = "";
 
-          fieldInt_ = 0;
+          fieldInt_ = "";
 
           return this;
         }
@@ -7660,8 +7690,9 @@ public final class TestMessageV3 {
             fieldString_ = other.fieldString_;
             onChanged();
           }
-          if (other.getFieldInt() != 0) {
-            setFieldInt(other.getFieldInt());
+          if (!other.getFieldInt().isEmpty()) {
+            fieldInt_ = other.fieldInt_;
+            onChanged();
           }
           onChanged();
           return this;
@@ -7758,28 +7789,71 @@ public final class TestMessageV3 {
           return this;
         }
 
-        private int fieldInt_ ;
+        private java.lang.Object fieldInt_ = "";
         /**
-         * <code>int32 field_int = 2;</code>
+         * <code>string field_int = 2;</code>
          */
-        public int getFieldInt() {
-          return fieldInt_;
+        public java.lang.String getFieldInt() {
+          java.lang.Object ref = fieldInt_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            fieldInt_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
         }
         /**
-         * <code>int32 field_int = 2;</code>
+         * <code>string field_int = 2;</code>
          */
-        public Builder setFieldInt(int value) {
-          
+        public com.google.protobuf.ByteString
+            getFieldIntBytes() {
+          java.lang.Object ref = fieldInt_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            fieldInt_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>string field_int = 2;</code>
+         */
+        public Builder setFieldInt(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  
           fieldInt_ = value;
           onChanged();
           return this;
         }
         /**
-         * <code>int32 field_int = 2;</code>
+         * <code>string field_int = 2;</code>
          */
         public Builder clearFieldInt() {
           
-          fieldInt_ = 0;
+          fieldInt_ = getDefaultInstance().getFieldInt();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>string field_int = 2;</code>
+         */
+        public Builder setFieldIntBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          
+          fieldInt_ = value;
           onChanged();
           return this;
         }
@@ -15036,7 +15110,7 @@ public final class TestMessageV3 {
       "\022\r\n\005value\030\002 \001(\005:\0028\001\032H\n\016FieldMap2Entry\022\013\n" +
       "\003key\030\001 \001(\t\022%\n\005value\030\002 \001(\0132\026.Data4.MapInn" +
       "erMessage:\0028\001\032:\n\017MapInnerMessage\022\024\n\014fiel",
-      "d_string\030\001 \001(\t\022\021\n\tfield_int\030\002 \001(\005\"[\n\005Dat" +
+      "d_string\030\001 \001(\t\022\021\n\tfield_int\030\002 \001(\t\"[\n\005Dat" +
       "a5\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2\022\021\n\007foo_int" +
       "\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH\000B\016\n\014named_" +
       "one_of\"7\n\nMapMessage\022\013\n\003key\030\001 \001(\t\022\r\n\005val" +

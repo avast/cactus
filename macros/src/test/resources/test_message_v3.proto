@@ -52,7 +52,7 @@ message Data4 {
 
              message MapInnerMessage {
                 string     field_string = 1;
-                int32      field_int = 2;
+                string     field_int = 2;
              }
 }
 
