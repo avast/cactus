@@ -964,21 +964,36 @@ object CactusMacros {
                                   (implicit converters: mutable.Map[String, c.universe.Tree]): Unit = {
     import c.universe._
 
+    def addConverter() = {
+      val key = toConverterKey(c)(from, to)
+
+      converters.getOrElse(key, {
+        if (Debug) {
+          println(s"Defining converter from ${from.typeSymbol} to ${to.typeSymbol}")
+        }
+
+        converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:Converter[$from, $to] = Converter($f) "
+      })
+    }
+
     if (c.inferImplicitValue(extractType(c)(s"???.asInstanceOf[com.avast.cactus.Converter[$from, $to]]")).isEmpty) {
-      // skip primitive types, conversions already defined
-      if (!(isPrimitive(c)(from) && isPrimitive(c)(to))) {
-        val key = toConverterKey(c)(from, to)
+      val recursive = f match {
+        case q" (($_: $_) => identity(CactusMacros.AToB[${f}, ${t}]($_))) " if f.tpe =:= from && t.tpe =:= to => true
+        case _ => false
+      }
 
-        converters.getOrElse(key, {
+      if (!recursive) {
+        // skip primitive types, conversions already defined
+        if (!(isPrimitive(c)(from) && isPrimitive(c)(to))) {
+          addConverter()
+        } else {
           if (Debug) {
-            println(s"Defining converter from ${from.typeSymbol} to ${to.typeSymbol}")
+            println(s"Skipping definition of converter from ${from.typeSymbol} to ${to.typeSymbol}")
           }
-
-          converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:Converter[$from, $to] = Converter($f) "
-        })
+        }
       } else {
         if (Debug) {
-          println(s"Skipping definition of converter from ${from.typeSymbol} to ${to.typeSymbol}")
+          println(s"Skipping recursive definition of converter from ${from.typeSymbol} to ${to.typeSymbol}")
         }
       }
     } else {
