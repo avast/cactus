@@ -1,6 +1,9 @@
 package com.avast.cactus
 
+import com.avast.cactus.v3.V3Converters
+
 import scala.annotation.implicitNotFound
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
@@ -8,7 +11,7 @@ trait Converter[A, B] {
   def apply(a: A): B
 }
 
-object Converter {
+object Converter extends V3Converters {
 
   def apply[A, B](f: A => B): Converter[A, B] = new Converter[A, B] {
     override def apply(a: A): B = f(a)
@@ -36,6 +39,8 @@ object Converter {
   implicit val Float2floatConverter: Converter[java.lang.Float, Float] = Converter(Float2float)
   implicit val Double2doubleConverter: Converter[java.lang.Double, Double] = Converter(Double2double)
   implicit val Boolean2booleanConverter: Converter[java.lang.Boolean, Boolean] = Converter(Boolean2boolean)
+
+  // v3 conversions inherited from V3Converters
 
   // conversions generators:
 

@@ -1,8 +1,11 @@
 package com.avast.cactus.v3
 
+import java.time.{Duration, Instant}
+
 import com.avast.cactus.TestMessageV3._
 import com.avast.cactus._
-import com.google.protobuf.ByteString
+import com.avast.cactus.v3.ValueOneOf.NumberValue
+import com.google.protobuf.{Any, BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
 import org.scalactic.{Bad, Good}
 import org.scalatest.FunSuite
 
@@ -157,6 +160,94 @@ class CactusMacrosTestV3 extends FunSuite {
 
     assertResult(Good(original))(converted.asCaseClass[CaseClassE])
   }
+
+  test("extensions from GPB and back") {
+    val gpb = ExtensionsMessage.newBuilder()
+      .setBoolValue(BoolValue.newBuilder().setValue(true))
+      .setInt32Value(Int32Value.newBuilder().setValue(123))
+      .setInt64Value(Int64Value.newBuilder().setValue(456))
+      .setFloatValue(FloatValue.newBuilder().setValue(123.456f))
+      .setBytesValue(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")))
+      .setDuration(GpbDuration.newBuilder().setSeconds(123).setNanos(456))
+      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(123).setNanos(456))
+      .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+      .setListValue2(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+      .setListValue3(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+      .setStruct(Struct.newBuilder().putFields("mapKey", Value.newBuilder().setNumberValue(42).build()))
+      .build()
+
+    val expected = CaseClassExtensions(
+      boolValue = BoolValue.newBuilder().setValue(true).build(),
+      int32Value = Int32Value.newBuilder().setValue(123).build(),
+      longValue = Int64Value.newBuilder().setValue(456).build(),
+      floatValue = Some(FloatValue.newBuilder().setValue(123.456f).build()),
+      doubleValue = None,
+      stringValue = None,
+      bytesValue = BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")).build(),
+      duration = GpbDuration.newBuilder().setSeconds(123).setNanos(456).build(),
+      timestamp = GpbTimestamp.newBuilder().setSeconds(123).setNanos(456).build(),
+      listValue = ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)).build(),
+      listValue2 = Seq(NumberValue(456.789)),
+      listValue3 = Some(Seq(NumberValue(456.789))),
+      listValue4 = None,
+      struct = Map("mapKey" -> NumberValue(42))
+    )
+
+    val Good(converted) = gpb.asCaseClass[CaseClassExtensions]
+
+    assertResult(expected)(converted)
+
+    assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
+  }
+
+  test("extensions from GPB and back - scala types") {
+    val gpb = ExtensionsMessage.newBuilder()
+      .setBoolValue(BoolValue.newBuilder().setValue(true))
+      .setInt32Value(Int32Value.newBuilder().setValue(123))
+      .setInt64Value(Int64Value.newBuilder().setValue(456))
+      .setFloatValue(FloatValue.newBuilder().setValue(123.456f))
+      .setBytesValue(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")))
+      .setDuration(GpbDuration.newBuilder().setSeconds(123).setNanos(456))
+      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(123).setNanos(456))
+      .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+      .build()
+
+    val expected = CaseClassExtensionsScala(
+      boolValue = true,
+      int32Value = 123,
+      longValue = 456,
+      floatValue = Some(123.456f),
+      doubleValue = None,
+      stringValue = None,
+      bytesValue = ByteString.copyFromUtf8("+ěščřžýáíé"),
+      duration = Duration.ofSeconds(123, 456),
+      timestamp = Instant.ofEpochSecond(123, 456),
+      listValue = Seq(NumberValue(456.789))
+    )
+
+    val Good(converted) = gpb.asCaseClass[CaseClassExtensionsScala]
+
+    assertResult(expected)(converted)
+
+    assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
+  }
+
+  test("any extension to GPB and back") {
+    val innerMessage = MessageInsideAnyField.newBuilder().setIntField(42).setStringField("ahoj").build()
+
+    val orig = ExtClass(Instant.ofEpochSecond(12345), AnyValue.of(innerMessage))
+
+    val expected = ExtensionsMessage.newBuilder().setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345)).setAny(Any.pack(innerMessage)).build()
+
+    val Good(converted) = orig.asGpb[ExtensionsMessage]
+
+    assertResult(expected)(converted)
+
+    val actual = converted.asCaseClass[ExtClass]
+
+    assertResult(Good(orig))(actual)
+    assertResult(Good(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
+  }
 }
 
 case class CaseClassA(fieldString: String,
@@ -189,6 +280,36 @@ case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: St
 case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf @GpbName("NamedOneOf") oneOfNamed: OneOfNamed2)
 
 case class CaseClassF(fieldGpb: Seq[CaseClassB], @GpbOneOf namedOneOf: Option[OneOfNamed])
+
+case class CaseClassExtensions(boolValue: BoolValue,
+                               int32Value: Int32Value,
+                               @GpbName("int64Value")
+                               longValue: Int64Value,
+                               floatValue: Option[FloatValue],
+                               doubleValue: Option[DoubleValue],
+                               stringValue: Option[StringValue],
+                               bytesValue: BytesValue,
+                               listValue: ListValue,
+                               listValue2: Seq[ValueOneOf],
+                               listValue3: Option[Seq[ValueOneOf]],
+                               listValue4: Option[Seq[ValueOneOf]],
+                               duration: GpbDuration,
+                               timestamp: GpbTimestamp,
+                               struct: Map[String, ValueOneOf])
+
+case class CaseClassExtensionsScala(boolValue: Boolean,
+                                    int32Value: Int,
+                                    @GpbName("int64Value")
+                                    longValue: Long,
+                                    floatValue: Option[Float],
+                                    doubleValue: Option[Double],
+                                    stringValue: Option[String],
+                                    bytesValue: ByteString,
+                                    listValue: Seq[ValueOneOf],
+                                    duration: Duration,
+                                    timestamp: Instant)
+
+case class ExtClass(timestamp: Instant, any: AnyValue)
 
 sealed trait OneOfNamed
 

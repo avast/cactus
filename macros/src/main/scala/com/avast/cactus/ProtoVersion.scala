@@ -1,6 +1,7 @@
 package com.avast.cactus
 
 import com.avast.cactus.CactusMacros.{AnnotationsMap, ClassesNames}
+import org.scalactic.{Every, Or}
 
 import scala.reflect.macros.whitebox
 
@@ -161,6 +162,40 @@ private[cactus] object ProtoVersion {
           }.getOrElse(fieldNameUpper)
         }
       } else None
+    }
+
+    def tryParseAny[Gpb: c.WeakTypeTag](c: whitebox.Context): c.Expr[Gpb Or Every[CactusFailure]] = {
+      import c.universe._
+
+      val dstClassSymbol = weakTypeOf[Gpb]
+
+      val variable = CactusMacros.getVariable[Gpb](c)
+
+      val gpbTypeName = q"${dstClassSymbol.companion}.getDefaultInstance.getDescriptorForType.getFullName"
+
+      // TODO what if parsing fails
+
+      c.Expr[Gpb Or Every[CactusFailure]] {
+        q"""
+            {
+               import com.avast.cactus.CactusFailure
+               import com.avast.cactus.CactusMacros._
+
+               import org.scalactic._
+               import org.scalactic.Accumulation._
+
+               import scala.util.Try
+               import scala.collection.JavaConverters._
+
+               if ($variable.typeUrl == "type.googleapis.com/" +$gpbTypeName) {
+                  Good(${dstClassSymbol.companion}.parseFrom($variable.bytes))
+               } else {
+                  Bad(One(WrongAnyTypeFailure($variable.typeUrl, "type.googleapis.com/" + $gpbTypeName)))
+               }
+
+            }
+         """
+      }
     }
 
     private def splitByUppers(s: String): Array[String] = {

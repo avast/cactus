@@ -19,6 +19,7 @@ object CactusMacros {
 
   private[cactus] object ClassesNames {
     val ProtocolStringList = "com.google.protobuf.ProtocolStringList"
+    val ListValue = "com.google.protobuf.ListValue"
     val ByteString = "com.google.protobuf.ByteString"
     val GeneratedMessageV3 = "com.google.protobuf.GeneratedMessageV3"
 
@@ -304,7 +305,7 @@ object CactusMacros {
                 println(s"Map field $fieldName without annotation, fallback to raw conversion")
               }
 
-              q" CactusMacros.AToB[$srcResultType, $dstResultType]($getter) "
+              q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($getter)) "
           }
 
         case _ if isScalaCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
@@ -801,17 +802,17 @@ object CactusMacros {
     val getterResultType = getterReturnType.resultType
     val getterGenType = getterResultType.typeArgs.headOption
       .getOrElse {
-        if (getterResultType.toString == ClassesNames.ProtocolStringList) {
-          typeOf[java.lang.String]
-        } else {
-          c.abort(c.enclosingPosition, s"Could not extract generic type from $getterResultType")
+        getterResultType.toString match {
+          case ClassesNames.ProtocolStringList => typeOf[java.lang.String]
+          case ClassesNames.ListValue => typeOf[com.google.protobuf.Value]
+          case _ => c.abort(c.enclosingPosition, s"Could not extract generic type from $getterResultType")
         }
       }
 
     getterGenType
   }
 
-  private def extractSymbolFromClassTag[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree) = {
+  private[cactus] def extractSymbolFromClassTag[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree) = {
     import c.universe._
 
     (gpbCt match {
@@ -825,12 +826,14 @@ object CactusMacros {
     c.typecheck(c.parse(q)).tpe
   }
 
-  private def getVariable[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
+  private[cactus] def getVariable[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
     import c.universe._
 
     val variable = c.prefix.tree match {
       case q"cactus.this.`package`.${_}[${_}]($n)" => n
+      case q"cactus.this.`package`.${_}($n)" => n
       case q"com.avast.cactus.`package`.${_}[${_}]($n)" => n
+      case q"com.avast.cactus.`package`.${_}($n)" => n
 
       case t => c.abort(c.enclosingPosition, s"Cannot process the conversion - variable name extraction from tree '$t' failed")
     }

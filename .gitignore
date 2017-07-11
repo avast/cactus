@@ -27,6 +27,7 @@ project/plugins/project/
 .cache
 
 dist/
+google/*
 
 public/*.html
 public/styles/style.css

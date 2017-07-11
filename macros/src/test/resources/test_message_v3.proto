@@ -2,6 +2,12 @@ syntax = "proto3";
 
 option java_package = "com.avast.cactus";
 
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/any.proto";
+
 message Data {
              string     field_string = 1;                   // REQUIRED
              int32      field_int_name = 2;                 // REQUIRED
@@ -57,4 +63,30 @@ message MapMessage {
              string key = 1;                                // REQUIRED
              string value = 2;                              // REQUIRED
              string other = 3;                              // OPTIONAL
+}
+
+message ExtensionsMessage {
+             google.protobuf.BoolValue bool_value = 1;
+             google.protobuf.Int32Value int32_value = 2;
+             google.protobuf.Int64Value int64_value = 3;
+             google.protobuf.FloatValue float_value = 4;
+             google.protobuf.DoubleValue double_value = 5;
+             google.protobuf.StringValue string_value = 6;
+             google.protobuf.BytesValue bytes_value = 7;
+
+             google.protobuf.Duration duration = 8;
+             google.protobuf.Timestamp timestamp = 9;
+             google.protobuf.ListValue list_value = 10;
+             google.protobuf.ListValue list_value2 = 11;
+             google.protobuf.ListValue list_value3 = 12;
+             google.protobuf.ListValue list_value4 = 13;
+
+             google.protobuf.Struct struct = 14;
+
+             google.protobuf.Any any = 15;
+}
+
+message MessageInsideAnyField {
+             string     string_field = 1;
+             int32      int_field = 2;
 }
