@@ -7001,7 +7001,7 @@ public final class TestMessageV3 {
      * REQUIRED
      * </pre>
      *
-     * <code>string fieldString = 1;</code>
+     * <code>string field_string = 1;</code>
      */
     java.lang.String getFieldString();
     /**
@@ -7009,7 +7009,7 @@ public final class TestMessageV3 {
      * REQUIRED
      * </pre>
      *
-     * <code>string fieldString = 1;</code>
+     * <code>string field_string = 1;</code>
      */
     com.google.protobuf.ByteString
         getFieldStringBytes();
@@ -7085,6 +7085,60 @@ public final class TestMessageV3 {
 
     int getFieldMapOrThrow(
         java.lang.String key);
+
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+     */
+    int getFieldMap2Count();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+     */
+    boolean containsFieldMap2(
+        java.lang.String key);
+    /**
+     * Use {@link #getFieldMap2Map()} instead.
+     */
+    @java.lang.Deprecated
+    java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage>
+    getFieldMap2();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+     */
+    java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage>
+    getFieldMap2Map();
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+     */
+
+    com.avast.cactus.TestMessageV3.Data4.MapInnerMessage getFieldMap2OrDefault(
+        java.lang.String key,
+        com.avast.cactus.TestMessageV3.Data4.MapInnerMessage defaultValue);
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+     */
+
+    com.avast.cactus.TestMessageV3.Data4.MapInnerMessage getFieldMap2OrThrow(
+        java.lang.String key);
   }
   /**
    * Protobuf type {@code Data4}
@@ -7152,6 +7206,19 @@ public final class TestMessageV3 {
                   fieldMap__.getKey(), fieldMap__.getValue());
               break;
             }
+            case 34: {
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                fieldMap2_ = com.google.protobuf.MapField.newMapField(
+                    FieldMap2DefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000008;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage>
+              fieldMap2__ = input.readMessage(
+                  FieldMap2DefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              fieldMap2_.getMutableMap().put(
+                  fieldMap2__.getKey(), fieldMap2__.getValue());
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -7174,6 +7241,8 @@ public final class TestMessageV3 {
       switch (number) {
         case 3:
           return internalGetFieldMap();
+        case 4:
+          return internalGetFieldMap2();
         default:
           throw new RuntimeException(
               "Invalid map field number: " + number);
@@ -7186,15 +7255,592 @@ public final class TestMessageV3 {
               com.avast.cactus.TestMessageV3.Data4.class, com.avast.cactus.TestMessageV3.Data4.Builder.class);
     }
 
+    public interface MapInnerMessageOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:Data4.MapInnerMessage)
+        com.google.protobuf.MessageOrBuilder {
+
+      /**
+       * <code>string field_string = 1;</code>
+       */
+      java.lang.String getFieldString();
+      /**
+       * <code>string field_string = 1;</code>
+       */
+      com.google.protobuf.ByteString
+          getFieldStringBytes();
+
+      /**
+       * <code>int32 field_int = 2;</code>
+       */
+      int getFieldInt();
+    }
+    /**
+     * Protobuf type {@code Data4.MapInnerMessage}
+     */
+    public  static final class MapInnerMessage extends
+        com.google.protobuf.GeneratedMessageV3 implements
+        // @@protoc_insertion_point(message_implements:Data4.MapInnerMessage)
+        MapInnerMessageOrBuilder {
+      // Use MapInnerMessage.newBuilder() to construct.
+      private MapInnerMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+        super(builder);
+      }
+      private MapInnerMessage() {
+        fieldString_ = "";
+        fieldInt_ = 0;
+      }
+
+      @java.lang.Override
+      public final com.google.protobuf.UnknownFieldSet
+      getUnknownFields() {
+        return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+      }
+      private MapInnerMessage(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        this();
+        int mutable_bitField0_ = 0;
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              default: {
+                if (!input.skipField(tag)) {
+                  done = true;
+                }
+                break;
+              }
+              case 10: {
+                java.lang.String s = input.readStringRequireUtf8();
+
+                fieldString_ = s;
+                break;
+              }
+              case 16: {
+
+                fieldInt_ = input.readInt32();
+                break;
+              }
+            }
+          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(
+              e).setUnfinishedMessage(this);
+        } finally {
+          makeExtensionsImmutable();
+        }
+      }
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.avast.cactus.TestMessageV3.internal_static_Data4_MapInnerMessage_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.avast.cactus.TestMessageV3.internal_static_Data4_MapInnerMessage_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.avast.cactus.TestMessageV3.Data4.MapInnerMessage.class, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage.Builder.class);
+      }
+
+      public static final int FIELD_STRING_FIELD_NUMBER = 1;
+      private volatile java.lang.Object fieldString_;
+      /**
+       * <code>string field_string = 1;</code>
+       */
+      public java.lang.String getFieldString() {
+        java.lang.Object ref = fieldString_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          fieldString_ = s;
+          return s;
+        }
+      }
+      /**
+       * <code>string field_string = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getFieldStringBytes() {
+        java.lang.Object ref = fieldString_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          fieldString_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int FIELD_INT_FIELD_NUMBER = 2;
+      private int fieldInt_;
+      /**
+       * <code>int32 field_int = 2;</code>
+       */
+      public int getFieldInt() {
+        return fieldInt_;
+      }
+
+      private byte memoizedIsInitialized = -1;
+      public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+      }
+
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        if (!getFieldStringBytes().isEmpty()) {
+          com.google.protobuf.GeneratedMessageV3.writeString(output, 1, fieldString_);
+        }
+        if (fieldInt_ != 0) {
+          output.writeInt32(2, fieldInt_);
+        }
+      }
+
+      public int getSerializedSize() {
+        int size = memoizedSize;
+        if (size != -1) return size;
+
+        size = 0;
+        if (!getFieldStringBytes().isEmpty()) {
+          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, fieldString_);
+        }
+        if (fieldInt_ != 0) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeInt32Size(2, fieldInt_);
+        }
+        memoizedSize = size;
+        return size;
+      }
+
+      private static final long serialVersionUID = 0L;
+      @java.lang.Override
+      public boolean equals(final java.lang.Object obj) {
+        if (obj == this) {
+         return true;
+        }
+        if (!(obj instanceof com.avast.cactus.TestMessageV3.Data4.MapInnerMessage)) {
+          return super.equals(obj);
+        }
+        com.avast.cactus.TestMessageV3.Data4.MapInnerMessage other = (com.avast.cactus.TestMessageV3.Data4.MapInnerMessage) obj;
+
+        boolean result = true;
+        result = result && getFieldString()
+            .equals(other.getFieldString());
+        result = result && (getFieldInt()
+            == other.getFieldInt());
+        return result;
+      }
+
+      @java.lang.Override
+      public int hashCode() {
+        if (memoizedHashCode != 0) {
+          return memoizedHashCode;
+        }
+        int hash = 41;
+        hash = (19 * hash) + getDescriptor().hashCode();
+        hash = (37 * hash) + FIELD_STRING_FIELD_NUMBER;
+        hash = (53 * hash) + getFieldString().hashCode();
+        hash = (37 * hash) + FIELD_INT_FIELD_NUMBER;
+        hash = (53 * hash) + getFieldInt();
+        hash = (29 * hash) + unknownFields.hashCode();
+        memoizedHashCode = hash;
+        return hash;
+      }
+
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(
+          java.nio.ByteBuffer data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(
+          java.nio.ByteBuffer data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input, extensionRegistry);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseDelimitedWithIOException(PARSER, input);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input);
+      }
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3
+            .parseWithIOException(PARSER, input, extensionRegistry);
+      }
+
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
+      }
+      public static Builder newBuilder(com.avast.cactus.TestMessageV3.Data4.MapInnerMessage prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
+
+      @java.lang.Override
+      protected Builder newBuilderForType(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+      }
+      /**
+       * Protobuf type {@code Data4.MapInnerMessage}
+       */
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:Data4.MapInnerMessage)
+          com.avast.cactus.TestMessageV3.Data4.MapInnerMessageOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+          return com.avast.cactus.TestMessageV3.internal_static_Data4_MapInnerMessage_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+          return com.avast.cactus.TestMessageV3.internal_static_Data4_MapInnerMessage_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                  com.avast.cactus.TestMessageV3.Data4.MapInnerMessage.class, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage.Builder.class);
+        }
+
+        // Construct using com.avast.cactus.TestMessageV3.Data4.MapInnerMessage.newBuilder()
+        private Builder() {
+          maybeForceBuilderInitialization();
+        }
+
+        private Builder(
+            com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+          super(parent);
+          maybeForceBuilderInitialization();
+        }
+        private void maybeForceBuilderInitialization() {
+          if (com.google.protobuf.GeneratedMessageV3
+                  .alwaysUseFieldBuilders) {
+          }
+        }
+        public Builder clear() {
+          super.clear();
+          fieldString_ = "";
+
+          fieldInt_ = 0;
+
+          return this;
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+          return com.avast.cactus.TestMessageV3.internal_static_Data4_MapInnerMessage_descriptor;
+        }
+
+        public com.avast.cactus.TestMessageV3.Data4.MapInnerMessage getDefaultInstanceForType() {
+          return com.avast.cactus.TestMessageV3.Data4.MapInnerMessage.getDefaultInstance();
+        }
+
+        public com.avast.cactus.TestMessageV3.Data4.MapInnerMessage build() {
+          com.avast.cactus.TestMessageV3.Data4.MapInnerMessage result = buildPartial();
+          if (!result.isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return result;
+        }
+
+        public com.avast.cactus.TestMessageV3.Data4.MapInnerMessage buildPartial() {
+          com.avast.cactus.TestMessageV3.Data4.MapInnerMessage result = new com.avast.cactus.TestMessageV3.Data4.MapInnerMessage(this);
+          result.fieldString_ = fieldString_;
+          result.fieldInt_ = fieldInt_;
+          onBuilt();
+          return result;
+        }
+
+        public Builder clone() {
+          return (Builder) super.clone();
+        }
+        public Builder setField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            Object value) {
+          return (Builder) super.setField(field, value);
+        }
+        public Builder clearField(
+            com.google.protobuf.Descriptors.FieldDescriptor field) {
+          return (Builder) super.clearField(field);
+        }
+        public Builder clearOneof(
+            com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+          return (Builder) super.clearOneof(oneof);
+        }
+        public Builder setRepeatedField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            int index, Object value) {
+          return (Builder) super.setRepeatedField(field, index, value);
+        }
+        public Builder addRepeatedField(
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            Object value) {
+          return (Builder) super.addRepeatedField(field, value);
+        }
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+          if (other instanceof com.avast.cactus.TestMessageV3.Data4.MapInnerMessage) {
+            return mergeFrom((com.avast.cactus.TestMessageV3.Data4.MapInnerMessage)other);
+          } else {
+            super.mergeFrom(other);
+            return this;
+          }
+        }
+
+        public Builder mergeFrom(com.avast.cactus.TestMessageV3.Data4.MapInnerMessage other) {
+          if (other == com.avast.cactus.TestMessageV3.Data4.MapInnerMessage.getDefaultInstance()) return this;
+          if (!other.getFieldString().isEmpty()) {
+            fieldString_ = other.fieldString_;
+            onChanged();
+          }
+          if (other.getFieldInt() != 0) {
+            setFieldInt(other.getFieldInt());
+          }
+          onChanged();
+          return this;
+        }
+
+        public final boolean isInitialized() {
+          return true;
+        }
+
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          com.avast.cactus.TestMessageV3.Data4.MapInnerMessage parsedMessage = null;
+          try {
+            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            parsedMessage = (com.avast.cactus.TestMessageV3.Data4.MapInnerMessage) e.getUnfinishedMessage();
+            throw e.unwrapIOException();
+          } finally {
+            if (parsedMessage != null) {
+              mergeFrom(parsedMessage);
+            }
+          }
+          return this;
+        }
+
+        private java.lang.Object fieldString_ = "";
+        /**
+         * <code>string field_string = 1;</code>
+         */
+        public java.lang.String getFieldString() {
+          java.lang.Object ref = fieldString_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            fieldString_ = s;
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>string field_string = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+            getFieldStringBytes() {
+          java.lang.Object ref = fieldString_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            fieldString_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>string field_string = 1;</code>
+         */
+        public Builder setFieldString(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  
+          fieldString_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>string field_string = 1;</code>
+         */
+        public Builder clearFieldString() {
+          
+          fieldString_ = getDefaultInstance().getFieldString();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>string field_string = 1;</code>
+         */
+        public Builder setFieldStringBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+          
+          fieldString_ = value;
+          onChanged();
+          return this;
+        }
+
+        private int fieldInt_ ;
+        /**
+         * <code>int32 field_int = 2;</code>
+         */
+        public int getFieldInt() {
+          return fieldInt_;
+        }
+        /**
+         * <code>int32 field_int = 2;</code>
+         */
+        public Builder setFieldInt(int value) {
+          
+          fieldInt_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>int32 field_int = 2;</code>
+         */
+        public Builder clearFieldInt() {
+          
+          fieldInt_ = 0;
+          onChanged();
+          return this;
+        }
+        public final Builder setUnknownFields(
+            final com.google.protobuf.UnknownFieldSet unknownFields) {
+          return this;
+        }
+
+        public final Builder mergeUnknownFields(
+            final com.google.protobuf.UnknownFieldSet unknownFields) {
+          return this;
+        }
+
+
+        // @@protoc_insertion_point(builder_scope:Data4.MapInnerMessage)
+      }
+
+      // @@protoc_insertion_point(class_scope:Data4.MapInnerMessage)
+      private static final com.avast.cactus.TestMessageV3.Data4.MapInnerMessage DEFAULT_INSTANCE;
+      static {
+        DEFAULT_INSTANCE = new com.avast.cactus.TestMessageV3.Data4.MapInnerMessage();
+      }
+
+      public static com.avast.cactus.TestMessageV3.Data4.MapInnerMessage getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      private static final com.google.protobuf.Parser<MapInnerMessage>
+          PARSER = new com.google.protobuf.AbstractParser<MapInnerMessage>() {
+        public MapInnerMessage parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+            return new MapInnerMessage(input, extensionRegistry);
+        }
+      };
+
+      public static com.google.protobuf.Parser<MapInnerMessage> parser() {
+        return PARSER;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<MapInnerMessage> getParserForType() {
+        return PARSER;
+      }
+
+      public com.avast.cactus.TestMessageV3.Data4.MapInnerMessage getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
+    }
+
     private int bitField0_;
-    public static final int FIELDSTRING_FIELD_NUMBER = 1;
+    public static final int FIELD_STRING_FIELD_NUMBER = 1;
     private volatile java.lang.Object fieldString_;
     /**
      * <pre>
      * REQUIRED
      * </pre>
      *
-     * <code>string fieldString = 1;</code>
+     * <code>string field_string = 1;</code>
      */
     public java.lang.String getFieldString() {
       java.lang.Object ref = fieldString_;
@@ -7213,7 +7859,7 @@ public final class TestMessageV3 {
      * REQUIRED
      * </pre>
      *
-     * <code>string fieldString = 1;</code>
+     * <code>string field_string = 1;</code>
      */
     public com.google.protobuf.ByteString
         getFieldStringBytes() {
@@ -7363,6 +8009,98 @@ public final class TestMessageV3 {
       return map.get(key);
     }
 
+    public static final int FIELD_MAP2_FIELD_NUMBER = 4;
+    private static final class FieldMap2DefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage>newDefaultInstance(
+                  com.avast.cactus.TestMessageV3.internal_static_Data4_FieldMap2Entry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.MESSAGE,
+                  com.avast.cactus.TestMessageV3.Data4.MapInnerMessage.getDefaultInstance());
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> fieldMap2_;
+    private com.google.protobuf.MapField<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage>
+    internalGetFieldMap2() {
+      if (fieldMap2_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            FieldMap2DefaultEntryHolder.defaultEntry);
+      }
+      return fieldMap2_;
+    }
+
+    public int getFieldMap2Count() {
+      return internalGetFieldMap2().getMap().size();
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+     */
+
+    public boolean containsFieldMap2(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      return internalGetFieldMap2().getMap().containsKey(key);
+    }
+    /**
+     * Use {@link #getFieldMap2Map()} instead.
+     */
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> getFieldMap2() {
+      return getFieldMap2Map();
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+     */
+
+    public java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> getFieldMap2Map() {
+      return internalGetFieldMap2().getMap();
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+     */
+
+    public com.avast.cactus.TestMessageV3.Data4.MapInnerMessage getFieldMap2OrDefault(
+        java.lang.String key,
+        com.avast.cactus.TestMessageV3.Data4.MapInnerMessage defaultValue) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> map =
+          internalGetFieldMap2().getMap();
+      return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
+    /**
+     * <pre>
+     * REQUIRED
+     * </pre>
+     *
+     * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+     */
+
+    public com.avast.cactus.TestMessageV3.Data4.MapInnerMessage getFieldMap2OrThrow(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> map =
+          internalGetFieldMap2().getMap();
+      if (!map.containsKey(key)) {
+        throw new java.lang.IllegalArgumentException();
+      }
+      return map.get(key);
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -7387,6 +8125,12 @@ public final class TestMessageV3 {
           internalGetFieldMap(),
           FieldMapDefaultEntryHolder.defaultEntry,
           3);
+      com.google.protobuf.GeneratedMessageV3
+        .serializeStringMapTo(
+          output,
+          internalGetFieldMap2(),
+          FieldMap2DefaultEntryHolder.defaultEntry,
+          4);
     }
 
     public int getSerializedSize() {
@@ -7410,6 +8154,16 @@ public final class TestMessageV3 {
         size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(3, fieldMap__);
       }
+      for (java.util.Map.Entry<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> entry
+           : internalGetFieldMap2().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage>
+        fieldMap2__ = FieldMap2DefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(4, fieldMap2__);
+      }
       memoizedSize = size;
       return size;
     }
@@ -7432,6 +8186,8 @@ public final class TestMessageV3 {
           .equals(other.getFieldOption());
       result = result && internalGetFieldMap().equals(
           other.internalGetFieldMap());
+      result = result && internalGetFieldMap2().equals(
+          other.internalGetFieldMap2());
       return result;
     }
 
@@ -7442,13 +8198,17 @@ public final class TestMessageV3 {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + FIELDSTRING_FIELD_NUMBER;
+      hash = (37 * hash) + FIELD_STRING_FIELD_NUMBER;
       hash = (53 * hash) + getFieldString().hashCode();
       hash = (37 * hash) + FIELD_OPTION_FIELD_NUMBER;
       hash = (53 * hash) + getFieldOption().hashCode();
       if (!internalGetFieldMap().getMap().isEmpty()) {
         hash = (37 * hash) + FIELD_MAP_FIELD_NUMBER;
         hash = (53 * hash) + internalGetFieldMap().hashCode();
+      }
+      if (!internalGetFieldMap2().getMap().isEmpty()) {
+        hash = (37 * hash) + FIELD_MAP2_FIELD_NUMBER;
+        hash = (53 * hash) + internalGetFieldMap2().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -7561,6 +8321,8 @@ public final class TestMessageV3 {
         switch (number) {
           case 3:
             return internalGetFieldMap();
+          case 4:
+            return internalGetFieldMap2();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -7572,6 +8334,8 @@ public final class TestMessageV3 {
         switch (number) {
           case 3:
             return internalGetMutableFieldMap();
+          case 4:
+            return internalGetMutableFieldMap2();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -7606,6 +8370,7 @@ public final class TestMessageV3 {
         fieldOption_ = "";
 
         internalGetMutableFieldMap().clear();
+        internalGetMutableFieldMap2().clear();
         return this;
       }
 
@@ -7634,6 +8399,8 @@ public final class TestMessageV3 {
         result.fieldOption_ = fieldOption_;
         result.fieldMap_ = internalGetFieldMap();
         result.fieldMap_.makeImmutable();
+        result.fieldMap2_ = internalGetFieldMap2();
+        result.fieldMap2_.makeImmutable();
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -7686,6 +8453,8 @@ public final class TestMessageV3 {
         }
         internalGetMutableFieldMap().mergeFrom(
             other.internalGetFieldMap());
+        internalGetMutableFieldMap2().mergeFrom(
+            other.internalGetFieldMap2());
         onChanged();
         return this;
       }
@@ -7719,7 +8488,7 @@ public final class TestMessageV3 {
        * REQUIRED
        * </pre>
        *
-       * <code>string fieldString = 1;</code>
+       * <code>string field_string = 1;</code>
        */
       public java.lang.String getFieldString() {
         java.lang.Object ref = fieldString_;
@@ -7738,7 +8507,7 @@ public final class TestMessageV3 {
        * REQUIRED
        * </pre>
        *
-       * <code>string fieldString = 1;</code>
+       * <code>string field_string = 1;</code>
        */
       public com.google.protobuf.ByteString
           getFieldStringBytes() {
@@ -7758,7 +8527,7 @@ public final class TestMessageV3 {
        * REQUIRED
        * </pre>
        *
-       * <code>string fieldString = 1;</code>
+       * <code>string field_string = 1;</code>
        */
       public Builder setFieldString(
           java.lang.String value) {
@@ -7775,7 +8544,7 @@ public final class TestMessageV3 {
        * REQUIRED
        * </pre>
        *
-       * <code>string fieldString = 1;</code>
+       * <code>string field_string = 1;</code>
        */
       public Builder clearFieldString() {
         
@@ -7788,7 +8557,7 @@ public final class TestMessageV3 {
        * REQUIRED
        * </pre>
        *
-       * <code>string fieldString = 1;</code>
+       * <code>string field_string = 1;</code>
        */
       public Builder setFieldStringBytes(
           com.google.protobuf.ByteString value) {
@@ -8038,6 +8807,157 @@ public final class TestMessageV3 {
       public Builder putAllFieldMap(
           java.util.Map<java.lang.String, java.lang.Integer> values) {
         internalGetMutableFieldMap().getMutableMap()
+            .putAll(values);
+        return this;
+      }
+
+      private com.google.protobuf.MapField<
+          java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> fieldMap2_;
+      private com.google.protobuf.MapField<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage>
+      internalGetFieldMap2() {
+        if (fieldMap2_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              FieldMap2DefaultEntryHolder.defaultEntry);
+        }
+        return fieldMap2_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage>
+      internalGetMutableFieldMap2() {
+        onChanged();;
+        if (fieldMap2_ == null) {
+          fieldMap2_ = com.google.protobuf.MapField.newMapField(
+              FieldMap2DefaultEntryHolder.defaultEntry);
+        }
+        if (!fieldMap2_.isMutable()) {
+          fieldMap2_ = fieldMap2_.copy();
+        }
+        return fieldMap2_;
+      }
+
+      public int getFieldMap2Count() {
+        return internalGetFieldMap2().getMap().size();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+       */
+
+      public boolean containsFieldMap2(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        return internalGetFieldMap2().getMap().containsKey(key);
+      }
+      /**
+       * Use {@link #getFieldMap2Map()} instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> getFieldMap2() {
+        return getFieldMap2Map();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+       */
+
+      public java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> getFieldMap2Map() {
+        return internalGetFieldMap2().getMap();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+       */
+
+      public com.avast.cactus.TestMessageV3.Data4.MapInnerMessage getFieldMap2OrDefault(
+          java.lang.String key,
+          com.avast.cactus.TestMessageV3.Data4.MapInnerMessage defaultValue) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> map =
+            internalGetFieldMap2().getMap();
+        return map.containsKey(key) ? map.get(key) : defaultValue;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+       */
+
+      public com.avast.cactus.TestMessageV3.Data4.MapInnerMessage getFieldMap2OrThrow(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> map =
+            internalGetFieldMap2().getMap();
+        if (!map.containsKey(key)) {
+          throw new java.lang.IllegalArgumentException();
+        }
+        return map.get(key);
+      }
+
+      public Builder clearFieldMap2() {
+        internalGetMutableFieldMap2().getMutableMap()
+            .clear();
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+       */
+
+      public Builder removeFieldMap2(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        internalGetMutableFieldMap2().getMutableMap()
+            .remove(key);
+        return this;
+      }
+      /**
+       * Use alternate mutation accessors instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage>
+      getMutableFieldMap2() {
+        return internalGetMutableFieldMap2().getMutableMap();
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+       */
+      public Builder putFieldMap2(
+          java.lang.String key,
+          com.avast.cactus.TestMessageV3.Data4.MapInnerMessage value) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        if (value == null) { throw new java.lang.NullPointerException(); }
+        internalGetMutableFieldMap2().getMutableMap()
+            .put(key, value);
+        return this;
+      }
+      /**
+       * <pre>
+       * REQUIRED
+       * </pre>
+       *
+       * <code>map&lt;string, .Data4.MapInnerMessage&gt; field_map2 = 4;</code>
+       */
+
+      public Builder putAllFieldMap2(
+          java.util.Map<java.lang.String, com.avast.cactus.TestMessageV3.Data4.MapInnerMessage> values) {
+        internalGetMutableFieldMap2().getMutableMap()
             .putAll(values);
         return this;
       }
@@ -13450,19 +14370,19 @@ public final class TestMessageV3 {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>string string_field = 1;</code>
+     * <code>string field_string = 1;</code>
      */
-    java.lang.String getStringField();
+    java.lang.String getFieldString();
     /**
-     * <code>string string_field = 1;</code>
+     * <code>string field_string = 1;</code>
      */
     com.google.protobuf.ByteString
-        getStringFieldBytes();
+        getFieldStringBytes();
 
     /**
-     * <code>int32 int_field = 2;</code>
+     * <code>int32 field_int = 2;</code>
      */
-    int getIntField();
+    int getFieldInt();
   }
   /**
    * Protobuf type {@code MessageInsideAnyField}
@@ -13476,8 +14396,8 @@ public final class TestMessageV3 {
       super(builder);
     }
     private MessageInsideAnyField() {
-      stringField_ = "";
-      intField_ = 0;
+      fieldString_ = "";
+      fieldInt_ = 0;
     }
 
     @java.lang.Override
@@ -13508,12 +14428,12 @@ public final class TestMessageV3 {
             case 10: {
               java.lang.String s = input.readStringRequireUtf8();
 
-              stringField_ = s;
+              fieldString_ = s;
               break;
             }
             case 16: {
 
-              intField_ = input.readInt32();
+              fieldInt_ = input.readInt32();
               break;
             }
           }
@@ -13539,47 +14459,47 @@ public final class TestMessageV3 {
               com.avast.cactus.TestMessageV3.MessageInsideAnyField.class, com.avast.cactus.TestMessageV3.MessageInsideAnyField.Builder.class);
     }
 
-    public static final int STRING_FIELD_FIELD_NUMBER = 1;
-    private volatile java.lang.Object stringField_;
+    public static final int FIELD_STRING_FIELD_NUMBER = 1;
+    private volatile java.lang.Object fieldString_;
     /**
-     * <code>string string_field = 1;</code>
+     * <code>string field_string = 1;</code>
      */
-    public java.lang.String getStringField() {
-      java.lang.Object ref = stringField_;
+    public java.lang.String getFieldString() {
+      java.lang.Object ref = fieldString_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        stringField_ = s;
+        fieldString_ = s;
         return s;
       }
     }
     /**
-     * <code>string string_field = 1;</code>
+     * <code>string field_string = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getStringFieldBytes() {
-      java.lang.Object ref = stringField_;
+        getFieldStringBytes() {
+      java.lang.Object ref = fieldString_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        stringField_ = b;
+        fieldString_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
 
-    public static final int INT_FIELD_FIELD_NUMBER = 2;
-    private int intField_;
+    public static final int FIELD_INT_FIELD_NUMBER = 2;
+    private int fieldInt_;
     /**
-     * <code>int32 int_field = 2;</code>
+     * <code>int32 field_int = 2;</code>
      */
-    public int getIntField() {
-      return intField_;
+    public int getFieldInt() {
+      return fieldInt_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -13594,11 +14514,11 @@ public final class TestMessageV3 {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (!getStringFieldBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, stringField_);
+      if (!getFieldStringBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, fieldString_);
       }
-      if (intField_ != 0) {
-        output.writeInt32(2, intField_);
+      if (fieldInt_ != 0) {
+        output.writeInt32(2, fieldInt_);
       }
     }
 
@@ -13607,12 +14527,12 @@ public final class TestMessageV3 {
       if (size != -1) return size;
 
       size = 0;
-      if (!getStringFieldBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, stringField_);
+      if (!getFieldStringBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, fieldString_);
       }
-      if (intField_ != 0) {
+      if (fieldInt_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, intField_);
+          .computeInt32Size(2, fieldInt_);
       }
       memoizedSize = size;
       return size;
@@ -13630,10 +14550,10 @@ public final class TestMessageV3 {
       com.avast.cactus.TestMessageV3.MessageInsideAnyField other = (com.avast.cactus.TestMessageV3.MessageInsideAnyField) obj;
 
       boolean result = true;
-      result = result && getStringField()
-          .equals(other.getStringField());
-      result = result && (getIntField()
-          == other.getIntField());
+      result = result && getFieldString()
+          .equals(other.getFieldString());
+      result = result && (getFieldInt()
+          == other.getFieldInt());
       return result;
     }
 
@@ -13644,10 +14564,10 @@ public final class TestMessageV3 {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + STRING_FIELD_FIELD_NUMBER;
-      hash = (53 * hash) + getStringField().hashCode();
-      hash = (37 * hash) + INT_FIELD_FIELD_NUMBER;
-      hash = (53 * hash) + getIntField();
+      hash = (37 * hash) + FIELD_STRING_FIELD_NUMBER;
+      hash = (53 * hash) + getFieldString().hashCode();
+      hash = (37 * hash) + FIELD_INT_FIELD_NUMBER;
+      hash = (53 * hash) + getFieldInt();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -13777,9 +14697,9 @@ public final class TestMessageV3 {
       }
       public Builder clear() {
         super.clear();
-        stringField_ = "";
+        fieldString_ = "";
 
-        intField_ = 0;
+        fieldInt_ = 0;
 
         return this;
       }
@@ -13803,8 +14723,8 @@ public final class TestMessageV3 {
 
       public com.avast.cactus.TestMessageV3.MessageInsideAnyField buildPartial() {
         com.avast.cactus.TestMessageV3.MessageInsideAnyField result = new com.avast.cactus.TestMessageV3.MessageInsideAnyField(this);
-        result.stringField_ = stringField_;
-        result.intField_ = intField_;
+        result.fieldString_ = fieldString_;
+        result.fieldInt_ = fieldInt_;
         onBuilt();
         return result;
       }
@@ -13846,12 +14766,12 @@ public final class TestMessageV3 {
 
       public Builder mergeFrom(com.avast.cactus.TestMessageV3.MessageInsideAnyField other) {
         if (other == com.avast.cactus.TestMessageV3.MessageInsideAnyField.getDefaultInstance()) return this;
-        if (!other.getStringField().isEmpty()) {
-          stringField_ = other.stringField_;
+        if (!other.getFieldString().isEmpty()) {
+          fieldString_ = other.fieldString_;
           onChanged();
         }
-        if (other.getIntField() != 0) {
-          setIntField(other.getIntField());
+        if (other.getFieldInt() != 0) {
+          setFieldInt(other.getFieldInt());
         }
         onChanged();
         return this;
@@ -13879,97 +14799,97 @@ public final class TestMessageV3 {
         return this;
       }
 
-      private java.lang.Object stringField_ = "";
+      private java.lang.Object fieldString_ = "";
       /**
-       * <code>string string_field = 1;</code>
+       * <code>string field_string = 1;</code>
        */
-      public java.lang.String getStringField() {
-        java.lang.Object ref = stringField_;
+      public java.lang.String getFieldString() {
+        java.lang.Object ref = fieldString_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          stringField_ = s;
+          fieldString_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
       /**
-       * <code>string string_field = 1;</code>
+       * <code>string field_string = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getStringFieldBytes() {
-        java.lang.Object ref = stringField_;
+          getFieldStringBytes() {
+        java.lang.Object ref = fieldString_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          stringField_ = b;
+          fieldString_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>string string_field = 1;</code>
+       * <code>string field_string = 1;</code>
        */
-      public Builder setStringField(
+      public Builder setFieldString(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   
-        stringField_ = value;
+        fieldString_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>string string_field = 1;</code>
+       * <code>string field_string = 1;</code>
        */
-      public Builder clearStringField() {
+      public Builder clearFieldString() {
         
-        stringField_ = getDefaultInstance().getStringField();
+        fieldString_ = getDefaultInstance().getFieldString();
         onChanged();
         return this;
       }
       /**
-       * <code>string string_field = 1;</code>
+       * <code>string field_string = 1;</code>
        */
-      public Builder setStringFieldBytes(
+      public Builder setFieldStringBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
         
-        stringField_ = value;
+        fieldString_ = value;
         onChanged();
         return this;
       }
 
-      private int intField_ ;
+      private int fieldInt_ ;
       /**
-       * <code>int32 int_field = 2;</code>
+       * <code>int32 field_int = 2;</code>
        */
-      public int getIntField() {
-        return intField_;
+      public int getFieldInt() {
+        return fieldInt_;
       }
       /**
-       * <code>int32 int_field = 2;</code>
+       * <code>int32 field_int = 2;</code>
        */
-      public Builder setIntField(int value) {
+      public Builder setFieldInt(int value) {
         
-        intField_ = value;
+        fieldInt_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 int_field = 2;</code>
+       * <code>int32 field_int = 2;</code>
        */
-      public Builder clearIntField() {
+      public Builder clearFieldInt() {
         
-        intField_ = 0;
+        fieldInt_ = 0;
         onChanged();
         return this;
       }
@@ -14048,6 +14968,16 @@ public final class TestMessageV3 {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_Data4_FieldMapEntry_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_Data4_FieldMap2Entry_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_Data4_FieldMap2Entry_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_Data4_MapInnerMessage_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_Data4_MapInnerMessage_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Data5_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -14098,35 +15028,40 @@ public final class TestMessageV3 {
       "field_double\030\001 \001(\001\022\022\n\nfield_blob\030\002 \001(\014\"p",
       "\n\005Data3\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2\022\021\n\007fo" +
       "o_int\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH\000\022\023\n\tf" +
-      "oo_bytes\030\004 \001(\014H\000B\016\n\014named_one_of\"\214\001\n\005Dat" +
-      "a4\022\023\n\013fieldString\030\001 \001(\t\022\024\n\014field_option\030" +
-      "\002 \001(\t\022\'\n\tfield_map\030\003 \003(\0132\024.Data4.FieldMa" +
-      "pEntry\032/\n\rFieldMapEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005" +
-      "value\030\002 \001(\005:\0028\001\"[\n\005Data5\022\031\n\tfield_gpb\030\001 " +
-      "\003(\0132\006.Data2\022\021\n\007foo_int\030\002 \001(\005H\000\022\024\n\nfoo_st" +
-      "ring\030\003 \001(\tH\000B\016\n\014named_one_of\"7\n\nMapMessa" +
-      "ge\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\022\r\n\005other\030",
-      "\003 \001(\t\"\336\005\n\021ExtensionsMessage\022.\n\nbool_valu" +
-      "e\030\001 \001(\0132\032.google.protobuf.BoolValue\0220\n\013i" +
-      "nt32_value\030\002 \001(\0132\033.google.protobuf.Int32" +
-      "Value\0220\n\013int64_value\030\003 \001(\0132\033.google.prot" +
-      "obuf.Int64Value\0220\n\013float_value\030\004 \001(\0132\033.g" +
-      "oogle.protobuf.FloatValue\0222\n\014double_valu" +
-      "e\030\005 \001(\0132\034.google.protobuf.DoubleValue\0222\n" +
-      "\014string_value\030\006 \001(\0132\034.google.protobuf.St" +
-      "ringValue\0220\n\013bytes_value\030\007 \001(\0132\033.google." +
-      "protobuf.BytesValue\022+\n\010duration\030\010 \001(\0132\031.",
-      "google.protobuf.Duration\022-\n\ttimestamp\030\t " +
-      "\001(\0132\032.google.protobuf.Timestamp\022.\n\nlist_" +
-      "value\030\n \001(\0132\032.google.protobuf.ListValue\022" +
-      "/\n\013list_value2\030\013 \001(\0132\032.google.protobuf.L" +
-      "istValue\022/\n\013list_value3\030\014 \001(\0132\032.google.p" +
-      "rotobuf.ListValue\022/\n\013list_value4\030\r \001(\0132\032" +
-      ".google.protobuf.ListValue\022\'\n\006struct\030\016 \001" +
-      "(\0132\027.google.protobuf.Struct\022!\n\003any\030\017 \001(\013" +
-      "2\024.google.protobuf.Any\"@\n\025MessageInsideA" +
-      "nyField\022\024\n\014string_field\030\001 \001(\t\022\021\n\tint_fie",
-      "ld\030\002 \001(\005B\022\n\020com.avast.cactusb\006proto3"
+      "oo_bytes\030\004 \001(\014H\000B\016\n\014named_one_of\"\276\002\n\005Dat" +
+      "a4\022\024\n\014field_string\030\001 \001(\t\022\024\n\014field_option" +
+      "\030\002 \001(\t\022\'\n\tfield_map\030\003 \003(\0132\024.Data4.FieldM" +
+      "apEntry\022)\n\nfield_map2\030\004 \003(\0132\025.Data4.Fiel" +
+      "dMap2Entry\032/\n\rFieldMapEntry\022\013\n\003key\030\001 \001(\t" +
+      "\022\r\n\005value\030\002 \001(\005:\0028\001\032H\n\016FieldMap2Entry\022\013\n" +
+      "\003key\030\001 \001(\t\022%\n\005value\030\002 \001(\0132\026.Data4.MapInn" +
+      "erMessage:\0028\001\032:\n\017MapInnerMessage\022\024\n\014fiel",
+      "d_string\030\001 \001(\t\022\021\n\tfield_int\030\002 \001(\005\"[\n\005Dat" +
+      "a5\022\031\n\tfield_gpb\030\001 \003(\0132\006.Data2\022\021\n\007foo_int" +
+      "\030\002 \001(\005H\000\022\024\n\nfoo_string\030\003 \001(\tH\000B\016\n\014named_" +
+      "one_of\"7\n\nMapMessage\022\013\n\003key\030\001 \001(\t\022\r\n\005val" +
+      "ue\030\002 \001(\t\022\r\n\005other\030\003 \001(\t\"\336\005\n\021ExtensionsMe" +
+      "ssage\022.\n\nbool_value\030\001 \001(\0132\032.google.proto" +
+      "buf.BoolValue\0220\n\013int32_value\030\002 \001(\0132\033.goo" +
+      "gle.protobuf.Int32Value\0220\n\013int64_value\030\003" +
+      " \001(\0132\033.google.protobuf.Int64Value\0220\n\013flo" +
+      "at_value\030\004 \001(\0132\033.google.protobuf.FloatVa",
+      "lue\0222\n\014double_value\030\005 \001(\0132\034.google.proto" +
+      "buf.DoubleValue\0222\n\014string_value\030\006 \001(\0132\034." +
+      "google.protobuf.StringValue\0220\n\013bytes_val" +
+      "ue\030\007 \001(\0132\033.google.protobuf.BytesValue\022+\n" +
+      "\010duration\030\010 \001(\0132\031.google.protobuf.Durati" +
+      "on\022-\n\ttimestamp\030\t \001(\0132\032.google.protobuf." +
+      "Timestamp\022.\n\nlist_value\030\n \001(\0132\032.google.p" +
+      "rotobuf.ListValue\022/\n\013list_value2\030\013 \001(\0132\032" +
+      ".google.protobuf.ListValue\022/\n\013list_value" +
+      "3\030\014 \001(\0132\032.google.protobuf.ListValue\022/\n\013l",
+      "ist_value4\030\r \001(\0132\032.google.protobuf.ListV" +
+      "alue\022\'\n\006struct\030\016 \001(\0132\027.google.protobuf.S" +
+      "truct\022!\n\003any\030\017 \001(\0132\024.google.protobuf.Any" +
+      "\"@\n\025MessageInsideAnyField\022\024\n\014field_strin" +
+      "g\030\001 \001(\t\022\021\n\tfield_int\030\002 \001(\005B\022\n\020com.avast." +
+      "cactusb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -14168,13 +15103,25 @@ public final class TestMessageV3 {
     internal_static_Data4_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Data4_descriptor,
-        new java.lang.String[] { "FieldString", "FieldOption", "FieldMap", });
+        new java.lang.String[] { "FieldString", "FieldOption", "FieldMap", "FieldMap2", });
     internal_static_Data4_FieldMapEntry_descriptor =
       internal_static_Data4_descriptor.getNestedTypes().get(0);
     internal_static_Data4_FieldMapEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Data4_FieldMapEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
+    internal_static_Data4_FieldMap2Entry_descriptor =
+      internal_static_Data4_descriptor.getNestedTypes().get(1);
+    internal_static_Data4_FieldMap2Entry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_Data4_FieldMap2Entry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_Data4_MapInnerMessage_descriptor =
+      internal_static_Data4_descriptor.getNestedTypes().get(2);
+    internal_static_Data4_MapInnerMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_Data4_MapInnerMessage_descriptor,
+        new java.lang.String[] { "FieldString", "FieldInt", });
     internal_static_Data5_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_Data5_fieldAccessorTable = new
@@ -14198,7 +15145,7 @@ public final class TestMessageV3 {
     internal_static_MessageInsideAnyField_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_MessageInsideAnyField_descriptor,
-        new java.lang.String[] { "StringField", "IntField", });
+        new java.lang.String[] { "FieldString", "FieldInt", });
     com.google.protobuf.DurationProto.getDescriptor();
     com.google.protobuf.TimestampProto.getDescriptor();
     com.google.protobuf.WrappersProto.getDescriptor();

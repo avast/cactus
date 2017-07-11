@@ -241,7 +241,7 @@ class CactusMacrosTestV3 extends FunSuite {
   }
 
   test("any extension to GPB and back") {
-    val innerMessage = MessageInsideAnyField.newBuilder().setIntField(42).setStringField("ahoj").build()
+    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
 
     val orig = ExtClass(Instant.ofEpochSecond(12345), AnyValue.of(innerMessage))
 
