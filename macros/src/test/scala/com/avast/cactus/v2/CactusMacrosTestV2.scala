@@ -1,5 +1,6 @@
 package com.avast.cactus.v2
 
+import com.avast.bytes.Bytes
 import com.avast.cactus.TestMessageV2.MapMessage.MapInnerMessage
 import com.avast.cactus.TestMessageV2._
 import com.avast.cactus._
@@ -153,7 +154,7 @@ class CactusMacrosTestV2 extends FunSuite {
   }
 
   test("convert case class with ignored field to GPB and back") {
-    val original = CaseClassE(field = "ahoj", fieldOption = Some("ahoj2"))
+    val original = CaseClassE(fieldString = "ahoj", fieldOption = Some("ahoj2"), fieldBytes = Bytes.copyFromUtf8("hello"))
 
     val Good(converted) = original.asGpb[Data4]
 
@@ -227,7 +228,11 @@ case class CaseClassC(fieldString: StringWrapperClass,
 }
 
 // the `fieldIgnored` field is very unusually placed, but it has to be tested too...
-case class CaseClassE(field: String, @GpbIgnored fieldIgnored: String = "hello", fieldOption: Option[String], @GpbIgnored fieldIgnored2: String = "hello")
+case class CaseClassE(fieldString: String,
+                      @GpbIgnored fieldIgnored: String = "hello",
+                      fieldOption: Option[String],
+                      @GpbIgnored fieldIgnored2: String = "hello",
+                      fieldBytes: Bytes)
 
 case class StringWrapperClass(value: String)
 

@@ -5958,30 +5958,30 @@ public final class TestMessageV2 {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional string field = 1;</code>
+     * <code>optional string field_string = 1;</code>
      *
      * <pre>
      * REQUIRED
      * </pre>
      */
-    boolean hasField();
+    boolean hasFieldString();
     /**
-     * <code>optional string field = 1;</code>
+     * <code>optional string field_string = 1;</code>
      *
      * <pre>
      * REQUIRED
      * </pre>
      */
-    java.lang.String getField();
+    java.lang.String getFieldString();
     /**
-     * <code>optional string field = 1;</code>
+     * <code>optional string field_string = 1;</code>
      *
      * <pre>
      * REQUIRED
      * </pre>
      */
     com.google.protobuf.ByteString
-        getFieldBytes();
+        getFieldStringBytes();
 
     /**
      * <code>optional string field_option = 2;</code>
@@ -6008,6 +6008,23 @@ public final class TestMessageV2 {
      */
     com.google.protobuf.ByteString
         getFieldOptionBytes();
+
+    /**
+     * <code>optional bytes field_bytes = 3;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    boolean hasFieldBytes();
+    /**
+     * <code>optional bytes field_bytes = 3;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    com.google.protobuf.ByteString getFieldBytes();
   }
   /**
    * Protobuf type {@code Data4}
@@ -6064,13 +6081,18 @@ public final class TestMessageV2 {
             case 10: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              field_ = bs;
+              fieldString_ = bs;
               break;
             }
             case 18: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
               fieldOption_ = bs;
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              fieldBytes_ = input.readBytes();
               break;
             }
           }
@@ -6113,27 +6135,27 @@ public final class TestMessageV2 {
     }
 
     private int bitField0_;
-    public static final int FIELD_FIELD_NUMBER = 1;
-    private java.lang.Object field_;
+    public static final int FIELD_STRING_FIELD_NUMBER = 1;
+    private java.lang.Object fieldString_;
     /**
-     * <code>optional string field = 1;</code>
+     * <code>optional string field_string = 1;</code>
      *
      * <pre>
      * REQUIRED
      * </pre>
      */
-    public boolean hasField() {
+    public boolean hasFieldString() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional string field = 1;</code>
+     * <code>optional string field_string = 1;</code>
      *
      * <pre>
      * REQUIRED
      * </pre>
      */
-    public java.lang.String getField() {
-      java.lang.Object ref = field_;
+    public java.lang.String getFieldString() {
+      java.lang.Object ref = fieldString_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
@@ -6141,26 +6163,26 @@ public final class TestMessageV2 {
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          field_ = s;
+          fieldString_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>optional string field = 1;</code>
+     * <code>optional string field_string = 1;</code>
      *
      * <pre>
      * REQUIRED
      * </pre>
      */
     public com.google.protobuf.ByteString
-        getFieldBytes() {
-      java.lang.Object ref = field_;
+        getFieldStringBytes() {
+      java.lang.Object ref = fieldString_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        field_ = b;
+        fieldString_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -6221,9 +6243,33 @@ public final class TestMessageV2 {
       }
     }
 
+    public static final int FIELD_BYTES_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString fieldBytes_;
+    /**
+     * <code>optional bytes field_bytes = 3;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public boolean hasFieldBytes() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional bytes field_bytes = 3;</code>
+     *
+     * <pre>
+     * REQUIRED
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getFieldBytes() {
+      return fieldBytes_;
+    }
+
     private void initFields() {
-      field_ = "";
+      fieldString_ = "";
       fieldOption_ = "";
+      fieldBytes_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -6239,10 +6285,13 @@ public final class TestMessageV2 {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getFieldBytes());
+        output.writeBytes(1, getFieldStringBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getFieldOptionBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, fieldBytes_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -6255,11 +6304,15 @@ public final class TestMessageV2 {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getFieldBytes());
+          .computeBytesSize(1, getFieldStringBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, getFieldOptionBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, fieldBytes_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -6378,10 +6431,12 @@ public final class TestMessageV2 {
 
       public Builder clear() {
         super.clear();
-        field_ = "";
+        fieldString_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         fieldOption_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
+        fieldBytes_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -6413,11 +6468,15 @@ public final class TestMessageV2 {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.field_ = field_;
+        result.fieldString_ = fieldString_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
         result.fieldOption_ = fieldOption_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.fieldBytes_ = fieldBytes_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -6434,15 +6493,18 @@ public final class TestMessageV2 {
 
       public Builder mergeFrom(com.avast.cactus.TestMessageV2.Data4 other) {
         if (other == com.avast.cactus.TestMessageV2.Data4.getDefaultInstance()) return this;
-        if (other.hasField()) {
+        if (other.hasFieldString()) {
           bitField0_ |= 0x00000001;
-          field_ = other.field_;
+          fieldString_ = other.fieldString_;
           onChanged();
         }
         if (other.hasFieldOption()) {
           bitField0_ |= 0x00000002;
           fieldOption_ = other.fieldOption_;
           onChanged();
+        }
+        if (other.hasFieldBytes()) {
+          setFieldBytes(other.getFieldBytes());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -6471,32 +6533,32 @@ public final class TestMessageV2 {
       }
       private int bitField0_;
 
-      private java.lang.Object field_ = "";
+      private java.lang.Object fieldString_ = "";
       /**
-       * <code>optional string field = 1;</code>
+       * <code>optional string field_string = 1;</code>
        *
        * <pre>
        * REQUIRED
        * </pre>
        */
-      public boolean hasField() {
+      public boolean hasFieldString() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional string field = 1;</code>
+       * <code>optional string field_string = 1;</code>
        *
        * <pre>
        * REQUIRED
        * </pre>
        */
-      public java.lang.String getField() {
-        java.lang.Object ref = field_;
+      public java.lang.String getFieldString() {
+        java.lang.Object ref = fieldString_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            field_ = s;
+            fieldString_ = s;
           }
           return s;
         } else {
@@ -6504,69 +6566,69 @@ public final class TestMessageV2 {
         }
       }
       /**
-       * <code>optional string field = 1;</code>
+       * <code>optional string field_string = 1;</code>
        *
        * <pre>
        * REQUIRED
        * </pre>
        */
       public com.google.protobuf.ByteString
-          getFieldBytes() {
-        java.lang.Object ref = field_;
+          getFieldStringBytes() {
+        java.lang.Object ref = fieldString_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          field_ = b;
+          fieldString_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string field = 1;</code>
+       * <code>optional string field_string = 1;</code>
        *
        * <pre>
        * REQUIRED
        * </pre>
        */
-      public Builder setField(
+      public Builder setFieldString(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        field_ = value;
+        fieldString_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string field = 1;</code>
+       * <code>optional string field_string = 1;</code>
        *
        * <pre>
        * REQUIRED
        * </pre>
        */
-      public Builder clearField() {
+      public Builder clearFieldString() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        field_ = getDefaultInstance().getField();
+        fieldString_ = getDefaultInstance().getFieldString();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string field = 1;</code>
+       * <code>optional string field_string = 1;</code>
        *
        * <pre>
        * REQUIRED
        * </pre>
        */
-      public Builder setFieldBytes(
+      public Builder setFieldStringBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        field_ = value;
+        fieldString_ = value;
         onChanged();
         return this;
       }
@@ -6667,6 +6729,57 @@ public final class TestMessageV2 {
   }
   bitField0_ |= 0x00000002;
         fieldOption_ = value;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString fieldBytes_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes field_bytes = 3;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public boolean hasFieldBytes() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bytes field_bytes = 3;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getFieldBytes() {
+        return fieldBytes_;
+      }
+      /**
+       * <code>optional bytes field_bytes = 3;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder setFieldBytes(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        fieldBytes_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes field_bytes = 3;</code>
+       *
+       * <pre>
+       * REQUIRED
+       * </pre>
+       */
+      public Builder clearFieldBytes() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        fieldBytes_ = getDefaultInstance().getFieldBytes();
         onChanged();
         return this;
       }
@@ -8348,12 +8461,13 @@ public final class TestMessageV2 {
       "\003(\0132\006.Data2\022+\n\033field_gpb2_repeated_recur" +
       "se\030\020 \003(\0132\006.Data3\"1\n\005Data2\022\024\n\014field_doubl" +
       "e\030\001 \001(\001\022\022\n\nfield_blob\030\002 \001(\014\"\"\n\005Data3\022\031\n\t" +
-      "field_gpb\030\001 \003(\0132\006.Data2\",\n\005Data4\022\r\n\005fiel" +
-      "d\030\001 \001(\t\022\024\n\014field_option\030\002 \001(\t\"\220\001\n\nMapMes" +
-      "sage\022\013\n\003key\030\001 \001(\t\022*\n\005value\030\002 \001(\0132\033.MapMe" +
-      "ssage.MapInnerMessage\022\r\n\005other\030\003 \001(\t\032:\n\017" +
-      "MapInnerMessage\022\024\n\014field_string\030\001 \001(\t\022\021\n",
-      "\tfield_int\030\002 \001(\005B\022\n\020com.avast.cactus"
+      "field_gpb\030\001 \003(\0132\006.Data2\"H\n\005Data4\022\024\n\014fiel" +
+      "d_string\030\001 \001(\t\022\024\n\014field_option\030\002 \001(\t\022\023\n\013" +
+      "field_bytes\030\003 \001(\014\"\220\001\n\nMapMessage\022\013\n\003key\030" +
+      "\001 \001(\t\022*\n\005value\030\002 \001(\0132\033.MapMessage.MapInn" +
+      "erMessage\022\r\n\005other\030\003 \001(\t\032:\n\017MapInnerMess",
+      "age\022\024\n\014field_string\030\001 \001(\t\022\021\n\tfield_int\030\002" +
+      " \001(\005B\022\n\020com.avast.cactus"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -8390,7 +8504,7 @@ public final class TestMessageV2 {
     internal_static_Data4_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Data4_descriptor,
-        new java.lang.String[] { "Field", "FieldOption", });
+        new java.lang.String[] { "FieldString", "FieldOption", "FieldBytes", });
     internal_static_MapMessage_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_MapMessage_fieldAccessorTable = new

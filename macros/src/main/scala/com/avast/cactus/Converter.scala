@@ -11,7 +11,7 @@ trait Converter[A, B] {
   def apply(a: A): B
 }
 
-object Converter extends V3Converters {
+object Converter extends V3Converters with OptionalConverters {
 
   def apply[A, B](f: A => B): Converter[A, B] = new Converter[A, B] {
     override def apply(a: A): B = f(a)
