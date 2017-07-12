@@ -363,6 +363,9 @@ assertResult(Good(original))(converted.asCaseClass[CaseClass])
 There as a possibility to use so-called wrappers provided by Google as an extension. This is fully supported by Cactus by mapping to prepared
 case classes - `trait ValueOneOf` and its implementations. 
 
+The same as normal fields, these can be wrapped in the `Option[T]` which turns them into optional fields.
+
+
 ```scala
 
 /*
@@ -438,7 +441,7 @@ val gpb = ExtensionsMessage.newBuilder()
 
 case class CaseClassExtensionsScala(boolValue: Boolean,
                                     int32Value: Int,
-                                    longValue: Long,
+                                    longValue: Option[Long], // Option is supported
                                     listValue: Seq[ValueOneOf],
                                     duration: Duration,
                                     timestamp: Instant,
@@ -447,8 +450,6 @@ case class CaseClassExtensionsScala(boolValue: Boolean,
                                     
 gpb.asCaseClass[CaseClassExtensionsScala]
 ```
-
-The same as normal fields, these can be wrapped in the `Option[T]` which turns them into optional fields.
 
 ## Appendix
 
