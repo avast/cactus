@@ -2,6 +2,8 @@ import sbt.Keys._
 
 crossScalaVersions := Seq("2.11.11", "2.12.2")
 
+resolvers += Resolver.jcenterRepo
+
 lazy val commonSettings = Seq(
   scalaVersion := "2.11.11",
   scalacOptions += "-deprecation",
