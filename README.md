@@ -361,7 +361,7 @@ assertResult(Good(original))(converted.asCaseClass[CaseClass])
 ### Wrappers
 
 There as a possibility to use so-called wrappers provided by Google as an extension. This is fully supported by Cactus by mapping to prepared
-case classes.
+case classes - `trait ValueOneOf` and its implementations. 
 
 ```scala
 
@@ -378,6 +378,10 @@ message ExtensionsMessage {
              google.protobuf.Struct struct = 7;
 }
 */
+
+import com.avast.cactus._
+import com.avast.cactus.v3.ValueOneOf._
+import com.google.protobuf.{Any, BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
 
 case class CaseClassExtensions(boolValue: BoolValue,
                                int32Value: Int32Value,
@@ -418,15 +422,33 @@ assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
 Conversion to basic Scala types is supported too:
 
 ```scala
+import com.avast.cactus._
+import com.avast.cactus.v3.ValueOneOf._
+import com.google.protobuf.{BoolValue, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
+
+val gpb = ExtensionsMessage.newBuilder()
+  .setBoolValue(BoolValue.newBuilder().setValue(true))
+  .setInt32Value(Int32Value.newBuilder().setValue(123))
+  .setLongValue(Int64Value.newBuilder().setValue(456))
+  .setDuration(GpbDuration.newBuilder().setSeconds(123).setNanos(456))
+  .setTimestamp(GpbTimestamp.newBuilder().setSeconds(123).setNanos(456))
+  .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+  .setStruct(Struct.newBuilder().putFields("mapKey", Value.newBuilder().setNumberValue(42).build()))
+  .build()
+
 case class CaseClassExtensionsScala(boolValue: Boolean,
                                     int32Value: Int,
                                     longValue: Long,
                                     listValue: Seq[ValueOneOf],
                                     duration: Duration,
-                                    timestamp: Instant)
+                                    timestamp: Instant,
+                                    struct: Map[String, ValueOneOf]
+                                    )
                                     
 gpb.asCaseClass[CaseClassExtensionsScala]
 ```
+
+The same as normal fields, these can be wrapped in the `Option[T]` which turns them into optional fields.
 
 ## Appendix
 
