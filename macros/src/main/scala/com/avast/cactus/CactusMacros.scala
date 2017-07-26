@@ -52,12 +52,12 @@ object CactusMacros {
     classOf[java.lang.String].getName // consider String as primitive
   )
 
-  def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
-    coll.map(aToBConverter.apply)
+  def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](fieldPath: String, coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] = {
+    coll.map(aToBConverter.apply(fieldPath))
   }
 
-  implicit def AToB[A, B](a: A)(implicit aToBConverter: Converter[A, B]): B = {
-    aToBConverter.apply(a)
+  def AToB[A, B](fieldPath: String)(a: A)(implicit aToBConverter: Converter[A, B]): B = {
+    aToBConverter.apply(fieldPath)(a)
   }
 
   def convertGpbToCaseClass[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree): c.Expr[CaseClass Or Every[CactusFailure]] = {
@@ -66,7 +66,11 @@ object CactusMacros {
     // unpack the implicit ClassTag tree
     val gpbSymbol = extractSymbolFromClassTag(c)(gpbCt)
 
-    val variableName = getVariable(c)
+    val variable = getVariable(c)
+
+    val variableName = variable.symbol.asTerm.fullName.split('.').last
+
+    //    c.abort(c.enclosingPosition, s"NAME=$variableName")
 
 
     c.Expr[CaseClass Or Every[CactusFailure]] {
@@ -75,7 +79,7 @@ object CactusMacros {
 
       val generatedConverters: mutable.Map[String, c.Tree] = mutable.Map.empty
 
-      val converter = GpbToCaseClass.createConverter(c)(caseClassType, gpbType, variableName)(generatedConverters)
+      val converter = GpbToCaseClass.createConverter(c)(c.Expr[String](q"$variableName"), caseClassType, gpbType, variable)(generatedConverters)
 
       val finalConverters = generatedConverters.values
 
@@ -146,7 +150,7 @@ object CactusMacros {
   private[cactus] object GpbToCaseClass {
 
     def createConverter(c: whitebox.Context)
-                       (caseClassType: c.universe.Type, gpbType: c.universe.Type, gpb: c.Tree)
+                       (fieldPath: c.universe.Expr[String], caseClassType: c.universe.Type, gpbType: c.universe.Type, gpb: c.Tree)
                        (implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
       import c.universe._
 
@@ -168,7 +172,11 @@ object CactusMacros {
             val returnType = n.getter.returnType
             val query = protoVersion.getQuery(c)(gpb, upper, returnType)
 
-            processEndType(c)(fieldName, annotations, nameInGpb, dstType)(query, q"$gpb.${n.getter}", returnType)
+            val innerFilePath = c.Expr[String] {
+              q"""$fieldPath + "." + $nameInGpb"""
+            }
+
+            processEndType(c)(fieldName, innerFilePath, annotations, nameInGpb, dstType)(query, q"$gpb.${n.getter}", returnType)
 
           case o: FieldType.OneOf[MethodSymbol, ClassSymbol, Type] =>
             processOneOf(c)(gpbType, gpb)(o)
@@ -212,7 +220,7 @@ object CactusMacros {
     }
 
     private[cactus] def processEndType(c: whitebox.Context)
-                                      (fieldName: c.universe.TermName, fieldAnnotations: Map[String, Map[String, String]], nameInGpb: String, returnType: c.universe.Type)
+                                      (fieldName: c.universe.TermName, fieldPath: c.universe.Expr[String], fieldAnnotations: Map[String, Map[String, String]], nameInGpb: String, returnType: c.universe.Type)
                                       (query: Option[c.universe.Tree], getter: c.universe.Tree, getterReturnType: c.universe.Type)
                                       (implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
       import c.universe._
@@ -230,14 +238,14 @@ object CactusMacros {
           val wrappedDstType = wrapDstType(c)(dstTypeArg)
 
           newConverter(c)(srcResultType, wrappedDstType) {
-            q" (t: $srcResultType) => ${processEndType(c)(fieldName, fieldAnnotations, nameInGpb, dstTypeArg)(None, q" t ", getterReturnType)} "
+            q" (fieldPath: String) => (t: $srcResultType) => ${processEndType(c)(fieldName, c.Expr[String](q"fieldPath"), fieldAnnotations, nameInGpb, dstTypeArg)(None, q" t ", getterReturnType)} "
           }
 
           query match {
             case Some(q) =>
               q""" {
                  if ($q) {
-                   val value: $dstTypeArg Or Every[CactusFailure] = CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter)
+                   val value: $dstTypeArg Or Every[CactusFailure] = CactusMacros.AToB[$srcResultType, $wrappedDstType]($fieldPath)($getter)
 
                    value.map(Option(_)).recover(_ => None)
                  } else { Good[Option[$dstTypeArg]](None).orBad[Every[CactusFailure]] }
@@ -245,7 +253,7 @@ object CactusMacros {
            """
             case None =>
               q""" {
-                 val value: $dstTypeArg Or Every[CactusFailure] = CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter)
+                 val value: $dstTypeArg Or Every[CactusFailure] = CactusMacros.AToB[$srcResultType, $wrappedDstType]($fieldPath)($getter)
 
                  value.map(Option(_)).recover(_ => None)
                }
@@ -260,10 +268,10 @@ object CactusMacros {
           val wrappedDstType = wrapDstType(c)(dstResultType)
 
           newConverter(c)(srcResultType, wrappedDstType) {
-            q" (t: $srcResultType) => ${createConverter(c)(returnType, getterReturnType, q" t ")} "
+            q" (fieldPath: String) => (t: $srcResultType) => ${createConverter(c)(c.Expr[String](q"fieldPath"), returnType, getterReturnType, q" t ")} "
           }
 
-          val value = q" CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter) "
+          val value = q" CactusMacros.AToB[$srcResultType, $wrappedDstType]($fieldPath)($getter) "
 
           query match {
             case Some(q) => q" if ($q) $value else Bad(One(MissingFieldFailure($nameInGpb))) "
@@ -301,10 +309,10 @@ object CactusMacros {
                 val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstKeyType)
 
                 newConverter(c)(srcKeyType, wrappedDstType) {
-                  q" (t: $srcKeyType) => ${processEndType(c)(TermName("key"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType)} "
+                  q" (fieldPath: String) => (t: $srcKeyType) => ${processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType)} "
                 }
 
-                q" CactusMacros.AToB[$srcKeyType, $wrappedDstType](f.$getKeyField) "
+                q" CactusMacros.AToB[$srcKeyType, $wrappedDstType]($fieldPath)(f.$getKeyField) "
               }
 
               val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
@@ -313,23 +321,23 @@ object CactusMacros {
                 val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstValueType)
 
                 newConverter(c)(srcValueType, wrappedDstType) {
-                  q" (t: $srcValueType) => ${processEndType(c)(TermName("key"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType)} "
+                  q" (fieldPath: String) => (t: $srcValueType) => ${processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType)} "
                 }
 
-                q" CactusMacros.AToB[$srcValueType, $wrappedDstType](f.$getValueField) "
+                q" CactusMacros.AToB[$srcValueType, $wrappedDstType]($fieldPath)(f.$getValueField) "
               }
 
               val wrappedDstType = wrapDstType(c)(dstResultType)
 
               newConverter(c)(srcResultType, wrappedDstType) {
-                q""" (a: $srcResultType) => {
+                q""" (fieldPath: String) => (a: $srcResultType) => {
                           a.asScala
                             .map(f => $keyField -> $valueField)
                             .toSeq.map{ case(key, or) => withGood(key, or)(_ -> _) }.combined.map(_.toMap)
                         } """
               }
 
-              q" CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter) "
+              q" CactusMacros.AToB[$srcResultType, $wrappedDstType]($fieldPath)($getter) "
 
             case None if isJavaMap(c)(srcTypeSymbol) =>
               val wrappedDstType = wrapDstType(c)(dstResultType)
@@ -338,14 +346,14 @@ object CactusMacros {
                 ProtoVersion.V3.newConverterJavaToScalaMap(c)(srcResultType, dstResultType)
               }
 
-              q" CactusMacros.AToB[$srcResultType, $wrappedDstType]($getter) "
+              q" CactusMacros.AToB[$srcResultType, $wrappedDstType]($fieldPath)($getter) "
 
             case None =>
               if (Debug) {
                 println(s"Map field $fieldName without annotation, fallback to raw conversion")
               }
 
-              q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($getter)) "
+              q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($getter)) "
           }
 
         case _ if isScalaCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
@@ -358,7 +366,7 @@ object CactusMacros {
                 val toFinalCollection = if (symbolsEqual(c)(vectorTypeSymbol, dstTypeSymbol)) {
                   q" identity "
                 } else {
-                  q" CactusMacros.AToB[Vector[$dstTypeArg],${dstTypeSymbol.name.toTypeName}[$dstTypeArg]] "
+                  q" CactusMacros.AToB[Vector[$dstTypeArg],${dstTypeSymbol.name.toTypeName}[$dstTypeArg]]($fieldPath) "
                 }
 
                 val srcTypeArg = srcTypeArgOpt.getOrElse {
@@ -375,10 +383,10 @@ object CactusMacros {
                   val wrappedDstTypeArg = wrapDstType(c)(dstTypeArg)
 
                   newConverter(c)(srcTypeArg, wrappedDstTypeArg) {
-                    q" (a: $srcTypeArg) =>  { ${processEndType(c)(fieldName, fieldAnnotations, nameInGpb, dstTypeArg)(None, q" a ", srcTypeArg)} } "
+                    q" (fieldPath: String) => (a: $srcTypeArg) =>  { ${processEndType(c)(fieldName, c.Expr[String](q"fieldPath"), fieldAnnotations, nameInGpb, dstTypeArg)(None, q" a ", srcTypeArg)} } "
                   }
 
-                  q" $getter.asScala.map(CactusMacros.AToB[$srcTypeArg, $wrappedDstTypeArg]).toVector.combined.map($toFinalCollection) "
+                  q" $getter.asScala.map(CactusMacros.AToB[$srcTypeArg, $wrappedDstTypeArg]($fieldPath)).toVector.combined.map($toFinalCollection) "
                 }
 
               case (_, _) =>
@@ -388,26 +396,26 @@ object CactusMacros {
                   println(s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion")
                 }
 
-                q" Good(CactusMacros.AToB[Vector[$getterGenType], $dstResultType]($getter.asScala.toVector)) "
+                q" Good(CactusMacros.AToB[Vector[$getterGenType], $dstResultType]($fieldPath)($getter.asScala.toVector)) "
             }
           } else {
             if (Debug) {
               println(s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion")
             }
 
-            q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($getter)) "
+            q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($getter)) "
           }
 
         case _ if isJavaCollection(c)(srcTypeSymbol) => // this means raw conversion, because otherwise it would have match before
 
-          q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($getter)) "
+          q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($getter)) "
 
         case _ => // plain type
 
-          val value = convertIfNeeded(c)(srcResultType, dstResultType)(getter)
+          val value = convertIfNeeded(c)(fieldPath, srcResultType, dstResultType)(getter)
 
           query match {
-            case Some(q) => q" if ($q) Good($value) else Bad(One(MissingFieldFailure($nameInGpb))) "
+            case Some(q) => q" if ($q) Good($value) else Bad(One(MissingFieldFailure($fieldPath))) "
             case None => q" Good($value)"
           }
       }
@@ -657,7 +665,7 @@ object CactusMacros {
 
         case _ => // plain type
 
-          val value = convertIfNeeded(c)(srcResultType, dstResultType)(field)
+          val value = convertIfNeeded(c)(c.Expr[String](q""), srcResultType, dstResultType)(field) // TODO
 
           q" $setter($value) "
       }
@@ -942,7 +950,7 @@ object CactusMacros {
     srcTypeSymbol == dstTypeSymbol || (srcTypeSymbol.isClass && srcTypeSymbol.asClass.baseClasses.contains(dstTypeSymbol))
   }
 
-  private[cactus] def convertIfNeeded(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type)(value: c.Tree): c.Tree = {
+  private[cactus] def convertIfNeeded(c: whitebox.Context)(fieldPath: c.universe.Expr[String], srcType: c.universe.Type, dstType: c.universe.Type)(value: c.Tree): c.Tree = {
     import c.universe._
 
     val srcTypeSymbol = srcType.typeSymbol
@@ -955,7 +963,7 @@ object CactusMacros {
         println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
       }
 
-      q" CactusMacros.AToB[$srcType, $dstType]($value) "
+      q" CactusMacros.AToB[$srcType, $dstType]($fieldPath)($value) "
     }
   }
 

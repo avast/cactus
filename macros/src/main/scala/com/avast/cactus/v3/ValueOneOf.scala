@@ -18,7 +18,7 @@ object ValueOneOf {
     case Value.KindCase.STRUCT_VALUE => StructValue {
       v.getStructValue.getFieldsMap.asScala.mapValues(ValueOneOf.apply).toMap
     }
-    case Value.KindCase.LIST_VALUE => ListValue(Converter.listValue2SeqConverter.apply(v.getListValue))
+    case Value.KindCase.LIST_VALUE => ListValue(Converter.listValue2SeqConverter.apply("ONE-OF")(v.getListValue)) // TODO
   }
 
   private[cactus] def toGpbValue(vof: ValueOneOf): Value = vof match {

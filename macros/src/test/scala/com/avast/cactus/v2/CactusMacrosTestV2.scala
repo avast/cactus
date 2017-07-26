@@ -14,21 +14,21 @@ import scala.collection.immutable
 class CactusMacrosTestV2 extends FunSuite {
 
   // user specified converters
-  implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))
-  implicit val ByteStringToStringConverter: Converter[ByteString, String] = Converter((b: ByteString) => b.toStringUtf8)
+  implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter(_ =>(b: String) => ByteString.copyFromUtf8(b))
+  implicit val ByteStringToStringConverter: Converter[ByteString, String] = Converter(_ =>(b: ByteString) => b.toStringUtf8)
 
-  implicit val StringWrapperToStringConverter: Converter[StringWrapperClass, String] = Converter((b: StringWrapperClass) => b.value)
-  implicit val StringToStringWrapperConverter: Converter[String, StringWrapperClass] = Converter((b: String) => StringWrapperClass(b))
+  implicit val StringWrapperToStringConverter: Converter[StringWrapperClass, String] = Converter(_ =>(b: StringWrapperClass) => b.value)
+  implicit val StringToStringWrapperConverter: Converter[String, StringWrapperClass] = Converter(_ =>(b: String) => StringWrapperClass(b))
 
-  implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter(_.asScala.mkString(", "))
-  implicit val StringJavaIntegerListConverter: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter(_.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
+  implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter(_ =>_.asScala.mkString(", "))
+  implicit val StringJavaIntegerListConverter: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter(_ =>_.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
 
-  implicit val MapInnerMessageIntConverter: Converter[MapInnerMessage, Int] = Converter(_.getFieldInt)
-  implicit val IntMapInnerMessageConverter: Converter[Int, MapInnerMessage] = Converter(MapInnerMessage.newBuilder().setFieldString("str").setFieldInt(_).build())
+  implicit val MapInnerMessageIntConverter: Converter[MapInnerMessage, Int] = Converter(_ =>_.getFieldInt)
+  implicit val IntMapInnerMessageConverter: Converter[Int, MapInnerMessage] = Converter(_ =>MapInnerMessage.newBuilder().setFieldString("str").setFieldInt(_).build())
 
   // these are not needed, but they are here to be sure it won't cause trouble to the user
-  implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter((b: Array[Byte]) => ByteString.copyFrom(b))
-  implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
+  implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter(_ =>(b: Array[Byte]) => ByteString.copyFrom(b))
+  implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter(_ =>(b: ByteString) => b.toByteArray)
 
   test("GPB to case class") {
     val gpbInternal = Data2.newBuilder()
@@ -74,7 +74,7 @@ class CactusMacrosTestV2 extends FunSuite {
   test("GPB to case class multiple failures") {
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
-      .setFieldBlob(ByteString.copyFromUtf8("text"))
+//      .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
 
     // fields commented out are REQUIRED
@@ -85,12 +85,13 @@ class CactusMacrosTestV2 extends FunSuite {
       .setFieldBlob(ByteString.EMPTY)
       .setFieldGpb(gpbInternal)
       .setFieldGpbOption(gpbInternal)
+      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addFieldGpb(gpbInternal).build())
       //      .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .build()
 
-    val expected = List("fieldString", "fieldIntName").map(MissingFieldFailure).sortBy(_.toString)
+    val expected = List("gpb.fieldString", "gpb.fieldIntName", "gpb.fieldGpb.fieldBlob", "gpb.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob").map(MissingFieldFailure).sortBy(_.toString)
 
     gpb.asCaseClass[CaseClassA] match {
       case Bad(e) =>
