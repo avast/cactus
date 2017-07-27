@@ -83,7 +83,7 @@ private[cactus] object ProtoVersion {
         val ctorType = getCtorParamType(c)(ccl)
         val value = CactusMacros.convertIfNeeded(c)(c.Expr[String](q"fieldPath"),getter.returnType, ctorType)(q"wholeGpb.$getter")
 
-        cq""" $enumClass.$enum => Good(${ccl.companion}.apply($value))  """
+        cq""" $enumClass.$enum => $value.map(${ccl.companion}.apply)  """
       } :+
         cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => Bad(One(OneOfValueNotSetFailure(fieldPath + "." + $name))) """
 

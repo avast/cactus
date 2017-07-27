@@ -101,165 +101,165 @@ class CactusMacrosTestV3 extends FunSuite {
     }
   }
 
-  test("Case class to GPB") {
-    val map = Map("first" -> "1", "second" -> "2")
-    val map2 = Map("first" -> 1, "second" -> 2)
-
-    val caseClassB = CaseClassB(0.9, "text")
-
-    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed2.FooInt(9)))
-    val caseClassF = CaseClassF(Seq(caseClassB, caseClassB, caseClassB), None)
-
-    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
-
-    val gpbInternal = Data2.newBuilder()
-      .setFieldDouble(0.9)
-      .setFieldBlob(ByteString.copyFromUtf8("text"))
-      .build()
-
-    val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
-
-    val expectedGpb = TestMessageV3.Data.newBuilder()
-      .setFieldString("ahoj")
-      .setFieldIntName(9)
-      .setFieldOption(13)
-      .setFieldBlob(ByteString.EMPTY)
-      .setFieldGpb(gpbInternal)
-      .setFieldGpb2(gpbInternal)
-      .setFieldGpb3(Data5.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
-      .setFieldGpbOption(gpbInternal)
-      .addAllFieldGpbRepeated(dataRepeated.asJava)
-      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).setFooInt(9).build())
-      .addAllFieldStrings(Seq("a", "b").asJava)
-      .addAllFieldStringsName(Seq("a").asJava)
-      .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
-      .addAllFieldMap(map.map { case (key, value) => TestMessageV3.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
-      .addAllFieldMap2(map2.map { case (key, value) => TestMessageV3.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
-      .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
-      .build()
-
-    caseClass.asGpb[Data] match {
-      case Good(e) if e == expectedGpb => // ok
-    }
-  }
-
-  test("convert case class to GPB and back") {
-    val map = Map("first" -> "1", "second" -> "2")
-
-    val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), Vector(3, 6), List(), map)
-
-    val Good(converted) = original.asGpb[Data]
-
-    assertResult(Good(original))(converted.asCaseClass[CaseClassC])
-  }
-
-  test("convert case class with ignored field to GPB and back") {
-    val original = CaseClassE(fieldString = "ahoj", fieldOption = Some("ahoj2"))
-
-    val Good(converted) = original.asGpb[Data4]
-
-    assertResult(Good(original))(converted.asCaseClass[CaseClassE])
-  }
-
-  test("gpb3 map to GPB and back") {
-    val original = CaseClassG(fieldString = "ahoj",
-      fieldOption = Some("ahoj2"),
-      fieldMap = Map("one" -> 1, "two" -> 2),
-      fieldMap2 = Map("one" -> CaseClassMapInnerMessage("str", 42))
-    )
-
-    val Good(converted) = original.asGpb[Data4]
-
-    assertResult(Good(original))(converted.asCaseClass[CaseClassG])
-  }
-
-  test("extensions from GPB and back") {
-    val gpb = ExtensionsMessage.newBuilder()
-      .setBoolValue(BoolValue.newBuilder().setValue(true))
-      .setInt32Value(Int32Value.newBuilder().setValue(123))
-      .setInt64Value(Int64Value.newBuilder().setValue(456))
-      .setFloatValue(FloatValue.newBuilder().setValue(123.456f))
-      .setBytesValue(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")))
-      .setDuration(GpbDuration.newBuilder().setSeconds(123).setNanos(456))
-      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(123).setNanos(456))
-      .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
-      .setListValue2(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
-      .setListValue3(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
-      .setStruct(Struct.newBuilder().putFields("mapKey", Value.newBuilder().setNumberValue(42).build()))
-      .build()
-
-    val expected = CaseClassExtensions(
-      boolValue = BoolValue.newBuilder().setValue(true).build(),
-      int32Value = Int32Value.newBuilder().setValue(123).build(),
-      longValue = Int64Value.newBuilder().setValue(456).build(),
-      floatValue = Some(FloatValue.newBuilder().setValue(123.456f).build()),
-      doubleValue = None,
-      stringValue = None,
-      bytesValue = BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")).build(),
-      duration = GpbDuration.newBuilder().setSeconds(123).setNanos(456).build(),
-      timestamp = GpbTimestamp.newBuilder().setSeconds(123).setNanos(456).build(),
-      listValue = ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)).build(),
-      listValue2 = Seq(NumberValue(456.789)),
-      listValue3 = Some(Seq(NumberValue(456.789))),
-      listValue4 = None,
-      struct = Map("mapKey" -> NumberValue(42))
-    )
-
-    val Good(converted) = gpb.asCaseClass[CaseClassExtensions]
-
-    assertResult(expected)(converted)
-
-    assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
-  }
-
-  test("extensions from GPB and back - scala types") {
-    val gpb = ExtensionsMessage.newBuilder()
-      .setBoolValue(BoolValue.newBuilder().setValue(true))
-      .setInt32Value(Int32Value.newBuilder().setValue(123))
-      .setInt64Value(Int64Value.newBuilder().setValue(456))
-      .setFloatValue(FloatValue.newBuilder().setValue(123.456f))
-      .setBytesValue(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")))
-      .setDuration(GpbDuration.newBuilder().setSeconds(123).setNanos(456))
-      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(123).setNanos(456))
-      .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
-      .build()
-
-    val expected = CaseClassExtensionsScala(
-      boolValue = true,
-      int32Value = 123,
-      longValue = 456,
-      floatValue = Some(123.456f),
-      doubleValue = None,
-      stringValue = None,
-      bytesValue = ByteString.copyFromUtf8("+ěščřžýáíé"),
-      duration = Duration.ofSeconds(123, 456),
-      timestamp = Instant.ofEpochSecond(123, 456),
-      listValue = Seq(NumberValue(456.789))
-    )
-
-    val Good(converted) = gpb.asCaseClass[CaseClassExtensionsScala]
-
-    assertResult(expected)(converted)
-
-    assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
-  }
-
-  test("any extension to GPB and back") {
-    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
-
-    val orig = ExtClass(Instant.ofEpochSecond(12345), AnyValue.of(innerMessage))
-
-    val expected = ExtensionsMessage.newBuilder().setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345)).setAny(Any.pack(innerMessage)).build()
-
-    val Good(converted) = orig.asGpb[ExtensionsMessage]
-
-    assertResult(expected)(converted)
-
-    val actual = converted.asCaseClass[ExtClass]
-
-    assertResult(Good(orig))(actual)
-    assertResult(Good(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
-  }
+//  test("Case class to GPB") {
+//    val map = Map("first" -> "1", "second" -> "2")
+//    val map2 = Map("first" -> 1, "second" -> 2)
+//
+//    val caseClassB = CaseClassB(0.9, "text")
+//
+//    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed2.FooInt(9)))
+//    val caseClassF = CaseClassF(Seq(caseClassB, caseClassB, caseClassB), None)
+//
+//    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+//
+//    val gpbInternal = Data2.newBuilder()
+//      .setFieldDouble(0.9)
+//      .setFieldBlob(ByteString.copyFromUtf8("text"))
+//      .build()
+//
+//    val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
+//
+//    val expectedGpb = TestMessageV3.Data.newBuilder()
+//      .setFieldString("ahoj")
+//      .setFieldIntName(9)
+//      .setFieldOption(13)
+//      .setFieldBlob(ByteString.EMPTY)
+//      .setFieldGpb(gpbInternal)
+//      .setFieldGpb2(gpbInternal)
+//      .setFieldGpb3(Data5.newBuilder().addAllFieldGpb(dataRepeated.asJava).build())
+//      .setFieldGpbOption(gpbInternal)
+//      .addAllFieldGpbRepeated(dataRepeated.asJava)
+//      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addAllFieldGpb(dataRepeated.asJava).setFooInt(9).build())
+//      .addAllFieldStrings(Seq("a", "b").asJava)
+//      .addAllFieldStringsName(Seq("a").asJava)
+//      .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
+//      .addAllFieldMap(map.map { case (key, value) => TestMessageV3.MapMessage.newBuilder().setKey(key).setValue(value).build() }.asJava)
+//      .addAllFieldMap2(map2.map { case (key, value) => TestMessageV3.MapMessage.newBuilder().setKey(key).setValue(value.toString).build() }.asJava)
+//      .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
+//      .build()
+//
+//    caseClass.asGpb[Data] match {
+//      case Good(e) if e == expectedGpb => // ok
+//    }
+//  }
+//
+//  test("convert case class to GPB and back") {
+//    val map = Map("first" -> "1", "second" -> "2")
+//
+//    val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), Vector(3, 6), List(), map)
+//
+//    val Good(converted) = original.asGpb[Data]
+//
+//    assertResult(Good(original))(converted.asCaseClass[CaseClassC])
+//  }
+//
+//  test("convert case class with ignored field to GPB and back") {
+//    val original = CaseClassE(fieldString = "ahoj", fieldOption = Some("ahoj2"))
+//
+//    val Good(converted) = original.asGpb[Data4]
+//
+//    assertResult(Good(original))(converted.asCaseClass[CaseClassE])
+//  }
+//
+//  test("gpb3 map to GPB and back") {
+//    val original = CaseClassG(fieldString = "ahoj",
+//      fieldOption = Some("ahoj2"),
+//      fieldMap = Map("one" -> 1, "two" -> 2),
+//      fieldMap2 = Map("one" -> CaseClassMapInnerMessage("str", 42))
+//    )
+//
+//    val Good(converted) = original.asGpb[Data4]
+//
+//    assertResult(Good(original))(converted.asCaseClass[CaseClassG])
+//  }
+//
+//  test("extensions from GPB and back") {
+//    val gpb = ExtensionsMessage.newBuilder()
+//      .setBoolValue(BoolValue.newBuilder().setValue(true))
+//      .setInt32Value(Int32Value.newBuilder().setValue(123))
+//      .setInt64Value(Int64Value.newBuilder().setValue(456))
+//      .setFloatValue(FloatValue.newBuilder().setValue(123.456f))
+//      .setBytesValue(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")))
+//      .setDuration(GpbDuration.newBuilder().setSeconds(123).setNanos(456))
+//      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(123).setNanos(456))
+//      .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+//      .setListValue2(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+//      .setListValue3(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+//      .setStruct(Struct.newBuilder().putFields("mapKey", Value.newBuilder().setNumberValue(42).build()))
+//      .build()
+//
+//    val expected = CaseClassExtensions(
+//      boolValue = BoolValue.newBuilder().setValue(true).build(),
+//      int32Value = Int32Value.newBuilder().setValue(123).build(),
+//      longValue = Int64Value.newBuilder().setValue(456).build(),
+//      floatValue = Some(FloatValue.newBuilder().setValue(123.456f).build()),
+//      doubleValue = None,
+//      stringValue = None,
+//      bytesValue = BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")).build(),
+//      duration = GpbDuration.newBuilder().setSeconds(123).setNanos(456).build(),
+//      timestamp = GpbTimestamp.newBuilder().setSeconds(123).setNanos(456).build(),
+//      listValue = ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)).build(),
+//      listValue2 = Seq(NumberValue(456.789)),
+//      listValue3 = Some(Seq(NumberValue(456.789))),
+//      listValue4 = None,
+//      struct = Map("mapKey" -> NumberValue(42))
+//    )
+//
+//    val Good(converted) = gpb.asCaseClass[CaseClassExtensions]
+//
+//    assertResult(expected)(converted)
+//
+//    assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
+//  }
+//
+//  test("extensions from GPB and back - scala types") {
+//    val gpb = ExtensionsMessage.newBuilder()
+//      .setBoolValue(BoolValue.newBuilder().setValue(true))
+//      .setInt32Value(Int32Value.newBuilder().setValue(123))
+//      .setInt64Value(Int64Value.newBuilder().setValue(456))
+//      .setFloatValue(FloatValue.newBuilder().setValue(123.456f))
+//      .setBytesValue(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("+ěščřžýáíé")))
+//      .setDuration(GpbDuration.newBuilder().setSeconds(123).setNanos(456))
+//      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(123).setNanos(456))
+//      .setListValue(ListValue.newBuilder().addValues(Value.newBuilder().setNumberValue(456.789)))
+//      .build()
+//
+//    val expected = CaseClassExtensionsScala(
+//      boolValue = true,
+//      int32Value = 123,
+//      longValue = 456,
+//      floatValue = Some(123.456f),
+//      doubleValue = None,
+//      stringValue = None,
+//      bytesValue = ByteString.copyFromUtf8("+ěščřžýáíé"),
+//      duration = Duration.ofSeconds(123, 456),
+//      timestamp = Instant.ofEpochSecond(123, 456),
+//      listValue = Seq(NumberValue(456.789))
+//    )
+//
+//    val Good(converted) = gpb.asCaseClass[CaseClassExtensionsScala]
+//
+//    assertResult(expected)(converted)
+//
+//    assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
+//  }
+//
+//  test("any extension to GPB and back") {
+//    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
+//
+//    val orig = ExtClass(Instant.ofEpochSecond(12345), AnyValue.of(innerMessage))
+//
+//    val expected = ExtensionsMessage.newBuilder().setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345)).setAny(Any.pack(innerMessage)).build()
+//
+//    val Good(converted) = orig.asGpb[ExtensionsMessage]
+//
+//    assertResult(expected)(converted)
+//
+//    val actual = converted.asCaseClass[ExtClass]
+//
+//    assertResult(Good(orig))(actual)
+//    assertResult(Good(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
+//  }
 }
 
 case class CaseClassA(fieldString: String,
