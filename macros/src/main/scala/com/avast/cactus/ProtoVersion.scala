@@ -85,7 +85,7 @@ private[cactus] object ProtoVersion {
 
         cq""" $enumClass.$enum => Good(${ccl.companion}.apply($value))  """
       } :+
-        cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => Bad(One(OneOfValueNotSetFailure($name))) """
+        cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => Bad(One(OneOfValueNotSetFailure(fieldPath + "." + $name))) """
 
       val f =
         q""" {
@@ -179,8 +179,8 @@ private[cactus] object ProtoVersion {
       val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
         q" key "
       } else {
-        newConverter(c)(srcKeyType, dstKeyType) {
-          q" (fieldPath: String, a: $srcKeyType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", Map(), srcKeyType)(dstKeyType, q" identity  ", "")} "
+        newConverter(c)(srcKeyType, dstKeyType) {//TODO
+          q" (a: $srcKeyType) => {val fieldPath=${""};${CactusMacros.CaseClassToGpb.processEndType(c)(q"a",c.Expr[String](q"fieldPath"), Map(), srcKeyType)(dstKeyType, q" identity  ", "")}} "
         }
 
         q" CactusMacros.AToB[$srcKeyType, $dstKeyType](fieldPath)(key) "
@@ -189,15 +189,19 @@ private[cactus] object ProtoVersion {
       val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
         q" value "
       } else {
-        newConverter(c)(srcValueType, dstValueType) {
-          q" (fieldPath: String, a: $srcValueType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", Map(), srcValueType)(dstValueType, q" identity  ", "")} "
+        newConverter(c)(srcValueType, dstValueType) {//TODO
+          q" (a: $srcValueType) =>{ val fieldPath=${""}; ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", c.Expr[String](q"fieldPath"),Map(), srcValueType)(dstValueType, q" identity  ", "")} }"
         }
 
         q" CactusMacros.AToB[$srcValueType, $dstValueType](fieldPath)(value) "
       }
 
+
+      //TODO
       q"""
-            (fieldPath: String, sm: $srcType) => {
+            (sm: $srcType) => {
+         val fieldPath = ${""};
+
                 val map: Map[$dstKeyType, $dstValueType] = sm.map { case (key, value) =>
                     $keyField -> $valueField
                 }
