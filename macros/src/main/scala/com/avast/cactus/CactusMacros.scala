@@ -70,9 +70,6 @@ object CactusMacros {
 
     val variableName = variable.symbol.asTerm.fullName.split('.').last
 
-    //    c.abort(c.enclosingPosition, s"NAME=$variableName")
-
-
     c.Expr[CaseClass Or Every[CactusFailure]] {
       val caseClassType = weakTypeOf[CaseClass]
       val gpbType = gpbSymbol.typeSignature.asInstanceOf[c.universe.Type]
@@ -238,7 +235,7 @@ object CactusMacros {
           val wrappedDstType = wrapDstType(c)(dstTypeArg)
 
           newConverter(c)(srcResultType, wrappedDstType) {
-            q" (fieldPath: String) => (t: $srcResultType) => ${processEndType(c)(fieldName, c.Expr[String](q"fieldPath"), fieldAnnotations, nameInGpb, dstTypeArg)(None, q" t ", getterReturnType)} "
+            q" (fieldPath: String, t: $srcResultType) => ${processEndType(c)(fieldName, c.Expr[String](q"fieldPath"), fieldAnnotations, nameInGpb, dstTypeArg)(None, q" t ", getterReturnType)} "
           }
 
           query match {
@@ -268,7 +265,7 @@ object CactusMacros {
           val wrappedDstType = wrapDstType(c)(dstResultType)
 
           newConverter(c)(srcResultType, wrappedDstType) {
-            q" (fieldPath: String) => (t: $srcResultType) => ${createConverter(c)(c.Expr[String](q"fieldPath"), returnType, getterReturnType, q" t ")} "
+            q" (fieldPath: String, t: $srcResultType) => ${createConverter(c)(c.Expr[String](q"fieldPath"), returnType, getterReturnType, q" t ")} "
           }
 
           val value = q" CactusMacros.AToB[$srcResultType, $wrappedDstType]($fieldPath)($getter) "
@@ -309,7 +306,7 @@ object CactusMacros {
                 val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstKeyType)
 
                 newConverter(c)(srcKeyType, wrappedDstType) {
-                  q" (fieldPath: String) => (t: $srcKeyType) => ${processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType)} "
+                  q" (fieldPath: String, t: $srcKeyType) => ${processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType)} "
                 }
 
                 q" CactusMacros.AToB[$srcKeyType, $wrappedDstType]($fieldPath)(f.$getKeyField) "
@@ -321,7 +318,7 @@ object CactusMacros {
                 val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstValueType)
 
                 newConverter(c)(srcValueType, wrappedDstType) {
-                  q" (fieldPath: String) => (t: $srcValueType) => ${processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType)} "
+                  q" (fieldPath: String, t: $srcValueType) => ${processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType)} "
                 }
 
                 q" CactusMacros.AToB[$srcValueType, $wrappedDstType]($fieldPath)(f.$getValueField) "
@@ -330,7 +327,7 @@ object CactusMacros {
               val wrappedDstType = wrapDstType(c)(dstResultType)
 
               newConverter(c)(srcResultType, wrappedDstType) {
-                q""" (fieldPath: String) => (a: $srcResultType) => {
+                q""" (fieldPath: String, a: $srcResultType) => {
                           a.asScala
                             .map(f => $keyField -> $valueField)
                             .toSeq.map{ case(key, or) => withGood(key, or)(_ -> _) }.combined.map(_.toMap)
@@ -383,7 +380,7 @@ object CactusMacros {
                   val wrappedDstTypeArg = wrapDstType(c)(dstTypeArg)
 
                   newConverter(c)(srcTypeArg, wrappedDstTypeArg) {
-                    q" (fieldPath: String) => (a: $srcTypeArg) =>  { ${processEndType(c)(fieldName, c.Expr[String](q"fieldPath"), fieldAnnotations, nameInGpb, dstTypeArg)(None, q" a ", srcTypeArg)} } "
+                    q" (fieldPath: String, a: $srcTypeArg) =>  { ${processEndType(c)(fieldName, c.Expr[String](q"fieldPath"), fieldAnnotations, nameInGpb, dstTypeArg)(None, q" a ", srcTypeArg)} } "
                   }
 
                   q" $getter.asScala.map(CactusMacros.AToB[$srcTypeArg, $wrappedDstTypeArg]($fieldPath)).toVector.combined.map($toFinalCollection) "
