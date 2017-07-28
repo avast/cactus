@@ -14,7 +14,7 @@ object CactusMacros {
 
   private[cactus] type AnnotationsMap = Map[String, Map[String, String]]
 
-  private[cactus] val Debug = true
+  private[cactus] val Debug = false
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
@@ -135,7 +135,7 @@ object CactusMacros {
 
           ..$finalConverters
 
-          Good($converter).orBad[org.scalactic.Every[com.avast.cactus.CactusFailure]]
+          $converter
          }
         """
 
@@ -340,7 +340,7 @@ object CactusMacros {
                 println(s"Map field $fieldName without annotation, fallback to raw conversion")
               }
 
-              q" Good(CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($getter)) "
+              q" CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($getter) "
           }
 
         case _ if isScalaCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
@@ -406,10 +406,6 @@ object CactusMacros {
       }
     }
 
-    private[cactus] def wrapDstType(c: whitebox.Context)(t: c.universe.Type): c.universe.Type = {
-      extractType(c)(s"org.scalactic.Good[$t](???).orBad[org.scalactic.Every[CactusFailure]]")
-    }
-
   }
 
   private[cactus] object CaseClassToGpb {
@@ -431,7 +427,7 @@ object CactusMacros {
         val e = extractField(c)(field, isProto3, gpbGetters, gpbSetters)
         import e._
 
-        val assgn = fieldType match {
+        fieldType match {
           case n: FieldType.Normal[MethodSymbol, ClassSymbol, Type] =>
             val setterParam = n.setter.paramLists.headOption.flatMap(_.headOption)
               .getOrElse(c.abort(c.enclosingPosition, s"Could not extract param from setter for field $field"))
@@ -445,19 +441,25 @@ object CactusMacros {
           case o: FieldType.OneOf[MethodSymbol, ClassSymbol, Type] =>
             processOneOf(c)(gpbType, gpbSetters)(q"$caseClass.$fieldName", fieldPath, o)
         }
-
-        c.Expr(q" $assgn ")
       }
 
-      q"""
+      if (params.nonEmpty) { // needed because of the `head` call below
+        val builderClassSymbol = gpbClassSymbol.companion.typeSignature.decls.collectFirst{
+          case c: ClassSymbol if c.fullName == gpbClassSymbol.fullName + ".Builder" => c
+        }.getOrElse(c.abort(c.enclosingPosition, s"Could not extract $gpbType.Builder"))
+
+        q"""
          {
             val builder = ${gpbClassSymbol.companion}.newBuilder()
 
+            Seq[$builderClassSymbol Or CactusFailures](
             ..$params
-
-            builder.build()
+            ).combined.map(_.head.build())
          }
        """
+      } else {
+        q" Good(${gpbClassSymbol.companion}.getDefaultInstance()) "
+      }
     }
 
     private def processOneOf(c: whitebox.Context)
@@ -468,7 +470,7 @@ object CactusMacros {
       def conv(finalType: c.universe.Type) = ProtoVersion.V3.newOneOfConverterToGpb(c)(gpbType, gpbSetters)(oneOfType.copy(classType = finalType))
 
       oneOfType.classType.resultType.toString match {
-        case OptPattern(_) => q""" $field.foreach(${conv(oneOfType.classType.resultType.typeArgs.head)}($fieldPath, _)) """
+        case OptPattern(_) => q""" $field.map(${conv(oneOfType.classType.resultType.typeArgs.head)}($fieldPath, _)).getOrElse(Good(builder)) """
         case _ => q" ${conv(oneOfType.classType)}($fieldPath, $field) "
       }
     }
@@ -489,16 +491,15 @@ object CactusMacros {
         case OptPattern(_) => // Option[T]
           val typeArg = srcResultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          q" $field.foreach(value => ${processEndType(c)(q"value", fieldPath, fieldAnnotations, typeArg)(setterRequiredType, setter, upperFieldName)}) "
+          q" $field.map(value => ${processEndType(c)(q"value", fieldPath, fieldAnnotations, typeArg)(setterRequiredType, setter, upperFieldName)}).getOrElse(Good(builder)) "
 
         case _ if caseClassAndGpb(c)(srcTypeSymbol, dstResultType) => // case class -> GPB
 
           newConverter(c)(srcResultType, dstResultType) {
-            //TODO
-            q""" (a: $srcResultType) => {val fieldPath = ""; ${createConverter(c)(c.Expr[String](q"fieldPath"), srcResultType, setterRequiredType, q" a ")}} """
+            q""" (fieldPath:String, a: $srcResultType) => ${createConverter(c)(c.Expr[String](q"fieldPath"), srcResultType, setterRequiredType, q" a ")} """
           }
 
-          q" $setter(CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)) "
+          q" (CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)).map($setter) "
 
         case _ if isScalaMap(c)(srcTypeSymbol) => // Map[A, B]
           val addMethod = setter
@@ -526,21 +527,20 @@ object CactusMacros {
               val dstValueType = gpbGenType.member(getValueField).asMethod.returnType
 
               val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
-                q" key "
+                q" Good(key) "
               } else {
                 newConverter(c)(srcKeyType, dstKeyType) {
-                  //TODO
-                  q" (a: $srcKeyType) => {val fieldPath = ${""}; ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcKeyType)(dstKeyType, q" identity  ", "")}} "
+                  q" (fieldPath:String, a: $srcKeyType) => ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcKeyType)(dstKeyType, q" identity  ", "")} "
                 }
 
                 q" CactusMacros.AToB[$srcKeyType, $dstKeyType]($fieldPath)(key) "
               }
 
               val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
-                q" value "
+                q" Good(value) "
               } else {
                 newConverter(c)(srcValueType, dstValueType) {
-                  q" (a: $srcValueType) =>  {val fieldPath = ${""}; ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcValueType)(dstValueType, q" identity  ", "")} }"
+                  q" (fieldPath:String, a: $srcValueType) =>  ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcValueType)(dstValueType, q" identity  ", "")} "
                 }
 
                 q" CactusMacros.AToB[$srcValueType, $dstValueType]($fieldPath)(value) "
@@ -550,24 +550,24 @@ object CactusMacros {
 
               newConverter(c)(srcResultType, dstResultType) {
                 q"""
-                   (t: $srcResultType) => {
-                      val m: Iterable[$gpbGenType] = t.map{ _ match { case (key, value) =>
-                            $mapGpb.newBuilder()
-                            .${TermName("set" + firstUpper(keyFieldName))}($keyField)
-                            .${TermName("set" + firstUpper(valueFieldName))}($valueField)
-                            .build()
+                   (fieldPath:String, t: $srcResultType) => {
+                      val m: Iterable[$gpbGenType Or CactusFailures] = t.map{ _ match { case (key, value) =>
+                            withGood($keyField, $valueField) {
+                              $mapGpb.newBuilder()
+                              .${TermName("set" + firstUpper(keyFieldName))}(_)
+                              .${TermName("set" + firstUpper(valueFieldName))}(_)
+                              .build()
+                            }
                         }
                       }
 
-                      m.asJava
+                      m.combined.map(_.asJava)
                     }
                  """
               }
 
               q"""
-                $addMethod(
-                   CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)
-                )
+                   (CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)).map($addMethod)
                """
 
             case None if isJavaMap(c)(dstTypeSymbol) =>
@@ -576,9 +576,7 @@ object CactusMacros {
               }
 
               q"""
-                $addMethod(
-                   CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)
-                )
+                   (CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)).map($addMethod)
                """
 
             case None =>
@@ -586,7 +584,7 @@ object CactusMacros {
                 println(s"Map field $field without annotation, fallback to raw conversion")
               }
 
-              q" $addMethod(CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)) "
+              q" (CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)).map($addMethod) "
           }
 
         case _ if isScalaCollection(c)(srcTypeSymbol) || srcTypeSymbol.name == TypeName("Array") => // collection
@@ -609,31 +607,31 @@ object CactusMacros {
                   }
                 }
 
-                if (typesEqual(c)(srcTypeArg, dstTypeArg)) {
-
+                val finalCollection = if (typesEqual(c)(srcTypeArg, dstTypeArg)) {
                   val javaIterable = if (srcTypeSymbol.name != TypeName("Array")) {
                     q" $field.asJava "
                   } else {
                     q" java.util.Arrays.asList($field: _*) "
                   }
 
-                  q" $addMethod($javaIterable) "
-                } else {
+                  q" Good($javaIterable) "
 
+                } else {
                   newConverter(c)(srcTypeArg, dstTypeArg) {
-                    //TODO
-                    q" (a: $srcTypeArg) =>  { val fieldPath = ${""}; ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), fieldAnnotations, srcTypeArg)(dstTypeArg, q"identity", " a ")} } "
+                    q" (fieldPath:String, a: $srcTypeArg) =>  ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), fieldAnnotations, srcTypeArg)(dstTypeArg, q"identity", " a ")} "
                   }
 
-                  q" $addMethod(CactusMacros.CollAToCollB[$srcTypeArg, $dstTypeArg, scala.collection.Seq]($fieldPath, $field.toSeq).asJava) "
+                  q" (CactusMacros.CollAToCollB[$srcTypeArg, $dstTypeArg, scala.collection.Seq]($fieldPath, $field.toSeq).map(_.asJava)) "
                 }
+
+                q" $finalCollection.map($addMethod) "
 
               case (_, _) =>
                 if (Debug) {
                   println(s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to conversion $srcTypeSymbol -> Seq[${getterGenType.typeSymbol}]")
                 }
 
-                q" $addMethod((CactusMacros.AToB[$srcResultType, scala.collection.Seq[$getterGenType]]($fieldPath)($field)).asJava) "
+                q" ((CactusMacros.AToB[$srcResultType, scala.collection.Seq[$getterGenType]]($fieldPath)($field)).map(_.asJava)).map($addMethod) "
 
             }
 
@@ -642,7 +640,7 @@ object CactusMacros {
               println(s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion")
             }
 
-            q" $addMethod(CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)) "
+            q" (CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)).map($addMethod) "
           }
 
         case _ if isJavaCollection(c)(dstTypeSymbol) => // this means raw conversion, because otherwise it would have match before
@@ -653,13 +651,13 @@ object CactusMacros {
             println(s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion")
           }
 
-          q" $addMethod(CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)) "
+          q" (CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)).map($addMethod) "
 
         case _ => // plain type
 
           val value = convertIfNeeded(c)(fieldPath, srcResultType, dstResultType)(field)
 
-          q" $setter($value) "
+          q" $value.map($setter) "
       }
     }
 
@@ -681,7 +679,7 @@ object CactusMacros {
 
     val isProto3 = gpbType.baseClasses.exists(_.asType.fullName == ClassesNames.Protobuf.GeneratedMessageV3)
 
-    if (Debug && isProto3) println(s"Type ${gpbType.typeSymbol} is detected as proto v3")
+    if (Debug && isProto3) println(s"Type of ${gpbType.typeSymbol} is detected as proto v3")
 
     val protoVersion = if (isProto3) ProtoVersion.V3 else ProtoVersion.V2
 
@@ -949,7 +947,6 @@ object CactusMacros {
     val dstTypeSymbol = dstType.typeSymbol
 
     if (typesEqual(c)(srcType, dstType)) {
-      println(s"TYPES EQUAL: $srcTypeSymbol / $dstTypeSymbol")
       q" Good($value) "
     } else {
       if (Debug) {
