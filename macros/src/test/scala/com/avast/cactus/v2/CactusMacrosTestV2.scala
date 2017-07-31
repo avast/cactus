@@ -74,7 +74,7 @@ class CactusMacrosTestV2 extends FunSuite {
   test("GPB to case class multiple failures") {
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
-      .setFieldBlob(ByteString.copyFromUtf8("text"))
+//      .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
 
     // fields commented out are REQUIRED
@@ -85,12 +85,13 @@ class CactusMacrosTestV2 extends FunSuite {
       .setFieldBlob(ByteString.EMPTY)
       .setFieldGpb(gpbInternal)
       .setFieldGpbOption(gpbInternal)
+      .addFieldGpb2RepeatedRecurse(Data3.newBuilder().addFieldGpb(gpbInternal).build())
       //      .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .build()
 
-    val expected = List("fieldString", "fieldIntName").map(MissingFieldFailure).sortBy(_.toString)
+    val expected = List("gpb.fieldString", "gpb.fieldIntName", "gpb.fieldGpb.fieldBlob", "gpb.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob").map(MissingFieldFailure).sortBy(_.toString)
 
     gpb.asCaseClass[CaseClassA] match {
       case Bad(e) =>

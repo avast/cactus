@@ -8,6 +8,8 @@ Library for mapping between [GPB](https://developers.google.com/protocol-buffers
 The library automatically converts common data types (`String`, primitive types, collections) and can map optional fields 
 into `Option`. This process is extensible via `Converter`.
 
+From version 0.8, the whole variable path (e.g. _gpb.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob_) is reported in case of failure.
+
 ## GPB to case class
 
 We often need to map GPB message to business object (which is usually a case class) when GPB is used for communication 

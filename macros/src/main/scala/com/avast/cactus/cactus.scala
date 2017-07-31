@@ -9,6 +9,9 @@ import scala.reflect.ClassTag
 
 package object cactus {
 
+  type CactusFailures = org.scalactic.Every[CactusFailure]
+  type ResultOrError[A] = A Or CactusFailures
+
   implicit class GpbToCaseClassConverter[Gpb <: MessageLite](val gpb: Gpb) extends AnyVal {
     def asCaseClass[CaseClass](implicit gpbCt: ClassTag[Gpb]): CaseClass Or Every[CactusFailure] = macro CactusMacros.convertGpbToCaseClass[CaseClass]
   }

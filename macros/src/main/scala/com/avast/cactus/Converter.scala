@@ -1,6 +1,8 @@
 package com.avast.cactus
 
 import com.avast.cactus.v3.V3Converters
+import org.scalactic.Good
+import org.scalactic.Accumulation._
 
 import scala.annotation.implicitNotFound
 import scala.collection.JavaConverters._
@@ -8,13 +10,17 @@ import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
 trait Converter[A, B] {
-  def apply(a: A): B
+  def apply(fieldPath: String)(a: A): ResultOrError[B]
 }
 
 object Converter extends V3Converters with OptionalConverters {
 
+  def checked[A, B](f: (String, A) => ResultOrError[B]): Converter[A, B] = new Converter[A, B] {
+    override def apply(fieldPath: String)(a: A): ResultOrError[B] = f(fieldPath, a)
+  }
+
   def apply[A, B](f: A => B): Converter[A, B] = new Converter[A, B] {
-    override def apply(a: A): B = f(a)
+    override def apply(fieldPath: String)(a: A): ResultOrError[B] = Good(f(a))
   }
 
   // primitive types conversions:
@@ -44,7 +50,11 @@ object Converter extends V3Converters with OptionalConverters {
 
   // conversions generators:
 
-  implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] = Converter(_.map(aToBConverter.apply).toList)
+  implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] = new Converter[Vector[A], List[B]] {
+    override def apply(fieldPath: String)(v: Vector[A]): ResultOrError[List[B]] = {
+      v.map(aToBConverter.apply(fieldPath)).toList.combined
+    }
+  }
 
   implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
 

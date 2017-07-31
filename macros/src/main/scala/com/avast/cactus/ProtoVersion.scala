@@ -81,15 +81,15 @@ private[cactus] object ProtoVersion {
 
       val cases = options.map { case (enum, (ccl, getter)) =>
         val ctorType = getCtorParamType(c)(ccl)
-        val value = CactusMacros.convertIfNeeded(c)(getter.returnType, ctorType)(q"wholeGpb.$getter")
+        val value = CactusMacros.convertIfNeeded(c)(c.Expr[String](q"fieldPath"), getter.returnType, ctorType)(q"wholeGpb.$getter")
 
-        cq""" $enumClass.$enum => Good(${ccl.companion}.apply($value))  """
+        cq""" $enumClass.$enum => $value.map(${ccl.companion}.apply)  """
       } :+
-        cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => Bad(One(OneOfValueNotSetFailure($name))) """
+        cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => Bad(One(OneOfValueNotSetFailure(fieldPath + "." + $name))) """
 
       val f =
         q""" {
-             (wholeGpb: $from) => wholeGpb.$getCaseMethod match {
+             (fieldPath: String, wholeGpb: $from) => wholeGpb.$getCaseMethod match {
                 case ..$cases
              }
         }
@@ -136,13 +136,13 @@ private[cactus] object ProtoVersion {
 
         val setterArgType = getParamType(c)(setter)
 
-        val value = CactusMacros.convertIfNeeded(c)(field.typeSignature, setterArgType)(q"v.$fieldName")
+        val value = CactusMacros.convertIfNeeded(c)(c.Expr[String](q"fieldPath"), field.typeSignature, setterArgType)(q"v.$fieldName")
 
-        cq" v: $ccl => builder.$setter($value)"
+        cq" v: $ccl => $value.map(builder.$setter)"
       }
 
       val f =
-        q""" (field: $classType) => {
+        q""" (fieldPath: String, field: $classType) => {
           field match {
             case ..$cases
           }
@@ -177,32 +177,30 @@ private[cactus] object ProtoVersion {
       val (dstKeyType, dstValueType) = (dstTypeArgs.head, dstTypeArgs.tail.head)
 
       val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
-        q" key "
+        q" Good(key) "
       } else {
         newConverter(c)(srcKeyType, dstKeyType) {
-          q" (a: $srcKeyType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", Map(), srcKeyType)(dstKeyType, q" identity  ", "")} "
+          q" (fieldPath: String, a: $srcKeyType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcKeyType)(dstKeyType, q" identity  ", "")} "
         }
 
-        q" CactusMacros.AToB[$srcKeyType, $dstKeyType](key) "
+        q" CactusMacros.AToB[$srcKeyType, $dstKeyType](fieldPath)(key) "
       }
 
       val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
-        q" value "
+        q" Good(value) "
       } else {
         newConverter(c)(srcValueType, dstValueType) {
-          q" (a: $srcValueType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", Map(), srcValueType)(dstValueType, q" identity  ", "")} "
+          q" (fieldPath: String, a: $srcValueType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcValueType)(dstValueType, q" identity  ", "")} "
         }
 
-        q" CactusMacros.AToB[$srcValueType, $dstValueType](value) "
+        q" CactusMacros.AToB[$srcValueType, $dstValueType](fieldPath)(value) "
       }
 
       q"""
-            (sm: $srcType) => {
-                val map: Map[$dstKeyType, $dstValueType] = sm.map { case (key, value) =>
-                    $keyField -> $valueField
-                }
-
-                map.asJava
+            (fieldPath: String, sm: $srcType) => {
+                sm.map { case (key, value) =>
+                   withGood($keyField, $valueField)(_ -> _)
+                }.combined.map(_.toMap.asJava)
             }
          """
     }
@@ -221,32 +219,28 @@ private[cactus] object ProtoVersion {
       val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
         q" Good(key).orBad[Every[com.avast.cactus.CactusFailure]] "
       } else {
-        val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstKeyType)
-
-        newConverter(c)(srcKeyType, wrappedDstType) {
-          q" (t: $srcKeyType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType)} "
+        newConverter(c)(srcKeyType, dstKeyType) {
+          q" (fieldPath: String, t: $srcKeyType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType)} "
         }
 
-        q" CactusMacros.AToB[$srcKeyType, $wrappedDstType](key) "
+        q" CactusMacros.AToB[$srcKeyType, $dstKeyType](fieldPath)(key) "
       }
 
       val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
         q" Good(value).orBad[Every[com.avast.cactus.CactusFailure]] "
       } else {
-        val wrappedDstType = CactusMacros.GpbToCaseClass.wrapDstType(c)(dstValueType)
-
-        newConverter(c)(srcValueType, wrappedDstType) {
-          q" (t: $srcValueType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType)} "
+        newConverter(c)(srcValueType, dstValueType) {
+          q" (fieldPath: String, t: $srcValueType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType)} "
         }
 
-        q" CactusMacros.AToB[$srcValueType, $wrappedDstType](value) "
+        q" CactusMacros.AToB[$srcValueType, $dstValueType](fieldPath)(value) "
       }
 
       q"""
-            (sm: $srcType) => {
+            (fieldPath: String, sm: $srcType) => {
                 sm.asScala.map { case (key, value) =>
                     $keyField -> $valueField
-                }.toSeq.map{ case(key, or) => withGood(key, or)(_ -> _) }.combined.map(_.toMap)
+                }.toSeq.map { case(key, or) => withGood(key, or)(_ -> _) }.combined.map(_.toMap)
             }
          """
     }
