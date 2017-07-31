@@ -8,13 +8,22 @@ Library for mapping between [GPB](https://developers.google.com/protocol-buffers
 The library automatically converts common data types (`String`, primitive types, collections) and can map optional fields 
 into `Option`. This process is extensible via `Converter`.
 
-From version 0.8, the whole variable path (e.g. _gpb.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob_) is reported in case of failure.
+The library uses `org.scalactic.Or` as a return type. The reason is it has great ability to collect all errors raised during the processing
+(read more on [Scalatic website](http://www.scalactic.org/user_guide/OrAndEvery)). It results into all failures raised during the conversion
+being returned as `Bad[Every[CactusFailure]]`.
+
+The conversion never throws an exception. If there is an exception caught during the conversion, it's transformed into `UnknownFailure`.
+
+In case of failure (e.g. `MissingRequiredField`), a whole variable path (e.g. _gpb.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob_) is reported
+inside the failure.
 
 ## GPB to case class
 
 We often need to map GPB message to business object (which is usually a case class) when GPB is used for communication 
 over the network. It is a good practice to follow Google's recommendation to have all fields `optional`. However that
 is not very handy during mapping because validation is necessary.
+
+_Since v3.0, optional keyword is removed. See [GPB v3 official docs](https://developers.google.com/protocol-buffers/docs/proto3)._
 
 This library solves both problems - it generates mapping (using macros) between GPB message and Scala case class
 based on the fields of the case class and validates that all the required fields (not wrapped in `Option`) are present.
@@ -232,7 +241,7 @@ See [unit tests](macros/src/test/scala/com/avast/cactus/v2/CactusMacrosTestV2.sc
 
 Cactus currently supports v3.3. See [official docs](https://developers.google.com/protocol-buffers/docs/proto3) for more information about v3 features.
 
-See [unit tests](macros/src/test/scala/com/avast/cactus/v3/CactusMacrosTestV3.scala) for 
+See [unit tests](macros/src/test/scala/com/avast/cactus/v3/CactusMacrosTestV3.scala) for more examples.
 
 
 ### Any
@@ -452,6 +461,48 @@ case class CaseClassExtensionsScala(boolValue: Boolean,
                                     
 gpb.asCaseClass[CaseClassExtensionsScala]
 ```
+
+## Defining own converters
+
+There are following ways how to implement own `Converter`:
+* Plain conversion  
+`implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))`  
+This is to be used when just simple A -> B conversion is needed.
+* Checked conversion
+```scala
+// unsafe way:
+implicit val StringJavaIntegerListConverter: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter(_.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
+
+// safe (checked) way:
+implicit val StringJavaIntegerListConverter2: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter.checked { (fieldPath, str) =>
+    val parts = str.split(", ")
+    
+    if (parts.nonEmpty && parts.forall(_.matches("\\d+"))) {
+      Good(parts.map(_.toInt).map(int2Integer).toSeq.asJava)
+    } else {
+      Bad(One(CustomFailure(fieldPath, s"Wrong format of '$fieldPath' field")))
+    }
+}
+```
+This is to be used when the conversion can go wrong and it's better to cover possible failures right in the converter.  
+**Please note**, that even if the `StringJavaIntegerListConverter` fails, the exception _will *not*_ be thrown outside. `Bad(One(UnknownFailure(..., ...)))`
+will be returned instead.
+* Just implement `new Converter`
+```scala
+implicit val StringJavaIntegerListConverter2: Converter[String, java.lang.Iterable[_ <: Integer]] = new Converter[String, java.lang.Iterable[_ <: Integer]] {
+  override def apply(fieldPath: String)(str: String): ResultOrError[lang.Iterable[_ <: Integer]] = {
+      val parts = str.split(", ")
+
+      if (parts.nonEmpty && parts.forall(_.matches("\\d+"))) {
+        Good(parts.map(_.toInt).map(int2Integer).toSeq.asJava)
+      } else {
+        Bad(One(CustomFailure(fieldPath, s"Wrong format of '$fieldPath' field")))
+      }
+  }
+}
+```
+
+Basic examples of custom converters may have been seen in examples above or in [unit tests](macros/src/test/scala/com/avast/cactus/v3/CactusMacrosTestV3.scala).
 
 ## Appendix
 
