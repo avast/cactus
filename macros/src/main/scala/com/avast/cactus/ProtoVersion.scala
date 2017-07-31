@@ -251,10 +251,9 @@ private[cactus] object ProtoVersion {
       val dstClassSymbol = weakTypeOf[Gpb]
 
       val variable = CactusMacros.getVariable[Gpb](c)
+      val variableName = variable.symbol.asTerm.fullName.split('.').last
 
-      val gpbTypeName = q"${dstClassSymbol.companion}.getDefaultInstance.getDescriptorForType.getFullName"
-
-      // TODO what if parsing fails
+      val gpbTypeName = c.Expr[String](q"${dstClassSymbol.companion}.getDefaultInstance.getDescriptorForType.getFullName")
 
       c.Expr[Gpb Or Every[CactusFailure]] {
         q"""
@@ -266,14 +265,16 @@ private[cactus] object ProtoVersion {
                import org.scalactic.Accumulation._
 
                import scala.util.Try
+               import scala.util.control.NonFatal
                import scala.collection.JavaConverters._
 
-               if ($variable.typeUrl == "type.googleapis.com/" +$gpbTypeName) {
-                  Good(${dstClassSymbol.companion}.parseFrom($variable.bytes))
-               } else {
-                  Bad(One(WrongAnyTypeFailure($variable.typeUrl, "type.googleapis.com/" + $gpbTypeName)))
-               }
-
+               try {
+                 if ($variable.typeUrl == "type.googleapis.com/" + $gpbTypeName) {
+                    Good(${dstClassSymbol.companion}.parseFrom($variable.bytes))
+                 } else {
+                    Bad(One(WrongAnyTypeFailure($variableName, $variable.typeUrl, "type.googleapis.com/" + $gpbTypeName)))
+                 }
+               } catch { case NonFatal(e) => Bad(One(UnknownFailure($variableName, e))) }
             }
          """
       }

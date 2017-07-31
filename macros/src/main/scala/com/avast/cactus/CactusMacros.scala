@@ -89,6 +89,7 @@ object CactusMacros {
           import org.scalactic.Accumulation._
 
           import scala.util.Try
+          import scala.util.control.NonFatal
           import scala.collection.JavaConverters._
 
           ..$finalConverters
@@ -131,6 +132,7 @@ object CactusMacros {
           import org.scalactic.Accumulation._
 
           import scala.util.Try
+          import scala.util.control.NonFatal
           import scala.collection.JavaConverters._
 
           ..$finalConverters
@@ -165,14 +167,14 @@ object CactusMacros {
 
         if (Debug) println(s"$fieldName field type: $fieldType")
 
+        val innerFieldPath = c.Expr[String] {
+          q"""$fieldPath + "." + $nameInGpb"""
+        }
+
         val value: c.Tree = fieldType match {
           case n: FieldType.Normal[MethodSymbol, ClassSymbol, Type] =>
             val returnType = n.getter.returnType
             val query = protoVersion.getQuery(c)(gpb, upper, returnType)
-
-            val innerFieldPath = c.Expr[String] {
-              q"""$fieldPath + "." + $nameInGpb"""
-            }
 
             processEndType(c)(fieldName, innerFieldPath, annotations, nameInGpb, dstType)(query, q"$gpb.${n.getter}", returnType)
 
@@ -180,7 +182,7 @@ object CactusMacros {
             processOneOf(c)(gpbType, gpb, fieldPath)(o)
         }
 
-        c.Expr(q"val $fieldName: $dstType Or Every[CactusFailure] = { $value }")
+        q"val $fieldName: $dstType Or Every[CactusFailure] = try { $value } catch { case NonFatal(e) => Bad(One(UnknownFailure($innerFieldPath, e))) }"
       }
 
       val fieldNames = fields.map(_.name.toTermName)
@@ -427,20 +429,22 @@ object CactusMacros {
         val e = extractField(c)(field, isProto3, gpbGetters, gpbSetters)
         import e._
 
-        fieldType match {
+        val innerFieldPath = c.Expr[String] {
+          q"""$fieldPath + "." + ${fieldName.toString}""" // don't use $nameInGpb, since here the name in case class is important
+        }
+
+        val f = fieldType match {
           case n: FieldType.Normal[MethodSymbol, ClassSymbol, Type] =>
             val setterParam = n.setter.paramLists.headOption.flatMap(_.headOption)
               .getOrElse(c.abort(c.enclosingPosition, s"Could not extract param from setter for field $field"))
-
-            val innerFieldPath = c.Expr[String] {
-              q"""$fieldPath + "." + $nameInGpb"""
-            }
 
             processEndType(c)(q"$caseClass.$fieldName", innerFieldPath, annotations, dstType)(setterParam.typeSignature, q"builder.${n.setter.name}", upper)
 
           case o: FieldType.OneOf[MethodSymbol, ClassSymbol, Type] =>
             processOneOf(c)(gpbType, gpbSetters)(q"$caseClass.$fieldName", fieldPath, o)
         }
+
+        q""" try { $f } catch { case NonFatal(e) => Bad(One(UnknownFailure($innerFieldPath, e))) } """
       }
 
       if (params.nonEmpty) { // needed because of the `head` call below

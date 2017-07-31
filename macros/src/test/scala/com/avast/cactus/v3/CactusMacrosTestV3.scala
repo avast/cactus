@@ -5,8 +5,8 @@ import java.time.{Duration, Instant}
 import com.avast.cactus.TestMessageV3._
 import com.avast.cactus._
 import com.avast.cactus.v3.ValueOneOf.NumberValue
-import com.google.protobuf.{Any, BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
-import org.scalactic.{Bad, Good}
+import com.google.protobuf.{Any, BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, InvalidProtocolBufferException, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
+import org.scalactic.{Bad, Good, One}
 import org.scalatest.FunSuite
 
 import scala.collection.JavaConverters._
@@ -259,6 +259,33 @@ class CactusMacrosTestV3 extends FunSuite {
 
     assertResult(Good(orig))(actual)
     assertResult(Good(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
+  }
+
+  test("any extension failure when parsing trash") {
+    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
+
+    val anyValue = AnyValue.of(innerMessage).copy(bytes = ByteString.copyFromUtf8("+ěščřžýáííé")) // damaged data
+
+    val Bad(One(UnknownFailure(fieldPath, cause))) = anyValue.asGpb[MessageInsideAnyField]
+
+    assertResult("anyValue")(fieldPath)
+    assert(cause.isInstanceOf[InvalidProtocolBufferException])
+
+    //
+
+    val gpb = ExtensionsMessage.newBuilder()
+      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345))
+      .setAny(Any.pack(innerMessage).toBuilder.setValue(ByteString.copyFromUtf8("+ěščřžýáííé")).build())
+      .build()
+
+    val cc = gpb.asCaseClass[ExtClass]
+
+    assertResult(Good(ExtClass(Instant.ofEpochSecond(12345), `anyValue`)))(cc)
+
+    val Bad(One(UnknownFailure(fieldPath2, cause2))) = cc.flatMap(_.any.asGpb[MessageInsideAnyField])
+
+    assertResult("any")(fieldPath2)
+    assert(cause2.isInstanceOf[InvalidProtocolBufferException])
   }
 }
 

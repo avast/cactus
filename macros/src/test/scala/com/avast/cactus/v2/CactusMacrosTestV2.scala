@@ -5,13 +5,15 @@ import com.avast.cactus.TestMessageV2.MapMessage.MapInnerMessage
 import com.avast.cactus.TestMessageV2._
 import com.avast.cactus._
 import com.google.protobuf.ByteString
-import org.scalactic.{Bad, Good}
+import org.scalactic.{Bad, Good, One}
 import org.scalatest.FunSuite
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable
 
 class CactusMacrosTestV2 extends FunSuite {
+
+  private val thrownIllegalArgumentException = new IllegalArgumentException(s"Numbers > 0 required in ''")
 
   // user specified converters
   implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))
@@ -20,7 +22,17 @@ class CactusMacrosTestV2 extends FunSuite {
   implicit val StringWrapperToStringConverter: Converter[StringWrapperClass, String] = Converter((b: StringWrapperClass) => b.value)
   implicit val StringToStringWrapperConverter: Converter[String, StringWrapperClass] = Converter((b: String) => StringWrapperClass(b))
 
-  implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter(_.asScala.mkString(", "))
+  // totally bad implementation of converter; don't use!!!
+  implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter.checked { (fieldPath, ints) =>
+    val i2 = ints.asScala
+
+    if (i2.forall(_ > 0)) {
+      Good(i2.mkString(", "))
+    } else {
+      // THIS IS TOTALLY BAD PRACTICE AND YOU WILL COME TO HELL IF YOU USE THIS IN REAL CODE
+      throw thrownIllegalArgumentException
+    }
+  }
   implicit val StringJavaIntegerListConverter: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter(_.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
 
   implicit val MapInnerMessageIntConverter: Converter[MapInnerMessage, Int] = Converter(_.getFieldInt)
@@ -74,7 +86,7 @@ class CactusMacrosTestV2 extends FunSuite {
   test("GPB to case class multiple failures") {
     val gpbInternal = Data2.newBuilder()
       .setFieldDouble(0.9)
-//      .setFieldBlob(ByteString.copyFromUtf8("text"))
+      //      .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
 
     // fields commented out are REQUIRED
@@ -89,9 +101,15 @@ class CactusMacrosTestV2 extends FunSuite {
       //      .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
+      .addAllFieldIntegers2(Seq(-3, -6).map(int2Integer).asJava) // converter is intentionally screwed to throw an exception while there are negative numbers present
       .build()
 
-    val expected = List("gpb.fieldString", "gpb.fieldIntName", "gpb.fieldGpb.fieldBlob", "gpb.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob").map(MissingFieldFailure).sortBy(_.toString)
+    val expected = List(
+      "gpb.fieldString",
+      "gpb.fieldIntName",
+      "gpb.fieldGpb.fieldBlob",
+      "gpb.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob"
+    ).map(MissingFieldFailure).sortBy(_.toString).:+(UnknownFailure("gpb.fieldIntegers2", thrownIllegalArgumentException))
 
     gpb.asCaseClass[CaseClassA] match {
       case Bad(e) =>
@@ -142,6 +160,25 @@ class CactusMacrosTestV2 extends FunSuite {
     caseClass.asGpb[Data] match {
       case Good(e) if e == expectedGpb => // ok
     }
+  }
+
+  test("case class to GPB with error") {
+    val map = Map("first" -> CaseClassMapInnerMessage("str", 1), "second" -> CaseClassMapInnerMessage("str", 2))
+    val map2 = Map("first" -> 1, "second" -> 2)
+
+    val caseClassB = CaseClassB(0.9, "text")
+
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
+
+    val wrongIntegersString = "1 2" // expected format is ', ' concatenated numbers
+
+    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), wrongIntegersString, map, map2)
+
+
+    val Bad(One(UnknownFailure(fieldPath, cause))) = caseClass.asGpb[Data]
+
+    assertResult("caseClass.fieldIntegersString")(fieldPath)
+    assert(cause.isInstanceOf[NumberFormatException])
   }
 
   test("convert case class to GPB and back") {
