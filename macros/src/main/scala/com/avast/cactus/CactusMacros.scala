@@ -61,22 +61,16 @@ object CactusMacros {
     aToBConverter.apply(fieldPath)(a)
   }
 
-  def convertGpbToCaseClass[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree): c.Expr[CaseClass Or Every[CactusFailure]] = {
+  def deriveGpbToCaseClassConverter[GpbClass: c.WeakTypeTag, CaseClass: c.WeakTypeTag](c: whitebox.Context): c.Expr[Converter[GpbClass, CaseClass]] = {
     import c.universe._
 
-    // unpack the implicit ClassTag tree
-    val gpbSymbol = extractSymbolFromClassTag(c)(gpbCt)
+    val caseClassType = weakTypeOf[CaseClass]
+    val gpbType = weakTypeOf[GpbClass]
 
-    val variable = getVariable(c)
-    val variableName = variable.symbol.asTerm.fullName.split('.').last
-
-    c.Expr[CaseClass Or Every[CactusFailure]] {
-      val caseClassType = weakTypeOf[CaseClass]
-      val gpbType = gpbSymbol.typeSignature.asInstanceOf[c.universe.Type]
-
+    val theFunction = {
       val generatedConverters: mutable.Map[String, c.Tree] = mutable.Map.empty
 
-      val converter = GpbToCaseClass.createConverter(c)(c.Expr[String](q"$variableName"), caseClassType, gpbType, variable)(generatedConverters)
+      val converter = GpbToCaseClass.createConverter(c)(c.Expr[String](q""" ${TermName("fieldPath")} """), caseClassType, gpbType, q"gpb")(generatedConverters)
 
       val finalConverters = generatedConverters.values
 
@@ -101,6 +95,15 @@ object CactusMacros {
       if (Debug) println(tree)
 
       tree
+    }
+
+
+    c.Expr[Converter[GpbClass, CaseClass]] {
+      q"""
+         new Converter[$gpbType, $caseClassType] {
+            def apply(fieldPath: String)(gpb: $gpbType): ResultOrError[$caseClassType] = $theFunction
+         }
+       """
     }
   }
 

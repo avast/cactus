@@ -91,7 +91,7 @@ class CactusMacrosTestV3 extends FunSuite {
       .setFieldGpb3(Data5.newBuilder().build())
       .build()
 
-    val expected = List("gpb.fieldGpb", "gpb.fieldGpb2").map(MissingFieldFailure).sortBy(_.toString) :+ OneOfValueNotSetFailure("gpb.fieldGpb2RepeatedRecurse.NamedOneOf")
+    val expected = List("_.fieldGpb", "_.fieldGpb2").map(MissingFieldFailure).sortBy(_.toString) :+ OneOfValueNotSetFailure("_.fieldGpb2RepeatedRecurse.NamedOneOf")
 
     gpb.asCaseClass[CaseClassA] match {
       case Bad(e) =>

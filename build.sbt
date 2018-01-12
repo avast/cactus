@@ -1,6 +1,6 @@
 import sbt.Keys._
 
-crossScalaVersions := Seq("2.11.11", "2.12.2")
+crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.11.11",
@@ -53,6 +53,7 @@ lazy val macros = Project(
   id = "macros",
   base = file("./macros"),
   settings = commonSettings ++ macroSettings ++ Seq(
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
+    addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
   )
 )

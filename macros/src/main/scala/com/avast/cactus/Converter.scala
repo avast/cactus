@@ -1,11 +1,13 @@
 package com.avast.cactus
 
 import com.avast.cactus.v3.V3Converters
-import org.scalactic.Good
+import com.google.protobuf.MessageLite
 import org.scalactic.Accumulation._
+import org.scalactic.Good
 
 import scala.annotation.implicitNotFound
 import scala.collection.JavaConverters._
+import scala.language.experimental.macros
 import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
@@ -14,6 +16,8 @@ trait Converter[A, B] {
 }
 
 object Converter extends V3Converters with OptionalConverters {
+
+  implicit def autoDeriveGpbToCaseClass[From <: MessageLite, To]: Converter[From, To] = macro CactusMacros.deriveGpbToCaseClassConverter[From, To]
 
   def checked[A, B](f: (String, A) => ResultOrError[B]): Converter[A, B] = new Converter[A, B] {
     override def apply(fieldPath: String)(a: A): ResultOrError[B] = f(fieldPath, a)
@@ -59,4 +63,5 @@ object Converter extends V3Converters with OptionalConverters {
   implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
 
   implicit def vectorToArray[A: ClassTag]: Converter[Vector[A], Array[A]] = Converter(_.toArray)
+
 }
