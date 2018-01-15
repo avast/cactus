@@ -17,7 +17,7 @@ package object cactus {
     }
   }
 
-  implicit class CaseClassToGpbConverter[CaseClass](val caseClass: CaseClass) extends AnyVal { // TODO
+  implicit class CaseClassToGpbConverter[CaseClass](val caseClass: CaseClass) extends AnyVal {
     def asGpb[Gpb <: MessageLite: Converter[CaseClass, ?]]: ResultOrError[Gpb] =
       implicitly[Converter[CaseClass, Gpb]].apply("_")(caseClass)
   }
