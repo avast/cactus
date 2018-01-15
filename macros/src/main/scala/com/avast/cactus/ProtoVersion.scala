@@ -1,7 +1,7 @@
 package com.avast.cactus
 
 import com.avast.cactus.CactusMacros.{AnnotationsMap, ClassesNames, newConverter, typesEqual}
-import org.scalactic.{Every, Or}
+import com.avast.cactus.v3.AnyValue
 
 import scala.collection.mutable
 import scala.reflect.macros.whitebox
@@ -245,17 +245,15 @@ private[cactus] object ProtoVersion {
          """
     }
 
-    def tryParseAny[Gpb: c.WeakTypeTag](c: whitebox.Context): c.Expr[Gpb Or Every[CactusFailure]] = {
+    def anyValueConverter[GpbClass: c.WeakTypeTag](c: whitebox.Context): c.Expr[AnyValueConverter[GpbClass]] = {
       import c.universe._
 
-      val dstClassSymbol = weakTypeOf[Gpb]
+      val anyValueType = typeOf[AnyValue]
+      val gpbType = weakTypeOf[GpbClass]
 
-      val variable = CactusMacros.getVariable[Gpb](c)
-      val variableName = variable.symbol.asTerm.fullName.split('.').last
+      val gpbTypeName = c.Expr[String](q"${gpbType.companion}.getDefaultInstance.getDescriptorForType.getFullName")
 
-      val gpbTypeName = c.Expr[String](q"${dstClassSymbol.companion}.getDefaultInstance.getDescriptorForType.getFullName")
-
-      c.Expr[Gpb Or Every[CactusFailure]] {
+      val theFunction = {
         q"""
             {
                import com.avast.cactus.CactusFailure
@@ -268,15 +266,25 @@ private[cactus] object ProtoVersion {
                import scala.util.control.NonFatal
                import scala.collection.JavaConverters._
 
+               println(anyValInstance)
+
                try {
-                 if ($variable.typeUrl == "type.googleapis.com/" + $gpbTypeName) {
-                    Good(${dstClassSymbol.companion}.parseFrom($variable.bytes))
+                 if (anyValInstance.typeUrl == "type.googleapis.com/" + $gpbTypeName) {
+                    Good(${gpbType.companion}.parseFrom(anyValInstance.bytes))
                  } else {
-                    Bad(One(WrongAnyTypeFailure($variableName, $variable.typeUrl, "type.googleapis.com/" + $gpbTypeName)))
+                    Bad(One(WrongAnyTypeFailure(fieldPath, anyValInstance.typeUrl, "type.googleapis.com/" + $gpbTypeName)))
                  }
-               } catch { case NonFatal(e) => Bad(One(UnknownFailure($variableName, e))) }
+               } catch { case NonFatal(e) => Bad(One(UnknownFailure(fieldPath, e))) }
             }
          """
+      }
+
+      c.Expr[AnyValueConverter[GpbClass]] {
+        q"""
+         new AnyValueConverter[$gpbType] {
+            def apply(fieldPath: String)(anyValInstance: $anyValueType): ResultOrError[$gpbType] = $theFunction
+         }
+       """
       }
     }
 

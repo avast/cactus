@@ -91,7 +91,7 @@ class CactusMacrosTestV3 extends FunSuite {
       .setFieldGpb3(Data5.newBuilder().build())
       .build()
 
-    val expected = List("gpb.fieldGpb", "gpb.fieldGpb2").map(MissingFieldFailure).sortBy(_.toString) :+ OneOfValueNotSetFailure("gpb.fieldGpb2RepeatedRecurse.NamedOneOf")
+    val expected = List("_.fieldGpb", "_.fieldGpb2").map(MissingFieldFailure).sortBy(_.toString) :+ OneOfValueNotSetFailure("_.fieldGpb2RepeatedRecurse.NamedOneOf")
 
     gpb.asCaseClass[CaseClassA] match {
       case Bad(e) =>
@@ -268,7 +268,7 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val Bad(One(UnknownFailure(fieldPath, cause))) = anyValue.asGpb[MessageInsideAnyField]
 
-    assertResult("anyValue")(fieldPath)
+    assertResult("_")(fieldPath)
     assert(cause.isInstanceOf[InvalidProtocolBufferException])
 
     //
@@ -284,7 +284,7 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val Bad(One(UnknownFailure(fieldPath2, cause2))) = cc.flatMap(_.any.asGpb[MessageInsideAnyField])
 
-    assertResult("any")(fieldPath2)
+    assertResult("_")(fieldPath2)
     assert(cause2.isInstanceOf[InvalidProtocolBufferException])
   }
 }

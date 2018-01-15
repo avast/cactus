@@ -1,11 +1,13 @@
 package com.avast.cactus
 
-import com.avast.cactus.v3.V3Converters
-import org.scalactic.Good
+import com.avast.cactus.v3.{AnyValue, V3Converters}
+import com.google.protobuf.{Message, MessageLite}
 import org.scalactic.Accumulation._
+import org.scalactic.Good
 
 import scala.annotation.implicitNotFound
 import scala.collection.JavaConverters._
+import scala.language.experimental.macros
 import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
@@ -13,7 +15,16 @@ trait Converter[A, B] {
   def apply(fieldPath: String)(a: A): ResultOrError[B]
 }
 
+@implicitNotFound("Could not find an instance of AnyValueConverter from ${Gpb}, try to import or define one")
+trait AnyValueConverter[Gpb] {
+  def apply(fieldPath: String)(a: AnyValue): ResultOrError[Gpb]
+}
+
 object Converter extends V3Converters with OptionalConverters {
+
+  implicit def deriveGpbToCaseClassConverter[From <: MessageLite, To]: Converter[From, To] = macro CactusMacros.deriveGpbToCaseClassConverter[From, To]
+
+  implicit def deriveCaseClassToGpbConverter[From, To <: MessageLite]: Converter[From, To] = macro CactusMacros.deriveCaseClassToGpbConverter[From, To]
 
   def checked[A, B](f: (String, A) => ResultOrError[B]): Converter[A, B] = new Converter[A, B] {
     override def apply(fieldPath: String)(a: A): ResultOrError[B] = f(fieldPath, a)
@@ -50,13 +61,20 @@ object Converter extends V3Converters with OptionalConverters {
 
   // conversions generators:
 
-  implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] = new Converter[Vector[A], List[B]] {
-    override def apply(fieldPath: String)(v: Vector[A]): ResultOrError[List[B]] = {
-      v.map(aToBConverter.apply(fieldPath)).toList.combined
+  implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] =
+    new Converter[Vector[A], List[B]] {
+      override def apply(fieldPath: String)(v: Vector[A]): ResultOrError[List[B]] = {
+        v.map(aToBConverter.apply(fieldPath)).toList.combined
+      }
     }
-  }
 
   implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
 
   implicit def vectorToArray[A: ClassTag]: Converter[Vector[A], Array[A]] = Converter(_.toArray)
+
+}
+
+object AnyValueConverter {
+  implicit def deriveAnyValueToGpbConverter[To <: Message]: AnyValueConverter[To] = macro ProtoVersion.V3.anyValueConverter[To]
+
 }

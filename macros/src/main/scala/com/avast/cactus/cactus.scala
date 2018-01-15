@@ -2,10 +2,9 @@ package com.avast
 
 import com.avast.cactus.v3.AnyValue
 import com.google.protobuf.{Message, MessageLite}
-import org.scalactic.{Every, Or}
+import org.scalactic.Or
 
 import scala.language.experimental.macros
-import scala.reflect.ClassTag
 
 package object cactus {
 
@@ -13,15 +12,20 @@ package object cactus {
   type ResultOrError[A] = A Or CactusFailures
 
   implicit class GpbToCaseClassConverter[Gpb <: MessageLite](val gpb: Gpb) extends AnyVal {
-    def asCaseClass[CaseClass](implicit gpbCt: ClassTag[Gpb]): CaseClass Or Every[CactusFailure] = macro CactusMacros.convertGpbToCaseClass[CaseClass]
+    def asCaseClass[CaseClass: Converter[Gpb, ?]]: ResultOrError[CaseClass] = {
+      implicitly[Converter[Gpb, CaseClass]].apply("_")(gpb)
+    }
   }
 
   implicit class CaseClassToGpbConverter[CaseClass](val caseClass: CaseClass) extends AnyVal {
-    def asGpb[Gpb <: MessageLite](implicit caseClassCt: ClassTag[CaseClass]): Gpb Or Every[CactusFailure] = macro CactusMacros.convertCaseClassToGpb[Gpb]
+    def asGpb[Gpb <: MessageLite: Converter[CaseClass, ?]]: ResultOrError[Gpb] =
+      implicitly[Converter[CaseClass, Gpb]].apply("_")(caseClass)
   }
 
   implicit class AnyValueParser(val anyValue: AnyValue) extends AnyVal {
-    def asGpb[Gpb <: Message]: Gpb Or Every[CactusFailure] = macro ProtoVersion.V3.tryParseAny[Gpb]
+    def asGpb[Gpb <: Message: AnyValueConverter]: ResultOrError[Gpb] = {
+      implicitly[AnyValueConverter[Gpb]].apply("_")(anyValue)
+    }
   }
 
 }

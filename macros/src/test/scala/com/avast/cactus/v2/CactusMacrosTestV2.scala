@@ -105,11 +105,11 @@ class CactusMacrosTestV2 extends FunSuite {
       .build()
 
     val expected = List(
-      "gpb.fieldString",
-      "gpb.fieldIntName",
-      "gpb.fieldGpb.fieldBlob",
-      "gpb.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob"
-    ).map(MissingFieldFailure).sortBy(_.toString).:+(UnknownFailure("gpb.fieldIntegers2", thrownIllegalArgumentException))
+      "_.fieldString",
+      "_.fieldIntName",
+      "_.fieldGpb.fieldBlob",
+      "_.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob"
+    ).map(MissingFieldFailure).sortBy(_.toString).:+(UnknownFailure("_.fieldIntegers2", thrownIllegalArgumentException))
 
     gpb.asCaseClass[CaseClassA] match {
       case Bad(e) =>
@@ -177,7 +177,7 @@ class CactusMacrosTestV2 extends FunSuite {
 
     val Bad(One(UnknownFailure(fieldPath, cause))) = caseClass.asGpb[Data]
 
-    assertResult("caseClass.fieldIntegersString")(fieldPath)
+    assertResult("_.fieldIntegersString")(fieldPath)
     assert(cause.isInstanceOf[NumberFormatException])
   }
 
