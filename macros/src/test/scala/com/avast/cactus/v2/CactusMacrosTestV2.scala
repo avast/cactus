@@ -177,7 +177,7 @@ class CactusMacrosTestV2 extends FunSuite {
 
     val Bad(One(UnknownFailure(fieldPath, cause))) = caseClass.asGpb[Data]
 
-    assertResult("caseClass.fieldIntegersString")(fieldPath)
+    assertResult("_.fieldIntegersString")(fieldPath)
     assert(cause.isInstanceOf[NumberFormatException])
   }
 

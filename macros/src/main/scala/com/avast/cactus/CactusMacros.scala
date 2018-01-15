@@ -1,5 +1,6 @@
 package com.avast.cactus
 
+import com.google.protobuf.MessageLite
 import org.scalactic.Accumulation._
 import org.scalactic._
 
@@ -61,7 +62,7 @@ object CactusMacros {
     aToBConverter.apply(fieldPath)(a)
   }
 
-  def deriveGpbToCaseClassConverter[GpbClass: c.WeakTypeTag, CaseClass: c.WeakTypeTag](c: whitebox.Context): c.Expr[Converter[GpbClass, CaseClass]] = {
+  def deriveGpbToCaseClassConverter[GpbClass <: MessageLite : c.WeakTypeTag, CaseClass: c.WeakTypeTag](c: whitebox.Context): c.Expr[Converter[GpbClass, CaseClass]] = {
     import c.universe._
 
     val caseClassType = weakTypeOf[CaseClass]
@@ -107,25 +108,20 @@ object CactusMacros {
     }
   }
 
-  def convertCaseClassToGpb[Gpb: c.WeakTypeTag](c: whitebox.Context)(caseClassCt: c.Tree): c.Expr[Gpb Or Every[CactusFailure]] = {
+  def deriveCaseClassToGpbConverter[CaseClass: c.WeakTypeTag, GpbClass <: MessageLite : c.WeakTypeTag](c: whitebox.Context): c.Expr[Converter[CaseClass, GpbClass]] = {
     import c.universe._
 
     // unpack the implicit ClassTag tree
-    val caseClassSymbol = extractSymbolFromClassTag(c)(caseClassCt)
+    val caseClassType = weakTypeOf[CaseClass]
+    val gpbType = weakTypeOf[GpbClass]
 
-    val variable = getVariable(c)
-    val variableName = variable.symbol.asTerm.fullName.split('.').last
+    val generatedConverters: mutable.Map[String, c.Tree] = mutable.Map.empty
 
-    c.Expr[Gpb Or Every[CactusFailure]] {
-      val caseClassType = caseClassSymbol.typeSignature.asInstanceOf[c.universe.Type]
-      val gpbType = weakTypeOf[Gpb]
+    val converter = CaseClassToGpb.createConverter(c)(c.Expr[String](q""" ${TermName("fieldPath")} """), caseClassType, gpbType, q"instance")(generatedConverters)
 
-      val generatedConverters: mutable.Map[String, c.Tree] = mutable.Map.empty
+    val finalConverters = generatedConverters.values
 
-      val converter = CaseClassToGpb.createConverter(c)(c.Expr[String](q"$variableName"), caseClassType, gpbType, variable)(generatedConverters)
-
-      val finalConverters = generatedConverters.values
-
+    val theFunction = {
       val tree =
         q""" {
           import com.avast.cactus.CactusFailure
@@ -147,6 +143,14 @@ object CactusMacros {
       if (Debug) println(tree)
 
       tree
+    }
+
+    c.Expr[Converter[CaseClass, GpbClass]] {
+      q"""
+         new Converter[$caseClassType, $gpbType] {
+            def apply(fieldPath: String)(instance: $caseClassType): ResultOrError[$gpbType] = $theFunction
+         }
+       """
     }
   }
 
@@ -451,7 +455,7 @@ object CactusMacros {
       }
 
       if (params.nonEmpty) { // needed because of the `head` call below
-        val builderClassSymbol = gpbClassSymbol.companion.typeSignature.decls.collectFirst{
+        val builderClassSymbol = gpbClassSymbol.companion.typeSignature.decls.collectFirst {
           case c: ClassSymbol if c.fullName == gpbClassSymbol.fullName + ".Builder" => c
         }.getOrElse(c.abort(c.enclosingPosition, s"Could not extract $gpbType.Builder"))
 

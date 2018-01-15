@@ -268,7 +268,7 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val Bad(One(UnknownFailure(fieldPath, cause))) = anyValue.asGpb[MessageInsideAnyField]
 
-    assertResult("anyValue")(fieldPath)
+    assertResult("_")(fieldPath)
     assert(cause.isInstanceOf[InvalidProtocolBufferException])
 
     //
@@ -284,7 +284,7 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val Bad(One(UnknownFailure(fieldPath2, cause2))) = cc.flatMap(_.any.asGpb[MessageInsideAnyField])
 
-    assertResult("any")(fieldPath2)
+    assertResult("_")(fieldPath2)
     assert(cause2.isInstanceOf[InvalidProtocolBufferException])
   }
 }
