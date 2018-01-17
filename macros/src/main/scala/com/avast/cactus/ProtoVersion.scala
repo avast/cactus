@@ -2,6 +2,7 @@ package com.avast.cactus
 
 import com.avast.cactus.CactusMacros.{AnnotationsMap, ClassesNames, newConverter, typesEqual}
 import com.avast.cactus.v3.AnyValue
+import org.scalactic.{Every, Or}
 
 import scala.collection.mutable
 import scala.reflect.macros.whitebox
@@ -245,6 +246,19 @@ private[cactus] object ProtoVersion {
          """
     }
 
+    def anyValueAsGpbMethod[Gpb: c.WeakTypeTag](c: whitebox.Context)(conv: c.Tree): c.Expr[Gpb Or Every[CactusFailure]] = {
+      import c.universe._
+
+      val gpbType = weakTypeOf[Gpb]
+
+      val variable = CactusMacros.getVariable[Gpb](c)
+      val variableName = variable.symbol.asTerm.fullName.split('.').last
+
+      c.Expr[Gpb Or Every[CactusFailure]] {
+        q" implicitly[AnyValueConverter[$gpbType]].apply($variableName)($variable) "
+      }
+    }
+
     def anyValueConverter[GpbClass: c.WeakTypeTag](c: whitebox.Context): c.Expr[AnyValueConverter[GpbClass]] = {
       import c.universe._
 
@@ -265,8 +279,6 @@ private[cactus] object ProtoVersion {
                import scala.util.Try
                import scala.util.control.NonFatal
                import scala.collection.JavaConverters._
-
-               println(anyValInstance)
 
                try {
                  if (anyValInstance.typeUrl == "type.googleapis.com/" + $gpbTypeName) {
