@@ -9,8 +9,7 @@ lazy val commonSettings = Seq(
   scalacOptions += "-feature",
   resolvers += Resolver.jcenterRepo,
 
-  organization := "com.avast",
-  name := "cactus",
+  organization := "com.avast.cactus",
   version := sys.env.getOrElse("TRAVIS_TAG", "0.1-SNAPSHOT"),
   description := "Library for conversion between GPB and Scala case classes",
 
@@ -19,8 +18,12 @@ lazy val commonSettings = Seq(
   bintrayOrganization := Some("avast"),
   pomExtra := (
     <scm>
-      <url>git@github.com:avast/{name.value}.git</url>
-      <connection>scm:git:git@github.com:avast/{name.value}.git</connection>
+      <url>git@github.com:avast/
+        {name.value}
+        .git</url>
+      <connection>scm:git:git@github.com:avast/
+        {name.value}
+        .git</connection>
     </scm>
       <developers>
         <developer>
@@ -29,31 +32,76 @@ lazy val commonSettings = Seq(
           <url>https://www.avast.com</url>
         </developer>
       </developers>
-    )
+    ),
+  libraryDependencies ++= Seq(
+    "org.scala-lang" % "scala-library" % scalaVersion.value,
+    "org.scalactic" %% "scalactic" % "3.0.4",
+    "org.scalatest" %% "scalatest" % "3.0.4" % "test"
+  )
 )
 
 lazy val macroSettings = Seq(
-  libraryDependencies ++= Seq(
-    "com.google.protobuf" % "protobuf-java" % "3.3.0" % "optional",
-    "com.google.protobuf" % "protobuf-java-util" % "3.3.0" % "optional",
-
-    "com.avast.bytes" % "bytes-gpb" % "2.0.3" % "optional",
-
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-    "org.scalactic" %% "scalactic" % "3.0.0",
-    "org.scalatest" %% "scalatest" % "3.0.0" % "test"
-  )
+  addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
 )
 
 lazy val root = Project(id = "rootProject",
-  base = file(".")) settings (publish := { }) aggregate macros
+  base = file(".")) settings (publish := {}) aggregate(commonModule, v2Module, v3Module, bytesModule, bytesV3Module)
 
-lazy val macros = Project(
-  id = "macros",
-  base = file("./macros"),
+lazy val commonModule = Project(
+  id = "common",
+  base = file("./common"),
   settings = commonSettings ++ macroSettings ++ Seq(
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
-    addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
+    name := "cactus-common",
+    libraryDependencies ++= Seq(
+      "com.google.protobuf" % "protobuf-java" % "3.3.0" % "optional",
+      "com.google.protobuf" % "protobuf-java-util" % "3.3.0" % "optional",
+
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value
+    )
   )
 )
+
+lazy val v2Module = Project(
+  id = "gpbv2",
+  base = file("./gpbv2"),
+  settings = commonSettings ++ Seq(
+    name := "cactus-gpbv2",
+    libraryDependencies ++= Seq(
+      "com.google.protobuf" % "protobuf-java" % "3.3.0" % "optional",
+      "com.google.protobuf" % "protobuf-java-util" % "3.3.0" % "optional"
+    )
+  )
+).dependsOn(commonModule, bytesModule % "test")
+
+lazy val v3Module = Project(
+  id = "gpbv3",
+  base = file("./gpbv3"),
+  settings = commonSettings ++ Seq(
+    name := "cactus-gpbv3",
+    libraryDependencies ++= Seq(
+      "com.google.protobuf" % "protobuf-java" % "3.3.0",
+      "com.google.protobuf" % "protobuf-java-util" % "3.3.0"
+    )
+  )
+).dependsOn(commonModule)
+
+lazy val bytesModule = Project(
+  id = "bytes",
+  base = file("./bytes"),
+  settings = commonSettings ++ Seq(
+    name := "cactus-bytes",
+    libraryDependencies ++= Seq(
+      "com.avast.bytes" % "bytes-gpb" % "2.0.3"
+    )
+  )
+).dependsOn(commonModule)
+
+lazy val bytesV3Module = Project(
+  id = "bytes-gpbv3",
+  base = file("./bytes-gpbv3"),
+  settings = commonSettings ++ Seq(
+    name := "cactus-bytes-gpbv3"
+  )
+).dependsOn(v3Module, bytesModule)
