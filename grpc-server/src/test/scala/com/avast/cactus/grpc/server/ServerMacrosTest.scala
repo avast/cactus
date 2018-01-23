@@ -9,6 +9,7 @@ import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Eventually
 import org.scalatest.mockito.MockitoSugar
+import org.scalatest.time.{Seconds, Span}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -22,6 +23,8 @@ class ServerMacrosTest extends FunSuite with MockitoSugar with Eventually {
   trait MyApi {
     def get(request: MyRequest): Future[Either[Status, MyResponse]]
   }
+
+  private implicit val p: PatienceConfig = PatienceConfig(timeout = Span(1, Seconds))
 
   test("ok path") {
     val impl = mock[MyApi]
