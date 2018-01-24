@@ -74,7 +74,7 @@ object CactusMacros {
     val variableName = variable.symbol.asTerm.fullName.split('.').last
 
     c.Expr[CaseClass Or Every[CactusFailure]] {
-      q" implicitly[Converter[$gpbType, $caseClassType]].apply($variableName)($variable) "
+      q" implicitly[com.avast.cactus.Converter[$gpbType, $caseClassType]].apply($variableName)($variable) "
     }
   }
 
@@ -89,7 +89,7 @@ object CactusMacros {
     val variableName = variable.symbol.asTerm.fullName.split('.').last
 
     c.Expr[Gpb Or Every[CactusFailure]] {
-      q" implicitly[Converter[$caseClassType, $gpbType]].apply($variableName)($variable) "
+      q" implicitly[com.avast.cactus.Converter[$caseClassType, $gpbType]].apply($variableName)($variable) "
     }
   }
 
@@ -132,7 +132,7 @@ object CactusMacros {
 
     c.Expr[Converter[GpbClass, CaseClass]] {
       q"""
-         new Converter[$gpbType, $caseClassType] {
+         new com.avast.cactus.Converter[$gpbType, $caseClassType] {
             def apply(fieldPath: String)(gpb: $gpbType): com.avast.cactus.ResultOrErrors[$caseClassType] = $theFunction
          }
        """
@@ -178,7 +178,7 @@ object CactusMacros {
 
     c.Expr[Converter[CaseClass, GpbClass]] {
       q"""
-         new Converter[$caseClassType, $gpbType] {
+         new com.avast.cactus.Converter[$caseClassType, $gpbType] {
             def apply(fieldPath: String)(instance: $caseClassType): com.avast.cactus.ResultOrErrors[$gpbType] = $theFunction
          }
        """
@@ -1010,7 +1010,7 @@ object CactusMacros {
           println(s"Defining converter from ${from.typeSymbol} to ${to.typeSymbol}")
         }
 
-        converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:Converter[$from, $to] = Converter.checked($f) "
+        converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:com.avast.cactus.Converter[$from, $to] = com.avast.cactus.Converter.checked($f) "
       })
     }
 
