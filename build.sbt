@@ -2,6 +2,11 @@ import sbt.Keys._
 
 crossScalaVersions := Seq("2.11.11", "2.12.4")
 
+lazy val Versions = new {
+  val gpb3Version = "3.3.0"
+  val grpcVersion = "1.9.0"
+}
+
 lazy val commonSettings = Seq(
   scalaVersion := "2.11.11",
   scalacOptions += "-deprecation",
@@ -54,8 +59,8 @@ lazy val commonModule = Project(
   settings = commonSettings ++ macroSettings ++ Seq(
     name := "cactus-common",
     libraryDependencies ++= Seq(
-      "com.google.protobuf" % "protobuf-java" % "3.3.0" % "optional",
-      "com.google.protobuf" % "protobuf-java-util" % "3.3.0" % "optional",
+      "com.google.protobuf" % "protobuf-java" % Versions.gpb3Version % "optional",
+      "com.google.protobuf" % "protobuf-java-util" % Versions.gpb3Version % "optional",
 
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value
@@ -69,8 +74,7 @@ lazy val v2Module = Project(
   settings = commonSettings ++ Seq(
     name := "cactus-gpbv2",
     libraryDependencies ++= Seq(
-      "com.google.protobuf" % "protobuf-java" % "3.3.0" % "optional",
-      "com.google.protobuf" % "protobuf-java-util" % "3.3.0" % "optional"
+      "com.google.protobuf" % "protobuf-java" % "2.6.1" % "optional"
     )
   )
 ).dependsOn(commonModule, bytesModule % "test")
@@ -81,8 +85,8 @@ lazy val v3Module = Project(
   settings = commonSettings ++ Seq(
     name := "cactus-gpbv3",
     libraryDependencies ++= Seq(
-      "com.google.protobuf" % "protobuf-java" % "3.3.0",
-      "com.google.protobuf" % "protobuf-java-util" % "3.3.0"
+      "com.google.protobuf" % "protobuf-java" % Versions.gpb3Version,
+      "com.google.protobuf" % "protobuf-java-util" % Versions.gpb3Version
     )
   )
 ).dependsOn(commonModule)
