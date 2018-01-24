@@ -28,7 +28,6 @@ class ServerMacros(val c: whitebox.Context) {
         q"""
         new $serviceType {
           import com.avast.cactus.v3._
-          import com.avast.cactus.Converter
           import io.grpc._
           import com.avast.cactus.grpc.server.ServerCommonMethods._
 

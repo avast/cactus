@@ -114,7 +114,7 @@ lazy val bytesV3Module = Project(
 lazy val grpcClientModule = Project(
   id = "grpc-client",
   base = file("./grpc-client"),
-  settings = commonSettings ++ Seq(
+  settings = commonSettings ++ macroSettings ++ Seq(
     name := "cactus-grpc-client",
     libraryDependencies ++= Seq(
       "io.grpc" % "grpc-netty-shaded" % Versions.grpcVersion,
