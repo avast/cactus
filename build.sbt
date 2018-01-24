@@ -2,7 +2,6 @@ import sbt.Keys._
 
 crossScalaVersions := Seq("2.11.11", "2.12.4")
 
-
 lazy val Versions = new {
   val gpb3Version = "3.3.0"
   val grpcVersion = "1.9.0"
@@ -76,8 +75,7 @@ lazy val v2Module = Project(
   settings = commonSettings ++ Seq(
     name := "cactus-gpbv2",
     libraryDependencies ++= Seq(
-      "com.google.protobuf" % "protobuf-java" % Versions.gpb3Version % "optional",
-      "com.google.protobuf" % "protobuf-java-util" % Versions.gpb3Version % "optional"
+      "com.google.protobuf" % "protobuf-java" % "2.6.1" % "optional"
     )
   )
 ).dependsOn(commonModule, bytesModule % "test")
