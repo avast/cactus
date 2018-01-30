@@ -1,29 +1,21 @@
 package com.avast.cactus.grpc
 
-import io.grpc.Context.{Key => ContextKey}
-import io.grpc.Metadata.{Key => MetadataKey}
-import io.grpc.{Context, Metadata, Status, StatusRuntimeException}
+import java.util.concurrent.Executor
 
-import scala.concurrent.Future
+import io.grpc._
+import io.grpc.stub.AbstractStub
+
+import scala.concurrent.{ExecutionContext, Future}
+import scala.language.experimental.macros
 
 package object client {
 
   type GrpcRequestMetadata = (Context, Metadata)
   type ClientAsyncInterceptor = GrpcRequestMetadata => Future[GrpcRequestMetadata]
 
-  case class ServerError(status: Status, headers: Metadata = new Metadata())
-
-  type ServerResponse[Resp] = Either[ServerError, Resp]
-
-  implicit class ContextOperations(val c: Context) extends AnyVal {
-    def put[A](key: ContextKey[A], value: A): Unit = {
-      c.withValue(key, value)
-      ()
-    }
-
-    def get[A](key: ContextKey[A]): Option[A] = {
-      Option(key.get(c))
-    }
+  implicit class MapClient(val channel: Channel) extends AnyVal {
+    def createMappedClient[GrpcClientStub <: AbstractStub[GrpcClientStub], MT](implicit ec: ExecutionContext, ex: Executor): MT =
+      macro ClientMacros.mapClientToTrait[GrpcClientStub, MT]
   }
 
 }

@@ -1,4 +1,4 @@
-package com.avast.cactus.grpc.server
+package com.avast.cactus.grpc
 
 import com.avast.cactus.CactusMacros
 import com.google.protobuf.MessageLite
@@ -122,6 +122,7 @@ class ServerMacros(val c: whitebox.Context) {
               if m.isMethod
                 && m.name.toString != "bindService"
                 && m.asMethod.paramLists.size == 1
+                && m.asMethod.paramLists.head.size == 2
                 && m.asMethod.returnType == typeOf[Unit] =>
             m.asMethod.name -> m.asMethod.paramLists.head.map(_.typeSignature.resultType)
         }

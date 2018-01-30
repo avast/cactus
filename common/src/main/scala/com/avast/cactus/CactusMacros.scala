@@ -916,12 +916,12 @@ object CactusMacros {
     getterGenType
   }
 
-  private[cactus] def extractSymbolFromClassTag(c: whitebox.Context)(gpbCt: c.Tree): c.Type = {
+  private[cactus] def extractSymbolFromClassTag(c: whitebox.Context)(ctTree: c.Tree): c.Type = {
     import c.universe._
 
-    gpbCt match {
+    ctTree match {
       case q"ClassTag.apply[$cl](${_}): ${_}" => cl.tpe
-      case q" $cl " if cl.tpe.typeConstructor == typeOf[ClassTag[_]].dealias.typeConstructor => cl.tpe.typeArgs.head
+      case q" $cl " if cl.tpe.dealias.typeConstructor == typeOf[ClassTag[_]].dealias.typeConstructor => cl.tpe.typeArgs.head
       case t => c.abort(c.enclosingPosition, s"Cannot process the conversion - variable type extraction from tree '$t' failed")
     }
   }

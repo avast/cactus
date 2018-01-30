@@ -1,7 +1,8 @@
 package com.avast.cactus.grpc.server
 
+import com.avast.cactus.Converter
+import com.avast.cactus.grpc.CommonMethods
 import com.avast.cactus.v3._
-import com.avast.cactus.{CactusFailures, Converter}
 import com.google.protobuf.MessageLite
 import io.grpc.stub.StreamObserver
 import io.grpc.{Status, StatusException}
@@ -11,7 +12,7 @@ import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
-private[grpc] object ServerCommonMethods {
+private[grpc] object ServerCommonMethods extends CommonMethods {
   def executeRequest[ReqCaseClass, RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, ?]](
       req: ReqCaseClass,
       f: ReqCaseClass => Future[Either[Status, RespCaseClass]])(implicit ec: ExecutionContext): Future[Either[StatusException, RespGpb]] = {
@@ -49,10 +50,6 @@ private[grpc] object ServerCommonMethods {
       Left {
         new StatusException(Status.INTERNAL.withDescription(s"${e.getClass.getName}: ${e.getMessage}"))
       }
-  }
-
-  def formatCactusFailures(subject: String, errors: CactusFailures): String = {
-    s"Errors when converting $subject: ${errors.mkString("[", ", ", "]")}"
   }
 
 }

@@ -14,7 +14,7 @@ import org.scalatest.time.{Seconds, Span}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ServerMacrosTest extends FunSuite with MockitoSugar with Eventually {
+class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
   case class MyRequest(names: Seq[String])
 

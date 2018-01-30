@@ -2,8 +2,9 @@ package com.avast.cactus.grpc.client
 
 import java.util.concurrent.Executor
 
+import com.avast.cactus.Converter
+import com.avast.cactus.grpc.{CommonMethods, ServerError, ServerResponse}
 import com.avast.cactus.v3._
-import com.avast.cactus.{CactusFailures, Converter}
 import com.google.common.util.concurrent.{FutureCallback, Futures, ListenableFuture}
 import com.google.protobuf.MessageLite
 import io.grpc.{Status, StatusRuntimeException}
@@ -11,7 +12,7 @@ import io.grpc.{Status, StatusRuntimeException}
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.reflect.ClassTag
 
-object ClientCommonMethods {
+object ClientCommonMethods extends CommonMethods {
 
   def executeRequest[ReqGpb <: MessageLite, RespGpb <: MessageLite: ClassTag, RespCaseClass: Converter[RespGpb, ?]](
       req: ReqGpb,
@@ -33,10 +34,6 @@ object ClientCommonMethods {
         ServerError(Status.INTERNAL.withDescription(formatCactusFailures("response", errors)))
       }
       .toEither
-  }
-
-  def formatCactusFailures(subject: String, errors: CactusFailures): String = {
-    s"Errors when converting $subject: ${errors.mkString("[", ", ", "]")}"
   }
 
   private implicit class ListenableFuture2ScalaFuture[T](val f: ListenableFuture[T]) extends AnyVal {
