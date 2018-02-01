@@ -11,7 +11,8 @@ class ClientMacros(val c: whitebox.Context) {
 
   import c.universe._
 
-  def mapClientToTrait[GrpcClientStub <: AbstractStub[GrpcClientStub] : WeakTypeTag, MyTrait: WeakTypeTag](ec: c.Tree, ex: c.Tree): c.Expr[MyTrait] = {
+  def mapClientToTraitWithInterceptors[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag, MyTrait: WeakTypeTag](
+      interceptors: c.Tree)(ec: c.Tree, ex: c.Tree): c.Expr[MyTrait] = {
 
     val stubType = weakTypeOf[GrpcClientStub]
     val traitType = weakTypeOf[MyTrait]
@@ -29,12 +30,13 @@ class ClientMacros(val c: whitebox.Context) {
     val channelVar = CactusMacros.getVariable(c)
     val mappingMethods = methodsMappings.map { case (im, am) => generateMappingMethod(im, am) }
 
-
-    val stub = q" ${stubType.typeSymbol.owner}.newFutureStub($channelVar)  "
+    val stub = {
+      q" ${stubType.typeSymbol.owner}.newFutureStub($channelVar).withInterceptors(com.avast.cactus.grpc.client.ClientMetadataInterceptor) "
+    }
 
     c.Expr[MyTrait] {
       q"""
-         new $traitType {
+         new com.avast.cactus.grpc.client.IncludeMetadataWrapper($interceptors) with $traitType {
             private val ex: java.util.concurrent.Executor = $ex
 
             private val stub = $stub
@@ -48,15 +50,21 @@ class ClientMacros(val c: whitebox.Context) {
     }
   }
 
+  // just and overload - fixes the fact that method with macro impl cannot have default value arguments
+  def mapClientToTrait[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag, MyTrait: WeakTypeTag](ec: c.Tree,
+                                                                                                          ex: c.Tree): c.Expr[MyTrait] = {
+    mapClientToTraitWithInterceptors[GrpcClientStub, MyTrait](q" scala.collection.immutable.Seq.empty ")(ec, ex)
+  }
+
   private def generateMappingMethod(implMethod: ImplMethod, apiMethod: ApiMethod): Tree = {
     q"""
-       override def ${implMethod.name}(request: ${implMethod.request}): Future[ServerResponse[${implMethod.response}]] = {
+       override def ${implMethod.name}(request: ${implMethod.request}): scala.concurrent.Future[com.avast.cactus.grpc.ServerResponse[${implMethod.response}]] = withInterceptors {
           request.asGpb[${apiMethod.request}] match {
              case org.scalactic.Good(req) => executeRequest[${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, stub.${apiMethod.name}, ex)
              case org.scalactic.Bad(errors) =>
-                Future.successful {
+                scala.concurrent.Future.successful {
                    Left {
-                      ServerError(Status.INVALID_ARGUMENT.withDescription(formatCactusFailures("request", errors)))
+                      com.avast.cactus.grpc.ServerError(io.grpc.Status.INVALID_ARGUMENT.withDescription(formatCactusFailures("request", errors)))
                    }
                 }
           }
@@ -65,16 +73,23 @@ class ClientMacros(val c: whitebox.Context) {
   }
 
   private def checkAbstractMethods(traitType: Type, implMethods: Set[ImplMethod]): Unit = {
-    val nonGrpcAbstractMethods = traitType.decls.collect {
-      case m if m.isMethod => m.asMethod
-    }.filter(m => m.isAbstract && !implMethods.exists(_.name == m.name))
+    val nonGrpcAbstractMethods = traitType.decls
+      .collect {
+        case m if m.isMethod => m.asMethod
+      }
+      .filter(m => m.isAbstract && !implMethods.exists(_.name == m.name))
 
     if (nonGrpcAbstractMethods.nonEmpty) {
-      val foundIllegalMethods = nonGrpcAbstractMethods.map { m =>
-        s"${m.name}${m.paramLists.map(_.map(_.typeSignature).mkString("(", ", ", ")")).mkString}:${m.returnType.finalResultType}"
-      }.mkString("\n - ", "\n - ", "")
+      val foundIllegalMethods = nonGrpcAbstractMethods
+        .map { m =>
+          s"${m.name}${m.paramLists.map(_.map(_.typeSignature).mkString("(", ", ", ")")).mkString}:${m.returnType.finalResultType}"
+        }
+        .mkString("\n - ", "\n - ", "")
 
-      c.abort(c.enclosingPosition, s"Only gRPC methods are allowed to be abstract in type ${traitType.typeSymbol}, found others too: $foundIllegalMethods")
+      c.abort(
+        c.enclosingPosition,
+        s"Only gRPC methods are allowed to be abstract in type ${traitType.typeSymbol}, found others too: $foundIllegalMethods"
+      )
     }
   }
 
@@ -90,16 +105,18 @@ class ClientMacros(val c: whitebox.Context) {
         case ImplMethod(m) => m
       }
 
-    methods
-      .map { m =>
-        val apiMethod = apiMethods
-          .find(_.name == m.name)
-          .getOrElse(c.abort(c.enclosingPosition,
-            s"Method ${m.name} of trait ${traitType.typeSymbol} does not have it's counterpart in ${stubType.typeSymbol}"))
+    methods.map { m =>
+      val apiMethod = apiMethods
+        .find(_.name == m.name)
+        .getOrElse {
+          c.abort(
+            c.enclosingPosition,
+            s"Method ${m.name} of trait ${traitType.typeSymbol} does not have it's counterpart in ${stubType.typeSymbol}"
+          )
+        }
 
-        m -> apiMethod
-      }
-      .toMap
+      m -> apiMethod
+    }.toMap
   }
 
   private def isGpbClass(t: Type): Boolean = t.baseClasses.contains(typeOf[MessageLite].typeSymbol)
@@ -143,11 +160,11 @@ class ClientMacros(val c: whitebox.Context) {
       Option(s)
         .collect {
           case m
-            if m.isMethod
-              && m.name.toString != "build"
-              && m.asMethod.paramLists.size == 1
-              && m.asMethod.paramLists.head.size == 1
-              && m.asMethod.returnType.dealias.erasure == typeOf[ListenableFuture[Any]].dealias.erasure =>
+              if m.isMethod
+                && m.name.toString != "build"
+                && m.asMethod.paramLists.size == 1
+                && m.asMethod.paramLists.head.size == 1
+                && m.asMethod.returnType.dealias.erasure == typeOf[ListenableFuture[Any]].dealias.erasure =>
             m.asMethod.name -> (m.asMethod.paramLists.flatten.head.typeSignature -> m.asMethod.returnType.finalResultType)
         }
         .collect {
