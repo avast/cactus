@@ -490,7 +490,7 @@ will be returned instead.
 * Just implement `new Converter`
 ```scala
 implicit val StringJavaIntegerListConverter2: Converter[String, java.lang.Iterable[_ <: Integer]] = new Converter[String, java.lang.Iterable[_ <: Integer]] {
-  override def apply(fieldPath: String)(str: String): ResultOrError[lang.Iterable[_ <: Integer]] = {
+  override def apply(fieldPath: String)(str: String): ResultOrErrors[java.lang.Iterable[_ <: Integer]] = {
       val parts = str.split(", ")
 
       if (parts.nonEmpty && parts.forall(_.matches("\\d+"))) {
