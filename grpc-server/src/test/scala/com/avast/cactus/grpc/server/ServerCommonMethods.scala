@@ -52,4 +52,21 @@ private[grpc] object ServerCommonMethods extends CommonMethods {
       }
   }
 
+  def withContext[Req, RespGpb, Ctx](createCtx: => Try[Ctx])(
+      action: Ctx => Future[Either[StatusException, RespGpb]]): Future[Either[StatusException, RespGpb]] = {
+    createCtx match {
+      case scala.util.Success(ctx) =>
+        action(ctx)
+
+      case scala.util.Failure(NonFatal(e)) =>
+        Future.successful {
+          Left {
+            new StatusException(
+              Status.INVALID_ARGUMENT.withDescription("Unable to create context, maybe some headers are missing?").withCause(e))
+          }
+
+        }
+    }
+  }
+
 }

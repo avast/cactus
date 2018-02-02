@@ -10,10 +10,15 @@ import scala.reflect.ClassTag
 package object server {
 
   implicit class MapService[MT](val myTrait: MT) extends AnyVal {
-    def mappedTo[JS <: BindableService](implicit ct: ClassTag[MT], ec: ExecutionContext): JS = macro ServerMacros.mapImplToService[JS]
+    def mappedTo[JS <: BindableService](implicit ct: ClassTag[MT], ec: ExecutionContext): ServerServiceDefinition =
+      macro ServerMacros.mapImplToService[JS]
   }
 
   implicit class AddInterceptor(val s: BindableService) extends AnyVal {
+    def withInterceptors(i: ServerInterceptor*): ServerServiceDefinition = ServerInterceptors.intercept(s, i.asJava)
+  }
+
+  implicit class AddInterceptor2(val s: ServerServiceDefinition) extends AnyVal {
     def withInterceptors(i: ServerInterceptor*): ServerServiceDefinition = ServerInterceptors.intercept(s, i.asJava)
   }
 
