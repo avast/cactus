@@ -54,14 +54,14 @@ public  final class TestApi extends
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return TestApiOuterClass.internal_static_TestApi_descriptor;
+    return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_descriptor;
   }
 
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return TestApiOuterClass.internal_static_TestApi_fieldAccessorTable
+    return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            TestApi.class, TestApi.Builder.class);
+            com.avast.cactus.grpc.server.TestApi.class, com.avast.cactus.grpc.server.TestApi.Builder.class);
   }
 
   public interface GetRequestOrBuilder extends
@@ -168,14 +168,14 @@ public  final class TestApi extends
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return TestApiOuterClass.internal_static_TestApi_GetRequest_descriptor;
+      return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetRequest_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return TestApiOuterClass.internal_static_TestApi_GetRequest_fieldAccessorTable
+      return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              TestApi.GetRequest.class, TestApi.GetRequest.Builder.class);
+              com.avast.cactus.grpc.server.TestApi.GetRequest.class, com.avast.cactus.grpc.server.TestApi.GetRequest.Builder.class);
     }
 
     public static final int NAMES_FIELD_NUMBER = 1;
@@ -263,10 +263,10 @@ public  final class TestApi extends
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof TestApi.GetRequest)) {
+      if (!(obj instanceof com.avast.cactus.grpc.server.TestApi.GetRequest)) {
         return super.equals(obj);
       }
-      TestApi.GetRequest other = (TestApi.GetRequest) obj;
+      com.avast.cactus.grpc.server.TestApi.GetRequest other = (com.avast.cactus.grpc.server.TestApi.GetRequest) obj;
 
       boolean result = true;
       result = result && getNamesList()
@@ -290,69 +290,69 @@ public  final class TestApi extends
       return hash;
     }
 
-    public static TestApi.GetRequest parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TestApi.GetRequest parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TestApi.GetRequest parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TestApi.GetRequest parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TestApi.GetRequest parseFrom(byte[] data)
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TestApi.GetRequest parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TestApi.GetRequest parseFrom(java.io.InputStream input)
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static TestApi.GetRequest parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static TestApi.GetRequest parseDelimitedFrom(java.io.InputStream input)
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static TestApi.GetRequest parseDelimitedFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static TestApi.GetRequest parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static TestApi.GetRequest parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -364,7 +364,7 @@ public  final class TestApi extends
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(TestApi.GetRequest prototype) {
+    public static Builder newBuilder(com.avast.cactus.grpc.server.TestApi.GetRequest prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -384,17 +384,17 @@ public  final class TestApi extends
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:TestApi.GetRequest)
-        TestApi.GetRequestOrBuilder {
+        com.avast.cactus.grpc.server.TestApi.GetRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return TestApiOuterClass.internal_static_TestApi_GetRequest_descriptor;
+        return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetRequest_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return TestApiOuterClass.internal_static_TestApi_GetRequest_fieldAccessorTable
+        return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetRequest_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                TestApi.GetRequest.class, TestApi.GetRequest.Builder.class);
+                com.avast.cactus.grpc.server.TestApi.GetRequest.class, com.avast.cactus.grpc.server.TestApi.GetRequest.Builder.class);
       }
 
       // Construct using com.avast.cactus.grpc.server.TestApi.GetRequest.newBuilder()
@@ -421,23 +421,23 @@ public  final class TestApi extends
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return TestApiOuterClass.internal_static_TestApi_GetRequest_descriptor;
+        return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetRequest_descriptor;
       }
 
-      public TestApi.GetRequest getDefaultInstanceForType() {
-        return TestApi.GetRequest.getDefaultInstance();
+      public com.avast.cactus.grpc.server.TestApi.GetRequest getDefaultInstanceForType() {
+        return com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance();
       }
 
-      public TestApi.GetRequest build() {
-        TestApi.GetRequest result = buildPartial();
+      public com.avast.cactus.grpc.server.TestApi.GetRequest build() {
+        com.avast.cactus.grpc.server.TestApi.GetRequest result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public TestApi.GetRequest buildPartial() {
-        TestApi.GetRequest result = new TestApi.GetRequest(this);
+      public com.avast.cactus.grpc.server.TestApi.GetRequest buildPartial() {
+        com.avast.cactus.grpc.server.TestApi.GetRequest result = new com.avast.cactus.grpc.server.TestApi.GetRequest(this);
         int from_bitField0_ = bitField0_;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           names_ = names_.getUnmodifiableView();
@@ -475,16 +475,16 @@ public  final class TestApi extends
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof TestApi.GetRequest) {
-          return mergeFrom((TestApi.GetRequest)other);
+        if (other instanceof com.avast.cactus.grpc.server.TestApi.GetRequest) {
+          return mergeFrom((com.avast.cactus.grpc.server.TestApi.GetRequest)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(TestApi.GetRequest other) {
-        if (other == TestApi.GetRequest.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.avast.cactus.grpc.server.TestApi.GetRequest other) {
+        if (other == com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance()) return this;
         if (!other.names_.isEmpty()) {
           if (names_.isEmpty()) {
             names_ = other.names_;
@@ -507,11 +507,11 @@ public  final class TestApi extends
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        TestApi.GetRequest parsedMessage = null;
+        com.avast.cactus.grpc.server.TestApi.GetRequest parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (TestApi.GetRequest) e.getUnfinishedMessage();
+          parsedMessage = (com.avast.cactus.grpc.server.TestApi.GetRequest) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -666,12 +666,12 @@ public  final class TestApi extends
     }
 
     // @@protoc_insertion_point(class_scope:TestApi.GetRequest)
-    private static final TestApi.GetRequest DEFAULT_INSTANCE;
+    private static final com.avast.cactus.grpc.server.TestApi.GetRequest DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new TestApi.GetRequest();
+      DEFAULT_INSTANCE = new com.avast.cactus.grpc.server.TestApi.GetRequest();
     }
 
-    public static TestApi.GetRequest getDefaultInstance() {
+    public static com.avast.cactus.grpc.server.TestApi.GetRequest getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -694,7 +694,7 @@ public  final class TestApi extends
       return PARSER;
     }
 
-    public TestApi.GetRequest getDefaultInstanceForType() {
+    public com.avast.cactus.grpc.server.TestApi.GetRequest getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -823,7 +823,7 @@ public  final class TestApi extends
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return TestApiOuterClass.internal_static_TestApi_GetResponse_descriptor;
+      return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetResponse_descriptor;
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -839,9 +839,9 @@ public  final class TestApi extends
     }
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return TestApiOuterClass.internal_static_TestApi_GetResponse_fieldAccessorTable
+      return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              TestApi.GetResponse.class, TestApi.GetResponse.Builder.class);
+              com.avast.cactus.grpc.server.TestApi.GetResponse.class, com.avast.cactus.grpc.server.TestApi.GetResponse.Builder.class);
     }
 
     public static final int RESULTS_FIELD_NUMBER = 1;
@@ -850,7 +850,7 @@ public  final class TestApi extends
           String, Integer> defaultEntry =
               com.google.protobuf.MapEntry
               .<String, Integer>newDefaultInstance(
-                  TestApiOuterClass.internal_static_TestApi_GetResponse_ResultsEntry_descriptor,
+                  com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetResponse_ResultsEntry_descriptor,
                   com.google.protobuf.WireFormat.FieldType.STRING,
                   "",
                   com.google.protobuf.WireFormat.FieldType.INT32,
@@ -981,10 +981,10 @@ public  final class TestApi extends
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof TestApi.GetResponse)) {
+      if (!(obj instanceof com.avast.cactus.grpc.server.TestApi.GetResponse)) {
         return super.equals(obj);
       }
-      TestApi.GetResponse other = (TestApi.GetResponse) obj;
+      com.avast.cactus.grpc.server.TestApi.GetResponse other = (com.avast.cactus.grpc.server.TestApi.GetResponse) obj;
 
       boolean result = true;
       result = result && internalGetResults().equals(
@@ -1008,69 +1008,69 @@ public  final class TestApi extends
       return hash;
     }
 
-    public static TestApi.GetResponse parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TestApi.GetResponse parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TestApi.GetResponse parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TestApi.GetResponse parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TestApi.GetResponse parseFrom(byte[] data)
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static TestApi.GetResponse parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static TestApi.GetResponse parseFrom(java.io.InputStream input)
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static TestApi.GetResponse parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static TestApi.GetResponse parseDelimitedFrom(java.io.InputStream input)
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static TestApi.GetResponse parseDelimitedFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static TestApi.GetResponse parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static TestApi.GetResponse parseFrom(
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1082,7 +1082,7 @@ public  final class TestApi extends
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(TestApi.GetResponse prototype) {
+    public static Builder newBuilder(com.avast.cactus.grpc.server.TestApi.GetResponse prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -1102,10 +1102,10 @@ public  final class TestApi extends
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:TestApi.GetResponse)
-        TestApi.GetResponseOrBuilder {
+        com.avast.cactus.grpc.server.TestApi.GetResponseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return TestApiOuterClass.internal_static_TestApi_GetResponse_descriptor;
+        return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetResponse_descriptor;
       }
 
       @SuppressWarnings({"rawtypes"})
@@ -1132,9 +1132,9 @@ public  final class TestApi extends
       }
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return TestApiOuterClass.internal_static_TestApi_GetResponse_fieldAccessorTable
+        return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetResponse_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                TestApi.GetResponse.class, TestApi.GetResponse.Builder.class);
+                com.avast.cactus.grpc.server.TestApi.GetResponse.class, com.avast.cactus.grpc.server.TestApi.GetResponse.Builder.class);
       }
 
       // Construct using com.avast.cactus.grpc.server.TestApi.GetResponse.newBuilder()
@@ -1160,23 +1160,23 @@ public  final class TestApi extends
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return TestApiOuterClass.internal_static_TestApi_GetResponse_descriptor;
+        return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_GetResponse_descriptor;
       }
 
-      public TestApi.GetResponse getDefaultInstanceForType() {
-        return TestApi.GetResponse.getDefaultInstance();
+      public com.avast.cactus.grpc.server.TestApi.GetResponse getDefaultInstanceForType() {
+        return com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance();
       }
 
-      public TestApi.GetResponse build() {
-        TestApi.GetResponse result = buildPartial();
+      public com.avast.cactus.grpc.server.TestApi.GetResponse build() {
+        com.avast.cactus.grpc.server.TestApi.GetResponse result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public TestApi.GetResponse buildPartial() {
-        TestApi.GetResponse result = new TestApi.GetResponse(this);
+      public com.avast.cactus.grpc.server.TestApi.GetResponse buildPartial() {
+        com.avast.cactus.grpc.server.TestApi.GetResponse result = new com.avast.cactus.grpc.server.TestApi.GetResponse(this);
         int from_bitField0_ = bitField0_;
         result.results_ = internalGetResults();
         result.results_.makeImmutable();
@@ -1211,16 +1211,16 @@ public  final class TestApi extends
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof TestApi.GetResponse) {
-          return mergeFrom((TestApi.GetResponse)other);
+        if (other instanceof com.avast.cactus.grpc.server.TestApi.GetResponse) {
+          return mergeFrom((com.avast.cactus.grpc.server.TestApi.GetResponse)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(TestApi.GetResponse other) {
-        if (other == TestApi.GetResponse.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.avast.cactus.grpc.server.TestApi.GetResponse other) {
+        if (other == com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance()) return this;
         internalGetMutableResults().mergeFrom(
             other.internalGetResults());
         onChanged();
@@ -1235,11 +1235,11 @@ public  final class TestApi extends
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        TestApi.GetResponse parsedMessage = null;
+        com.avast.cactus.grpc.server.TestApi.GetResponse parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (TestApi.GetResponse) e.getUnfinishedMessage();
+          parsedMessage = (com.avast.cactus.grpc.server.TestApi.GetResponse) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -1415,12 +1415,12 @@ public  final class TestApi extends
     }
 
     // @@protoc_insertion_point(class_scope:TestApi.GetResponse)
-    private static final TestApi.GetResponse DEFAULT_INSTANCE;
+    private static final com.avast.cactus.grpc.server.TestApi.GetResponse DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new TestApi.GetResponse();
+      DEFAULT_INSTANCE = new com.avast.cactus.grpc.server.TestApi.GetResponse();
     }
 
-    public static TestApi.GetResponse getDefaultInstance() {
+    public static com.avast.cactus.grpc.server.TestApi.GetResponse getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
@@ -1443,7 +1443,7 @@ public  final class TestApi extends
       return PARSER;
     }
 
-    public TestApi.GetResponse getDefaultInstanceForType() {
+    public com.avast.cactus.grpc.server.TestApi.GetResponse getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -1478,10 +1478,10 @@ public  final class TestApi extends
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof TestApi)) {
+    if (!(obj instanceof com.avast.cactus.grpc.server.TestApi)) {
       return super.equals(obj);
     }
-    TestApi other = (TestApi) obj;
+    com.avast.cactus.grpc.server.TestApi other = (com.avast.cactus.grpc.server.TestApi) obj;
 
     boolean result = true;
     return result;
@@ -1499,69 +1499,69 @@ public  final class TestApi extends
     return hash;
   }
 
-  public static TestApi parseFrom(
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static TestApi parseFrom(
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static TestApi parseFrom(
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static TestApi parseFrom(
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static TestApi parseFrom(byte[] data)
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static TestApi parseFrom(
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static TestApi parseFrom(java.io.InputStream input)
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static TestApi parseFrom(
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
-  public static TestApi parseDelimitedFrom(java.io.InputStream input)
+  public static com.avast.cactus.grpc.server.TestApi parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
-  public static TestApi parseDelimitedFrom(
+  public static com.avast.cactus.grpc.server.TestApi parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static TestApi parseFrom(
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static TestApi parseFrom(
+  public static com.avast.cactus.grpc.server.TestApi parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -1573,7 +1573,7 @@ public  final class TestApi extends
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(TestApi prototype) {
+  public static Builder newBuilder(com.avast.cactus.grpc.server.TestApi prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   public Builder toBuilder() {
@@ -1593,17 +1593,17 @@ public  final class TestApi extends
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
       // @@protoc_insertion_point(builder_implements:TestApi)
-          TestApiOrBuilder {
+      com.avast.cactus.grpc.server.TestApiOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return TestApiOuterClass.internal_static_TestApi_descriptor;
+      return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return TestApiOuterClass.internal_static_TestApi_fieldAccessorTable
+      return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              TestApi.class, TestApi.Builder.class);
+              com.avast.cactus.grpc.server.TestApi.class, com.avast.cactus.grpc.server.TestApi.Builder.class);
     }
 
     // Construct using com.avast.cactus.grpc.server.TestApi.newBuilder()
@@ -1628,23 +1628,23 @@ public  final class TestApi extends
 
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return TestApiOuterClass.internal_static_TestApi_descriptor;
+      return com.avast.cactus.grpc.server.TestApiOuterClass.internal_static_TestApi_descriptor;
     }
 
-    public TestApi getDefaultInstanceForType() {
-      return TestApi.getDefaultInstance();
+    public com.avast.cactus.grpc.server.TestApi getDefaultInstanceForType() {
+      return com.avast.cactus.grpc.server.TestApi.getDefaultInstance();
     }
 
-    public TestApi build() {
-      TestApi result = buildPartial();
+    public com.avast.cactus.grpc.server.TestApi build() {
+      com.avast.cactus.grpc.server.TestApi result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
       return result;
     }
 
-    public TestApi buildPartial() {
-      TestApi result = new TestApi(this);
+    public com.avast.cactus.grpc.server.TestApi buildPartial() {
+      com.avast.cactus.grpc.server.TestApi result = new com.avast.cactus.grpc.server.TestApi(this);
       onBuilt();
       return result;
     }
@@ -1676,16 +1676,16 @@ public  final class TestApi extends
       return (Builder) super.addRepeatedField(field, value);
     }
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof TestApi) {
-        return mergeFrom((TestApi)other);
+      if (other instanceof com.avast.cactus.grpc.server.TestApi) {
+        return mergeFrom((com.avast.cactus.grpc.server.TestApi)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(TestApi other) {
-      if (other == TestApi.getDefaultInstance()) return this;
+    public Builder mergeFrom(com.avast.cactus.grpc.server.TestApi other) {
+      if (other == com.avast.cactus.grpc.server.TestApi.getDefaultInstance()) return this;
       onChanged();
       return this;
     }
@@ -1698,11 +1698,11 @@ public  final class TestApi extends
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      TestApi parsedMessage = null;
+      com.avast.cactus.grpc.server.TestApi parsedMessage = null;
       try {
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (TestApi) e.getUnfinishedMessage();
+        parsedMessage = (com.avast.cactus.grpc.server.TestApi) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
         if (parsedMessage != null) {
@@ -1726,12 +1726,12 @@ public  final class TestApi extends
   }
 
   // @@protoc_insertion_point(class_scope:TestApi)
-  private static final TestApi DEFAULT_INSTANCE;
+  private static final com.avast.cactus.grpc.server.TestApi DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new TestApi();
+    DEFAULT_INSTANCE = new com.avast.cactus.grpc.server.TestApi();
   }
 
-  public static TestApi getDefaultInstance() {
+  public static com.avast.cactus.grpc.server.TestApi getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
@@ -1754,7 +1754,7 @@ public  final class TestApi extends
     return PARSER;
   }
 
-  public TestApi getDefaultInstanceForType() {
+  public com.avast.cactus.grpc.server.TestApi getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

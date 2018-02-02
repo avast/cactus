@@ -2,15 +2,14 @@ package com.avast.cactus.grpc.server
 
 import java.util.concurrent.ExecutionException
 
+import com.avast.cactus.grpc._
 import com.avast.cactus.grpc.server.TestApi.{GetRequest, GetResponse}
 import com.avast.cactus.grpc.server.TestApiServiceGrpc.{TestApiServiceFutureStub, TestApiServiceImplBase}
-import com.avast.cactus.grpc._
 import io.grpc.ForwardingClientCall.SimpleForwardingClientCall
 import io.grpc._
 import io.grpc.inprocess.{InProcessChannelBuilder, InProcessServerBuilder}
-import io.grpc.stub.StreamObserver
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Eventually
 import org.scalatest.mockito.MockitoSugar
@@ -32,21 +31,135 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
   case class MyResponse(results: Map[String, Int])
 
-  case class MyContext(theHeader: String)
+  case class MyContext(theHeader: String, theHeader2: String)
+
+  case class MyContext2Content(i: Int, s: String)
+
+  case class MyContext2(theHeader: String, content: MyContext2Content)
 
   trait MyApi {
-    def get(request: MyRequest, ctx: MyContext): Future[Either[Status, MyResponse]]
+    def get(request: MyRequest): Future[Either[Status, MyResponse]]
+
+    def get2(request: MyRequest, ctx: MyContext): Future[Either[Status, MyResponse]]
+
+    def get3(request: MyRequest, ctx: MyContext2): Future[Either[Status, MyResponse]]
   }
 
   test("ok path") {
     val channelName = randomString(10)
     val headerValue = randomString(10)
 
+    // format: OFF
     val impl = mock[MyApi]
-    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(MyContext(theHeader = headerValue))))
+    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+    when(impl.get2(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(MyContext(theHeader = headerValue, theHeader2 = headerValue))))
       .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+    // format: ON
 
-    val service = impl.mappedTo[TestApiServiceImplBase].withInterceptors(ServerMetadataInterceptor)
+    val service = impl.mappedTo[TestApiServiceImplBase]
+
+    InProcessServerBuilder
+      .forName(channelName)
+      .directExecutor
+      .addService(service)
+      .build
+      .start
+
+    val stub: TestApiServiceFutureStub = {
+      val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
+      TestApiServiceGrpc
+        .newFutureStub(channel)
+        .withInterceptors(
+          new ClientInterceptorTest(
+            Map(
+              "theHeader" -> headerValue,
+              "theHeader2" -> headerValue
+            )))
+    }
+
+    // get
+    {
+      val result = stub.get(GetRequest.newBuilder().addNames("name42").build()).get()
+      assertResult(GetResponse.newBuilder().putResults("name42", 42).build())(result)
+    }
+
+    //get2
+    {
+      val result = stub.get2(GetRequest.newBuilder().addNames("name42").build()).get()
+      assertResult(GetResponse.newBuilder().putResults("name42", 42).build())(result)
+    }
+  }
+
+  test("missing headers") {
+
+    val channelName = randomString(10)
+    val headerValue = randomString(10)
+
+    // format: OFF
+    val impl = mock[MyApi]
+    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+    when(impl.get2(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(MyContext(theHeader = headerValue, theHeader2 = headerValue))))
+      .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+    // format: ON
+
+    val service = impl.mappedTo[TestApiServiceImplBase]
+
+    InProcessServerBuilder
+      .forName(channelName)
+      .directExecutor
+      .addService(service)
+      .build
+      .start
+
+    val stub: TestApiServiceFutureStub = {
+      val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
+      TestApiServiceGrpc
+        .newFutureStub(channel)
+        .withInterceptors(new ClientInterceptorTest(Map.empty))
+    }
+
+    // get
+    {
+      val result = stub.get(GetRequest.newBuilder().addNames("name42").build()).get()
+      assertResult(GetResponse.newBuilder().putResults("name42", 42).build())(result)
+    }
+
+    try {
+      stub.get2(GetRequest.newBuilder().addNames("name42").build()).get()
+      fail("Exception should have been thrown")
+    } catch {
+      case e: ExecutionException if e.getCause.isInstanceOf[StatusRuntimeException] => //ok
+    }
+  }
+
+  test("ok path with advanced context") {
+    val channelName = randomString(10)
+    val headerValue = randomString(10)
+
+    val cont = MyContext2Content(42, "jenda")
+
+    // format: OFF
+    val impl = mock[MyApi]
+    val context = MyContext2(theHeader = headerValue, content = cont)
+
+    when(impl.get3(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(context)))
+      .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+    // format: ON
+
+    val service = impl
+      .mappedTo[TestApiServiceImplBase]
+      .withInterceptors(new ServerInterceptor {
+        override def interceptCall[ReqT, RespT](serverCall: ServerCall[ReqT, RespT],
+                                                headers: Metadata,
+                                                next: ServerCallHandler[ReqT, RespT]): ServerCall.Listener[ReqT] = {
+
+          val context = Context
+            .current()
+            .withValue(ContextKeys.get[MyContext2Content]("content"), cont)
+
+          Contexts.interceptCall(context, serverCall, headers, next)
+        }
+      })
 
     InProcessServerBuilder
       .forName(channelName)
@@ -66,91 +179,77 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
             )))
     }
 
-    val result = stub.get(GetRequest.newBuilder().addNames("name42").build()).get()
-
-    assertResult(GetResponse.newBuilder().putResults("name42", 42).build())(result)
+    // get3
+    {
+      val result = stub.get3(GetRequest.newBuilder().addNames("name42").build()).get()
+      assertResult(GetResponse.newBuilder().putResults("name42", 42).build())(result)
+    }
   }
 
-//  test("missing headers") {
-//    val channelName = randomString(10)
-//    val headerValue = randomString(10)
-//
-//    val impl = mock[MyApi]
-//    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(MyContext(theHeader = headerValue))))
-//      .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
-//
-//    val service = impl.mappedTo[TestApiServiceImplBase]
-//
-//    InProcessServerBuilder
-//      .forName(channelName)
-//      .directExecutor
-//      .addService(service)
-//      .build
-//      .start
-//
-//    val stub: TestApiServiceFutureStub = {
-//      val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
-//      TestApiServiceGrpc
-//        .newFutureStub(channel)
-//        .withInterceptors(new ClientInterceptorTest(Map.empty))
-//    }
-//
-//    try {
-//      stub.get(GetRequest.newBuilder().addNames("name42").build()).get()
-//      fail("Exception should have been thrown")
-//    } catch {
-//      case e: ExecutionException if e.getCause.isInstanceOf[StatusRuntimeException] => //ok
-//    }
-//  }
+  test("propagation of status") {
+    val channelName = randomString(10)
 
-//  test("propagation of status") {
-//    val impl = mock[MyApi]
-//    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.any()))
-//      .thenReturn(Future.successful(Left(Status.UNAVAILABLE)))
-//
-//    val service = impl.mappedTo[TestApiServiceImplBase]
-//
-//    val responseObserver = mock[StreamObserver[GetResponse]]
-//    doNothing().when(responseObserver).onNext(ArgumentMatchers.any())
-//    doNothing().when(responseObserver).onCompleted()
-//
-//    service.get(GetRequest.newBuilder().addNames("name42").build(), responseObserver)
-//
-//    eventually {
-//      verify(impl, times(1)).get(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.any())
-//
-//      val captor = ArgumentCaptor.forClass[StatusException, StatusException](classOf[StatusException])
-//      verify(responseObserver, times(1)).onError(captor.capture())
-//
-//      assertResult(Status.UNAVAILABLE)(captor.getValue.getStatus)
-//    }
-//  }
-//
-//  test("propagation of failure") {
-//    val impl = mock[MyApi]
-//    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.any()))
-//      .thenReturn(Future.failed(new RuntimeException("failure")))
-//
-//    val service = impl.mappedTo[TestApiServiceImplBase]
-//
-//    val responseObserver = mock[StreamObserver[GetResponse]]
-//    doNothing().when(responseObserver).onNext(ArgumentMatchers.any())
-//    doNothing().when(responseObserver).onCompleted()
-//
-//    service.get(GetRequest.newBuilder().addNames("name42").build(), responseObserver)
-//
-//    eventually {
-//      verify(impl, times(1)).get(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.any())
-//
-//      val captor = ArgumentCaptor.forClass[StatusException, StatusException](classOf[StatusException])
-//      verify(responseObserver, times(1)).onError(captor.capture())
-//
-//      val status = captor.getValue.getStatus
-//
-//      assertResult(Status.Code.INTERNAL)(status.getCode)
-//      assertResult(s"java.lang.RuntimeException: failure")(status.getDescription)
-//    }
-//  }
+    // format: OFF
+    val impl = mock[MyApi]
+    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.successful(Left(Status.UNAVAILABLE.withDescription("jenda"))))
+    // format: ON
+
+    val service = impl.mappedTo[TestApiServiceImplBase]
+
+    InProcessServerBuilder
+      .forName(channelName)
+      .directExecutor
+      .addService(service)
+      .build
+      .start
+
+    val stub: TestApiServiceFutureStub = {
+      val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
+      TestApiServiceGrpc.newFutureStub(channel)
+    }
+
+    try {
+      stub.get(GetRequest.newBuilder().addNames("name42").build()).get()
+      fail("Exception should have been thrown")
+    } catch {
+      case e: ExecutionException if e.getCause.isInstanceOf[StatusRuntimeException] =>
+        val status = e.getCause.asInstanceOf[StatusRuntimeException].getStatus
+        assertResult(Status.Code.UNAVAILABLE)(status.getCode)
+        assertResult("jenda")(status.getDescription)
+    }
+  }
+
+  test("propagation of failure") {
+    val channelName = randomString(10)
+
+    val impl = mock[MyApi]
+    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.failed(new RuntimeException("failure")))
+
+    val service = impl.mappedTo[TestApiServiceImplBase]
+
+    InProcessServerBuilder
+      .forName(channelName)
+      .directExecutor
+      .addService(service)
+      .build
+      .start
+
+    val stub: TestApiServiceFutureStub = {
+      val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
+      TestApiServiceGrpc.newFutureStub(channel)
+    }
+
+    try {
+      stub.get(GetRequest.newBuilder().addNames("name42").build()).get()
+      fail("Exception should have been thrown")
+    } catch {
+      case e: ExecutionException if e.getCause.isInstanceOf[StatusRuntimeException] =>
+        val status = e.getCause.asInstanceOf[StatusRuntimeException].getStatus
+        assertResult(Status.Code.INTERNAL)(status.getCode)
+        assertResult(s"java.lang.RuntimeException: failure")(status.getDescription)
+    }
+
+  }
 
   private class ClientInterceptorTest(userHeaders: Map[String, String]) extends ClientInterceptor {
     override def interceptCall[ReqT, RespT](method: MethodDescriptor[ReqT, RespT],
@@ -163,7 +262,7 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
         override def start(responseListener: ClientCall.Listener[RespT], headers: Metadata): Unit = {
           userHeaders.foreach {
             case (key, value) =>
-              headers.put(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER), s"$UserHeaderPrefix$key-$value")
+              headers.put(Metadata.Key.of(s"$UserHeaderPrefix$key", Metadata.ASCII_STRING_MARSHALLER), s"$key-$value")
           }
 
           super.start(responseListener, headers)

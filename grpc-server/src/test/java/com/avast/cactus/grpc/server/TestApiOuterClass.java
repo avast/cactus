@@ -47,10 +47,13 @@ public final class TestApiOuterClass {
       "st\022\r\n\005names\030\001 \003(\t\032q\n\013GetResponse\0222\n\007resu" +
       "lts\030\001 \003(\0132!.TestApi.GetResponse.ResultsE" +
       "ntry\032.\n\014ResultsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005val" +
-      "ue\030\002 \001(\005:\0028\0012D\n\016TestApiService\0222\n\003Get\022\023." +
-      "TestApi.GetRequest\032\024.TestApi.GetResponse" +
-      "\"\000B/\n(com.avast.viruslab.authenticator.t" +
-      "estapiP\001\210\001\001b\006proto3"
+      "ue\030\002 \001(\005:\0028\0012\256\001\n\016TestApiService\0222\n\003Get\022\023" +
+      ".TestApi.GetRequest\032\024.TestApi.GetRespons" +
+      "e\"\000\0223\n\004Get2\022\023.TestApi.GetRequest\032\024.TestA" +
+      "pi.GetResponse\"\000\0223\n\004Get3\022\023.TestApi.GetRe" +
+      "quest\032\024.TestApi.GetResponse\"\000B/\n(com.ava" +
+      "st.viruslab.authenticator.testapiP\001\210\001\001b\006",
+      "proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

@@ -22,35 +22,99 @@ public final class TestApiServiceGrpc {
   // Static method descriptors that strictly reflect the proto.
   @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   @Deprecated // Use {@link #getGetMethod()} instead.
-  public static final io.grpc.MethodDescriptor<TestApi.GetRequest,
-      TestApi.GetResponse> METHOD_GET = getGetMethod();
+  public static final io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest,
+      com.avast.cactus.grpc.server.TestApi.GetResponse> METHOD_GET = getGetMethod();
 
-  private static volatile io.grpc.MethodDescriptor<TestApi.GetRequest,
-      TestApi.GetResponse> getGetMethod;
+  private static volatile io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest,
+      com.avast.cactus.grpc.server.TestApi.GetResponse> getGetMethod;
 
   @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
-  public static io.grpc.MethodDescriptor<TestApi.GetRequest,
-      TestApi.GetResponse> getGetMethod() {
-    io.grpc.MethodDescriptor<TestApi.GetRequest, TestApi.GetResponse> getGetMethod;
+  public static io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest,
+      com.avast.cactus.grpc.server.TestApi.GetResponse> getGetMethod() {
+    io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest, com.avast.cactus.grpc.server.TestApi.GetResponse> getGetMethod;
     if ((getGetMethod = TestApiServiceGrpc.getGetMethod) == null) {
       synchronized (TestApiServiceGrpc.class) {
         if ((getGetMethod = TestApiServiceGrpc.getGetMethod) == null) {
           TestApiServiceGrpc.getGetMethod = getGetMethod =
-              io.grpc.MethodDescriptor.<TestApi.GetRequest, TestApi.GetResponse>newBuilder()
+              io.grpc.MethodDescriptor.<com.avast.cactus.grpc.server.TestApi.GetRequest, com.avast.cactus.grpc.server.TestApi.GetResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(
                   "TestApiService", "Get"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  TestApi.GetRequest.getDefaultInstance()))
+                  com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  TestApi.GetResponse.getDefaultInstance()))
+                  com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance()))
                   .setSchemaDescriptor(new TestApiServiceMethodDescriptorSupplier("Get"))
                   .build();
           }
         }
      }
      return getGetMethod;
+  }
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @Deprecated // Use {@link #getGet2Method()} instead.
+  public static final io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest,
+      com.avast.cactus.grpc.server.TestApi.GetResponse> METHOD_GET2 = getGet2Method();
+
+  private static volatile io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest,
+      com.avast.cactus.grpc.server.TestApi.GetResponse> getGet2Method;
+
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest,
+      com.avast.cactus.grpc.server.TestApi.GetResponse> getGet2Method() {
+    io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest, com.avast.cactus.grpc.server.TestApi.GetResponse> getGet2Method;
+    if ((getGet2Method = TestApiServiceGrpc.getGet2Method) == null) {
+      synchronized (TestApiServiceGrpc.class) {
+        if ((getGet2Method = TestApiServiceGrpc.getGet2Method) == null) {
+          TestApiServiceGrpc.getGet2Method = getGet2Method =
+              io.grpc.MethodDescriptor.<com.avast.cactus.grpc.server.TestApi.GetRequest, com.avast.cactus.grpc.server.TestApi.GetResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(
+                  "TestApiService", "Get2"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance()))
+                  .setSchemaDescriptor(new TestApiServiceMethodDescriptorSupplier("Get2"))
+                  .build();
+          }
+        }
+     }
+     return getGet2Method;
+  }
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @Deprecated // Use {@link #getGet3Method()} instead.
+  public static final io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest,
+      com.avast.cactus.grpc.server.TestApi.GetResponse> METHOD_GET3 = getGet3Method();
+
+  private static volatile io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest,
+      com.avast.cactus.grpc.server.TestApi.GetResponse> getGet3Method;
+
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest,
+      com.avast.cactus.grpc.server.TestApi.GetResponse> getGet3Method() {
+    io.grpc.MethodDescriptor<com.avast.cactus.grpc.server.TestApi.GetRequest, com.avast.cactus.grpc.server.TestApi.GetResponse> getGet3Method;
+    if ((getGet3Method = TestApiServiceGrpc.getGet3Method) == null) {
+      synchronized (TestApiServiceGrpc.class) {
+        if ((getGet3Method = TestApiServiceGrpc.getGet3Method) == null) {
+          TestApiServiceGrpc.getGet3Method = getGet3Method =
+              io.grpc.MethodDescriptor.<com.avast.cactus.grpc.server.TestApi.GetRequest, com.avast.cactus.grpc.server.TestApi.GetResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName(
+                  "TestApiService", "Get3"))
+              .setSampledToLocalTracing(true)
+              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance()))
+              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                  com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance()))
+                  .setSchemaDescriptor(new TestApiServiceMethodDescriptorSupplier("Get3"))
+                  .build();
+          }
+        }
+     }
+     return getGet3Method;
   }
 
   /**
@@ -82,9 +146,23 @@ public final class TestApiServiceGrpc {
 
     /**
      */
-    public void get(TestApi.GetRequest request,
-        io.grpc.stub.StreamObserver<TestApi.GetResponse> responseObserver) {
+    public void get(com.avast.cactus.grpc.server.TestApi.GetRequest request,
+        io.grpc.stub.StreamObserver<com.avast.cactus.grpc.server.TestApi.GetResponse> responseObserver) {
       asyncUnimplementedUnaryCall(getGetMethod(), responseObserver);
+    }
+
+    /**
+     */
+    public void get2(com.avast.cactus.grpc.server.TestApi.GetRequest request,
+        io.grpc.stub.StreamObserver<com.avast.cactus.grpc.server.TestApi.GetResponse> responseObserver) {
+      asyncUnimplementedUnaryCall(getGet2Method(), responseObserver);
+    }
+
+    /**
+     */
+    public void get3(com.avast.cactus.grpc.server.TestApi.GetRequest request,
+        io.grpc.stub.StreamObserver<com.avast.cactus.grpc.server.TestApi.GetResponse> responseObserver) {
+      asyncUnimplementedUnaryCall(getGet3Method(), responseObserver);
     }
 
     @Override public final io.grpc.ServerServiceDefinition bindService() {
@@ -93,9 +171,23 @@ public final class TestApiServiceGrpc {
             getGetMethod(),
             asyncUnaryCall(
               new MethodHandlers<
-                TestApi.GetRequest,
-                TestApi.GetResponse>(
+                com.avast.cactus.grpc.server.TestApi.GetRequest,
+                com.avast.cactus.grpc.server.TestApi.GetResponse>(
                   this, METHODID_GET)))
+          .addMethod(
+            getGet2Method(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                com.avast.cactus.grpc.server.TestApi.GetRequest,
+                com.avast.cactus.grpc.server.TestApi.GetResponse>(
+                  this, METHODID_GET2)))
+          .addMethod(
+            getGet3Method(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                com.avast.cactus.grpc.server.TestApi.GetRequest,
+                com.avast.cactus.grpc.server.TestApi.GetResponse>(
+                  this, METHODID_GET3)))
           .build();
     }
   }
@@ -120,10 +212,26 @@ public final class TestApiServiceGrpc {
 
     /**
      */
-    public void get(TestApi.GetRequest request,
-        io.grpc.stub.StreamObserver<TestApi.GetResponse> responseObserver) {
+    public void get(com.avast.cactus.grpc.server.TestApi.GetRequest request,
+        io.grpc.stub.StreamObserver<com.avast.cactus.grpc.server.TestApi.GetResponse> responseObserver) {
       ClientCalls.asyncUnaryCall(
           getChannel().newCall(getGetMethod(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     */
+    public void get2(com.avast.cactus.grpc.server.TestApi.GetRequest request,
+        io.grpc.stub.StreamObserver<com.avast.cactus.grpc.server.TestApi.GetResponse> responseObserver) {
+      ClientCalls.asyncUnaryCall(
+          getChannel().newCall(getGet2Method(), getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     */
+    public void get3(com.avast.cactus.grpc.server.TestApi.GetRequest request,
+        io.grpc.stub.StreamObserver<com.avast.cactus.grpc.server.TestApi.GetResponse> responseObserver) {
+      ClientCalls.asyncUnaryCall(
+          getChannel().newCall(getGet3Method(), getCallOptions()), request, responseObserver);
     }
   }
 
@@ -147,9 +255,23 @@ public final class TestApiServiceGrpc {
 
     /**
      */
-    public TestApi.GetResponse get(TestApi.GetRequest request) {
+    public com.avast.cactus.grpc.server.TestApi.GetResponse get(com.avast.cactus.grpc.server.TestApi.GetRequest request) {
       return blockingUnaryCall(
           getChannel(), getGetMethod(), getCallOptions(), request);
+    }
+
+    /**
+     */
+    public com.avast.cactus.grpc.server.TestApi.GetResponse get2(com.avast.cactus.grpc.server.TestApi.GetRequest request) {
+      return blockingUnaryCall(
+          getChannel(), getGet2Method(), getCallOptions(), request);
+    }
+
+    /**
+     */
+    public com.avast.cactus.grpc.server.TestApi.GetResponse get3(com.avast.cactus.grpc.server.TestApi.GetRequest request) {
+      return blockingUnaryCall(
+          getChannel(), getGet3Method(), getCallOptions(), request);
     }
   }
 
@@ -173,14 +295,32 @@ public final class TestApiServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<TestApi.GetResponse> get(
-        TestApi.GetRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<com.avast.cactus.grpc.server.TestApi.GetResponse> get(
+        com.avast.cactus.grpc.server.TestApi.GetRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getGetMethod(), getCallOptions()), request);
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture<com.avast.cactus.grpc.server.TestApi.GetResponse> get2(
+        com.avast.cactus.grpc.server.TestApi.GetRequest request) {
+      return futureUnaryCall(
+          getChannel().newCall(getGet2Method(), getCallOptions()), request);
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture<com.avast.cactus.grpc.server.TestApi.GetResponse> get3(
+        com.avast.cactus.grpc.server.TestApi.GetRequest request) {
+      return futureUnaryCall(
+          getChannel().newCall(getGet3Method(), getCallOptions()), request);
     }
   }
 
   private static final int METHODID_GET = 0;
+  private static final int METHODID_GET2 = 1;
+  private static final int METHODID_GET3 = 2;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -200,8 +340,16 @@ public final class TestApiServiceGrpc {
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
         case METHODID_GET:
-          serviceImpl.get((TestApi.GetRequest) request,
-              (io.grpc.stub.StreamObserver<TestApi.GetResponse>) responseObserver);
+          serviceImpl.get((com.avast.cactus.grpc.server.TestApi.GetRequest) request,
+              (io.grpc.stub.StreamObserver<com.avast.cactus.grpc.server.TestApi.GetResponse>) responseObserver);
+          break;
+        case METHODID_GET2:
+          serviceImpl.get2((com.avast.cactus.grpc.server.TestApi.GetRequest) request,
+              (io.grpc.stub.StreamObserver<com.avast.cactus.grpc.server.TestApi.GetResponse>) responseObserver);
+          break;
+        case METHODID_GET3:
+          serviceImpl.get3((com.avast.cactus.grpc.server.TestApi.GetRequest) request,
+              (io.grpc.stub.StreamObserver<com.avast.cactus.grpc.server.TestApi.GetResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -225,7 +373,7 @@ public final class TestApiServiceGrpc {
 
     @Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return TestApiOuterClass.getDescriptor();
+      return com.avast.cactus.grpc.server.TestApiOuterClass.getDescriptor();
     }
 
     @Override
@@ -265,6 +413,8 @@ public final class TestApiServiceGrpc {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new TestApiServiceFileDescriptorSupplier())
               .addMethod(getGetMethod())
+              .addMethod(getGet2Method())
+              .addMethod(getGet3Method())
               .build();
         }
       }

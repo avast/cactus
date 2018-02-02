@@ -5,6 +5,8 @@ import io.grpc.{Context, Metadata, Status}
 
 package object grpc {
 
+  private[grpc] val UserHeaderPrefix:String = "userheader-"
+
   case class ServerError(status: Status, headers: Metadata = new Metadata())
 
   type ServerResponse[Resp] = Either[ServerError, Resp]

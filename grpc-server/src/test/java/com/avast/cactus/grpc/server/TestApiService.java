@@ -16,8 +16,24 @@ public  abstract class TestApiService
      */
     public abstract void get(
             com.google.protobuf.RpcController controller,
-            TestApi.GetRequest request,
-            com.google.protobuf.RpcCallback<TestApi.GetResponse> done);
+            com.avast.cactus.grpc.server.TestApi.GetRequest request,
+            com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done);
+
+    /**
+     * <code>rpc Get2(.TestApi.GetRequest) returns (.TestApi.GetResponse);</code>
+     */
+    public abstract void get2(
+            com.google.protobuf.RpcController controller,
+            com.avast.cactus.grpc.server.TestApi.GetRequest request,
+            com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done);
+
+    /**
+     * <code>rpc Get3(.TestApi.GetRequest) returns (.TestApi.GetResponse);</code>
+     */
+    public abstract void get3(
+            com.google.protobuf.RpcController controller,
+            com.avast.cactus.grpc.server.TestApi.GetRequest request,
+            com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done);
 
   }
 
@@ -27,9 +43,25 @@ public  abstract class TestApiService
       @Override
       public  void get(
           com.google.protobuf.RpcController controller,
-          TestApi.GetRequest request,
-          com.google.protobuf.RpcCallback<TestApi.GetResponse> done) {
+          com.avast.cactus.grpc.server.TestApi.GetRequest request,
+          com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done) {
         impl.get(controller, request, done);
+      }
+
+      @Override
+      public  void get2(
+          com.google.protobuf.RpcController controller,
+          com.avast.cactus.grpc.server.TestApi.GetRequest request,
+          com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done) {
+        impl.get2(controller, request, done);
+      }
+
+      @Override
+      public  void get3(
+          com.google.protobuf.RpcController controller,
+          com.avast.cactus.grpc.server.TestApi.GetRequest request,
+          com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done) {
+        impl.get3(controller, request, done);
       }
 
     };
@@ -55,7 +87,11 @@ public  abstract class TestApiService
         }
         switch(method.getIndex()) {
           case 0:
-            return impl.get(controller, (TestApi.GetRequest)request);
+            return impl.get(controller, (com.avast.cactus.grpc.server.TestApi.GetRequest)request);
+          case 1:
+            return impl.get2(controller, (com.avast.cactus.grpc.server.TestApi.GetRequest)request);
+          case 2:
+            return impl.get3(controller, (com.avast.cactus.grpc.server.TestApi.GetRequest)request);
           default:
             throw new AssertionError("Can't get here.");
         }
@@ -71,7 +107,11 @@ public  abstract class TestApiService
         }
         switch(method.getIndex()) {
           case 0:
-            return TestApi.GetRequest.getDefaultInstance();
+            return com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance();
+          case 1:
+            return com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance();
+          case 2:
+            return com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance();
           default:
             throw new AssertionError("Can't get here.");
         }
@@ -87,7 +127,11 @@ public  abstract class TestApiService
         }
         switch(method.getIndex()) {
           case 0:
-            return TestApi.GetResponse.getDefaultInstance();
+            return com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance();
+          case 1:
+            return com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance();
+          case 2:
+            return com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance();
           default:
             throw new AssertionError("Can't get here.");
         }
@@ -101,13 +145,29 @@ public  abstract class TestApiService
    */
   public abstract void get(
       com.google.protobuf.RpcController controller,
-      TestApi.GetRequest request,
-      com.google.protobuf.RpcCallback<TestApi.GetResponse> done);
+      com.avast.cactus.grpc.server.TestApi.GetRequest request,
+      com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done);
+
+  /**
+   * <code>rpc Get2(.TestApi.GetRequest) returns (.TestApi.GetResponse);</code>
+   */
+  public abstract void get2(
+      com.google.protobuf.RpcController controller,
+      com.avast.cactus.grpc.server.TestApi.GetRequest request,
+      com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done);
+
+  /**
+   * <code>rpc Get3(.TestApi.GetRequest) returns (.TestApi.GetResponse);</code>
+   */
+  public abstract void get3(
+      com.google.protobuf.RpcController controller,
+      com.avast.cactus.grpc.server.TestApi.GetRequest request,
+      com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done);
 
   public static final
       com.google.protobuf.Descriptors.ServiceDescriptor
       getDescriptor() {
-    return TestApiOuterClass.getDescriptor().getServices().get(0);
+    return com.avast.cactus.grpc.server.TestApiOuterClass.getDescriptor().getServices().get(0);
   }
   public final com.google.protobuf.Descriptors.ServiceDescriptor
       getDescriptorForType() {
@@ -127,8 +187,18 @@ public  abstract class TestApiService
     }
     switch(method.getIndex()) {
       case 0:
-        this.get(controller, (TestApi.GetRequest)request,
-          com.google.protobuf.RpcUtil.<TestApi.GetResponse>specializeCallback(
+        this.get(controller, (com.avast.cactus.grpc.server.TestApi.GetRequest)request,
+          com.google.protobuf.RpcUtil.<com.avast.cactus.grpc.server.TestApi.GetResponse>specializeCallback(
+            done));
+        return;
+      case 1:
+        this.get2(controller, (com.avast.cactus.grpc.server.TestApi.GetRequest)request,
+          com.google.protobuf.RpcUtil.<com.avast.cactus.grpc.server.TestApi.GetResponse>specializeCallback(
+            done));
+        return;
+      case 2:
+        this.get3(controller, (com.avast.cactus.grpc.server.TestApi.GetRequest)request,
+          com.google.protobuf.RpcUtil.<com.avast.cactus.grpc.server.TestApi.GetResponse>specializeCallback(
             done));
         return;
       default:
@@ -146,7 +216,11 @@ public  abstract class TestApiService
     }
     switch(method.getIndex()) {
       case 0:
-        return TestApi.GetRequest.getDefaultInstance();
+        return com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance();
+      case 1:
+        return com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance();
+      case 2:
+        return com.avast.cactus.grpc.server.TestApi.GetRequest.getDefaultInstance();
       default:
         throw new AssertionError("Can't get here.");
     }
@@ -162,7 +236,11 @@ public  abstract class TestApiService
     }
     switch(method.getIndex()) {
       case 0:
-        return TestApi.GetResponse.getDefaultInstance();
+        return com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance();
+      case 1:
+        return com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance();
+      case 2:
+        return com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance();
       default:
         throw new AssertionError("Can't get here.");
     }
@@ -173,7 +251,7 @@ public  abstract class TestApiService
     return new Stub(channel);
   }
 
-  public static final class Stub extends TestApiService implements Interface {
+  public static final class Stub extends com.avast.cactus.grpc.server.TestApiService implements Interface {
     private Stub(com.google.protobuf.RpcChannel channel) {
       this.channel = channel;
     }
@@ -186,17 +264,47 @@ public  abstract class TestApiService
 
     public  void get(
         com.google.protobuf.RpcController controller,
-        TestApi.GetRequest request,
-        com.google.protobuf.RpcCallback<TestApi.GetResponse> done) {
+        com.avast.cactus.grpc.server.TestApi.GetRequest request,
+        com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done) {
       channel.callMethod(
         getDescriptor().getMethods().get(0),
         controller,
         request,
-        TestApi.GetResponse.getDefaultInstance(),
+        com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance(),
         com.google.protobuf.RpcUtil.generalizeCallback(
           done,
-          TestApi.GetResponse.class,
-          TestApi.GetResponse.getDefaultInstance()));
+          com.avast.cactus.grpc.server.TestApi.GetResponse.class,
+          com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance()));
+    }
+
+    public  void get2(
+        com.google.protobuf.RpcController controller,
+        com.avast.cactus.grpc.server.TestApi.GetRequest request,
+        com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done) {
+      channel.callMethod(
+        getDescriptor().getMethods().get(1),
+        controller,
+        request,
+        com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance(),
+        com.google.protobuf.RpcUtil.generalizeCallback(
+          done,
+          com.avast.cactus.grpc.server.TestApi.GetResponse.class,
+          com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance()));
+    }
+
+    public  void get3(
+        com.google.protobuf.RpcController controller,
+        com.avast.cactus.grpc.server.TestApi.GetRequest request,
+        com.google.protobuf.RpcCallback<com.avast.cactus.grpc.server.TestApi.GetResponse> done) {
+      channel.callMethod(
+        getDescriptor().getMethods().get(2),
+        controller,
+        request,
+        com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance(),
+        com.google.protobuf.RpcUtil.generalizeCallback(
+          done,
+          com.avast.cactus.grpc.server.TestApi.GetResponse.class,
+          com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance()));
     }
   }
 
@@ -206,9 +314,19 @@ public  abstract class TestApiService
   }
 
   public interface BlockingInterface {
-    public TestApi.GetResponse get(
+    public com.avast.cactus.grpc.server.TestApi.GetResponse get(
             com.google.protobuf.RpcController controller,
-            TestApi.GetRequest request)
+            com.avast.cactus.grpc.server.TestApi.GetRequest request)
+        throws com.google.protobuf.ServiceException;
+
+    public com.avast.cactus.grpc.server.TestApi.GetResponse get2(
+            com.google.protobuf.RpcController controller,
+            com.avast.cactus.grpc.server.TestApi.GetRequest request)
+        throws com.google.protobuf.ServiceException;
+
+    public com.avast.cactus.grpc.server.TestApi.GetResponse get3(
+            com.google.protobuf.RpcController controller,
+            com.avast.cactus.grpc.server.TestApi.GetRequest request)
         throws com.google.protobuf.ServiceException;
   }
 
@@ -219,15 +337,39 @@ public  abstract class TestApiService
 
     private final com.google.protobuf.BlockingRpcChannel channel;
 
-    public TestApi.GetResponse get(
+    public com.avast.cactus.grpc.server.TestApi.GetResponse get(
         com.google.protobuf.RpcController controller,
-        TestApi.GetRequest request)
+        com.avast.cactus.grpc.server.TestApi.GetRequest request)
         throws com.google.protobuf.ServiceException {
-      return (TestApi.GetResponse) channel.callBlockingMethod(
+      return (com.avast.cactus.grpc.server.TestApi.GetResponse) channel.callBlockingMethod(
         getDescriptor().getMethods().get(0),
         controller,
         request,
-        TestApi.GetResponse.getDefaultInstance());
+        com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance());
+    }
+
+
+    public com.avast.cactus.grpc.server.TestApi.GetResponse get2(
+        com.google.protobuf.RpcController controller,
+        com.avast.cactus.grpc.server.TestApi.GetRequest request)
+        throws com.google.protobuf.ServiceException {
+      return (com.avast.cactus.grpc.server.TestApi.GetResponse) channel.callBlockingMethod(
+        getDescriptor().getMethods().get(1),
+        controller,
+        request,
+        com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance());
+    }
+
+
+    public com.avast.cactus.grpc.server.TestApi.GetResponse get3(
+        com.google.protobuf.RpcController controller,
+        com.avast.cactus.grpc.server.TestApi.GetRequest request)
+        throws com.google.protobuf.ServiceException {
+      return (com.avast.cactus.grpc.server.TestApi.GetResponse) channel.callBlockingMethod(
+        getDescriptor().getMethods().get(2),
+        controller,
+        request,
+        com.avast.cactus.grpc.server.TestApi.GetResponse.getDefaultInstance());
     }
 
   }

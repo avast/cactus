@@ -1,5 +1,7 @@
 package com.avast.cactus.grpc.client
 
+import java.util.concurrent.Executor
+
 import com.avast.cactus.grpc.client.TestApi.{GetRequest, GetResponse}
 import com.avast.cactus.grpc.client.TestApiServiceGrpc.TestApiServiceFutureStub
 import com.avast.cactus.grpc.{ServerError, ServerResponse}
@@ -12,12 +14,14 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Seconds, Span}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
   private implicit val p: PatienceConfig = PatienceConfig(timeout = Span(1, Seconds))
+
+  private implicit val ex: Executor = ExecutionContext.global
 
   def randomString(length: Int): String = {
     Random.alphanumeric.take(length).mkString("")

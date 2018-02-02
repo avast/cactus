@@ -11,10 +11,10 @@ import scala.language.experimental.macros
 
 package object client {
 
+  private[client] val MetadataContextKey = ContextKeys.get[Metadata]("headers")
+
   type GrpcRequestMetadata = (Context, Metadata)
   type ClientAsyncInterceptor = GrpcRequestMetadata => Future[GrpcRequestMetadata]
-
-  final val MetadataContextKey = Context.key[Metadata]("metadataKey" + System.currentTimeMillis()) // random name to prevent collision
 
   implicit class MapClient(val channel: Channel) extends AnyVal {
     def createMappedClient[GrpcClientStub <: AbstractStub[GrpcClientStub], MT](implicit ec: ExecutionContext, ex: Executor): MT =

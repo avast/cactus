@@ -2,7 +2,7 @@ package com.avast.cactus.grpc
 
 import com.avast.cactus.CactusMacros
 import com.google.protobuf.MessageLite
-import io.grpc.{BindableService, Status}
+import io.grpc.{BindableService, ServerServiceDefinition, Status}
 
 import scala.reflect.macros.whitebox
 
@@ -10,7 +10,7 @@ class ServerMacros(val c: whitebox.Context) {
 
   import c.universe._
 
-  def mapImplToService[Service <: BindableService: WeakTypeTag](ct: Tree, ec: c.Tree): c.Expr[Service] = {
+  def mapImplToService[Service <: BindableService : WeakTypeTag](ct: Tree, ec: c.Tree): c.Expr[ServerServiceDefinition] = {
     // this method require `ec` as an argument but only to secure the EC will be present. If it's visible by the macro method, it has to be
     // visible also for the generated code thus it's ok to not use the argument
 
@@ -24,24 +24,56 @@ class ServerMacros(val c: whitebox.Context) {
 
     val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(variable, am, im) }
 
-    c.Expr[Service] {
-        q"""
-        new $serviceType {
+    c.Expr[ServerServiceDefinition] {
+      q"""
+        val service = new $serviceType {
           import com.avast.cactus.v3._
           import io.grpc._
           import com.avast.cactus.grpc.server.ServerCommonMethods._
 
           ..$mappingMethods
         }
+
+        io.grpc.ServerInterceptors.intercept(service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
+
         """
     }
   }
 
   private def generateMappingMethod(variable: Tree, apiMethod: ApiMethod, implMethod: ImplMethod): Tree = {
+
+    val executeRequestMethod = q" executeRequest[${implMethod.request}, ${implMethod.response}, ${apiMethod.response}] "
+
+    val (createCtxMethod: Tree, executeMethod: Tree) = implMethod.context match {
+      case Some(ctxType) =>
+        val createCtxMethod =
+          q"""
+            def createCtx: scala.util.Try[$ctxType] = {
+              ${metadataToContextInstance(ctxType)}
+                .map(scala.util.Success(_))
+                .getOrElse {
+                  scala.util.Failure(new IllegalArgumentException("Missing headers for creation of the context"))
+                }
+            }
+           """
+
+        (createCtxMethod,
+          q"""
+            withContext[${implMethod.request}, ${apiMethod.response}, $ctxType](createCtx) { ctx =>
+              $executeRequestMethod(req, $variable.${implMethod.name}(_, ctx))
+            }
+           """)
+
+      case _ => (q"", q" $executeRequestMethod(req, $variable.${implMethod.name}(_)) ")
+    }
+
     q"""
-      override def ${apiMethod.name}(request: ${apiMethod.request}, responseObserver: StreamObserver[${apiMethod.response}]): Unit = {
+      override def ${apiMethod.name}(request: ${apiMethod.request}, responseObserver: io.grpc.stub.StreamObserver[${apiMethod.response}]): Unit = {
+
+        $createCtxMethod
+
         (request.asCaseClass[MyRequest] match {
-          case org.scalactic.Good(req) => executeRequest[${implMethod.request}, ${implMethod.response}, ${apiMethod.response}](req, $variable.${implMethod.name})
+          case org.scalactic.Good(req) => $executeMethod
           case org.scalactic.Bad(errors) =>
             Future.successful {
               Left {
@@ -73,6 +105,38 @@ class ServerMacros(val c: whitebox.Context) {
 
       apiMethod -> ImplMethod(implMethod)
     }.toMap
+  }
+
+  private def metadataToContextInstance(ctxType: TypeSymbol): Tree = {
+    val fields = toCaseClassFields(ctxType)
+
+    val queries = fields.map { f =>
+      val t = f.typeSignature.finalResultType
+      fq" ${f.name.toTermName} <- Option(com.avast.cactus.grpc.ContextKeys.get[$t](${f.name.toString}).get(ctx)) "
+    }
+
+    q"""
+       val ctx = Context.current()
+
+       for (..$queries) yield {
+         new $ctxType(..${fields.map(_.name.toTermName)})
+       }
+     """
+  }
+
+  private def toCaseClassFields(t: Symbol): List[Symbol] = {
+    val cl = if (t.isClass) {
+      val cl = t.asClass
+      if (cl.isCaseClass) cl else c.abort(c.enclosingPosition, s"$t must be a case class")
+    } else c.abort(c.enclosingPosition, s"$t must be a case class")
+
+    val ctor = cl.typeSignature.decls
+      .collectFirst {
+        case m if m.isMethod && m.asMethod.isPrimaryConstructor => m.asMethod
+      }
+      .getOrElse(c.abort(c.enclosingPosition, s"Type $t must have a primary ctor"))
+
+    ctor.paramLists.flatten
   }
 
   private def isGpbClass(t: Type): Boolean = t.baseClasses.contains(typeOf[MessageLite].typeSymbol)
@@ -119,11 +183,11 @@ class ServerMacros(val c: whitebox.Context) {
       Option(s)
         .collect {
           case m
-              if m.isMethod
-                && m.name.toString != "bindService"
-                && m.asMethod.paramLists.size == 1
-                && m.asMethod.paramLists.head.size == 2
-                && m.asMethod.returnType == typeOf[Unit] =>
+            if m.isMethod
+              && m.name.toString != "bindService"
+              && m.asMethod.paramLists.size == 1
+              && m.asMethod.paramLists.head.size == 2
+              && m.asMethod.returnType == typeOf[Unit] =>
             m.asMethod.name -> m.asMethod.paramLists.head.map(_.typeSignature.resultType)
         }
         .collect {
