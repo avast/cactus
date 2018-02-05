@@ -4,7 +4,7 @@ import java.util.concurrent.Executor
 
 import com.avast.cactus.grpc.client.TestApi.{GetRequest, GetResponse}
 import com.avast.cactus.grpc.client.TestApiServiceGrpc.TestApiServiceFutureStub
-import com.avast.cactus.grpc.{ServerError, ServerResponse}
+import com.avast.cactus.grpc._
 import io.grpc._
 import io.grpc.inprocess.{InProcessChannelBuilder, InProcessServerBuilder}
 import io.grpc.stub.StreamObserver
@@ -38,7 +38,8 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
   test("ok path") {
     val channelName = randomString(10)
 
-    val metadataKey = Metadata.Key.of(randomString(10), Metadata.ASCII_STRING_MARSHALLER)
+    val headerName = randomString(10)
+    val metadataKey = Metadata.Key.of(s"$UserHeaderPrefix$headerName", Metadata.ASCII_STRING_MARSHALLER)
 
     InProcessServerBuilder
       .forName(channelName)
@@ -69,15 +70,8 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
     val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
 
     val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait](
-      List(
-        new ClientAsyncInterceptor {
-          override def apply(v1: (Context, Metadata)): Future[(Context, Metadata)] = {
-            val newMetadata = v1._2
-            newMetadata.put(metadataKey, "theValue")
-            Future.successful(v1.copy(_2 = newMetadata))
-          }
-        }
-      ))
+      ClientHeadersInterceptor(Map(headerName -> "theValue"))
+    )
 
     val Right(result) = mapped.get(MyRequest(Seq("name42"))).futureValue
 
@@ -117,7 +111,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
 
-    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait]
+    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait]()
 
     val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).futureValue
 
@@ -141,7 +135,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
 
-    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait]
+    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait]()
 
     val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).futureValue
 

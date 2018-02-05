@@ -5,7 +5,6 @@ import java.util.concurrent.Executor
 import io.grpc._
 import io.grpc.stub.AbstractStub
 
-import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.experimental.macros
 
@@ -17,10 +16,7 @@ package object client {
   type ClientAsyncInterceptor = GrpcRequestMetadata => Future[GrpcRequestMetadata]
 
   implicit class MapClient(val channel: Channel) extends AnyVal {
-    def createMappedClient[GrpcClientStub <: AbstractStub[GrpcClientStub], MT](implicit ec: ExecutionContext, ex: Executor): MT =
-      macro ClientMacros.mapClientToTrait[GrpcClientStub, MT]
-
-    def createMappedClient[GrpcClientStub <: AbstractStub[GrpcClientStub], MT](interceptors: immutable.Seq[ClientAsyncInterceptor])(implicit ec: ExecutionContext, ex: Executor): MT =
+    def createMappedClient[GrpcClientStub <: AbstractStub[GrpcClientStub], MT](interceptors: ClientAsyncInterceptor*)(implicit ec: ExecutionContext, ex: Executor): MT =
       macro ClientMacros.mapClientToTraitWithInterceptors[GrpcClientStub, MT]
   }
 

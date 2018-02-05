@@ -12,7 +12,7 @@ class ClientMacros(val c: whitebox.Context) {
   import c.universe._
 
   def mapClientToTraitWithInterceptors[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag, MyTrait: WeakTypeTag](
-      interceptors: c.Tree)(ec: c.Tree, ex: c.Tree): c.Expr[MyTrait] = {
+      interceptors: c.Tree*)(ec: c.Tree, ex: c.Tree): c.Expr[MyTrait] = {
 
     val stubType = weakTypeOf[GrpcClientStub]
     val traitType = weakTypeOf[MyTrait]
@@ -36,7 +36,7 @@ class ClientMacros(val c: whitebox.Context) {
 
     c.Expr[MyTrait] {
       q"""
-         new com.avast.cactus.grpc.client.IncludeMetadataWrapper($interceptors) with $traitType {
+         new com.avast.cactus.grpc.client.IncludeMetadataWrapper(scala.collection.immutable.Seq(..$interceptors)) with $traitType {
             private val ex: java.util.concurrent.Executor = $ex
 
             private val stub = $stub
@@ -48,12 +48,6 @@ class ClientMacros(val c: whitebox.Context) {
         }
        """
     }
-  }
-
-  // just and overload - fixes the fact that method with macro impl cannot have default value arguments
-  def mapClientToTrait[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag, MyTrait: WeakTypeTag](ec: c.Tree,
-                                                                                                          ex: c.Tree): c.Expr[MyTrait] = {
-    mapClientToTraitWithInterceptors[GrpcClientStub, MyTrait](q" scala.collection.immutable.Seq.empty ")(ec, ex)
   }
 
   private def generateMappingMethod(implMethod: ImplMethod, apiMethod: ApiMethod): Tree = {
