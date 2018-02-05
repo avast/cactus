@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
-private[grpc] object ServerCommonMethods extends CommonMethods {
+object ServerCommonMethods extends CommonMethods {
   def executeRequest[ReqCaseClass, RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, ?]](
       req: ReqCaseClass,
       f: ReqCaseClass => Future[Either[Status, RespCaseClass]])(implicit ec: ExecutionContext): Future[Either[StatusException, RespGpb]] = {

@@ -20,7 +20,7 @@ trait GrpcServerBuilder {
 }
 
 object GrpcServerBuilder {
-  def apply(addr: SocketAddress, serverRsaKey: String): GrpcServerBuilder = {
+  def apply(addr: SocketAddress): GrpcServerBuilder = {
     DefaultGrpcServerBuilder(
       addr = addr
     )

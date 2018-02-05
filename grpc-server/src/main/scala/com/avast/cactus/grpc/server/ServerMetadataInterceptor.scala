@@ -5,7 +5,7 @@ import io.grpc._
 
 import scala.collection.JavaConverters._
 
-private[grpc] object ServerMetadataInterceptor extends ServerInterceptor {
+object ServerMetadataInterceptor extends ServerInterceptor {
   override def interceptCall[ReqT, RespT](serverCall: ServerCall[ReqT, RespT],
                                           headers: Metadata,
                                           next: ServerCallHandler[ReqT, RespT]): ServerCall.Listener[ReqT] = {

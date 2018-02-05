@@ -3,7 +3,7 @@ package com.avast.cactus.grpc.client
 import io.grpc.ForwardingClientCall.SimpleForwardingClientCall
 import io.grpc._
 
-private[grpc] object ClientMetadataInterceptor extends ClientInterceptor {
+object ClientMetadataInterceptor extends ClientInterceptor {
   override def interceptCall[ReqT, RespT](method: MethodDescriptor[ReqT, RespT],
                                           callOptions: CallOptions,
                                           next: Channel): ClientCall[ReqT, RespT] = {

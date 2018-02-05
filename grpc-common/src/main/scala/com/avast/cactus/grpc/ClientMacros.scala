@@ -36,7 +36,7 @@ class ClientMacros(val c: whitebox.Context) {
 
     c.Expr[MyTrait] {
       q"""
-         new com.avast.cactus.grpc.client.IncludeMetadataWrapper(scala.collection.immutable.Seq(..$interceptors)) with $traitType {
+         new com.avast.cactus.grpc.client.ClientInterceptorsWrapper(scala.collection.immutable.Seq(..$interceptors)) with $traitType {
             private val ex: java.util.concurrent.Executor = $ex
 
             private val stub = $stub
