@@ -56,7 +56,7 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
       .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
     // format: ON
 
-    val service = impl.mappedTo[TestApiServiceImplBase]
+    val service = impl.mappedToService[TestApiServiceImplBase]()
 
     InProcessServerBuilder
       .forName(channelName)
@@ -102,7 +102,7 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
       .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
     // format: ON
 
-    val service = impl.mappedTo[TestApiServiceImplBase]
+    val service = impl.mappedToService[TestApiServiceImplBase]()
 
     InProcessServerBuilder
       .forName(channelName)
@@ -138,26 +138,18 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
     val cont = MyContext2Content(42, "jenda")
 
-    // format: OFF
     val impl = mock[MyApi]
     val context = MyContext2(theHeader = headerValue, content = cont)
 
     when(impl.get3(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(context)))
       .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
-    // format: ON
 
     val service = impl
-      .mappedTo[TestApiServiceImplBase]
-      .withInterceptors(new ServerInterceptor {
-        override def interceptCall[ReqT, RespT](serverCall: ServerCall[ReqT, RespT],
-                                                headers: Metadata,
-                                                next: ServerCallHandler[ReqT, RespT]): ServerCall.Listener[ReqT] = {
-
-          val context = Context
-            .current()
-            .withValue(ContextKeys.get[MyContext2Content]("content"), cont)
-
-          Contexts.interceptCall(context, serverCall, headers, next)
+      .mappedToService[TestApiServiceImplBase](new ServerAsyncInterceptor {
+        override def apply(m: GrpcMetadata): Future[Either[Status, GrpcMetadata]] = {
+          Future.successful {
+            Right(m.copy(context = m.context.withValue(ContextKeys.get[MyContext2Content]("content"), cont)))
+          }
         }
       })
 
@@ -191,10 +183,11 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
     // format: OFF
     val impl = mock[MyApi]
-    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.successful(Left(Status.UNAVAILABLE.withDescription("jenda"))))
+    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42")))))
+      .thenReturn(Future.successful(Left(Status.UNAVAILABLE.withDescription("jenda"))))
     // format: ON
 
-    val service = impl.mappedTo[TestApiServiceImplBase]
+    val service = impl.mappedToService[TestApiServiceImplBase]()
 
     InProcessServerBuilder
       .forName(channelName)
@@ -225,7 +218,7 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
     val impl = mock[MyApi]
     when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.failed(new RuntimeException("failure")))
 
-    val service = impl.mappedTo[TestApiServiceImplBase]
+    val service = impl.mappedToService[TestApiServiceImplBase]()
 
     InProcessServerBuilder
       .forName(channelName)

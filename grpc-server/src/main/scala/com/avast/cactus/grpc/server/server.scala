@@ -1,25 +1,19 @@
 package com.avast.cactus.grpc
 
-import io.grpc.{BindableService, ServerInterceptor, ServerInterceptors, ServerServiceDefinition}
+import io.grpc._
 
 import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.language.experimental.macros
 import scala.reflect.ClassTag
 
 package object server {
 
+  type ServerAsyncInterceptor = GrpcMetadata => Future[Either[Status, GrpcMetadata]]
+
   implicit class MapService[MT](val myTrait: MT) extends AnyVal {
-    def mappedTo[JS <: BindableService](implicit ct: ClassTag[MT], ec: ExecutionContext): ServerServiceDefinition =
+    def mappedToService[JS <: BindableService](interceptors: ServerAsyncInterceptor*)(implicit ct: ClassTag[MT], ec: ExecutionContext): ServerServiceDefinition =
       macro ServerMacros.mapImplToService[JS]
-  }
-
-  implicit class AddInterceptor(val s: BindableService) extends AnyVal {
-    def withInterceptors(i: ServerInterceptor*): ServerServiceDefinition = ServerInterceptors.intercept(s, i.asJava)
-  }
-
-  implicit class AddInterceptor2(val s: ServerServiceDefinition) extends AnyVal {
-    def withInterceptors(i: ServerInterceptor*): ServerServiceDefinition = ServerInterceptors.intercept(s, i.asJava)
   }
 
 }

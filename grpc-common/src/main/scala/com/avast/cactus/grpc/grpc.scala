@@ -11,7 +11,11 @@ package object grpc {
 
   case class ServerError(status: Status, headers: Metadata = new Metadata())
 
-  case class GrpcMetadata(context: Context, headers: Metadata)
+  case class GrpcMetadata(context: Context, headers: Metadata) {
+    def withContext(f: Context => Context): GrpcMetadata = copy(context = f(context))
+
+    def withHeaders(f: Metadata => Metadata): GrpcMetadata = copy(headers = f(headers))
+  }
 
   implicit class ContextOperations(val c: Context) extends AnyVal {
     def put[A](key: ContextKey[A], value: A): Unit = {

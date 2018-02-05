@@ -117,6 +117,7 @@ lazy val grpcCommonModule = Project(
   settings = commonSettings ++ macroSettings ++ Seq(
     name := "cactus-grpc-common",
     libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % "1.0.1",
       "io.grpc" % "grpc-netty-shaded" % Versions.grpcVersion,
       "io.grpc" % "grpc-protobuf" % Versions.grpcVersion,
       "io.grpc" % "grpc-stub" % Versions.grpcVersion % "optional",

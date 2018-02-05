@@ -6,7 +6,7 @@ import io.grpc._
 import scala.concurrent.Future
 
 class ClientHeadersInterceptor private (userHeaders: () => Map[String, String]) extends ClientAsyncInterceptor {
-  override def apply(m: GrpcMetadata): Future[GrpcMetadata] = {
+  override def apply(m: GrpcMetadata): Future[Either[Status, GrpcMetadata]] = {
     import m._
 
     userHeaders().foreach {
@@ -14,7 +14,7 @@ class ClientHeadersInterceptor private (userHeaders: () => Map[String, String]) 
         headers.put(Metadata.Key.of(s"$UserHeaderPrefix$key", Metadata.ASCII_STRING_MARSHALLER), s"$key-$value")
     }
 
-    Future.successful(m.copy(headers = headers))
+    Future.successful(Right(m.copy(headers = headers)))
   }
 }
 

@@ -10,7 +10,8 @@ class ServerMacros(val c: whitebox.Context) {
 
   import c.universe._
 
-  def mapImplToService[Service <: BindableService : WeakTypeTag](ct: Tree, ec: c.Tree): c.Expr[ServerServiceDefinition] = {
+  def mapImplToService[Service <: BindableService: WeakTypeTag](interceptors: c.Tree*)(ct: Tree,
+                                                                                       ec: c.Tree): c.Expr[ServerServiceDefinition] = {
     // this method require `ec` as an argument but only to secure the EC will be present. If it's visible by the macro method, it has to be
     // visible also for the generated code thus it's ok to not use the argument
 
@@ -30,6 +31,8 @@ class ServerMacros(val c: whitebox.Context) {
           import com.avast.cactus.v3._
           import io.grpc._
           import com.avast.cactus.grpc.server.ServerCommonMethods._
+
+          private val interceptorsWrapper = new ServerInterceptorsWrapper(scala.collection.immutable.List(..$interceptors))
 
           ..$mappingMethods
         }
@@ -58,7 +61,7 @@ class ServerMacros(val c: whitebox.Context) {
            """
 
         (createCtxMethod,
-          q"""
+         q"""
             withContext[${implMethod.request}, ${apiMethod.response}, $ctxType](createCtx) { ctx =>
               $executeRequestMethod(req, $variable.${implMethod.name}(_, ctx))
             }
@@ -73,7 +76,7 @@ class ServerMacros(val c: whitebox.Context) {
         $createCtxMethod
 
         (request.asCaseClass[MyRequest] match {
-          case org.scalactic.Good(req) => $executeMethod
+          case org.scalactic.Good(req) => interceptorsWrapper.withInterceptors { $executeMethod }
           case org.scalactic.Bad(errors) =>
             Future.successful {
               Left {
@@ -183,11 +186,11 @@ class ServerMacros(val c: whitebox.Context) {
       Option(s)
         .collect {
           case m
-            if m.isMethod
-              && m.name.toString != "bindService"
-              && m.asMethod.paramLists.size == 1
-              && m.asMethod.paramLists.head.size == 2
-              && m.asMethod.returnType == typeOf[Unit] =>
+              if m.isMethod
+                && m.name.toString != "bindService"
+                && m.asMethod.paramLists.size == 1
+                && m.asMethod.paramLists.head.size == 2
+                && m.asMethod.returnType == typeOf[Unit] =>
             m.asMethod.name -> m.asMethod.paramLists.head.map(_.typeSignature.resultType)
         }
         .collect {
