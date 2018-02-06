@@ -4,8 +4,8 @@ import java.util.concurrent.Callable
 
 import cats.data.EitherT
 import cats.implicits._
-import com.avast.cactus.grpc.{GrpcMetadata, ServerError, ServerResponse}
-import io.grpc.{Context, Metadata, Status, StatusException}
+import com.avast.cactus.grpc._
+import io.grpc._
 
 import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,6 +38,8 @@ abstract class ClientInterceptorsWrapper(interceptors: immutable.Seq[ClientAsync
           case Left(statusException) => Future.failed(statusException)
         }
         .recover {
+          case e: StatusException => Left(ServerError(e.getStatus))
+          case e: StatusRuntimeException => Left(ServerError(e.getStatus))
           case NonFatal(e) => Left(ServerError(Status.ABORTED.withCause(e).withDescription("Request could not been processed")))
         }
     } catch {

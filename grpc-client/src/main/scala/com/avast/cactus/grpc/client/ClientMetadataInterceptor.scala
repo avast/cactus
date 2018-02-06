@@ -1,5 +1,6 @@
 package com.avast.cactus.grpc.client
 
+import com.avast.cactus.grpc._
 import io.grpc.ForwardingClientCall.SimpleForwardingClientCall
 import io.grpc._
 

@@ -20,7 +20,7 @@ object ServerMetadataInterceptor extends ServerInterceptor {
 
     val context = headersValues.foldLeft(Context.current()) {
       case (ctx, (key, value)) => ctx.withValue(ContextKeys.get[String](key), value)
-    }
+    }.withValue(MetadataContextKey, headers)
 
     Contexts.interceptCall(context, serverCall, headers, next)
   }

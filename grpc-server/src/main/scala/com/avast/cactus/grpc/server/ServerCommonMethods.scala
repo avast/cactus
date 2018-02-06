@@ -5,7 +5,7 @@ import com.avast.cactus.grpc.CommonMethods
 import com.avast.cactus.v3._
 import com.google.protobuf.MessageLite
 import io.grpc.stub.StreamObserver
-import io.grpc.{Status, StatusException}
+import io.grpc.{Status, StatusException, StatusRuntimeException}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -46,6 +46,8 @@ object ServerCommonMethods extends CommonMethods {
   }
 
   def recoverWithStatus[Resp <: MessageLite]: PartialFunction[scala.Throwable, Either[StatusException, Resp]] = {
+    case e: StatusException => Left(e)
+    case e: StatusRuntimeException => Left(new StatusException(e.getStatus, e.getTrailers))
     case NonFatal(e) =>
       Left {
         new StatusException(Status.INTERNAL.withDescription(s"${e.getClass.getName}: ${e.getMessage}"))

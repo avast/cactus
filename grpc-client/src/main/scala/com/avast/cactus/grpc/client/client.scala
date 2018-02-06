@@ -10,8 +10,6 @@ import scala.language.experimental.macros
 
 package object client {
 
-  private[client] val MetadataContextKey = ContextKeys.get[Metadata]("headers")
-
   type ClientAsyncInterceptor = GrpcMetadata => Future[Either[Status, GrpcMetadata]]
 
   implicit class MapClient(val channel: Channel) extends AnyVal {

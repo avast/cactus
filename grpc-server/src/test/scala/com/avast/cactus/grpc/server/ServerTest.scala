@@ -132,6 +132,54 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
     }
   }
 
+  test("headers visible in interceptors") {
+    val channelName = randomString(10)
+    val headerValue = randomString(10)
+
+    // format: OFF
+    val impl = mock[MyApi]
+    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+    when(impl.get2(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(MyContext(theHeader = headerValue, theHeader2 = headerValue))))
+      .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+    // format: ON
+
+    val service = impl.mappedToService[TestApiServiceImplBase](new ServerAsyncInterceptor {
+      override def apply(m: GrpcMetadata): Future[Either[Status, GrpcMetadata]] = {
+        if (m.headers.keys().contains(s"${UserHeaderPrefix}theheader2")) {
+          Future.successful(Right(m))
+        } else {
+          Future.successful(Left(Status.INVALID_ARGUMENT))
+        }
+      }
+    })
+
+    InProcessServerBuilder
+      .forName(channelName)
+      .directExecutor
+      .addService(service)
+      .build
+      .start
+
+    val stub: TestApiServiceFutureStub = {
+      val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
+      TestApiServiceGrpc
+        .newFutureStub(channel)
+        .withInterceptors(
+          new ClientInterceptorTest(
+            Map(
+              "theHeader" -> headerValue,
+              "theHeader2" -> headerValue
+            )))
+    }
+
+    // get
+    {
+      val result = stub.get(GetRequest.newBuilder().addNames("name42").build()).get()
+      assertResult(GetResponse.newBuilder().putResults("name42", 42).build())(result)
+    }
+
+  }
+
   test("ok path with advanced context") {
     val channelName = randomString(10)
     val headerValue = randomString(10)
