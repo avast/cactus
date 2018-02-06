@@ -26,7 +26,7 @@ class ServerMacros(val c: whitebox.Context) {
     val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(variable, am, im) }
 
     c.Expr[ServerServiceDefinition] {
-      q"""
+      val t = q"""
         val service = new $serviceType {
           import com.avast.cactus.v3._
           import io.grpc._
@@ -40,6 +40,10 @@ class ServerMacros(val c: whitebox.Context) {
         io.grpc.ServerInterceptors.intercept(service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
 
         """
+
+      println(t)
+
+      t
     }
   }
 
@@ -85,6 +89,8 @@ class ServerMacros(val c: whitebox.Context) {
             }
         }).recover(recoverWithStatus)
           .andThen(sendResponse(responseObserver))
+
+        ()
       }
     """
   }
