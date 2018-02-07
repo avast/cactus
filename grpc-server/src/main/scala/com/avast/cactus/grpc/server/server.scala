@@ -9,8 +9,6 @@ import scala.reflect.ClassTag
 
 package object server {
 
-  type ServerAsyncInterceptor = GrpcMetadata => Future[Either[Status, GrpcMetadata]]
-
   implicit class MapService[MT](val myTrait: MT) extends AnyVal {
     def mappedToService[JS <: BindableService](interceptors: ServerAsyncInterceptor*)(implicit ct: ClassTag[MT], ec: ExecutionContext): ServerServiceDefinition =
       macro ServerMacros.mapImplToService[JS]

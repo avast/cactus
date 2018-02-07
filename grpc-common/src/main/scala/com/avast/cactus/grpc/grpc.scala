@@ -1,6 +1,5 @@
 package com.avast.cactus
 
-import io.grpc.Context.{Key => ContextKey}
 import io.grpc.{Context, Metadata, Status}
 
 package object grpc {
