@@ -1,6 +1,7 @@
-package com.avast.cactus.grpc
+package com.avast.cactus.grpc.client
 
 import com.avast.cactus.CactusMacros
+import com.avast.cactus.grpc.ServerError
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.protobuf.MessageLite
 import io.grpc.stub.AbstractStub

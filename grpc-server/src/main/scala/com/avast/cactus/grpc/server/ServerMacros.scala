@@ -1,4 +1,4 @@
-package com.avast.cactus.grpc
+package com.avast.cactus.grpc.server
 
 import com.avast.cactus.CactusMacros
 import com.google.protobuf.MessageLite
