@@ -145,7 +145,7 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
     val service = impl.mappedToService[TestApiServiceImplBase](new ServerAsyncInterceptor {
       override def apply(m: GrpcMetadata): Future[Either[Status, GrpcMetadata]] = {
-        if (m.headers.keys().contains(s"${UserHeaderPrefix}theheader2")) {
+        if (m.headers.keys().contains(s"theheader2")) {
           Future.successful(Right(m))
         } else {
           Future.successful(Left(Status.INVALID_ARGUMENT))
@@ -303,7 +303,7 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
         override def start(responseListener: ClientCall.Listener[RespT], headers: Metadata): Unit = {
           userHeaders.foreach {
             case (key, value) =>
-              headers.put(Metadata.Key.of(s"$UserHeaderPrefix$key", Metadata.ASCII_STRING_MARSHALLER), s"$key-$value")
+              headers.put(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER), value)
           }
 
           super.start(responseListener, headers)

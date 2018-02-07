@@ -39,7 +39,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
     val channelName = randomString(10)
 
     val headerName = randomString(10)
-    val metadataKey = Metadata.Key.of(s"$UserHeaderPrefix$headerName", Metadata.ASCII_STRING_MARSHALLER)
+    val metadataKey = Metadata.Key.of(headerName, Metadata.ASCII_STRING_MARSHALLER)
 
     InProcessServerBuilder
       .forName(channelName)

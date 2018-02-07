@@ -10,12 +10,12 @@ object ServerMetadataInterceptor extends ServerInterceptor {
                                           headers: Metadata,
                                           next: ServerCallHandler[ReqT, RespT]): ServerCall.Listener[ReqT] = {
 
-    val headersValues = headers.keys.asScala
-      .collect {
-        case k if k.startsWith(UserHeaderPrefix) =>
-          val Array(key, value) = headers.get(Metadata.Key.of(k, Metadata.ASCII_STRING_MARSHALLER)).split("-", 2)
+    val headersValues = headers.keys.asScala.filterNot(_.endsWith(Metadata.BINARY_HEADER_SUFFIX))
+      .map {
+        k =>
+          val value = headers.get(Metadata.Key.of(k, Metadata.ASCII_STRING_MARSHALLER))
 
-          key -> value
+          k -> value
       }
 
     val context = headersValues.foldLeft(Context.current()) {

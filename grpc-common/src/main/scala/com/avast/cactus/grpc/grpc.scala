@@ -6,8 +6,6 @@ package object grpc {
 
   private[grpc] val MetadataContextKey = ContextKeys.get[Metadata]("headers")
 
-  private[grpc] val UserHeaderPrefix: String = "userheader-"
-
   type ServerResponse[Resp] = Either[ServerError, Resp]
 
   case class ServerError(status: Status, headers: Metadata = new Metadata())

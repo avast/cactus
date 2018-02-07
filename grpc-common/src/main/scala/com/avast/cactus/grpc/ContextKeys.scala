@@ -23,6 +23,6 @@ object ContextKeys {
   }
 
   private def toFinalName(name: String, ct: ClassTag[_]): String = {
-    s"$name-${ct.runtimeClass.getName}"
+    s"${name.toLowerCase}-${ct.runtimeClass.getName}"
   }
 }

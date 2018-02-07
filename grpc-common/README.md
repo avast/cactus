@@ -184,6 +184,7 @@ However that solution counts with using shared `Context.Key` on both sides (when
 
 The `ContextKeys` object was created to solve this. It contains static map with all keys which is shared across the whole JVM (context of a
 single `ClassLoader` at least). **Use `ContextKeys.get[TheClass]("headers")` instead of `Context.key[TheClass]("headers")`.**
+Note that keys in `Context` are considered as case-insensitive when using the `ContextKeys` helper (this behavior is a standard in gRPC for headers).
 
 Both `ClientAsyncInterceptor` and `ServerAsyncInterceptor` works the same way - it asynchronously converts `GrpcMetadata` (`Context` + `Metadata`)
 to `Either[Status, GrpcMetadata]` thus you have a possibility to stop the request by returning `Left(Status)` in case something is going wrong

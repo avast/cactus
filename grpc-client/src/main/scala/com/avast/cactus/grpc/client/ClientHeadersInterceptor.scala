@@ -1,6 +1,6 @@
 package com.avast.cactus.grpc.client
 
-import com.avast.cactus.grpc.{GrpcMetadata, UserHeaderPrefix}
+import com.avast.cactus.grpc.GrpcMetadata
 import io.grpc._
 
 import scala.concurrent.Future
@@ -11,7 +11,7 @@ class ClientHeadersInterceptor private (userHeaders: () => Map[String, String]) 
 
     userHeaders().foreach {
       case (key, value) =>
-        headers.put(Metadata.Key.of(s"$UserHeaderPrefix$key", Metadata.ASCII_STRING_MARSHALLER), s"$key-$value")
+        headers.put(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER), value)
     }
 
     Future.successful(Right(m.copy(headers = headers)))
