@@ -160,6 +160,7 @@ for {
 }
 ```
 1. `theHeader` is header received from the client. Headers are automatically passed to the `Context` to be available for this - no action required
+   * Only `String` headers are supported
 1. `content` is a case class inserted into the `Context` by an interceptor like this one:
     ```scala
     new ServerAsyncInterceptor {
@@ -172,7 +173,7 @@ for {
       }
     }
     ```
-Note that names of `MyContext` class fields have to match keys in `Context`. If some field is missing, an `INVALID_ARGUMENT` status is
+Note that names and types of `MyContext` class fields have to match keys in `Context`. If some field is missing, an `INVALID_ARGUMENT` status is
 returned to the client.
 
 Read the [section below](#providing-own-interceptors) before developing your own interceptor.
@@ -184,7 +185,7 @@ However that solution counts with using shared `Context.Key` on both sides (when
 
 The `ContextKeys` object was created to solve this. It contains static map with all keys which is shared across the whole JVM (context of a
 single `ClassLoader` at least). **Use `ContextKeys.get[TheClass]("headers")` instead of `Context.key[TheClass]("headers")`.**
-Note that keys in `Context` are considered as case-insensitive when using the `ContextKeys` helper (this behavior is a standard in gRPC for headers).
+Note that keys in `Context` are considered as case-insensitive when using the `ContextconKeys` helper (this behavior is a standard in gRPC for headers).
 
 Both `ClientAsyncInterceptor` and `ServerAsyncInterceptor` works the same way - it asynchronously converts `GrpcMetadata` (`Context` + `Metadata`)
 to `Either[Status, GrpcMetadata]` thus you have a possibility to stop the request by returning `Left(Status)` in case something is going wrong

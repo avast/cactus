@@ -40,7 +40,7 @@ abstract class ClientInterceptorsWrapper(interceptors: immutable.Seq[ClientAsync
         .recover {
           case e: StatusException => Left(ServerError(e.getStatus))
           case e: StatusRuntimeException => Left(ServerError(e.getStatus))
-          case NonFatal(e) => Left(ServerError(Status.ABORTED.withCause(e).withDescription("Request could not been processed")))
+          case NonFatal(e) => Left(ServerError(Status.ABORTED.withCause(e).withDescription("Request could not be processed")))
         }
     } catch {
       case NonFatal(e) => Future.failed(e)

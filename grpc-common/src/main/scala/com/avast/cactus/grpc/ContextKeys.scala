@@ -6,6 +6,11 @@ import io.grpc.Context.Key
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
+/** ContextKeys contains static map with all keys which is shared across the whole JVM (context of a
+  * single `ClassLoader` at least). **Use `ContextKeys.get[TheClass]("headers")` instead of `Context.key[TheClass]("headers")`.**
+  * Note that keys in `Context` are considered as case-insensitive when using the `ContextKeys` helper.
+  *
+  */
 object ContextKeys {
   private val keys = mutable.Map.empty[String, Key[_]]
 
