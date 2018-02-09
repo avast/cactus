@@ -45,7 +45,7 @@ import io.grpc.inprocess.InProcessChannelBuilder
 
 val channel = InProcessChannelBuilder.forName("channelName").directExecutor.build // fine for testing
 
-val client: ClientTrait = channel.createMappedClient[MyServiceFutureStub, ClientTrait]()
+val client: ClientTrait = channel.createMappedClient[MyServiceFutureStub, ClientTrait](/* async interceptors go here */)
 ```
 
 Notes:
@@ -112,7 +112,7 @@ import com.avast.cactus.grpc.server._  // this adds the `mappedToService` method
 
 val impl: ServerTrait = ???
 
-val service: io.grpc.ServerServiceDefinition = impl.mappedToService[MyServiceImplBase]()
+val service: io.grpc.ServerServiceDefinition = impl.mappedToService[MyServiceImplBase](/* async interceptors go here */)
 ```
 
 Build the server in a standard way and add the service to it.
