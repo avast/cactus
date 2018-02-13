@@ -1,5 +1,6 @@
 package com.avast.cactus.grpc.server
 
+import cats.syntax.either._
 import com.avast.cactus.Converter
 import com.avast.cactus.grpc.CommonMethods
 import com.avast.cactus.v3._
@@ -27,10 +28,9 @@ object ServerCommonMethods extends CommonMethods {
       resp: RespCaseClass): Either[StatusException, RespGpb] = {
     resp
       .asGpb[RespGpb]
-      .badMap { errors =>
+      .leftMap { errors =>
         new StatusException(Status.INTERNAL.withDescription(formatCactusFailures("response", errors)))
       }
-      .toEither
   }
 
   def sendResponse[Resp <: MessageLite](respObs: StreamObserver[Resp]): PartialFunction[Try[Either[StatusException, Resp]], Unit] = {

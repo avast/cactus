@@ -1,11 +1,11 @@
 package com.avast.cactus.v2.test
 
+import cats.data.NonEmptyList
 import com.avast.cactus.v2.TestMessageV2.MapMessage.MapInnerMessage
 import com.avast.cactus.v2.TestMessageV2.{Data, Data2, Data3, Data4}
 import com.avast.cactus.v2._
 import com.avast.cactus.{Converter, _}
 import com.google.protobuf.ByteString
-import org.scalactic.{Bad, Good, One}
 import org.scalatest.FunSuite
 
 import scala.collection.JavaConverters._
@@ -27,7 +27,7 @@ class CactusMacrosTestV2 extends FunSuite {
     val i2 = ints.asScala
 
     if (i2.forall(_ > 0)) {
-      Good(i2.mkString(", "))
+      Right(i2.mkString(", "))
     } else {
       // THIS IS TOTALLY BAD PRACTICE AND YOU WILL COME TO HELL IF YOU USE THIS IN REAL CODE
       throw thrownIllegalArgumentException
@@ -80,7 +80,7 @@ class CactusMacrosTestV2 extends FunSuite {
 
     val expected = CaseClassA("ahoj", 9, None, ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
 
-    assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
+    assertResult(Right(expected))(gpb.asCaseClass[CaseClassA])
   }
 
   test("GPB to case class multiple failures") {
@@ -112,10 +112,10 @@ class CactusMacrosTestV2 extends FunSuite {
     ).map(MissingFieldFailure).sortBy(_.toString).:+(UnknownFailure("gpb.fieldIntegers2", thrownIllegalArgumentException))
 
     gpb.asCaseClass[CaseClassA] match {
-      case Bad(e) =>
+      case Left(e) =>
         assertResult(expected)(e.toList.sortBy(_.toString))
 
-      case Good(_) => fail("Should fail")
+      case Right(_) => fail("Should fail")
     }
   }
 
@@ -158,7 +158,7 @@ class CactusMacrosTestV2 extends FunSuite {
       .build()
 
     caseClass.asGpb[Data] match {
-      case Good(e) if e == expectedGpb => // ok
+      case Right(e) if e == expectedGpb => // ok
     }
   }
 
@@ -175,7 +175,7 @@ class CactusMacrosTestV2 extends FunSuite {
     val caseClassA = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), wrongIntegersString, map, map2)
 
 
-    val Bad(One(UnknownFailure(fieldPath, cause))) = caseClassA.asGpb[Data]
+    val Left(NonEmptyList(UnknownFailure(fieldPath, cause), List())) = caseClassA.asGpb[Data]
 
     assertResult("caseClassA.fieldIntegersString")(fieldPath)
     assert(cause.isInstanceOf[NumberFormatException])
@@ -186,17 +186,17 @@ class CactusMacrosTestV2 extends FunSuite {
 
     val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), Vector(3, 6), List(), map)
 
-    val Good(converted) = original.asGpb[Data]
+    val Right(converted) = original.asGpb[Data]
 
-    assertResult(Good(original))(converted.asCaseClass[CaseClassC])
+    assertResult(Right(original))(converted.asCaseClass[CaseClassC])
   }
 
   test("convert case class with ignored field to GPB and back") {
     val original = CaseClassE(fieldString = "ahoj", fieldOption = Some("ahoj2"))
 
-    val Good(converted) = original.asGpb[Data4]
+    val Right(converted) = original.asGpb[Data4]
 
-    assertResult(Good(original))(converted.asCaseClass[CaseClassE])
+    assertResult(Right(original))(converted.asCaseClass[CaseClassE])
   }
 }
 

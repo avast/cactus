@@ -2,6 +2,7 @@ package com.avast.cactus.grpc.client
 
 import java.util.concurrent.Executor
 
+import cats.syntax.either._
 import com.avast.cactus.Converter
 import com.avast.cactus.grpc.{CommonMethods, ServerError, ServerResponse}
 import com.avast.cactus.v3._
@@ -30,10 +31,9 @@ object ClientCommonMethods extends CommonMethods {
       resp: RespGpb): ServerResponse[RespCaseClass] = {
     resp
       .asCaseClass[RespCaseClass]
-      .badMap { errors =>
+      .leftMap { errors =>
         ServerError(Status.INTERNAL.withDescription(formatCactusFailures("response", errors)))
       }
-      .toEither
   }
 
   private implicit class ListenableFuture2ScalaFuture[T](val f: ListenableFuture[T]) extends AnyVal {

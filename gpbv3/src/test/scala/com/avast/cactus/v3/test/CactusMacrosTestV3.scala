@@ -2,13 +2,12 @@ package com.avast.cactus.v3.test
 
 import java.time.{Duration, Instant}
 
+import cats.data.NonEmptyList
 import com.avast.cactus._
-import com.avast.cactus.v3._
-import com.avast.cactus.v3.TestMessageV3
 import com.avast.cactus.v3.TestMessageV3._
 import com.avast.cactus.v3.ValueOneOf.NumberValue
+import com.avast.cactus.v3._
 import com.google.protobuf.{Any, BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, InvalidProtocolBufferException, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
-import org.scalactic.{Bad, Good, One}
 import org.scalatest.FunSuite
 
 import scala.collection.JavaConverters._
@@ -72,7 +71,7 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val expected = CaseClassA("ahoj", 9, Some(0), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
 
-    assertResult(Good(expected))(gpb.asCaseClass[CaseClassA])
+    assertResult(Right(expected))(gpb.asCaseClass[CaseClassA])
   }
 
   test("GPB to case class multiple failures") {
@@ -96,10 +95,10 @@ class CactusMacrosTestV3 extends FunSuite {
     val expected = List("gpb.fieldGpb", "gpb.fieldGpb2").map(MissingFieldFailure).sortBy(_.toString) :+ OneOfValueNotSetFailure("gpb.fieldGpb2RepeatedRecurse.NamedOneOf")
 
     gpb.asCaseClass[CaseClassA] match {
-      case Bad(e) =>
+      case Left(e) =>
         assertResult(expected)(e.toList.sortBy(_.toString))
 
-      case Good(_) => fail("Should fail")
+      case Right(_) => fail("Should fail")
     }
   }
 
@@ -141,7 +140,7 @@ class CactusMacrosTestV3 extends FunSuite {
       .build()
 
     caseClass.asGpb[Data] match {
-      case Good(e) if e == expectedGpb => // ok
+      case Right(e) if e == expectedGpb => // ok
     }
   }
 
@@ -150,17 +149,17 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), Vector(3, 6), List(), map)
 
-    val Good(converted) = original.asGpb[Data]
+    val Right(converted) = original.asGpb[Data]
 
-    assertResult(Good(original))(converted.asCaseClass[CaseClassC])
+    assertResult(Right(original))(converted.asCaseClass[CaseClassC])
   }
 
   test("convert case class with ignored field to GPB and back") {
     val original = CaseClassE(fieldString = "ahoj", fieldOption = Some("ahoj2"))
 
-    val Good(converted) = original.asGpb[Data4]
+    val Right(converted) = original.asGpb[Data4]
 
-    assertResult(Good(original))(converted.asCaseClass[CaseClassE])
+    assertResult(Right(original))(converted.asCaseClass[CaseClassE])
   }
 
   test("gpb3 map to GPB and back") {
@@ -170,9 +169,9 @@ class CactusMacrosTestV3 extends FunSuite {
       fieldMap2 = Map("one" -> CaseClassMapInnerMessage("str", 42))
     )
 
-    val Good(converted) = original.asGpb[Data4]
+    val Right(converted) = original.asGpb[Data4]
 
-    assertResult(Good(original))(converted.asCaseClass[CaseClassG])
+    assertResult(Right(original))(converted.asCaseClass[CaseClassG])
   }
 
   test("extensions from GPB and back") {
@@ -207,11 +206,151 @@ class CactusMacrosTestV3 extends FunSuite {
       struct = Map("mapKey" -> NumberValue(42))
     )
 
-    val Good(converted) = gpb.asCaseClass[CaseClassExtensions]
+    //    implicit val c: Converter[ExtensionsMessage, CaseClassExtensions] = {
+    //      final class $anon extends com.avast.cactus.Converter[com.avast.cactus.v3.TestMessageV3.ExtensionsMessage, com.avast.cactus.v3.test.CaseClassExtensions] {
+    //        def apply(fieldPath: String)(gpb: com.avast.cactus.v3.TestMessageV3.ExtensionsMessage): com.avast.cactus.ResultOrErrors[com.avast.cactus.v3.test.CaseClassExtensions] = {
+    //          import com.avast.cactus._
+    //          import org.scalactic.Accumulation._
+    //          import org.scalactic._
+    //
+    //          import scala.collection.JavaConverters._
+    //          import scala.util.control.NonFatal;
+    //          implicit lazy val conv2: com.avast.cactus.Converter[com.google.protobuf.StringValue, com.google.protobuf.StringValue] = com.avast.cactus.Converter.fromOrChecked(((fieldPath: String, t: com.google.protobuf.StringValue) => Good(t)));
+    //          implicit lazy val conv1: com.avast.cactus.Converter[com.google.protobuf.DoubleValue, com.google.protobuf.DoubleValue] = com.avast.cactus.Converter.fromOrChecked(((fieldPath: String, t: com.google.protobuf.DoubleValue) => Good(t)));
+    //          implicit lazy val conv0: com.avast.cactus.Converter[com.google.protobuf.FloatValue, com.google.protobuf.FloatValue] = com.avast.cactus.Converter.fromOrChecked(((fieldPath: String, t: com.google.protobuf.FloatValue) => Good(t)));
+    //          {
+    //            val boolValue: Or[com.google.protobuf.BoolValue, Every[CactusFailure]] = try {
+    //              if (gpb.hasBoolValue)
+    //                Good(gpb.getBoolValue)
+    //              else
+    //                Bad(One(MissingFieldFailure(fieldPath.$plus(".").$plus("boolValue"))))
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("boolValue"), e)))
+    //            };
+    //            val int32Value: Or[com.google.protobuf.Int32Value, Every[CactusFailure]] = try {
+    //              if (gpb.hasInt32Value)
+    //                Good(gpb.getInt32Value)
+    //              else
+    //                Bad(One(MissingFieldFailure(fieldPath.$plus(".").$plus("int32Value"))))
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("int32Value"), e)))
+    //            };
+    //            val longValue: Or[com.google.protobuf.Int64Value, Every[CactusFailure]] = try {
+    //              if (gpb.hasInt64Value)
+    //                Good(gpb.getInt64Value)
+    //              else
+    //                Bad(One(MissingFieldFailure(fieldPath.$plus(".").$plus("int64Value"))))
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("int64Value"), e)))
+    //            };
+    //            val floatValue: Or[Option[com.google.protobuf.FloatValue], Every[CactusFailure]] = try {
+    //              if (gpb.hasFloatValue) {
+    //                val value: Or[com.google.protobuf.FloatValue, Every[CactusFailure]] = Good(gpb.getFloatValue);
+    //                value.map(((x$21) => Option(x$21))).recover(((x$20) => None))
+    //              }
+    //              else
+    //                Good[Option[com.google.protobuf.FloatValue]](None).orBad[Every[CactusFailure]]
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("floatValue"), e)))
+    //            };
+    //            val doubleValue: Or[Option[com.google.protobuf.DoubleValue], Every[CactusFailure]] = try {
+    //              if (gpb.hasDoubleValue) {
+    //                val value: Or[com.google.protobuf.DoubleValue, Every[CactusFailure]] = Good(gpb.getDoubleValue);
+    //                value.map(((x$23) => Option(x$23))).recover(((x$22) => None))
+    //              }
+    //              else
+    //                Good[Option[com.google.protobuf.DoubleValue]](None).orBad[Every[CactusFailure]]
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("doubleValue"), e)))
+    //            };
+    //            val stringValue: Or[Option[com.google.protobuf.StringValue], Every[CactusFailure]] = try {
+    //              if (gpb.hasStringValue) {
+    //                val value: Or[com.google.protobuf.StringValue, Every[CactusFailure]] = Good(gpb.getStringValue);
+    //                value.map(((x$25) => Option(x$25))).recover(((x$24) => None))
+    //              }
+    //              else
+    //                Good[Option[com.google.protobuf.StringValue]](None).orBad[Every[CactusFailure]]
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("stringValue"), e)))
+    //            };
+    //            val bytesValue: Or[com.google.protobuf.BytesValue, Every[CactusFailure]] = try {
+    //              if (gpb.hasBytesValue)
+    //                Good(gpb.getBytesValue)
+    //              else
+    //                Bad(One(MissingFieldFailure(fieldPath.$plus(".").$plus("bytesValue"))))
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("bytesValue"), e)))
+    //            };
+    //            val listValue: Or[com.google.protobuf.ListValue, Every[CactusFailure]] = try {
+    //              if (gpb.hasListValue)
+    //                Good(gpb.getListValue)
+    //              else
+    //                Bad(One(MissingFieldFailure(fieldPath.$plus(".").$plus("listValue"))))
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("listValue"), e)))
+    //            };
+    //
+    //
+    //            val listValue2: Or[Seq[com.avast.cactus.v3.ValueOneOf], Every[CactusFailure]] = try {
+    //              CactusMacros.AToB[com.google.protobuf.ListValue, Seq[com.avast.cactus.v3.ValueOneOf]](fieldPath.$plus(".").$plus("listValue2"))(gpb.getListValue2)
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("listValue2"), e)))
+    //            };
+    //
+    //
+    //            val listValue3: Or[Option[Seq[com.avast.cactus.v3.ValueOneOf]], Every[CactusFailure]] = try {
+    //              if (gpb.hasListValue3) {
+    //                val value: Or[Seq[com.avast.cactus.v3.ValueOneOf], Every[CactusFailure]] = CactusMacros.AToB[com.google.protobuf.ListValue, Seq[com.avast.cactus.v3.ValueOneOf]](fieldPath.$plus(".").$plus("listValue3"))(gpb.getListValue3);
+    //                value.map(((x$27) => Option(x$27))).recover(((x$26) => None))
+    //              }
+    //              else
+    //                Good[Option[Seq[com.avast.cactus.v3.ValueOneOf]]](None).orBad[Every[CactusFailure]]
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("listValue3"), e)))
+    //            };
+    //            val listValue4: Or[Option[Seq[com.avast.cactus.v3.ValueOneOf]], Every[CactusFailure]] = try {
+    //              if (gpb.hasListValue4) {
+    //                val value: Or[Seq[com.avast.cactus.v3.ValueOneOf], Every[CactusFailure]] = CactusMacros.AToB[com.google.protobuf.ListValue, Seq[com.avast.cactus.v3.ValueOneOf]](fieldPath.$plus(".").$plus("listValue4"))(gpb.getListValue4);
+    //                value.map(((x$29) => Option(x$29))).recover(((x$28) => None))
+    //              }
+    //              else
+    //                Good[Option[Seq[com.avast.cactus.v3.ValueOneOf]]](None).orBad[Every[CactusFailure]]
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("listValue4"), e)))
+    //            };
+    //            val duration: Or[com.google.protobuf.Duration, Every[CactusFailure]] = try {
+    //              if (gpb.hasDuration)
+    //                Good(gpb.getDuration)
+    //              else
+    //                Bad(One(MissingFieldFailure(fieldPath.$plus(".").$plus("duration"))))
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("duration"), e)))
+    //            };
+    //            val timestamp: Or[com.google.protobuf.Timestamp, Every[CactusFailure]] = try {
+    //              if (gpb.hasTimestamp)
+    //                Good(gpb.getTimestamp)
+    //              else
+    //                Bad(One(MissingFieldFailure(fieldPath.$plus(".").$plus("timestamp"))))
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("timestamp"), e)))
+    //            };
+    //            val struct: Or[Map[String, com.avast.cactus.v3.ValueOneOf], Every[CactusFailure]] = try {
+    //              CactusMacros.AToB[com.google.protobuf.Struct, Map[String, com.avast.cactus.v3.ValueOneOf]](fieldPath.$plus(".").$plus("struct"))(gpb.getStruct)
+    //            } catch {
+    //              case NonFatal((e@_)) => Bad(One(UnknownFailure(fieldPath.$plus(".").$plus("struct"), e)))
+    //            };
+    //            withGood(boolValue, int32Value, longValue, floatValue, doubleValue, stringValue, bytesValue, listValue, listValue2, listValue3, listValue4, duration, timestamp, struct)(((boolValue: com.google.protobuf.BoolValue, int32Value: com.google.protobuf.Int32Value, longValue: com.google.protobuf.Int64Value, floatValue: Option[com.google.protobuf.FloatValue], doubleValue: Option[com.google.protobuf.DoubleValue], stringValue: Option[com.google.protobuf.StringValue], bytesValue: com.google.protobuf.BytesValue, listValue: com.google.protobuf.ListValue, listValue2: Seq[com.avast.cactus.v3.ValueOneOf], listValue3: Option[Seq[com.avast.cactus.v3.ValueOneOf]], listValue4: Option[Seq[com.avast.cactus.v3.ValueOneOf]], duration: com.google.protobuf.Duration, timestamp: com.google.protobuf.Timestamp, struct: Map[String, com.avast.cactus.v3.ValueOneOf]) => CaseClassExtensions(boolValue = boolValue, int32Value = int32Value, longValue = longValue, floatValue = floatValue, doubleValue = doubleValue, stringValue = stringValue, bytesValue = bytesValue, listValue = listValue, listValue2 = listValue2, listValue3 = listValue3, listValue4 = listValue4, duration = duration, timestamp = timestamp, struct = struct)))
+    //          }
+    //        }.toEitherNEL
+    //      };
+    //      new $anon()
+    //    }
+
+    val Right(converted) = gpb.asCaseClass[CaseClassExtensions]
 
     assertResult(expected)(converted)
 
-    assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
+    assertResult(Right(gpb))(converted.asGpb[ExtensionsMessage])
   }
 
   test("extensions from GPB and back - scala types") {
@@ -239,11 +378,11 @@ class CactusMacrosTestV3 extends FunSuite {
       listValue = Seq(NumberValue(456.789))
     )
 
-    val Good(converted) = gpb.asCaseClass[CaseClassExtensionsScala]
+    val Right(converted) = gpb.asCaseClass[CaseClassExtensionsScala]
 
     assertResult(expected)(converted)
 
-    assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
+    assertResult(Right(gpb))(converted.asGpb[ExtensionsMessage])
   }
 
   test("any extension to GPB and back") {
@@ -253,14 +392,14 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val expected = ExtensionsMessage.newBuilder().setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345)).setAny(Any.pack(innerMessage)).build()
 
-    val Good(converted) = orig.asGpb[ExtensionsMessage]
+    val Right(converted) = orig.asGpb[ExtensionsMessage]
 
     assertResult(expected)(converted)
 
     val actual = converted.asCaseClass[ExtClass]
 
-    assertResult(Good(orig))(actual)
-    assertResult(Good(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
+    assertResult(Right(orig))(actual)
+    assertResult(Right(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
   }
 
   test("any extension failure when parsing trash") {
@@ -268,7 +407,7 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val anyValue = AnyValue.of(innerMessage).copy(bytes = ByteString.copyFromUtf8("+ěščřžýáííé")) // damaged data
 
-    val Bad(One(UnknownFailure(fieldPath, cause))) = anyValue.asGpb[MessageInsideAnyField]
+    val Left(NonEmptyList(UnknownFailure(fieldPath, cause), List())) = anyValue.asGpb[MessageInsideAnyField]
 
     assertResult("anyValue")(fieldPath)
     assert(cause.isInstanceOf[InvalidProtocolBufferException])
@@ -282,9 +421,9 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val cc = gpb.asCaseClass[ExtClass]
 
-    assertResult(Good(ExtClass(Instant.ofEpochSecond(12345), `anyValue`)))(cc)
+    assertResult(Right(ExtClass(Instant.ofEpochSecond(12345), `anyValue`)))(cc)
 
-    val Bad(One(UnknownFailure(fieldPath2, cause2))) = cc.flatMap(_.any.asGpb[MessageInsideAnyField])
+    val Left(NonEmptyList(UnknownFailure(fieldPath2, cause2), List())) = cc.flatMap(_.any.asGpb[MessageInsideAnyField])
 
     assertResult("any")(fieldPath2)
     assert(cause2.isInstanceOf[InvalidProtocolBufferException])
