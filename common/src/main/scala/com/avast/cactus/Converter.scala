@@ -28,11 +28,7 @@ object Converter {
     override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = Right(f(a))
   }
 
-  private[cactus] def fromOr[A, B](f: A => B Or EveryCactusFailure): Converter[A, B] = new Converter[A, B] {
-    override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = f(a).toEitherNEL
-  }
-
-  private[cactus] def fromOrChecked[A, B](f: (String, A) => B Or EveryCactusFailure): Converter[A, B] = new Converter[A, B] {
+  def fromOrChecked[A, B](f: (String, A) => B Or EveryCactusFailure): Converter[A, B] = new Converter[A, B] {
     override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = f(fieldPath, a).toEitherNEL
   }
 

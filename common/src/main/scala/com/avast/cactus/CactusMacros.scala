@@ -110,7 +110,6 @@ object CactusMacros {
 
       val tree =
         q""" {
-          import com.avast.cactus._
           import com.avast.cactus.CactusMacros._
 
           import org.scalactic._
@@ -135,6 +134,7 @@ object CactusMacros {
     c.Expr[Converter[GpbClass, CaseClass]] {
       q"""
          new com.avast.cactus.Converter[$gpbType, $caseClassType] {
+            import com.avast.cactus._
             def apply(fieldPath: String)(gpb: $gpbType): com.avast.cactus.ResultOrErrors[$caseClassType] = $theFunction.toEitherNEL
          }
        """
@@ -157,7 +157,6 @@ object CactusMacros {
     val theFunction = {
       val tree =
         q""" {
-          import com.avast.cactus._
           import com.avast.cactus.CactusMacros._
 
           import org.scalactic._
@@ -181,6 +180,7 @@ object CactusMacros {
     c.Expr[Converter[CaseClass, GpbClass]] {
       q"""
          new com.avast.cactus.Converter[$caseClassType, $gpbType] {
+            import com.avast.cactus._
             def apply(fieldPath: String)(instance: $caseClassType): com.avast.cactus.ResultOrErrors[$gpbType] = $theFunction.toEitherNEL
          }
        """
