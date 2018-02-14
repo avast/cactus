@@ -571,7 +571,7 @@ object CactusMacros {
                 q" Good(key) "
               } else {
                 newConverter(c)(srcKeyType, dstKeyType) {
-                  q" (fieldPath:String, a: $srcKeyType) => ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcKeyType)(dstKeyType, q" identity  ", "")} "
+                  q" (fieldPath:String, a: $srcKeyType) => ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcKeyType)(dstKeyType, q" Predef.identity ", "")} "
                 }
 
                 q" CactusMacros.AToB[$srcKeyType, $dstKeyType]($fieldPath)(key) "
@@ -581,7 +581,7 @@ object CactusMacros {
                 q" Good(value) "
               } else {
                 newConverter(c)(srcValueType, dstValueType) {
-                  q" (fieldPath:String, a: $srcValueType) =>  ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcValueType)(dstValueType, q" identity  ", "")} "
+                  q" (fieldPath:String, a: $srcValueType) =>  ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcValueType)(dstValueType, q" Predef.identity ", "")} "
                 }
 
                 q" CactusMacros.AToB[$srcValueType, $dstValueType]($fieldPath)(value) "
@@ -659,7 +659,7 @@ object CactusMacros {
 
                 } else {
                   newConverter(c)(srcTypeArg, dstTypeArg) {
-                    q" (fieldPath:String, a: $srcTypeArg) =>  ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), fieldAnnotations, srcTypeArg)(dstTypeArg, q"identity", " a ")} "
+                    q" (fieldPath:String, a: $srcTypeArg) =>  ${processEndType(c)(q"a", c.Expr[String](q"fieldPath"), fieldAnnotations, srcTypeArg)(dstTypeArg, q" Predef.identity ", " a ")} "
                   }
 
                   q" (CactusMacros.CollAToCollB[$srcTypeArg, $dstTypeArg, scala.collection.Seq]($fieldPath, $field.toSeq).map(_.asJava)) "
@@ -1015,7 +1015,8 @@ object CactusMacros {
 
     if (c.inferImplicitValue(extractType(c)(s"???.asInstanceOf[com.avast.cactus.Converter[$from, $to]]")).isEmpty) {
       val recursive = f match {
-        case q" (($_: $_) => identity(CactusMacros.AToB[${f}, ${t}]($_))) " if f.tpe =:= from && t.tpe =:= to => true
+        case q" (($_: $_, $_: $_) => Predef.identity(CactusMacros.AToB[${f}, ${t}]($_)($_))) " if f.tpe =:= from && t.tpe =:= to => true
+        case q" (($_: $_, $_: $_) => CactusMacros.AToB[${f}, ${t}]($_)($_)) " if f.tpe =:= from && t.tpe =:= to => true
         case _ => false
       }
 
