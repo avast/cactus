@@ -41,7 +41,8 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.4",
-    "org.scalatest" %% "scalatest" % "3.0.4" % "test"
+    "org.scalatest" %% "scalatest" % "3.0.4" % "test",
+    "org.mockito" % "mockito-core" % "2.13.0" % "test"
   )
 )
 
@@ -51,7 +52,7 @@ lazy val macroSettings = Seq(
 )
 
 lazy val root = Project(id = "rootProject",
-  base = file(".")) settings (publish := {}) aggregate(commonModule, v2Module, v3Module, bytesModule, bytesV3Module)
+  base = file(".")) settings (publish := {}) aggregate(commonModule, v2Module, v3Module, bytesModule, bytesV3Module, grpcCommonModule, grpcClientModule, grpcServerModule)
 
 lazy val commonModule = Project(
   id = "common",
@@ -109,3 +110,42 @@ lazy val bytesV3Module = Project(
     name := "cactus-bytes-gpbv3"
   )
 ).dependsOn(v3Module, bytesModule)
+
+lazy val grpcCommonModule = Project(
+  id = "grpc-common",
+  base = file("./grpc-common"),
+  settings = commonSettings ++ macroSettings ++ Seq(
+    name := "cactus-grpc-common",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % "1.0.1",
+      "io.grpc" % "grpc-netty-shaded" % Versions.grpcVersion,
+      "io.grpc" % "grpc-protobuf" % Versions.grpcVersion,
+      "io.grpc" % "grpc-stub" % Versions.grpcVersion % "optional",
+      "io.grpc" % "grpc-services" % Versions.grpcVersion % "optional"
+    )
+  )
+).dependsOn(v3Module)
+
+lazy val grpcClientModule = Project(
+  id = "grpc-client",
+  base = file("./grpc-client"),
+  settings = commonSettings ++ macroSettings ++ Seq(
+    name := "cactus-grpc-client",
+    libraryDependencies ++= Seq(
+      "io.grpc" % "grpc-stub" % Versions.grpcVersion,
+      "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
+    )
+  )
+).dependsOn(grpcCommonModule)
+
+lazy val grpcServerModule = Project(
+  id = "grpc-server",
+  base = file("./grpc-server"),
+  settings = commonSettings ++ macroSettings ++ Seq(
+    name := "cactus-grpc-server",
+    libraryDependencies ++= Seq(
+      "io.grpc" % "grpc-services" % Versions.grpcVersion,
+      "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test"
+    )
+  )
+).dependsOn(grpcCommonModule)

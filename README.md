@@ -4,7 +4,7 @@
 [ ![Download](https://api.bintray.com/packages/avast/maven/cactus/images/download.svg) ](https://bintray.com/avast/maven/cactus/_latestVersion)
 
 Library for mapping between [GPB](https://developers.google.com/protocol-buffers/) messages and Scala's case classes. It has support for
-both GPB v2 and [GPB v3](gpbv3/README.md).
+both GPB v2 and [GPB v3](gpbv3/README.md) (including [gRPC](grpc-common/README.md)).
 
 The library automatically converts common data types (`String`, primitive types, collections) and can map optional fields 
 into `Option`. This process is extensible via `Converter`.

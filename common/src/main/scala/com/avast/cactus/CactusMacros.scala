@@ -8,6 +8,7 @@ import scala.collection.generic.CanBuildFrom
 import scala.collection.{TraversableLike, mutable}
 import scala.language.experimental.macros
 import scala.language.{higherKinds, implicitConversions}
+import scala.reflect.ClassTag
 import scala.reflect.macros._
 
 //noinspection TypeAnnotation
@@ -915,21 +916,21 @@ object CactusMacros {
     getterGenType
   }
 
-  private[cactus] def extractSymbolFromClassTag[CaseClass: c.WeakTypeTag](c: whitebox.Context)(gpbCt: c.Tree) = {
+  private[cactus] def extractSymbolFromClassTag(c: whitebox.Context)(ctTree: c.Tree): c.Type = {
     import c.universe._
 
-    (gpbCt match {
-      case q"ClassTag.apply[$cl](${_}): ${_}" => cl
-
+    ctTree match {
+      case q"ClassTag.apply[$cl](${_}): ${_}" => cl.tpe
+      case q" $cl " if cl.tpe.dealias.typeConstructor == typeOf[ClassTag[_]].dealias.typeConstructor => cl.tpe.typeArgs.head
       case t => c.abort(c.enclosingPosition, s"Cannot process the conversion - variable type extraction from tree '$t' failed")
-    }).symbol
+    }
   }
 
   private[cactus] def extractType(c: whitebox.Context)(q: String): c.universe.Type = {
     c.typecheck(c.parse(q)).tpe
   }
 
-  private[cactus] def getVariable[Gpb: c.WeakTypeTag](c: whitebox.Context): c.universe.Tree = {
+  private[cactus] def getVariable(c: whitebox.Context): c.Tree = {
     import c.universe._
 
     val variable = c.prefix.tree match {

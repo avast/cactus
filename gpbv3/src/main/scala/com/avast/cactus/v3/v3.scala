@@ -17,7 +17,7 @@ package object v3 extends CactusCommonImplicits with V3Converters {
 
     val gpbType = weakTypeOf[Gpb]
 
-    val variable = CactusMacros.getVariable[Gpb](c)
+    val variable = CactusMacros.getVariable(c)
     val variableName = variable.symbol.asTerm.fullName.split('.').last
 
     c.Expr[Gpb Or Every[CactusFailure]] {
