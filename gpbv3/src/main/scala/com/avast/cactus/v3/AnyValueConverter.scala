@@ -51,7 +51,7 @@ object AnyValueConverter {
     c.Expr[AnyValueConverter[GpbClass]] {
       q"""
          new AnyValueConverter[$gpbType] {
-            def apply(fieldPath: String)(anyValInstance: $anyValueType): ResultOrErrors[$gpbType] = $theFunction
+            def apply(fieldPath: String)(anyValInstance: $anyValueType): ResultOrErrors[$gpbType] = $theFunction.toEitherNEL
          }
        """
     }

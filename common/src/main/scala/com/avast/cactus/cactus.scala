@@ -1,8 +1,29 @@
 package com.avast
 
-import org.scalactic.Or
+import cats.data.NonEmptyList
+import cats.syntax.either._
+import org.scalactic.{Every, Or}
 
 package object cactus {
-  type CactusFailures = org.scalactic.Every[CactusFailure]
-  type ResultOrErrors[A] = A Or CactusFailures
+  type EveryCactusFailure = Every[CactusFailure]
+
+  type CactusFailures = NonEmptyList[CactusFailure]
+  type ResultOrErrors[A] = Either[CactusFailures, A]
+
+  implicit class EitherToOr[L, R](val e: Either[NonEmptyList[L], R]) {
+    def toOr: R Or Every[L] = {
+      Or.from {
+        e.leftMap { nel =>
+          Every.from(nel.toList).getOrElse(sys.error("NEL could not be empty :-/"))
+        }
+      }
+    }
+  }
+
+  implicit class OrToEither[R](val o: R Or EveryCactusFailure) {
+    def toEitherNEL: ResultOrErrors[R] = {
+      o.badMap(f => NonEmptyList.fromList(f.toList).getOrElse(sys.error("Every could not be empty :-/"))).toEither
+    }
+  }
+
 }

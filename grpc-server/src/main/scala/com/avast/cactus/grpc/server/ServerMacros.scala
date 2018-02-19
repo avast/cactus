@@ -76,8 +76,8 @@ class ServerMacros(val c: whitebox.Context) {
         $createCtxMethod
 
         (request.asCaseClass[MyRequest] match {
-          case org.scalactic.Good(req) => interceptorsWrapper.withInterceptors { $executeMethod }
-          case org.scalactic.Bad(errors) =>
+          case scala.util.Right(req) => interceptorsWrapper.withInterceptors { $executeMethod }
+          case scala.util.Left(errors) =>
             Future.successful {
               Left {
                 new StatusException(Status.INVALID_ARGUMENT.withDescription(formatCactusFailures("request", errors)))

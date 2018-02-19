@@ -4,6 +4,6 @@ import com.avast.cactus.CactusFailures
 
 private[grpc] trait CommonMethods {
   def formatCactusFailures(subject: String, errors: CactusFailures): String = {
-    s"Errors when converting $subject: ${errors.mkString("[", ", ", "]")}"
+    s"Errors when converting $subject: ${errors.toList.mkString("[", ", ", "]")}"
   }
 }

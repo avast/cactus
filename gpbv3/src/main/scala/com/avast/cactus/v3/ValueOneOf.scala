@@ -1,6 +1,6 @@
 package com.avast.cactus.v3
 
-import com.avast.cactus.CactusFailures
+import com.avast.cactus.EveryCactusFailure
 import com.google.protobuf.{Struct, Value, ListValue => GpbListValue, NullValue => GpbNullValue}
 import org.scalactic.Accumulation._
 import org.scalactic.{Good, Or}
@@ -11,13 +11,13 @@ trait ValueOneOf
 
 object ValueOneOf {
 
-  private[cactus] def apply(fieldPath: String, v: Value): ValueOneOf Or CactusFailures = v.getKindCase match {
+  private[cactus] def apply(fieldPath: String, v: Value): ValueOneOf Or EveryCactusFailure = v.getKindCase match {
     case Value.KindCase.KIND_NOT_SET => Good(EmptyValue)
     case Value.KindCase.NULL_VALUE => Good(NullValue(v.getNullValue))
     case Value.KindCase.NUMBER_VALUE => Good(NumberValue(v.getNumberValue))
     case Value.KindCase.STRING_VALUE => Good(StringValue(v.getStringValue))
     case Value.KindCase.BOOL_VALUE => Good(BooleanValue(v.getBoolValue))
-    case Value.KindCase.LIST_VALUE => listValue2SeqConverter(fieldPath)(v.getListValue).map(ListValue)
+    case Value.KindCase.LIST_VALUE => listValue2SeqConverter(fieldPath)(v.getListValue).map(ListValue).toOr
     case Value.KindCase.STRUCT_VALUE =>
       val scalaMap = v.getStructValue.getFieldsMap.asScala
       scalaMap
