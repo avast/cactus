@@ -1,4 +1,4 @@
-option java_package = "com.avast.cactus";
+option java_package = "com.avast.cactus.v2";
 
 message Data {
     optional string     fieldString = 1;                    // REQUIRED
@@ -43,4 +43,13 @@ message MapMessage {
        optional string     field_string = 1;                // REQUIRED
        optional int32      field_int = 2;                   // REQUIRED
     }
+}
+
+message MessageWithEnum {
+    enum TheEnum {
+        ONE = 1;
+        TWO = 2;
+    }
+
+    optional TheEnum the_enum = 1;
 }

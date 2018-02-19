@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_package = "com.avast.cactus";
+option java_package = "com.avast.cactus.v3";
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";

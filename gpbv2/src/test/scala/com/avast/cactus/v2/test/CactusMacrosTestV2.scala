@@ -198,6 +198,35 @@ class CactusMacrosTestV2 extends FunSuite {
 
     assertResult(Right(original))(converted.asCaseClass[CaseClassE])
   }
+
+  test("recursion detection") {
+    /*
+    * In case the recursion detection doesn't work, this code won't require a Converter -  macros generate
+    * a Converter referring recursively to itself which will cause a StackOverflowError in runtime.
+    * By doing this check we try to avoid it and detect the "recursion detection" is broken.
+    * */
+    checkDoesNotCompile(
+      """
+        import com.avast.cactus.v2._
+        com.avast.cactus.v2.TestMessageV2.MessageWithEnum.getDefaultInstance.asCaseClass[com.avast.cactus.v2.test.MessageWithEnum]
+        """
+    )
+
+    checkCompiles(
+      """
+        |import com.avast.cactus.v2._
+        |import com.avast.cactus.v2.TestMessageV2
+        |import TestMessageV2.MessageWithEnum.{TheEnum => GpbEnum}
+        |
+        |implicit val c: com.avast.cactus.Converter[GpbEnum, com.avast.cactus.v2.test.TheEnum] = com.avast.cactus.Converter {
+        |  case GpbEnum.ONE => TheEnum.One
+        |  case GpbEnum.TWO => TheEnum.Two
+        |}
+        |
+        |TestMessageV2.MessageWithEnum.getDefaultInstance.asCaseClass[com.avast.cactus.v2.test.MessageWithEnum]
+        |""".stripMargin
+    )
+  }
 }
 
 case class CaseClassA(fieldString: String,
@@ -276,3 +305,15 @@ case class StringWrapperClass(value: String)
 object CaseClassA
 
 // this is here to prevent reappearing of bug with companion object
+
+sealed trait TheEnum
+
+object TheEnum {
+
+  case object One extends TheEnum
+
+  case object Two extends TheEnum
+
+}
+
+case class MessageWithEnum(theEnum: Option[TheEnum])
