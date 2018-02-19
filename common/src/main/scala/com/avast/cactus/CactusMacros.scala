@@ -55,15 +55,17 @@ object CactusMacros {
     classOf[java.lang.String].getName // consider String as primitive
   )
 
-  def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](fieldPath: String, coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] Or CactusFailures = {
-    coll.map(aToBConverter.apply(fieldPath)).combined.map(c => cbf.apply().++=(c).result())
+  def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](fieldPath: String, coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] Or EveryCactusFailure = {
+    coll.map((e: A) => aToBConverter.apply(fieldPath)(e).toOr).combined.map { (c: TraversableOnce[B]) =>
+      cbf.apply().++=(c).result()
+    }
   }
 
-  def AToB[A, B](fieldPath: String)(a: A)(implicit aToBConverter: Converter[A, B]): B Or CactusFailures = {
-    aToBConverter.apply(fieldPath)(a)
+  def AToB[A, B](fieldPath: String)(a: A)(implicit aToBConverter: Converter[A, B]): B Or EveryCactusFailure = {
+    aToBConverter.apply(fieldPath)(a).toOr
   }
 
-  def asCaseClassMethod[CaseClass: c.WeakTypeTag](c: whitebox.Context)(conv: c.Tree, gpbCt: c.Tree): c.Expr[CaseClass Or Every[CactusFailure]] = {
+  def asCaseClassMethod[CaseClass: c.WeakTypeTag](c: whitebox.Context)(conv: c.Tree, gpbCt: c.Tree): c.Expr[ResultOrErrors[CaseClass]] = {
     import c.universe._
 
     // unpack the implicit ClassTag tree
@@ -73,12 +75,12 @@ object CactusMacros {
     val variable = getVariable(c)
     val variableName = variable.symbol.asTerm.fullName.split('.').last
 
-    c.Expr[CaseClass Or Every[CactusFailure]] {
+    c.Expr[ResultOrErrors[CaseClass]] {
       q" implicitly[com.avast.cactus.Converter[$gpbType, $caseClassType]].apply($variableName)($variable) "
     }
   }
 
-  def asGpbMethod[Gpb: c.WeakTypeTag](c: whitebox.Context)(conv: c.Tree, caseClassCt: c.Tree): c.Expr[Gpb Or Every[CactusFailure]] = {
+  def asGpbMethod[Gpb: c.WeakTypeTag](c: whitebox.Context)(conv: c.Tree, caseClassCt: c.Tree): c.Expr[ResultOrErrors[Gpb]] = {
     import c.universe._
 
     // unpack the implicit ClassTag tree
@@ -88,7 +90,7 @@ object CactusMacros {
     val variable = getVariable(c)
     val variableName = variable.symbol.asTerm.fullName.split('.').last
 
-    c.Expr[Gpb Or Every[CactusFailure]] {
+    c.Expr[ResultOrErrors[Gpb]] {
       q" implicitly[com.avast.cactus.Converter[$caseClassType, $gpbType]].apply($variableName)($variable) "
     }
   }
@@ -108,7 +110,6 @@ object CactusMacros {
 
       val tree =
         q""" {
-          import com.avast.cactus._
           import com.avast.cactus.CactusMacros._
 
           import org.scalactic._
@@ -133,7 +134,8 @@ object CactusMacros {
     c.Expr[Converter[GpbClass, CaseClass]] {
       q"""
          new com.avast.cactus.Converter[$gpbType, $caseClassType] {
-            def apply(fieldPath: String)(gpb: $gpbType): com.avast.cactus.ResultOrErrors[$caseClassType] = $theFunction
+            import com.avast.cactus._
+            def apply(fieldPath: String)(gpb: $gpbType): com.avast.cactus.ResultOrErrors[$caseClassType] = $theFunction.toEitherNEL
          }
        """
     }
@@ -155,7 +157,6 @@ object CactusMacros {
     val theFunction = {
       val tree =
         q""" {
-          import com.avast.cactus._
           import com.avast.cactus.CactusMacros._
 
           import org.scalactic._
@@ -179,7 +180,8 @@ object CactusMacros {
     c.Expr[Converter[CaseClass, GpbClass]] {
       q"""
          new com.avast.cactus.Converter[$caseClassType, $gpbType] {
-            def apply(fieldPath: String)(instance: $caseClassType): com.avast.cactus.ResultOrErrors[$gpbType] = $theFunction
+            import com.avast.cactus._
+            def apply(fieldPath: String)(instance: $caseClassType): com.avast.cactus.ResultOrErrors[$gpbType] = $theFunction.toEitherNEL
          }
        """
     }
@@ -494,7 +496,7 @@ object CactusMacros {
          {
             val builder = ${gpbClassSymbol.companion}.newBuilder()
 
-            Seq[$builderClassSymbol Or CactusFailures](
+            Seq[$builderClassSymbol Or EveryCactusFailure](
             ..$params
             ).combined.map(_.head.build())
          }
@@ -593,7 +595,7 @@ object CactusMacros {
               newConverter(c)(srcResultType, dstResultType) {
                 q"""
                    (fieldPath:String, t: $srcResultType) => {
-                      val m: Iterable[$gpbGenType Or CactusFailures] = t.map{ _ match { case (key, value) =>
+                      val m: Iterable[$gpbGenType Or EveryCactusFailure] = t.map{ _ match { case (key, value) =>
                             withGood($keyField, $valueField) {
                               $mapGpb.newBuilder()
                               .${TermName("set" + firstUpper(keyFieldName))}(_)
@@ -1010,7 +1012,7 @@ object CactusMacros {
           println(s"Defining converter from ${from.typeSymbol} to ${to.typeSymbol}")
         }
 
-        converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:com.avast.cactus.Converter[$from, $to] = com.avast.cactus.Converter.checked($f) "
+        converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:com.avast.cactus.Converter[$from, $to] = com.avast.cactus.Converter.fromOrChecked($f) "
       })
     }
 

@@ -1,8 +1,8 @@
 package com.avast.cactus
 
+import cats.implicits._
 import com.google.protobuf.MessageLite
-import org.scalactic.Accumulation._
-import org.scalactic.Good
+import org.scalactic.Or
 
 import scala.annotation.implicitNotFound
 import scala.collection.JavaConverters._
@@ -25,7 +25,11 @@ object Converter {
   }
 
   def apply[A, B](f: A => B): Converter[A, B] = new Converter[A, B] {
-    override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = Good(f(a))
+    override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = Right(f(a))
+  }
+
+  def fromOrChecked[A, B](f: (String, A) => B Or EveryCactusFailure): Converter[A, B] = new Converter[A, B] {
+    override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = f(fieldPath, a).toEitherNEL
   }
 
   // primitive types conversions:
@@ -56,7 +60,7 @@ object Converter {
   implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] =
     new Converter[Vector[A], List[B]] {
       override def apply(fieldPath: String)(v: Vector[A]): ResultOrErrors[List[B]] = {
-        v.map(aToBConverter.apply(fieldPath)).toList.combined
+        v.map(aToBConverter.apply(fieldPath)).toList.sequence[ResultOrErrors, B]
       }
     }
 

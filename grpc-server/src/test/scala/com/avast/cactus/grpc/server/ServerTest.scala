@@ -143,13 +143,11 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
       .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
     // format: ON
 
-    val service = impl.mappedToService[TestApiServiceImplBase](new ServerAsyncInterceptor {
-      override def apply(m: GrpcMetadata): Future[Either[Status, GrpcMetadata]] = {
-        if (m.headers.keys().contains(s"theheader2")) {
-          Future.successful(Right(m))
-        } else {
-          Future.successful(Left(Status.INVALID_ARGUMENT))
-        }
+    val service = impl.mappedToService[TestApiServiceImplBase]((m: GrpcMetadata) => {
+      if (m.headers.keys().contains(s"theheader2")) {
+        Future.successful(Right(m))
+      } else {
+        Future.successful(Left(Status.INVALID_ARGUMENT))
       }
     })
 
@@ -193,13 +191,11 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
       .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
 
     val service = impl
-      .mappedToService[TestApiServiceImplBase](new ServerAsyncInterceptor {
-        override def apply(m: GrpcMetadata): Future[Either[Status, GrpcMetadata]] = {
-          Future.successful {
-            Right(m.copy(context = m.context.withValue(ContextKeys.get[MyContext2Content]("content"), cont)))
-          }
-        }
-      })
+      .mappedToService[TestApiServiceImplBase]((m: GrpcMetadata) => {
+      Future.successful {
+        Right(m.copy(context = m.context.withValue(ContextKeys.get[MyContext2Content]("content"), cont)))
+      }
+    })
 
     InProcessServerBuilder
       .forName(channelName)

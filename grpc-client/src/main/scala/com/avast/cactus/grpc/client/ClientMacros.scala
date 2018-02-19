@@ -55,8 +55,8 @@ class ClientMacros(val c: whitebox.Context) {
     q"""
        override def ${implMethod.name}(request: ${implMethod.request}): scala.concurrent.Future[com.avast.cactus.grpc.ServerResponse[${implMethod.response}]] = withInterceptors {
           request.asGpb[${apiMethod.request}] match {
-             case org.scalactic.Good(req) => executeRequest[${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, stub.${apiMethod.name}, ex)
-             case org.scalactic.Bad(errors) =>
+             case scala.util.Right(req) => executeRequest[${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, stub.${apiMethod.name}, ex)
+             case scala.util.Left(errors) =>
                 scala.concurrent.Future.successful {
                    Left {
                       com.avast.cactus.grpc.ServerError(io.grpc.Status.INVALID_ARGUMENT.withDescription(formatCactusFailures("request", errors)))

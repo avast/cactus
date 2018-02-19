@@ -9,7 +9,7 @@ import org.scalactic.Accumulation._
 import scala.collection.JavaConverters._
 
 trait V3Converters {
-  implicit lazy val listValue2SeqConverter: Converter[com.google.protobuf.ListValue, Seq[ValueOneOf]] = Converter.checked { (fieldPath, listValue) =>
+  implicit lazy val listValue2SeqConverter: Converter[com.google.protobuf.ListValue, Seq[ValueOneOf]] = Converter.fromOrChecked { (fieldPath, listValue) =>
     listValue.getValuesList.asScala.map(ValueOneOf.apply(fieldPath, _)).toIterable.combined.map(_.toSeq)
   }
 
@@ -17,7 +17,7 @@ trait V3Converters {
     ListValue.newBuilder().addAllValues(values.map(ValueOneOf.toGpbValue).asJava).build()
   }
 
-  implicit lazy val struct2MapConverter: Converter[com.google.protobuf.Struct, Map[String, ValueOneOf]] = Converter.checked { (fieldPath, struct) =>
+  implicit lazy val struct2MapConverter: Converter[com.google.protobuf.Struct, Map[String, ValueOneOf]] = Converter.fromOrChecked { (fieldPath, struct) =>
     struct.getFieldsMap.asScala.mapValues(ValueOneOf.apply(fieldPath, _)).map { case (key, value) => value.map(key -> _) }.combined.map(_.toMap)
   }
 

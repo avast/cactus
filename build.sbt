@@ -1,6 +1,6 @@
 import sbt.Keys._
 
-crossScalaVersions := Seq("2.11.11", "2.12.4")
+crossScalaVersions := Seq("2.12.4")
 
 lazy val Versions = new {
   val gpb3Version = "3.3.0"
@@ -8,7 +8,7 @@ lazy val Versions = new {
 }
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.11.11",
+  scalaVersion := "2.12.4",
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
@@ -41,6 +41,7 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.4",
+    "org.typelevel" %% "cats-core" % "1.0.1",
     "org.scalatest" %% "scalatest" % "3.0.4" % "test",
     "org.mockito" % "mockito-core" % "2.13.0" % "test"
   )
@@ -117,7 +118,6 @@ lazy val grpcCommonModule = Project(
   settings = commonSettings ++ macroSettings ++ Seq(
     name := "cactus-grpc-common",
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core" % "1.0.1",
       "io.grpc" % "grpc-netty-shaded" % Versions.grpcVersion,
       "io.grpc" % "grpc-protobuf" % Versions.grpcVersion,
       "io.grpc" % "grpc-stub" % Versions.grpcVersion % "optional",
