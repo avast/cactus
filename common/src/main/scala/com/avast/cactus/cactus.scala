@@ -4,6 +4,8 @@ import cats.data.NonEmptyList
 import cats.syntax.either._
 import org.scalactic.{Every, Or}
 
+import scala.language.experimental.macros
+
 package object cactus {
   type EveryCactusFailure = Every[CactusFailure]
 
@@ -26,4 +28,7 @@ package object cactus {
     }
   }
 
+  private[cactus] def checkDoesNotCompile(code: String): Unit = macro TestMacros.checkDoesNotCompile
+
+  private[cactus] def checkCompiles(code: String): Unit = macro TestMacros.checkCompiles
 }
