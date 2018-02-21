@@ -4,13 +4,13 @@ Cactus currently supports v3.3. See [official docs](https://developers.google.co
 
 See [unit tests](src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala) for more examples.
 
-
 ## Any
 
 The `Any` is by design very benevolent from a types POV. The Cactus provides better API for parsing messages hidden in `Any` field:
 
 ```scala
 import com.avast.cactus.v3.AnyValue // mind the import!
+import com.avast.cactus.v3._
 import com.google.protobuf.Any
 
 case class ExtClass(any: AnyValue)
@@ -39,7 +39,7 @@ OneOf functionality is supported with mapping to a user-defined `sealed trait` a
 definition has to be reflected either by name of the field or by `GpbName` annotation.
 
 ```scala
-import com.avast.cactus._
+import com.avast.cactus.v3._
 import com.avast.cactus.v3.ValueOneOf._
 
 /*
@@ -73,7 +73,7 @@ val gpb = Data.newBuilder()
   .build()
   
 gpb.asCaseClass[CaseClassA] match {
-  case Good(CaseClassA(_, OneOfNamed.FooInt(v))) => v
+  case Right(CaseClassA(_, OneOfNamed.FooInt(v))) => v
 }  
 
 // to gpb:
@@ -124,9 +124,9 @@ val original = CaseClass(
     fieldMap2 = Map("one" -> CaseClassMapInnerMessage("str", 42))
 )
 
-val Good(converted) = original.asGpb[Data]
+val Right(converted) = original.asGpb[Data]
 
-assertResult(Good(original))(converted.asCaseClass[CaseClass])
+assertResult(Right(original))(converted.asCaseClass[CaseClass])
 
 ```
 
@@ -154,7 +154,7 @@ message ExtensionsMessage {
 }
 */
 
-import com.avast.cactus._
+import com.avast.cactus.v3._
 import com.avast.cactus.v3.ValueOneOf._
 import com.google.protobuf.{Any, BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
 
@@ -186,18 +186,18 @@ val expected = CaseClassExtensions(
   struct = Map("mapKey" -> NumberValue(42))
 )
 
-val Good(converted) = gpb.asCaseClass[CaseClassExtensions]
+val Right(converted) = gpb.asCaseClass[CaseClassExtensions]
 
 assertResult(expected)(converted)
 
-assertResult(Good(gpb))(converted.asGpb[ExtensionsMessage])
+assertResult(Right(gpb))(converted.asGpb[ExtensionsMessage])
 
 ```
 
 Conversion to basic Scala types is supported too:
 
 ```scala
-import com.avast.cactus._
+import com.avast.cactus.v3_
 import com.avast.cactus.v3.ValueOneOf._
 import com.google.protobuf.{BoolValue, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
 
