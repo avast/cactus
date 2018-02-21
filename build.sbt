@@ -16,7 +16,7 @@ lazy val commonSettings = Seq(
 
   organization := "com.avast.cactus",
   version := sys.env.getOrElse("TRAVIS_TAG", "0.1-SNAPSHOT"),
-  description := "Library for conversion between GPB and Scala case classes",
+  description := "Library for conversion between Java GPB classes and Scala case classes",
 
   licenses ++= Seq("Apache-2.0" -> url(s"https://github.com/avast/${name.value}/blob/${version.value}/LICENSE")),
   publishArtifact in Test := false,
@@ -53,7 +53,7 @@ lazy val macroSettings = Seq(
 )
 
 lazy val root = Project(id = "rootProject",
-  base = file(".")) settings (publish := {}) aggregate(commonModule, v2Module, v3Module, bytesModule, bytesV3Module, grpcCommonModule, grpcClientModule, grpcServerModule)
+  base = file(".")) settings (publish := {}) aggregate(commonModule, v2Module, v3Module, bytesV2Module, bytesV3Module, grpcCommonModule, grpcClientModule, grpcServerModule)
 
 lazy val commonModule = Project(
   id = "common",
@@ -79,7 +79,7 @@ lazy val v2Module = Project(
       "com.google.protobuf" % "protobuf-java" % "2.6.1" % "optional"
     )
   )
-).dependsOn(commonModule, bytesModule % "test")
+).dependsOn(commonModule, bytesV2Module % "test")
 
 lazy val v3Module = Project(
   id = "gpbv3",
@@ -93,11 +93,11 @@ lazy val v3Module = Project(
   )
 ).dependsOn(commonModule)
 
-lazy val bytesModule = Project(
-  id = "bytes",
-  base = file("./bytes"),
+lazy val bytesV2Module = Project(
+  id = "bytes-gpbv2",
+  base = file("./bytes-gpbv2"),
   settings = commonSettings ++ Seq(
-    name := "cactus-bytes",
+    name := "cactus-bytes-gpbv2",
     libraryDependencies ++= Seq(
       "com.avast.bytes" % "bytes-gpb" % "2.0.3"
     )
@@ -110,7 +110,7 @@ lazy val bytesV3Module = Project(
   settings = commonSettings ++ Seq(
     name := "cactus-bytes-gpbv3"
   )
-).dependsOn(v3Module, bytesModule)
+).dependsOn(v3Module, bytesV2Module)
 
 lazy val grpcCommonModule = Project(
   id = "grpc-common",
