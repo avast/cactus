@@ -8,6 +8,18 @@ client and server generated stubs and user-defined Scala traits.
 Protoc generates both blocking and asynchronous(streaming) stubs by default, however Cactus offers mapping for only the asynchronous one
 (and currently doesn't support streaming either).
 
+### Dependency
+Gradle:
+```groovy
+compile "com.avast.cactus:grpc-client_2.12:VERSION"
+```
+SBT:
+```scala
+"com.avast.cactus" %% "grpc-client" % "VERSION"
+```
+
+### Usage
+
 ```proto
 message TestApi {
     message GetRequest {
@@ -75,6 +87,18 @@ Read the [section below](#providing-own-interceptors) before developing your own
 
 As with the [client mapping](#client-stub-mapping), you're supposed to create the server by a standard way, however the Cactus will help with
 mapping with generated Java class to your trait.
+
+### Dependency
+Gradle:
+```groovy
+compile "com.avast.cactus:grpc-server_2.12:VERSION"
+```
+SBT:
+```scala
+"com.avast.cactus" %% "grpc-server" % "VERSION"
+```
+
+### Usage
 
 ```proto
 message TestApi {

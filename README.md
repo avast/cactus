@@ -17,6 +17,25 @@ The conversion never throws an exception. If there is an exception caught during
 In case of failure (e.g. `MissingRequiredField`), a whole variable path (e.g. _gpb.fieldGpb2RepeatedRecurse.fieldGpb.fieldBlob_) is reported
 inside the failure.
 
+## Dependency
+Gradle:
+```groovy
+compile "com.avast.cactus:ARTIFACT_2.12:VERSION"
+```
+SBT:
+```scala
+"com.avast.cactus" %% "ARTIFACT" % "VERSION"
+```
+where current version is [ ![Download](https://api.bintray.com/packages/avast/maven/cactus/images/download.svg) ](https://bintray.com/avast/maven/cactus/_latestVersion)
+and _ARTIFACT_ is one of:
+1. cactus-gpbv2 (conversion of GPB v2.x.x)
+1. cactus-gpbv3 (conversion of GPB v3.x.x)
+1. bytes-gpbv2 (additional converters for support [Avast Bytes](https://github.com/avast/bytes))
+1. bytes-gpbv3 (same as `bytes-gpbv2` but supports some GPBv3 types too)
+1. grpc-client (support for mapping of gRPC client, see [docs](grpc-common/README.md))
+1. grpc-server (support for mapping of gRPC server, see [docs](grpc-common/README.md))
+
+
 ## GPB to case class
 
 We often need to map GPB message to business object (which is usually a case class) when GPB is used for communication 
@@ -51,7 +70,7 @@ For example see `JavaIntegerListStringConverter` in [test](gpbv2/src/test/scala/
 
 GPB:
 
-```
+```proto
 message Data {
     optional string     field = 1;                          // REQUIRED
     optional int32      field_int_name = 2;                 // REQUIRED
@@ -160,7 +179,7 @@ For example see `StringJavaIntegerListConverter` in [test](gpbv2/src/test/scala/
 
 GPB:
 
-```
+```proto
 message Data {
     optional string     field = 1;                          // REQUIRED
     optional int32      field_int_name = 2;                 // REQUIRED
@@ -282,3 +301,34 @@ There are following ways how to implement own `Converter`:
     ```
 
 Basic examples of custom converters may have been seen in examples above or in [unit tests](gpbv3/src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala).
+
+## Optional modules
+
+### Bytes
+
+There are modules `cactus-bytes-gpbv2` and `cactus-bytes-gpbv3` containing support for conversion between GPB types and 
+[Avast Bytes](https://github.com/avast/bytes).  
+You have to use this import to make mentioned converters available:
+```scala
+import com.avast.cactus.bytes._
+```
+Then the proto
+```proto
+message Message {
+    optional double     number = 1;	  	            // REQUIRED
+    optional bytes      blob = 2;	                // REQUIRED
+}
+```
+becomes convertible to
+```scala
+case class TheCaseClass(number: Double, blob: com.avast.bytes.Bytes)
+```
+
+When using `cactus-bytes-gpbv3` module, you can use `google.protobuf.BytesValue` in the GPB message too:
+
+```proto
+message Message {
+    optional double                       number = 1;	            // REQUIRED
+    optional google.protobuf.BytesValue   blob = 2;	                // REQUIRED
+}
+```
