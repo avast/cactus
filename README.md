@@ -26,8 +26,7 @@ SBT:
 ```scala
 "com.avast.cactus" %% "ARTIFACT" % "VERSION"
 ```
-where current version is [ ![Download](https://api.bintray.com/packages/avast/maven/cactus/images/download.svg) ](https://bintray.com/avast/maven/cactus/_latestVersion)
-and _ARTIFACT_ is one of:
+where current version is [available here](https://bintray.com/avast/maven/cactus/_latestVersion) and _ARTIFACT_ is one of:
 1. cactus-gpbv2 (conversion of GPB v2.x.x)
 1. cactus-gpbv3 (conversion of GPB v3.x.x)
 1. bytes-gpbv2 (additional converters for support [Avast Bytes](https://github.com/avast/bytes))
