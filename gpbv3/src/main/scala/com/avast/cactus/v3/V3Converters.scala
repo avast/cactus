@@ -25,6 +25,9 @@ trait V3Converters {
     Struct.newBuilder().putAllFields(m.mapValues(ValueOneOf.toGpbValue).asJava).build()
   }
 
+  implicit val EmptyToUnit: Converter[Empty, Unit] = Converter(_ => ())
+  implicit val UnitToEmpty: Converter[Unit, Empty] = Converter(_ => Empty.getDefaultInstance)
+
   implicit val doubleValue2Double: Converter[DoubleValue, Double] = Converter(_.getValue)
   implicit val stringValue2String: Converter[StringValue, String] = Converter(_.getValue)
   implicit val floatValue2Float: Converter[FloatValue, Float] = Converter(_.getValue)
