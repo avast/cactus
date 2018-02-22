@@ -16,9 +16,7 @@ trait Converter[A, B] {
 
 object Converter {
 
-  implicit def deriveGpbToCaseClassConverter[From <: MessageLite, To]: Converter[From, To] = macro CactusMacros.deriveGpbToCaseClassConverter[From, To]
-
-  implicit def deriveCaseClassToGpbConverter[From, To <: MessageLite]: Converter[From, To] = macro CactusMacros.deriveCaseClassToGpbConverter[From, To]
+  implicit def deriveCaseClassToGpbConverter[From, To]: Converter[From, To] = macro CactusMacros.deriveConverter[From, To]
 
   def checked[A, B](f: (String, A) => ResultOrErrors[B]): Converter[A, B] = new Converter[A, B] {
     override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = f(fieldPath, a)
