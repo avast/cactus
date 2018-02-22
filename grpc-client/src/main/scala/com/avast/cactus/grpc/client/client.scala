@@ -11,9 +11,9 @@ import scala.language.experimental.macros
 package object client {
 
   implicit class MapClient(val channel: Channel) extends AnyVal {
-    def createMappedClient[GrpcClientStub <: AbstractStub[GrpcClientStub], MT](
-        interceptors: ClientAsyncInterceptor*)(implicit ec: ExecutionContext, ex: Executor): MT =
-      macro com.avast.cactus.grpc.client.ClientMacros.mapClientToTraitWithInterceptors[GrpcClientStub, MT]
+    def createMappedClient[GrpcClientStub <: AbstractStub[GrpcClientStub], ClientTrait](
+        interceptors: ClientAsyncInterceptor*)(implicit ec: ExecutionContext, ex: Executor): ClientTrait =
+      macro com.avast.cactus.grpc.client.ClientMacros.mapClientToTraitWithInterceptors[GrpcClientStub, ClientTrait]
   }
 
 }

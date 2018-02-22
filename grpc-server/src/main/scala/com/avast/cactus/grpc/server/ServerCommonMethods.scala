@@ -14,12 +14,13 @@ import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 object ServerCommonMethods extends CommonMethods {
-  def executeRequest[ReqCaseClass, RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, ?]](
+  def executeRequest[ReqCaseClass, RespCaseClass, RespGpb](
       req: ReqCaseClass,
-      f: ReqCaseClass => Future[Either[Status, RespCaseClass]])(implicit ec: ExecutionContext): Future[Either[StatusException, RespGpb]] = {
+      f: ReqCaseClass => Future[Either[Status, RespCaseClass]],
+      cr: RespCaseClass => Either[StatusException, RespGpb])(implicit ec: ExecutionContext): Future[Either[StatusException, RespGpb]] = {
     f(req)
       .map {
-        case Right(resp) => convertResponse[RespCaseClass, RespGpb](resp)
+        case Right(resp) => cr(resp)
         case Left(status) => Left(new StatusException(status))
       }
   }

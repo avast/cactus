@@ -23,14 +23,18 @@ class ServerMacros(val c: whitebox.Context) {
     val apiMethods = getApiMethods(serviceType)
     val methodsMappings = getMethodsMapping(implType, apiMethods)
 
-    val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(variable, am, im) }
+    val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(am, im) }
 
     c.Expr[ServerServiceDefinition] {
-      q"""
+      val t =
+        q"""
         val service = new $serviceType {
           import com.avast.cactus.v3._
           import io.grpc._
           import com.avast.cactus.grpc.server.ServerCommonMethods._
+          import scala.concurrent.Future
+
+          private val wrapped = $variable
 
           private val interceptorsWrapper = new ServerInterceptorsWrapper(scala.collection.immutable.List(..$interceptors))
 
@@ -40,10 +44,26 @@ class ServerMacros(val c: whitebox.Context) {
         io.grpc.ServerInterceptors.intercept(service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
 
         """
+
+      if (CactusMacros.Debug) println(t)
+
+      t
     }
   }
 
-  private def generateMappingMethod(variable: Tree, apiMethod: ApiMethod, implMethod: ImplMethod): Tree = {
+  private def generateMappingMethod(apiMethod: ApiMethod, implMethod: ImplMethod): Tree = {
+
+    val convertRequest = if (apiMethod.request =:= implMethod.request) {
+      q" scala.util.Right(request) "
+    } else {
+      q" request.asCaseClass[${implMethod.request}] "
+    }
+
+    val convertResponse = if (apiMethod.response =:= implMethod.response) {
+      q" Right.apply "
+    } else {
+      q" convertResponse[${implMethod.response}, ${apiMethod.response}] "
+    }
 
     val executeRequestMethod = q" executeRequest[${implMethod.request}, ${implMethod.response}, ${apiMethod.response}] "
 
@@ -63,11 +83,11 @@ class ServerMacros(val c: whitebox.Context) {
         (createCtxMethod,
          q"""
             withContext[${implMethod.request}, ${apiMethod.response}, $ctxType](createCtx) { ctx =>
-              $executeRequestMethod(req, $variable.${implMethod.name}(_, ctx))
+              $executeRequestMethod(req, wrapped.${implMethod.name}(_, ctx), $convertResponse)
             }
            """)
 
-      case _ => (q"", q" $executeRequestMethod(req, $variable.${implMethod.name}(_)) ")
+      case _ => (q"", q" $executeRequestMethod(req, wrapped.${implMethod.name}(_), $convertResponse) ")
     }
 
     q"""
@@ -75,7 +95,7 @@ class ServerMacros(val c: whitebox.Context) {
 
         $createCtxMethod
 
-        (request.asCaseClass[MyRequest] match {
+        ($convertRequest match {
           case scala.util.Right(req) => interceptorsWrapper.withInterceptors { $executeMethod }
           case scala.util.Left(errors) =>
             Future.successful {
@@ -112,8 +132,8 @@ class ServerMacros(val c: whitebox.Context) {
     }.toMap
   }
 
-  private def metadataToContextInstance(ctxType: TypeSymbol): Tree = {
-    val fields = toCaseClassFields(ctxType)
+  private def metadataToContextInstance(ctxType: Type): Tree = {
+    val fields = toCaseClassFields(ctxType.typeSymbol)
 
     val queries = fields.map { f =>
       val t = f.typeSignature.finalResultType
@@ -146,15 +166,15 @@ class ServerMacros(val c: whitebox.Context) {
 
   private def isGpbClass(t: Type): Boolean = t.baseClasses.contains(typeOf[MessageLite].typeSymbol)
 
-  private case class ImplMethod(name: TermName, request: TypeSymbol, context: Option[TypeSymbol], response: TypeSymbol)
+  private case class ImplMethod(name: TermName, request: Type, context: Option[Type], response: Type)
 
   private object ImplMethod {
     def apply(m: MethodSymbol): ImplMethod = {
       if (m.paramLists.size != 1) c.abort(c.enclosingPosition, s"Method ${m.name} in type ${m.owner} must have exactly one parameter list")
 
       val (reqType, ctxType) = m.paramLists.head.map(_.typeSignature) match {
-        case List(req: Type) => (req.typeSymbol.asType, None)
-        case List(req: Type, ctx: Type) => (req.typeSymbol.asType, Some(ctx.typeSymbol.asType))
+        case List(req: Type) => (req, None)
+        case List(req: Type, ctx: Type) => (req, Some(ctx))
         case _ =>
           c.abort(
             c.enclosingPosition,
@@ -174,14 +194,12 @@ class ServerMacros(val c: whitebox.Context) {
       } yield ea(1))
         .getOrElse(
           c.abort(c.enclosingPosition, s"Method ${m.name} in type ${m.owner} does not have required result type Future[Either[Status, ?]]"))
-        .typeSymbol
-        .asType
 
       new ImplMethod(m.name, reqType, ctxType, respType)
     }
   }
 
-  private case class ApiMethod(name: TermName, request: TypeSymbol, response: TypeSymbol)
+  private case class ApiMethod(name: TermName, request: Type, response: Type)
 
   private object ApiMethod {
     def unapply(s: Symbol): Option[ApiMethod] = {
@@ -197,7 +215,7 @@ class ServerMacros(val c: whitebox.Context) {
         }
         .collect {
           case (name, List(req: Type, respObs: Type)) if isGpbClass(req) && respObs.typeArgs.forall(isGpbClass) =>
-            ApiMethod(name, req.typeSymbol.asType, respObs.typeArgs.head.typeSymbol.asType)
+            ApiMethod(name, req, respObs.typeArgs.head)
         }
     }
   }
