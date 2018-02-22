@@ -23,15 +23,18 @@ class ServerMacros(val c: whitebox.Context) {
     val apiMethods = getApiMethods(serviceType)
     val methodsMappings = getMethodsMapping(implType, apiMethods)
 
-    val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(variable, am, im) }
+    val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(am, im) }
 
     c.Expr[ServerServiceDefinition] {
-      q"""
+      val t =
+        q"""
         val service = new $serviceType {
           import com.avast.cactus.v3._
           import io.grpc._
           import com.avast.cactus.grpc.server.ServerCommonMethods._
           import scala.concurrent.Future
+
+          private val wrapped = $variable
 
           private val interceptorsWrapper = new ServerInterceptorsWrapper(scala.collection.immutable.List(..$interceptors))
 
@@ -41,10 +44,14 @@ class ServerMacros(val c: whitebox.Context) {
         io.grpc.ServerInterceptors.intercept(service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
 
         """
+
+      if (CactusMacros.Debug) println(t)
+
+      t
     }
   }
 
-  private def generateMappingMethod(variable: Tree, apiMethod: ApiMethod, implMethod: ImplMethod): Tree = {
+  private def generateMappingMethod(apiMethod: ApiMethod, implMethod: ImplMethod): Tree = {
 
     val convertRequest = if (apiMethod.request =:= implMethod.request) {
       q" scala.util.Right(request) "
@@ -76,11 +83,11 @@ class ServerMacros(val c: whitebox.Context) {
         (createCtxMethod,
          q"""
             withContext[${implMethod.request}, ${apiMethod.response}, $ctxType](createCtx) { ctx =>
-              $executeRequestMethod(req, $variable.${implMethod.name}(_, ctx), $convertResponse)
+              $executeRequestMethod(req, wrapped.${implMethod.name}(_, ctx), $convertResponse)
             }
            """)
 
-      case _ => (q"", q" $executeRequestMethod(req, $variable.${implMethod.name}(_), $convertResponse) ")
+      case _ => (q"", q" $executeRequestMethod(req, wrapped.${implMethod.name}(_), $convertResponse) ")
     }
 
     q"""

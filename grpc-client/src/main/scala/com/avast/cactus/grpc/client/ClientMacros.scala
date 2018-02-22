@@ -36,7 +36,8 @@ class ClientMacros(val c: whitebox.Context) {
     }
 
     c.Expr[MyTrait] {
-      q"""
+      val t =
+        q"""
          new com.avast.cactus.grpc.client.ClientInterceptorsWrapper(scala.collection.immutable.Seq(..$interceptors)) with $traitType {
             private val ex: java.util.concurrent.Executor = $ex
 
@@ -48,6 +49,10 @@ class ClientMacros(val c: whitebox.Context) {
             ..$mappingMethods
         }
        """
+
+      if (CactusMacros.Debug) println(t)
+
+      t
     }
   }
 
@@ -106,7 +111,7 @@ class ClientMacros(val c: whitebox.Context) {
         .getOrElse {
           c.abort(
             c.enclosingPosition,
-            s"Method ${m.name} of trait ${traitType.typeSymbol} does not have it's counterpart in ${stubType.typeSymbol}"
+            s"Method ${m.name} of ${traitType.typeSymbol} does not have it's counterpart in ${stubType.typeSymbol}"
           )
         }
 
@@ -116,7 +121,7 @@ class ClientMacros(val c: whitebox.Context) {
 
   private def isGpbClass(t: Type): Boolean = t.baseClasses.contains(typeOf[MessageLite].typeSymbol)
 
-  private case class ImplMethod(name: TermName, request: TypeSymbol, response: TypeSymbol)
+  private case class ImplMethod(name: TermName, request: Type, response: Type)
 
   private object ImplMethod {
     def unapply(s: Symbol): Option[ImplMethod] = {
@@ -124,7 +129,7 @@ class ClientMacros(val c: whitebox.Context) {
         val m = s.asMethod
 
         if (m.paramLists.size == 1) {
-          val reqType = m.paramLists.head.head.typeSignature.typeSymbol.asType
+          val reqType = m.paramLists.head.head.typeSignature
 
           // TODO type matching
           val serverError = typeOf[ServerError].dealias.typeSymbol
@@ -136,7 +141,7 @@ class ClientMacros(val c: whitebox.Context) {
             e <- f.typeArgs.headOption if e.dealias.typeConstructor == either // Future[Either[_,_]]
             ea <- Some(e.dealias.typeArgs) if ea.head.dealias.typeSymbol == serverError // Future[Either[ServerError,_]]
           } yield {
-            val respType = ea(1).typeSymbol.asType
+            val respType = ea(1)
 
             if (!m.isAbstract)
               c.abort(c.enclosingPosition, s"Method ${m.name} of trait ${m.owner} has to be abstract to be able to implement")
@@ -148,7 +153,7 @@ class ClientMacros(val c: whitebox.Context) {
     }
   }
 
-  private case class ApiMethod(name: TermName, request: TypeSymbol, response: TypeSymbol)
+  private case class ApiMethod(name: TermName, request: Type, response: Type)
 
   private object ApiMethod {
     def unapply(s: Symbol): Option[ApiMethod] = {
@@ -164,7 +169,7 @@ class ClientMacros(val c: whitebox.Context) {
         }
         .collect {
           case (name, (req: Type, resp: Type)) if isGpbClass(req) && resp.typeArgs.forall(isGpbClass) =>
-            ApiMethod(name, req.typeSymbol.asType, resp.typeArgs.head.typeSymbol.asType)
+            ApiMethod(name, req, resp.typeArgs.head)
         }
     }
   }
