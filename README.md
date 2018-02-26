@@ -331,3 +331,25 @@ message Message {
     optional google.protobuf.BytesValue   blob = 2;	                // REQUIRED
 }
 ```
+
+## Using Cactus in your own library
+
+Sometimes you need to wrap the Cactus parsing under the hood of your own library and be GPB-version-agnostic at the same time.  
+For example you could have method for parsing some event into a case class but the event is encoded in the GPB like this:
+```scala
+import cats.syntax.either._
+import com.google.protobuf.{MessageLite, Parser}
+import com.avast.cactus.{CactusParser, Converter}
+
+import CactusParser._ // enables the asCaseClass and asGpb methods!
+
+def parse[GpbMessage <: MessageLite: Parser: ClassTag, CaseClass: Converter[GpbMessage, ?]]: Either[Exception, CaseClass] = {
+  Try(implicitly[Parser[GpbMessage]].parseFrom(eventBody.newInputStream())) match {
+    case Success(gpb) => gpb.asCaseClass[CaseClass].leftMap(fs => new RuntimeException("Errors: " + fs.toList.mkString("[", ", ", "]")))
+    case Failure(NonFatal(e)) => Left(new RuntimeException("Could not parse GPB message", e))
+  }
+}
+```
+This is where `com.avast.cactus.CactusParser` from _cactus-common_ module should be used - depending on this module does not add dependency on neither the GPBv2 nor GPBv3.
+
+_Note: There is [Kind Projector](https://github.com/non/kind-projector) library used in the example above._
