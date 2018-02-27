@@ -339,8 +339,8 @@ object CactusMacros {
 
           fieldAnnotations.find { case (key, _) => key == classOf[GpbMap].getName } match {
             case Some((_, annot)) =>
-              val keyFieldName = annot.getOrElse("key", terminateWithWarning(c)(s"GpbMap annotation need 'key' to be filled in"))
-              val valueFieldName = annot.getOrElse("value", terminateWithWarning(c)(s"GpbMap annotation need 'value' to be filled in"))
+              val keyFieldName = annot.getOrElse("key", terminateWithInfo(c)(s"GpbMap annotation need 'key' to be filled in"))
+              val valueFieldName = annot.getOrElse("value", terminateWithInfo(c)(s"GpbMap annotation need 'value' to be filled in"))
 
               if (Debug) {
                 println(s"Converting $srcTypeSymbol to Map from message with key = '$keyFieldName' and value = '$valueFieldName'")
@@ -422,7 +422,7 @@ object CactusMacros {
                   if (srcTypeSymbol.fullName == ClassesNames.Protobuf.ProtocolStringList) {
                     typeOf[String]
                   } else {
-                    terminateWithWarning(c)(s"Expected ${ClassesNames.Protobuf.ProtocolStringList}, $srcResultType present, please report this bug")
+                    terminateWithInfo(c)(s"Expected ${ClassesNames.Protobuf.ProtocolStringList}, $srcResultType present, please report this bug")
                   }
                 }
 
@@ -496,7 +496,7 @@ object CactusMacros {
         val f = fieldType match {
           case n: FieldType.Normal[MethodSymbol, ClassSymbol, Type] =>
             val setterParam = n.setter.paramLists.headOption.flatMap(_.headOption)
-              .getOrElse(terminateWithWarning(c)(s"Could not extract param from setter for field $field"))
+              .getOrElse(terminateWithInfo(c)(s"Could not extract param from setter for field $field"))
 
             processEndType(c)(q"$caseClass.$fieldName", innerFieldPath, annotations, dstType)(setterParam.typeSignature, q"builder.${n.setter.name}", upper)
 
@@ -510,7 +510,7 @@ object CactusMacros {
       if (params.nonEmpty) { // needed because of the `head` call below
         val builderClassSymbol = gpbClassSymbol.companion.typeSignature.decls.collectFirst {
           case c: ClassSymbol if c.fullName == gpbClassSymbol.fullName + ".Builder" => c
-        }.getOrElse(terminateWithWarning(c)(s"Could not extract $gpbType.Builder"))
+        }.getOrElse(terminateWithInfo(c)(s"Could not extract $gpbType.Builder"))
 
         q"""
          {
@@ -570,8 +570,8 @@ object CactusMacros {
 
           fieldAnnotations.find { case (key, _) => key == classOf[GpbMap].getName } match {
             case Some((_, annot)) =>
-              val keyFieldName = annot.getOrElse("key", terminateWithWarning(c)(s"GpbMap annotation need 'key' to be filled in"))
-              val valueFieldName = annot.getOrElse("value", terminateWithWarning(c)(s"GpbMap annotation need 'key' to be filled in"))
+              val keyFieldName = annot.getOrElse("key", terminateWithInfo(c)(s"GpbMap annotation need 'key' to be filled in"))
+              val valueFieldName = annot.getOrElse("value", terminateWithInfo(c)(s"GpbMap annotation need 'key' to be filled in"))
 
               if (Debug) {
                 println(s"Converting Map to $dstTypeSymbol - message with key = '$keyFieldName' and value = '$valueFieldName'")
@@ -667,8 +667,7 @@ object CactusMacros {
                     typeOf[String]
                   }
                   else {
-                    c.error(c.enclosingPosition, s"Expected ${ClassesNames.Protobuf.ProtocolStringList}, $srcResultType present, please report this bug")
-                    c.abort(c.enclosingPosition, s"Expected ${ClassesNames.Protobuf.ProtocolStringList}, $srcResultType present, please report this bug")
+                    terminateWithInfo(c)(s"Expected ${ClassesNames.Protobuf.ProtocolStringList}, $srcResultType present, please report this bug")
                   }
                 }
 
@@ -733,13 +732,13 @@ object CactusMacros {
     import c.universe._
 
     if (!caseClassType.typeSymbol.isClass) {
-      c.abort(c.enclosingPosition, s"Provided type ${caseClassType.typeSymbol} is not a class")
+      terminateWithInfo(c)(s"Could not generate converter $errDesc, because ${caseClassType.typeSymbol} is not a case class")
     }
 
     val caseClassSymbol = caseClassType.typeSymbol.asClass
 
     if (!caseClassSymbol.isCaseClass) {
-      terminateWithInfo(c)(s"Could not generate converter $errDesc automatically, because ${caseClassType.typeSymbol} is not a case class")
+      terminateWithInfo(c)(s"Could not generate converter $errDesc, because ${caseClassType.typeSymbol} is not a case class")
     }
 
     val isProto3 = gpbType.baseClasses.exists(_.asType.fullName == ClassesNames.Protobuf.GeneratedMessageV3)
@@ -758,7 +757,7 @@ object CactusMacros {
       annotations.find(_ == classOf[GpbIgnored].getName) match {
         case Some(_) =>
           if (!field.asTerm.isParamWithDefault) {
-            terminateWithWarning(c)(s"Field '${field.name}' of type ${caseClassType.typeSymbol.fullName} is annotated as GpbIgnored, but doesn't have default value")
+            terminateWithInfo(c)(s"Field '${field.name}' of type ${caseClassType.typeSymbol.fullName} is annotated as GpbIgnored, but doesn't have default value")
           }
 
           None
@@ -773,7 +772,7 @@ object CactusMacros {
 
     private val newBuilderMethod = gpbType.companion.decls.collectFirst {
       case m: MethodSymbol if m.name.toString == "newBuilder" => m
-    }.getOrElse(terminateWithWarning(c)(s"Could not extract $gpbType.Builder"))
+    }.getOrElse(terminateWithInfo(c)(s"Could not extract $gpbType.Builder"))
 
     val gpbSetters = newBuilderMethod.returnType.decls.collect {
       case m: MethodSymbol if (m.name.toString.startsWith("set") || m.name.toString.startsWith("addAll") || m.name.toString.startsWith("putAll")) && !m.isStatic => m
@@ -840,14 +839,17 @@ object CactusMacros {
         setter <- gpbSetter
       } yield {
         FieldType.Normal[MethodSymbol, ClassSymbol, Type](getter, setter)
-      }).recover {
-        case err if isProto3 => // give it one more chance, it can be ONE-OF
+      }) match {
+        case Good(ft) => ft
+        case Bad(err) if isProto3 => // give it one more chance, it can be ONE-OF
           if (Debug) println(s"Testing ${dstType.typeSymbol} to being a ONE-OF")
 
           getOneOfType(c)(upper, dstType, annotations).getOrElse {
-            terminateWithWarning(c)(err)
+            terminateWithInfo(c)(err)
           }
-      }.get // gets FieldType or stops the compilation in regular way
+
+        case Bad(err) => terminateWithInfo(c)(err)
+      }
     }
   }
 
@@ -886,11 +888,11 @@ object CactusMacros {
             impls.foreach { t =>
               t.typeSignature.decls.collectFirst {
                 case m if m.isMethod && m.asMethod.isPrimaryConstructor =>
-                  if (m.asMethod.paramLists.flatten.size != 1) terminateWithWarning(c)(s"ONE-OF trait implementations has to have exactly one parameter - check $t")
+                  if (m.asMethod.paramLists.flatten.size != 1) terminateWithInfo(c)(s"ONE-OF trait implementations has to have exactly one parameter - check $t")
               }
             }
 
-            if (impls.isEmpty) terminateWithWarning(c)(s"Didn't find any implementations for $fieldTypeSymbol")
+            if (impls.isEmpty) terminateWithInfo(c)(s"Didn't find any implementations for $fieldTypeSymbol")
 
             if (Debug) println(s"$fieldTypeSymbol is a ONE-OF, name '$name', impls $impls")
 
@@ -932,7 +934,7 @@ object CactusMacros {
         getterResultType.toString match {
           case ClassesNames.Protobuf.ProtocolStringList => typeOf[java.lang.String]
           case ClassesNames.Protobuf.ListValue => typeOf[com.google.protobuf.Value]
-          case _ => terminateWithWarning(c)(s"Could not extract generic type from $getterResultType")
+          case _ => terminateWithInfo(c)(s"Could not extract generic type from $getterResultType")
         }
       }
 
@@ -945,7 +947,7 @@ object CactusMacros {
     ctTree match {
       case q"ClassTag.apply[$cl](${_}): ${_}" => cl.tpe
       case q" $cl " if cl.tpe.dealias.typeConstructor == typeOf[ClassTag[_]].dealias.typeConstructor => cl.tpe.typeArgs.head
-      case t => terminateWithWarning(c)(s"Cannot process the conversion - variable type extraction from tree '$t' failed")
+      case t => terminateWithInfo(c)(s"Cannot process the conversion - variable type extraction from tree '$t' failed")
     }
   }
 
@@ -960,7 +962,7 @@ object CactusMacros {
       case q"${_}[${_}]($n)" => n
       case q"${_}($n)" => n
 
-      case t => terminateWithWarning(c)(s"Cannot process the conversion - variable name extraction from tree '$t' failed")
+      case t => terminateWithInfo(c)(s"Cannot process the conversion - variable name extraction from tree '$t' failed")
     }
 
     q" $variable "
@@ -1090,11 +1092,6 @@ object CactusMacros {
 
     val key = s"${aKey}__$bKey"
     key
-  }
-
-  def terminateWithWarning(c: whitebox.Context)(msg: String = ""): Nothing = {
-    if (msg != "") c.warning(c.enclosingPosition, "Cactus: " + msg)
-    c.abort(c.enclosingPosition, "Could not proceed")
   }
 
   def terminateWithInfo(c: whitebox.Context)(msg: String = ""): Nothing = {
