@@ -125,7 +125,12 @@ class ServerMacros(val c: whitebox.Context) {
     apiMethods.map { apiMethod =>
       val implMethod = implMethods.filter(_.name == apiMethod.name) match {
         case List(m) => m
-        case _ => c.abort(c.enclosingPosition, s"Method ${apiMethod.name} in type ${ot.typeSymbol} must have exactly one alternative")
+        case l =>
+          c.info(c.enclosingPosition, "Found methods:\n" + l.map(CactusMacros.methodToString(c)).mkString("- ", "\n- ", ""), force = true)
+          c.abort(
+            c.enclosingPosition,
+            s"Method ${apiMethod.name} in type ${ot.typeSymbol} must have exactly one alternative, found ${l.size}"
+          )
       }
 
       apiMethod -> ImplMethod(implMethod)

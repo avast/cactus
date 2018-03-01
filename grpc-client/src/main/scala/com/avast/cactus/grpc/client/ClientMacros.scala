@@ -82,7 +82,7 @@ class ClientMacros(val c: whitebox.Context) {
     if (nonGrpcAbstractMethods.nonEmpty) {
       val foundIllegalMethods = nonGrpcAbstractMethods
         .map { m =>
-          s"${m.name}${m.paramLists.map(_.map(_.typeSignature).mkString("(", ", ", ")")).mkString}:${m.returnType.finalResultType}"
+          CactusMacros.methodToString(c)(m)
         }
         .mkString("\n - ", "\n - ", "")
 

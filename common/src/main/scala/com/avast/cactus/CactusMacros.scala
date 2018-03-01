@@ -1094,6 +1094,10 @@ object CactusMacros {
     key
   }
 
+  def methodToString(c: whitebox.Context)(m: c.universe.MethodSymbol): String = {
+    s"${m.name}${m.paramLists.map(_.map(_.typeSignature).mkString("(", ", ", ")")).mkString}:${m.returnType.finalResultType}"
+  }
+
   def terminateWithInfo(c: whitebox.Context)(msg: String = ""): Nothing = {
     if (msg != "") c.info(c.enclosingPosition, "Cactus: " + msg, force = false)
     c.abort(c.enclosingPosition, "Could not proceed")
