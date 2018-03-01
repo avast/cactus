@@ -13,7 +13,7 @@ import org.mockito.Mockito._
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Eventually
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.time.{Seconds, Span}
+import org.scalatest.time.{Milliseconds, Seconds, Span}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -21,7 +21,7 @@ import scala.util.Random
 
 class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
-  private implicit val p: PatienceConfig = PatienceConfig(timeout = Span(1, Seconds))
+  private implicit val p: PatienceConfig = PatienceConfig(timeout = Span(2, Seconds), interval = Span(50, Milliseconds))
 
   def randomString(length: Int): String = {
     Random.alphanumeric.take(length).mkString("")
@@ -192,10 +192,10 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
     val service = impl
       .mappedToService[TestApiServiceImplBase]((m: GrpcMetadata) => {
-      Future.successful {
-        Right(m.copy(context = m.context.withValue(ContextKeys.get[MyContext2Content]("content"), cont)))
-      }
-    })
+        Future.successful {
+          Right(m.copy(context = m.context.withValue(ContextKeys.get[MyContext2Content]("content"), cont)))
+        }
+      })
 
     InProcessServerBuilder
       .forName(channelName)

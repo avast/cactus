@@ -2,16 +2,16 @@ package com.avast.cactus.grpc.client
 
 import java.util.concurrent.Executor
 
+import com.avast.cactus.grpc._
 import com.avast.cactus.grpc.client.TestApi.{GetRequest, GetResponse}
 import com.avast.cactus.grpc.client.TestApiServiceGrpc.TestApiServiceFutureStub
-import com.avast.cactus.grpc._
 import io.grpc._
 import io.grpc.inprocess.{InProcessChannelBuilder, InProcessServerBuilder}
 import io.grpc.stub.StreamObserver
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.time.{Seconds, Span}
+import org.scalatest.time.{Milliseconds, Seconds, Span}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,7 +19,7 @@ import scala.util.Random
 
 class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
-  private implicit val p: PatienceConfig = PatienceConfig(timeout = Span(1, Seconds))
+  private implicit val p: PatienceConfig = PatienceConfig(timeout = Span(2, Seconds), interval = Span(50, Milliseconds))
 
   private implicit val ex: Executor = ExecutionContext.global
 
