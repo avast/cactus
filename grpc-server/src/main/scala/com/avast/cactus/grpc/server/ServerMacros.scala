@@ -117,10 +117,19 @@ class ServerMacros(val c: whitebox.Context) {
     }
   }.toSeq
 
-  private def getMethodsMapping(ot: Type, apiMethods: Seq[ApiMethod]): Map[ApiMethod, ImplMethod] = {
-    val implMethods = ot.members.collect {
+  private val standardJavaMethods: Set[MethodSymbol] = {
+    typeOf[Object].members.collect {
       case m if m.isMethod => m.asMethod
-    }.toList
+    }.toSet
+  }
+
+  private def getMethodsMapping(ot: Type, apiMethods: Seq[ApiMethod]): Map[ApiMethod, ImplMethod] = {
+    val implMethods = ot.members
+      .collect {
+        case m if m.isMethod => m.asMethod
+      }
+      .toList
+      .filterNot(standardJavaMethods.contains) // filter out standard Java methods - wait, notify, ...
 
     apiMethods.map { apiMethod =>
       val implMethod = implMethods.filter(_.name == apiMethod.name) match {
