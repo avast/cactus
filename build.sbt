@@ -4,7 +4,7 @@ crossScalaVersions := Seq("2.12.4")
 
 lazy val Versions = new {
   val gpb3Version = "3.3.0"
-  val grpcVersion = "1.9.0"
+  val grpcVersion = "1.10.0"
 }
 
 lazy val commonSettings = Seq(
