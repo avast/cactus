@@ -130,6 +130,7 @@ case class CaseClassB(
 )
 
 object Test extends App {
+  // Warning: You may be missing some version-specific support without this import, e.g. GPBv3 value wrappers.
   import com.avast.cactus.v2._ // or v3
   
   val gpbInternal = Data2.newBuilder()
@@ -222,6 +223,7 @@ case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: St
 
 
 object Test extends App {
+  // Warning: You may be missing some version-specific support without this import, e.g. GPBv3 value wrappers.
   import com.avast.cactus.v2._ // or v3
   
   val caseClassB = CaseClassB(0.9, "text")
