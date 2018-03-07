@@ -303,7 +303,7 @@ There are following ways how to implement own `Converter`:
     There are multiple methods which allow you to manually derive and combine converters on the `Converter` trait
     (see [ConverterMethods](common/src/main/scala/com/avast/cactus/ConverterMethods.scala)).      
     For example:
-    * You have `Converter[A, B]` - you can derive `Converter[A, C]` by using `converterAB.map((a: A) => ???:C)`.
+    * You have `Converter[A, B]` - you can derive `Converter[A, C]` by using `converterAB.map((b: B) => ???:C)`.
     * You have `Converter[A, B]` - you can derive `Converter[Seq[B], C]`:
         ```scala
         case class A(value: Int)
@@ -313,11 +313,17 @@ There are following ways how to implement own `Converter`:
         val convAtoB = Converter[A, B] { a =>
           B(a.value.toString)
         }
-        val convSeqAtoC: Converter[Seq[A], C] = convAtoB.mapSeq(sb => C(sb.map(_.value)))
+        val convSeqAtoC: Converter[Seq[A], C] = convAtoB.mapSeq((sb: Seq[B]) => C(sb.map(_.value)))
         
         assertResult(Right(C(Seq("1", "2", "3"))))(convSeqAtoC.apply("fieldName")(Seq(A(1), A(2), A(3))))
         ```
-    See [unit tests](common/src/test/scala/com/avast/cactus/ConverterMethodsTest.scala) for more examples..scala
+    See [unit tests](common/src/test/scala/com/avast/cactus/ConverterMethodsTest.scala) for more examples.
+    
+    Note: You can let Cactus derive `Converter[A, B]` automatically and use it then, e.g.
+    ```scala
+      val convAtoB = implicitly[Converter[A, B]]
+      val convSeqAtoC: Converter[Seq[A], C] = convAtoB.mapSeq((sb: Seq[B]) => C(sb.map(_.value)))
+    ```
     
 
 Basic examples of custom converters may have been seen in examples above or in [unit tests](gpbv3/src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala).
