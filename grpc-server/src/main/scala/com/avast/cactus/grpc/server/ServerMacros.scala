@@ -149,6 +149,10 @@ class ServerMacros(val c: whitebox.Context) {
   private def metadataToContextInstance(ctxType: Type): Tree = {
     val fields = toCaseClassFields(ctxType.typeSymbol)
 
+    if (fields.isEmpty) {
+      c.abort(c.enclosingPosition, s"Context case class $ctxType must have some fields")
+    }
+
     val queries = fields.map { f =>
       val t = f.typeSignature.finalResultType
       fq" ${f.name.toTermName} <- Option(com.avast.cactus.grpc.ContextKeys.get[$t](${f.name.toString}).get(ctx)) "
