@@ -1,7 +1,6 @@
 package com.avast.cactus
 
 import cats.implicits._
-import com.google.protobuf.MessageLite
 import org.scalactic.Or
 
 import scala.annotation.implicitNotFound
@@ -10,13 +9,17 @@ import scala.language.experimental.macros
 import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
-trait Converter[A, B] {
+trait Converter[A, B] extends ConverterMethods[A, B] {
   def apply(fieldPath: String)(a: A): ResultOrErrors[B]
 }
 
 object Converter {
 
   implicit def deriveConverter[From, To]: Converter[From, To] = macro CactusMacros.deriveConverter[From, To]
+
+  def pure[A, B](value: B): Converter[A, B] = Converter(_ => value)
+
+  def failed[A, B](errors: CactusFailures): Converter[A, B] = Converter.checked((_, _) => Left(errors))
 
   def checked[A, B](f: (String, A) => ResultOrErrors[B]): Converter[A, B] = new Converter[A, B] {
     override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = f(fieldPath, a)
