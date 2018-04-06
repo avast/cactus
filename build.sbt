@@ -56,96 +56,76 @@ lazy val macroSettings = Seq(
 lazy val root = Project(id = "rootProject",
   base = file(".")) settings (publish := {}) aggregate(commonModule, v2Module, v3Module, bytesV2Module, bytesV3Module, grpcCommonModule, grpcClientModule, grpcServerModule)
 
-lazy val commonModule = Project(
-  id = "common",
-  base = file("./common"),
-  settings = commonSettings ++ macroSettings ++ Seq(
-    name := "cactus-common",
-    libraryDependencies ++= Seq(
-      "com.google.protobuf" % "protobuf-java" % Versions.gpb3Version % "optional",
-      "com.google.protobuf" % "protobuf-java-util" % Versions.gpb3Version % "optional",
+lazy val commonModule = Project(id = "common", base = file("./common")).settings(
+  commonSettings,
+  macroSettings,
+  name := "cactus-common",
+  libraryDependencies ++= Seq(
+    "com.google.protobuf" % "protobuf-java" % Versions.gpb3Version % "optional",
+    "com.google.protobuf" % "protobuf-java-util" % Versions.gpb3Version % "optional",
 
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value
-    )
+    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+    "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
 )
 
-lazy val v2Module = Project(
-  id = "gpbv2",
-  base = file("./gpbv2"),
-  settings = commonSettings ++ Seq(
-    name := "cactus-gpbv2",
-    libraryDependencies ++= Seq(
-      "com.google.protobuf" % "protobuf-java" % "2.6.1" % "optional"
-    )
+lazy val v2Module = Project(id = "gpbv2", base = file("./gpbv2")).settings(
+  commonSettings,
+  name := "cactus-gpbv2",
+  libraryDependencies ++= Seq(
+    "com.google.protobuf" % "protobuf-java" % "2.6.1" % "optional"
   )
 ).dependsOn(commonModule, bytesV2Module % "test")
 
-lazy val v3Module = Project(
-  id = "gpbv3",
-  base = file("./gpbv3"),
-  settings = commonSettings ++ Seq(
-    name := "cactus-gpbv3",
-    libraryDependencies ++= Seq(
-      "com.google.protobuf" % "protobuf-java" % Versions.gpb3Version,
-      "com.google.protobuf" % "protobuf-java-util" % Versions.gpb3Version
-    )
+lazy val v3Module = Project(id = "gpbv3", base = file("./gpbv3")).settings(
+  commonSettings,
+  name := "cactus-gpbv3",
+  libraryDependencies ++= Seq(
+    "com.google.protobuf" % "protobuf-java" % Versions.gpb3Version,
+    "com.google.protobuf" % "protobuf-java-util" % Versions.gpb3Version
   )
 ).dependsOn(commonModule)
 
-lazy val bytesV2Module = Project(
-  id = "bytes-gpbv2",
-  base = file("./bytes-gpbv2"),
-  settings = commonSettings ++ Seq(
-    name := "cactus-bytes-gpbv2",
-    libraryDependencies ++= Seq(
-      "com.avast.bytes" % "bytes-gpb" % "2.0.3"
-    )
+lazy val bytesV2Module = Project(id = "bytes-gpbv2", base = file("./bytes-gpbv2")).settings(
+  commonSettings,
+  name := "cactus-bytes-gpbv2",
+  libraryDependencies ++= Seq(
+    "com.avast.bytes" % "bytes-gpb" % "2.0.3"
   )
 ).dependsOn(commonModule)
 
-lazy val bytesV3Module = Project(
-  id = "bytes-gpbv3",
-  base = file("./bytes-gpbv3"),
-  settings = commonSettings ++ Seq(
-    name := "cactus-bytes-gpbv3"
-  )
+lazy val bytesV3Module = Project(id = "bytes-gpbv3", base = file("./bytes-gpbv3")).settings(
+  commonSettings,
+  name := "cactus-bytes-gpbv3"
 ).dependsOn(v3Module, bytesV2Module)
 
-lazy val grpcCommonModule = Project(
-  id = "grpc-common",
-  base = file("./grpc-common"),
-  settings = commonSettings ++ macroSettings ++ Seq(
-    name := "cactus-grpc-common",
-    libraryDependencies ++= Seq(
-      "io.grpc" % "grpc-protobuf" % Versions.grpcVersion,
-      "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test",
-      "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
-    )
+lazy val grpcCommonModule = Project(id = "grpc-common", base = file("./grpc-common")).settings(
+  commonSettings,
+  macroSettings,
+  name := "cactus-grpc-common",
+  libraryDependencies ++= Seq(
+    "io.grpc" % "grpc-protobuf" % Versions.grpcVersion,
+    "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test",
+    "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
   )
 ).dependsOn(v3Module)
 
-lazy val grpcClientModule = Project(
-  id = "grpc-client",
-  base = file("./grpc-client"),
-  settings = commonSettings ++ macroSettings ++ Seq(
-    name := "cactus-grpc-client",
-    libraryDependencies ++= Seq(
-      "io.grpc" % "grpc-stub" % Versions.grpcVersion,
-      "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
-    )
+lazy val grpcClientModule = Project(id = "grpc-client", base = file("./grpc-client")).settings(
+  commonSettings,
+  macroSettings,
+  name := "cactus-grpc-client",
+  libraryDependencies ++= Seq(
+    "io.grpc" % "grpc-stub" % Versions.grpcVersion,
+    "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
   )
 ).dependsOn(grpcCommonModule)
 
-lazy val grpcServerModule = Project(
-  id = "grpc-server",
-  base = file("./grpc-server"),
-  settings = commonSettings ++ macroSettings ++ Seq(
-    name := "cactus-grpc-server",
-    libraryDependencies ++= Seq(
-      "io.grpc" % "grpc-services" % Versions.grpcVersion,
-      "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test"
-    )
+lazy val grpcServerModule = Project(id = "grpc-server", base = file("./grpc-server")).settings(
+  commonSettings,
+  macroSettings,
+  name := "cactus-grpc-server",
+  libraryDependencies ++= Seq(
+    "io.grpc" % "grpc-services" % Versions.grpcVersion,
+    "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test"
   )
 ).dependsOn(grpcCommonModule)
