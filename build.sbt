@@ -1,10 +1,16 @@
 import sbt.Keys._
 
+val logger: Logger = ConsoleLogger()
+
 crossScalaVersions := Seq("2.12.5")
 
 lazy val Versions = new {
-  val gpb3Version = "3.5.1"
   val grpcVersion = "1.11.0"
+  val gpb3Version = "3.5.1"
+  val gpb2Version = "2.6.1"
+
+  val GPBv2 = gpb2Version.replace(".", "")
+  val GPBv3 = gpb3Version.replace(".", "")
 }
 
 lazy val commonSettings = Seq(
@@ -53,6 +59,37 @@ lazy val macroSettings = Seq(
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
 )
 
+def gpbTestGenSettings(v: String) = inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings) ++ Seq(
+  PB.protocVersion := s"-v$v",
+  PB.targets in Test := Seq(
+    PB.gens.java -> (sourceManaged in Test).value
+  ),
+  PB.includePaths in Compile ++= {
+    Seq((baseDirectory in Test).value / "..")
+  }
+)
+
+lazy val grpcTestGenSettings = gpbTestGenSettings(Versions.GPBv3) ++ Seq(
+  grpcExePath := xsbti.api.SafeLazy.strict {
+    val exe: File = (baseDirectory in Test).value / ".bin" / grpcExeFileName
+    if (!exe.exists) {
+      logger.info("gRPC protoc plugin (for Java) does not exist. Downloading")
+      //    IO.download(grpcExeUrl, exe)
+      IO.transfer(grpcExeUrl.openStream(), exe)
+      exe.setExecutable(true)
+    } else {
+      logger.debug("gRPC protoc plugin (for Java) exists")
+    }
+    exe
+  },
+  PB.protocOptions in Test ++= Seq(
+    s"--plugin=protoc-gen-java_rpc=${grpcExePath.value.get}",
+    s"--java_rpc_out=${(sourceManaged in Test).value.getAbsolutePath}"
+  ),
+)
+
+/* --- --- --- --- ---  */
+
 lazy val root = Project(id = "rootProject",
   base = file(".")) settings (publish := {}) aggregate(commonModule, v2Module, v3Module, bytesV2Module, bytesV3Module, grpcCommonModule, grpcClientModule, grpcServerModule)
 
@@ -71,6 +108,7 @@ lazy val commonModule = Project(id = "common", base = file("./common")).settings
 
 lazy val v2Module = Project(id = "gpbv2", base = file("./gpbv2")).settings(
   commonSettings,
+  gpbTestGenSettings(Versions.GPBv2),
   name := "cactus-gpbv2",
   libraryDependencies ++= Seq(
     "com.google.protobuf" % "protobuf-java" % "2.6.1" % "optional"
@@ -79,6 +117,7 @@ lazy val v2Module = Project(id = "gpbv2", base = file("./gpbv2")).settings(
 
 lazy val v3Module = Project(id = "gpbv3", base = file("./gpbv3")).settings(
   commonSettings,
+  gpbTestGenSettings(Versions.GPBv3),
   name := "cactus-gpbv3",
   libraryDependencies ++= Seq(
     "com.google.protobuf" % "protobuf-java" % Versions.gpb3Version,
@@ -113,6 +152,7 @@ lazy val grpcCommonModule = Project(id = "grpc-common", base = file("./grpc-comm
 lazy val grpcClientModule = Project(id = "grpc-client", base = file("./grpc-client")).settings(
   commonSettings,
   macroSettings,
+  grpcTestGenSettings,
   name := "cactus-grpc-client",
   libraryDependencies ++= Seq(
     "io.grpc" % "grpc-stub" % Versions.grpcVersion,
@@ -123,9 +163,27 @@ lazy val grpcClientModule = Project(id = "grpc-client", base = file("./grpc-clie
 lazy val grpcServerModule = Project(id = "grpc-server", base = file("./grpc-server")).settings(
   commonSettings,
   macroSettings,
+  grpcTestGenSettings,
   name := "cactus-grpc-server",
   libraryDependencies ++= Seq(
     "io.grpc" % "grpc-services" % Versions.grpcVersion,
     "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test"
   )
 ).dependsOn(grpcCommonModule)
+
+/* --- --- --- --- ---  */
+
+def grpcExeFileName: String = {
+  val os = if (scala.util.Properties.isMac) {
+    "osx-x86_64"
+  } else if (scala.util.Properties.isWin) {
+    "windows-x86_64"
+  } else {
+    "linux-x86_64"
+  }
+  s"$grpcArtifactId-${Versions.grpcVersion}-$os.exe"
+}
+
+val grpcArtifactId = "protoc-gen-grpc-java"
+val grpcExeUrl = url(s"http://repo1.maven.org/maven2/io/grpc/$grpcArtifactId/${Versions.grpcVersion}/$grpcExeFileName")
+val grpcExePath = SettingKey[xsbti.api.Lazy[File]]("grpcExePath")
