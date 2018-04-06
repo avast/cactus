@@ -41,7 +41,7 @@ class ClientMacros(val c: whitebox.Context) {
          new com.avast.cactus.grpc.client.ClientInterceptorsWrapper(scala.collection.immutable.Seq(..$interceptors)) with $traitType {
             private val ex: java.util.concurrent.Executor = $ex
 
-            private val stub = $stub
+            private def stub = $stub
 
             import com.avast.cactus.grpc.client.ClientCommonMethods._
             import com.avast.cactus.v3._
