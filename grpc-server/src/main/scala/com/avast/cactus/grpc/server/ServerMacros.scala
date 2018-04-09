@@ -11,7 +11,7 @@ class ServerMacros(val c: whitebox.Context) {
   import c.universe._
 
   def mapImplToService[Service <: BindableService: WeakTypeTag](interceptors: c.Tree*)(ct: Tree,
-                                                                                       ec: c.Tree): c.Expr[ServerServiceDefinition] = {
+                                                                                       ec: c.Tree): c.Expr[GrpcService[Service]] = {
     // this method require `ec` as an argument but only to secure the EC will be present. If it's visible by the macro method, it has to be
     // visible also for the generated code thus it's ok to not use the argument
 
@@ -25,7 +25,7 @@ class ServerMacros(val c: whitebox.Context) {
 
     val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(am, im) }
 
-    c.Expr[ServerServiceDefinition] {
+    c.Expr[GrpcService[Service]] {
       val t =
         q"""
         val service = new $serviceType {
@@ -41,7 +41,7 @@ class ServerMacros(val c: whitebox.Context) {
           ..$mappingMethods
         }
 
-        io.grpc.ServerInterceptors.intercept(service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
+        new DefaultGrpcService[$serviceType](service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
 
         """
 
