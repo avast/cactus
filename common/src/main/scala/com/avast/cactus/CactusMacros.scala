@@ -104,7 +104,7 @@ object CactusMacros {
       t.isClass && t.asClass.isCaseClass
     }
 
-    if (isCaseClass(fromType.typeSymbol) && isProtoBuf(c)(toType)) {
+    val res = if (isCaseClass(fromType.typeSymbol) && isProtoBuf(c)(toType)) {
       deriveCaseClassToGpbConverter[From, To](c)
     } else {
       if (isCaseClass(toType.typeSymbol) && isProtoBuf(c)(fromType)) {
@@ -113,6 +113,12 @@ object CactusMacros {
         c.abort(c.enclosingPosition, s"Could not generate converter from $fromType to $toType")
       }
     }
+
+    if (Debug) {
+      println(s"Returning:\n$res")
+    }
+
+    res
   }
 
   private def deriveGpbToCaseClassConverter[GpbClass: c.WeakTypeTag, CaseClass: c.WeakTypeTag](c: whitebox.Context): c.Expr[Converter[GpbClass, CaseClass]] = {
