@@ -90,6 +90,43 @@ case class CaseClassC(fieldGpb: Seq[CaseClassB], @GpbOneOf namedOneOf: Option[On
 
 ```
 
+The format of sealed trait impls is limited. It has to be either `case class` with exactly one field (no matter what it's name is but the
+type obviously has to match the one in GPB) OR `case object` (which has `google.protobuf.Empty` as it's counterpart in the GPB):
+
+```scala
+import com.avast.cactus.v3._
+import com.avast.cactus.v3.ValueOneOf._
+
+/*
+
+import "google/protobuf/empty.proto";
+
+message Data {
+    repeated Data2      field_gpb = 1;
+
+    oneof named_one_of {
+             int32                  foo_int = 2;
+             string                foo_string = 3;
+             google.protobuf.Empty foo_empty = 4;
+    }
+}
+*/
+
+sealed trait OneOfNamed
+
+object OneOfNamed {
+
+  case class FooInt(whatever: Int) extends OneOfNamed
+
+  case class FooString(value: String) extends OneOfNamed
+  
+  case object FooEmpty extends OneOfNamed
+
+}
+
+case class CaseClassA(fieldGpb: Seq[CaseClassB], @GpbOneOf oneOfNamed: OneOfNamed)
+```
+
 ## Map
 GPB v3 has native support for maps - the map is then directly in the GPB as the `java.util.Map` class. Cactus supports this the same as custom
 maps implementations by repeated field (GPBv2 way).

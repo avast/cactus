@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
 
 message Data {
              string     field_string = 1;                   // REQUIRED
@@ -37,10 +38,11 @@ message Data2 {
 message Data3 {
     repeated Data2      field_gpb = 1;	  	                // REQUIRED
 
-    oneof named_one_of {
-             int32      foo_int = 2;
-             string     foo_string = 3;
-             bytes      foo_bytes = 4;
+    oneof named_one_of2 {
+             int32                      foo_int = 2;
+             string                     foo_string = 3;
+             bytes                      foo_bytes = 4;
+             google.protobuf.Empty      foo_empty = 5;
     }
 }
 

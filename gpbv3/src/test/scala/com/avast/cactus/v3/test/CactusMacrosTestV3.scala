@@ -7,7 +7,7 @@ import com.avast.cactus._
 import com.avast.cactus.v3.TestMessageV3._
 import com.avast.cactus.v3.ValueOneOf.NumberValue
 import com.avast.cactus.v3._
-import com.google.protobuf.{Any, BoolValue, ByteString, BytesValue, DoubleValue, FloatValue, Int32Value, Int64Value, InvalidProtocolBufferException, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
+import com.google.protobuf.{Any, BoolValue, ByteString, BytesValue, DoubleValue, Empty, FloatValue, Int32Value, Int64Value, InvalidProtocolBufferException, ListValue, StringValue, Struct, Value, Duration => GpbDuration, Timestamp => GpbTimestamp}
 import org.scalatest.FunSuite
 
 import scala.collection.JavaConverters._
@@ -66,7 +66,7 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val caseClassB = CaseClassB(0.9, text)
 
-    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed2.FooInt(9)))
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed3.FooInt(9)))
     val caseClassF = CaseClassF(Seq(caseClassB, caseClassB, caseClassB), None)
 
     val expected = CaseClassA("ahoj", 9, Some(0), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
@@ -92,7 +92,7 @@ class CactusMacrosTestV3 extends FunSuite {
       .setFieldGpb3(Data5.newBuilder().build())
       .build()
 
-    val expected = List("gpb.fieldGpb", "gpb.fieldGpb2").map(MissingFieldFailure).sortBy(_.toString) :+ OneOfValueNotSetFailure("gpb.fieldGpb2RepeatedRecurse.NamedOneOf")
+    val expected = List("gpb.fieldGpb", "gpb.fieldGpb2").map(MissingFieldFailure).sortBy(_.toString) :+ OneOfValueNotSetFailure("gpb.fieldGpb2RepeatedRecurse.NamedOneOf2")
 
     gpb.asCaseClass[CaseClassA] match {
       case Left(e) =>
@@ -108,7 +108,7 @@ class CactusMacrosTestV3 extends FunSuite {
 
     val caseClassB = CaseClassB(0.9, "text")
 
-    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed2.FooInt(9)))
+    val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB), OneOfNamed3.FooInt(9)))
     val caseClassF = CaseClassF(Seq(caseClassB, caseClassB, caseClassB), None)
 
     val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, caseClassB, caseClassF, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
@@ -142,6 +142,20 @@ class CactusMacrosTestV3 extends FunSuite {
     caseClass.asGpb[Data] match {
       case Right(e) if e == expectedGpb => // ok
     }
+  }
+
+  test("one-of with case object") {
+    val gpb = Data3.newBuilder().setFooEmpty(Empty.getDefaultInstance).build()
+
+    val caseClassD = CaseClassD(Seq(), OneOfNamed3.FooEmpty)
+
+    val Right(cc) = gpb.asCaseClass[CaseClassD]
+
+    assertResult(caseClassD)(cc)
+
+    val Right(convGpb) = cc.asGpb[Data3]
+
+    assertResult(gpb)(convGpb)
   }
 
   test("convert case class to GPB and back") {
@@ -317,7 +331,7 @@ case class CaseClassA(fieldString: String,
 
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
-case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf @GpbName("NamedOneOf") oneOfNamed: OneOfNamed2)
+case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf @GpbName("NamedOneOf2") oneOfNamed: OneOfNamed3)
 
 case class CaseClassF(fieldGpb: Seq[CaseClassB], @GpbOneOf namedOneOf: Option[OneOfNamed])
 
@@ -355,22 +369,24 @@ sealed trait OneOfNamed
 
 object OneOfNamed {
 
-  case class FooInt(value: Int) extends OneOfNamed
+  case class FooInt(theInt: Int) extends OneOfNamed // to prove the name is not relevant
 
   case class FooString(value: String) extends OneOfNamed
 
 }
 
 
-sealed trait OneOfNamed2
+sealed trait OneOfNamed3
 
-object OneOfNamed2 {
+object OneOfNamed3 {
 
-  case class FooInt(value: Int) extends OneOfNamed2
+  case class FooInt(value: Int) extends OneOfNamed3
 
-  case class FooString(value: String) extends OneOfNamed2
+  case class FooString(value: String) extends OneOfNamed3
 
-  case class FooBytes(value: String) extends OneOfNamed2
+  case class FooBytes(value: String) extends OneOfNamed3
+
+  case object FooEmpty extends OneOfNamed3
 
 }
 
