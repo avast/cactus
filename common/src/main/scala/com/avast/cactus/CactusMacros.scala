@@ -27,6 +27,7 @@ object CactusMacros {
       val ByteString = "com.google.protobuf.ByteString"
       val MessageLite = "com.google.protobuf.MessageLite"
       val GeneratedMessageV3 = "com.google.protobuf.GeneratedMessageV3"
+      val Empty = "com.google.protobuf.Empty"
     }
 
     object Scala {
@@ -894,7 +895,15 @@ object CactusMacros {
             impls.foreach { t =>
               t.typeSignature.decls.collectFirst {
                 case m if m.isMethod && m.asMethod.isPrimaryConstructor =>
-                  if (m.asMethod.paramLists.flatten.size != 1) terminateWithInfo(c)(s"ONE-OF trait implementations has to have exactly one parameter - check $t")
+                  if (!t.isCaseClass) terminateWithInfo(c)(s"ONE-OF trait implementations has to be either case class or case object - check $t")
+
+                  if (m.asMethod.paramLists.flatten.size != 1) {
+                    if (Debug) println(s"$t does not have exactly 1 parameter - testing if it's object")
+
+                    if (!(m.asMethod.paramLists.flatten.isEmpty && t.asClass.isModuleClass)) { // allow objects
+                      terminateWithInfo(c)(s"ONE-OF trait implementations has to have exactly one parameter - check $t")
+                    }
+                  }
               }
             }
 
