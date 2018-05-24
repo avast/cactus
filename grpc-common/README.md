@@ -11,11 +11,11 @@ Protoc generates both blocking and asynchronous(streaming) stubs by default, how
 ### Dependency
 Gradle:
 ```groovy
-compile "com.avast.cactus:grpc-client_2.12:VERSION"
+compile "com.avast.cactus:cactus-grpc-client_2.12:VERSION"
 ```
 SBT:
 ```scala
-"com.avast.cactus" %% "grpc-client" % "VERSION"
+"com.avast.cactus" %% "cactus-grpc-client" % "VERSION"
 ```
 
 ### Usage
@@ -91,11 +91,11 @@ mapping with generated Java class to your trait.
 ### Dependency
 Gradle:
 ```groovy
-compile "com.avast.cactus:grpc-server_2.12:VERSION"
+compile "com.avast.cactus:cactus-grpc-server_2.12:VERSION"
 ```
 SBT:
 ```scala
-"com.avast.cactus" %% "grpc-server" % "VERSION"
+"com.avast.cactus" %% "cactus-grpc-server" % "VERSION"
 ```
 
 ### Usage
