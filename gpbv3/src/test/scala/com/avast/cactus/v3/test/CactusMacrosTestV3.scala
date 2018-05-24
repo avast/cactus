@@ -369,7 +369,7 @@ sealed trait OneOfNamed
 
 object OneOfNamed {
 
-  case class FooInt(value: Int) extends OneOfNamed
+  case class FooInt(theInt: Int) extends OneOfNamed // to prove the name is not relevant
 
   case class FooString(value: String) extends OneOfNamed
 
