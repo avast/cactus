@@ -20,7 +20,9 @@ class ClientMacros(val c: whitebox.Context) {
     val traitTypeSymbol = traitType.typeSymbol
 
     if (!traitTypeSymbol.isClass || !traitTypeSymbol.asClass.isTrait || traitTypeSymbol.typeSignature.takesTypeArgs) {
-      c.abort(c.enclosingPosition, s"The $traitTypeSymbol must be a plain trait without type arguments")
+      CactusMacros.terminateWithInfo(c) {
+        s"The $traitTypeSymbol must be a plain trait without type arguments"
+      }
     }
 
     val apiMethods = getApiMethods(stubType)
@@ -38,15 +40,17 @@ class ClientMacros(val c: whitebox.Context) {
     c.Expr[MyTrait] {
       val t =
         q"""
-         new com.avast.cactus.grpc.client.ClientInterceptorsWrapper(scala.collection.immutable.Seq(..$interceptors)) with $traitType {
+         new com.avast.cactus.grpc.client.ClientInterceptorsWrapper(scala.collection.immutable.Seq(..$interceptors)) with $traitType with _root_.java.lang.AutoCloseable {
             private val ex: java.util.concurrent.Executor = $ex
 
-            private def stub = $stub
+            private def newStub = $stub
 
             import com.avast.cactus.grpc.client.ClientCommonMethods._
             import com.avast.cactus.v3._
 
             ..$mappingMethods
+
+            override def close(): Unit = $channelVar.shutdownNow()
         }
        """
 
@@ -59,6 +63,8 @@ class ClientMacros(val c: whitebox.Context) {
   private def generateMappingMethod(implMethod: ImplMethod, apiMethod: ApiMethod): Tree = {
     q"""
        override def ${implMethod.name}(request: ${implMethod.request}): scala.concurrent.Future[com.avast.cactus.grpc.ServerResponse[${implMethod.response}]] = withInterceptors {
+          val stub = newStub
+
           request.asGpb[${apiMethod.request}] match {
              case scala.util.Right(req) => executeRequest[${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, stub.${apiMethod.name}, ex)
              case scala.util.Left(errors) =>
@@ -86,10 +92,9 @@ class ClientMacros(val c: whitebox.Context) {
         }
         .mkString("\n - ", "\n - ", "")
 
-      c.abort(
-        c.enclosingPosition,
+      CactusMacros.terminateWithInfo(c) {
         s"Only gRPC methods are allowed to be abstract in type ${traitType.typeSymbol}, found others too: $foundIllegalMethods"
-      )
+      }
     }
   }
 
@@ -109,10 +114,9 @@ class ClientMacros(val c: whitebox.Context) {
       val apiMethod = apiMethods
         .find(_.name == m.name)
         .getOrElse {
-          c.abort(
-            c.enclosingPosition,
+          CactusMacros.terminateWithInfo(c) {
             s"Method ${m.name} of ${traitType.typeSymbol} does not have it's counterpart in ${stubType.typeSymbol}"
-          )
+          }
         }
 
       m -> apiMethod
@@ -144,7 +148,9 @@ class ClientMacros(val c: whitebox.Context) {
             val respType = ea(1)
 
             if (!m.isAbstract)
-              c.abort(c.enclosingPosition, s"Method ${m.name} of trait ${m.owner} has to be abstract to be able to implement")
+              CactusMacros.terminateWithInfo(c) {
+                s"Method ${m.name} of trait ${m.owner} has to be abstract to be able to implement"
+              }
 
             new ImplMethod(m.name, reqType, respType)
           }

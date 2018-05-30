@@ -45,7 +45,7 @@ case class MyRequest(names: Seq[String])
 
 case class MyResponse(results: Map[String, Int])
 
-trait ClientTrait {
+trait ClientTrait extends AutoCloseable { // the trait may or may not extend AutoCloseable
   def get(request: MyRequest): Future[ServerResponse[MyResponse]] // keep this format!
 }
 ```

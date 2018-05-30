@@ -31,7 +31,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
   case class MyResponse(results: Map[String, Int])
 
-  trait ClientTrait {
+  trait ClientTrait extends AutoCloseable {
     def get(request: MyRequest): Future[ServerResponse[MyResponse]]
   }
 
