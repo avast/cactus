@@ -77,6 +77,9 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
             )))
     }
 
+
+
+
     // get
     {
       val result = stub.get(GetRequest.newBuilder().addNames("name42").build()).get()

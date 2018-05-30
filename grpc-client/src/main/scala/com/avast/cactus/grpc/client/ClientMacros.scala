@@ -37,6 +37,16 @@ class ClientMacros(val c: whitebox.Context) {
       q" ${stubType.typeSymbol.owner}.newFutureStub($channelVar).withInterceptors(com.avast.cactus.grpc.client.ClientMetadataInterceptor) "
     }
 
+    val closeMethod = if (traitType.baseClasses.exists(_.fullName == "java.lang.AutoCloseable")) {
+      if (channelVar.tpe.members.exists(m => m.isMethod && m.asMethod.name.toString == "shutdownNow")) {
+        q"$channelVar.shutdownNow()"
+      } else {
+        CactusMacros.terminateWithInfo(c) {
+          s"$traitType extends java.lang.AutoCloseable but the requirement could not be satisfied because given channel is of type ${channelVar.tpe.typeSymbol.fullName} which is not closeable"
+        }
+      }
+    } else q" () "
+
     c.Expr[MyTrait] {
       val t =
         q"""
@@ -50,7 +60,7 @@ class ClientMacros(val c: whitebox.Context) {
 
             ..$mappingMethods
 
-            override def close(): Unit = $channelVar.shutdownNow()
+            override def close(): Unit = { $closeMethod }
         }
        """
 

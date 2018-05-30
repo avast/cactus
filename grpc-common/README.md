@@ -45,7 +45,7 @@ case class MyRequest(names: Seq[String])
 
 case class MyResponse(results: Map[String, Int])
 
-trait ClientTrait extends AutoCloseable { // the trait may or may not extend AutoCloseable
+trait ClientTrait extends AutoCloseable { // the trait may or may not extend AutoCloseable, see below
   def get(request: MyRequest): Future[ServerResponse[MyResponse]] // keep this format!
 }
 ```
@@ -66,6 +66,13 @@ Notes:
 (you don't have to use the `ServerResponse` which is just a type alias)
 * For conversion between request/response case classes and GPB classes a standard Cactus functions will be used.
 Currently you are not allowed to use GPB classes in the trait directly (the Cactus mapping will be used always).
+
+#### AutoCloseable client
+It's recommended to specify your client trait to be `AutoCloseable`. However, to satisfy the dependency closeable channel has to be
+provided at first place.  
+Note: It should not cause troubles because all user-friendly factories provided by gRPC library return `io.grpc.ManagedChannel`
+instance which satisfies the dependency. However, using just `io.grpc.Channel` together with `AutoCloseable` trait will cause compilation
+to be aborted.
 
 ### Client interceptors
 
