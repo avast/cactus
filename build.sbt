@@ -2,10 +2,10 @@ import sbt.Keys._
 
 val logger: Logger = ConsoleLogger()
 
-crossScalaVersions := Seq("2.12.5")
+crossScalaVersions := Seq("2.12.6")
 
 lazy val Versions = new {
-  val grpcVersion = "1.11.0"
+  val grpcVersion = "1.12.0"
   val gpb3Version = "3.5.1"
   val gpb2Version = "2.6.1"
 
@@ -14,7 +14,7 @@ lazy val Versions = new {
 }
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.5",
+  scalaVersion := "2.12.6",
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
@@ -48,9 +48,9 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.5",
-    "org.typelevel" %% "cats-core" % "1.0.1",
+    "org.typelevel" %% "cats-core" % "1.1.0",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test",
-    "org.mockito" % "mockito-core" % "2.13.0" % "test"
+    "org.mockito" % "mockito-core" % "2.18.3" % "test"
   )
 )
 
