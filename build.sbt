@@ -101,8 +101,7 @@ lazy val commonModule = Project(id = "common", base = file("./common")).settings
     "com.google.protobuf" % "protobuf-java" % Versions.gpb3Version % "optional",
     "com.google.protobuf" % "protobuf-java-util" % Versions.gpb3Version % "optional",
 
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "org.scala-lang" % "scala-compiler" % scalaVersion.value
+    "org.scala-lang" % "scala-reflect" % scalaVersion.value
   )
 )
 
