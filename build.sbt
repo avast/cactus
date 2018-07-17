@@ -90,7 +90,7 @@ lazy val grpcTestGenSettings = gpbTestGenSettings(Versions.GPBv3) ++ Seq(
 
 /* --- --- --- --- ---  */
 
-lazy val root = Project(id = "rootProject",
+lazy val root = Project(id = "cactus",
   base = file(".")) settings (publish := {}) aggregate(commonModule, v2Module, v3Module, bytesV2Module, bytesV3Module, grpcCommonModule, grpcClientModule, grpcServerModule)
 
 lazy val commonModule = Project(id = "common", base = file("./common")).settings(
