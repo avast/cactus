@@ -4,13 +4,15 @@ import java.util.concurrent.Executor
 
 import cats.syntax.either._
 import com.avast.cactus.Converter
-import com.avast.cactus.grpc.{CommonMethods, ServerError, ServerResponse}
+import com.avast.cactus.grpc.{CommonMethods, FromTask, ServerError, ServerResponse}
 import com.avast.cactus.v3._
 import com.google.common.util.concurrent.{FutureCallback, Futures, ListenableFuture}
 import com.google.protobuf.MessageLite
 import io.grpc.{Status, StatusRuntimeException}
+import monix.eval.Task
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.language.higherKinds
 import scala.reflect.ClassTag
 
 object ClientCommonMethods extends CommonMethods {
@@ -34,6 +36,10 @@ object ClientCommonMethods extends CommonMethods {
       .leftMap { errors =>
         ServerError(Status.INTERNAL.withDescription(formatCactusFailures("response", errors)))
       }
+  }
+
+  def adaptToF[F[_]: FromTask, A](future: Future[A]): F[A] = {
+    implicitly[FromTask[F]].apply(Task.deferFuture(future))
   }
 
   private implicit class ListenableFuture2ScalaFuture[T](val f: ListenableFuture[T]) extends AnyVal {

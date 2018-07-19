@@ -6,18 +6,33 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.protobuf.MessageLite
 import io.grpc.stub.AbstractStub
 
+import scala.language.higherKinds
 import scala.reflect.macros.whitebox
 
 class ClientMacros(val c: whitebox.Context) {
 
   import c.universe._
 
-  def mapClientToTraitWithInterceptors[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag, MyTrait: WeakTypeTag](
-      interceptors: c.Tree*)(ec: c.Tree, ex: c.Tree): c.Expr[MyTrait] = {
+  def mapClientToTraitWithInterceptors[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag,
+                                       F[_],
+                                       MyTrait <: GrpcClient[F]: WeakTypeTag](interceptors: c.Tree*)(ec: c.Tree,
+                                                                                                     ex: c.Tree): c.Expr[MyTrait] = {
 
     val stubType = weakTypeOf[GrpcClientStub]
     val traitType = weakTypeOf[MyTrait]
     val traitTypeSymbol = traitType.typeSymbol
+
+    // fType cannot be get with weakTypeOf => https://issues.scala-lang.org/browse/SI-8919
+    val fType = traitType
+      .baseType(traitType.baseClasses.find(_.fullName == classOf[GrpcClient[F]].getName).getOrElse {
+        CactusMacros.terminateWithInfo(c)(
+          s"The $traitType does not extend GrpcClient[F], however it should not be possible - please report bug")
+      })
+      .typeArgs
+      .headOption
+      .getOrElse {
+        CactusMacros.terminateWithInfo(c)(s"Unable to extract F from GrpcClient[F] - please report bug")
+      }
 
     if (!traitTypeSymbol.isClass || !traitTypeSymbol.asClass.isTrait || traitTypeSymbol.typeSignature.takesTypeArgs) {
       CactusMacros.terminateWithInfo(c) {
@@ -25,13 +40,17 @@ class ClientMacros(val c: whitebox.Context) {
       }
     }
 
+    if (CactusMacros.Debug) {
+      println(s"Mapping $traitType to $stubType (F = $fType)")
+    }
+
     val apiMethods = getApiMethods(stubType)
-    val methodsMappings = getMethodsMapping(traitType, stubType, apiMethods)
+    val methodsMappings = getMethodsMapping(traitType, fType, stubType, apiMethods)
 
     checkAbstractMethods(traitType, methodsMappings.keySet)
 
     val channelVar = CactusMacros.getVariable(c)
-    val mappingMethods = methodsMappings.map { case (im, am) => generateMappingMethod(im, am) }
+    val mappingMethods = methodsMappings.map { case (im, am) => generateMappingMethod(fType, im, am) }
 
     val stub = {
       q" ${stubType.typeSymbol.owner}.newFutureStub($channelVar).withInterceptors(com.avast.cactus.grpc.client.ClientMetadataInterceptor) "
@@ -70,21 +89,26 @@ class ClientMacros(val c: whitebox.Context) {
     }
   }
 
-  private def generateMappingMethod(implMethod: ImplMethod, apiMethod: ApiMethod): Tree = {
-    q"""
-       override def ${implMethod.name}(request: ${implMethod.request}): scala.concurrent.Future[com.avast.cactus.grpc.ServerResponse[${implMethod.response}]] = withInterceptors {
-          val stub = newStub
+  private def generateMappingMethod(fType: Type, implMethod: ImplMethod, apiMethod: ApiMethod): Tree = {
+    val returnType = tq"com.avast.cactus.grpc.ServerResponse[${implMethod.response}]"
+    val fReturnType = tq"${fType.typeSymbol}[$returnType]"
 
-          request.asGpb[${apiMethod.request}] match {
-             case scala.util.Right(req) => executeRequest[${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, stub.${apiMethod.name}, ex)
-             case scala.util.Left(errors) =>
-                scala.concurrent.Future.successful {
-                   Left {
-                      com.avast.cactus.grpc.ServerError(io.grpc.Status.INVALID_ARGUMENT.withDescription(formatCactusFailures("request", errors)))
+    q"""
+       override def ${implMethod.name}(request: ${implMethod.request}): $fReturnType = adaptToF[$fType, $returnType] {
+          withInterceptors {
+             val stub = newStub
+
+             request.asGpb[${apiMethod.request}] match {
+                case scala.util.Right(req) => executeRequest[${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, stub.${apiMethod.name}, ex)
+                case scala.util.Left(errors) =>
+                   scala.concurrent.Future.successful {
+                      Left {
+                         com.avast.cactus.grpc.ServerError(io.grpc.Status.INVALID_ARGUMENT.withDescription(formatCactusFailures("request", errors)))
+                      }
                    }
-                }
-          }
-        }
+            }
+         }
+       }
      """
   }
 
@@ -108,17 +132,12 @@ class ClientMacros(val c: whitebox.Context) {
     }
   }
 
-  private def getApiMethods(t: Type): Seq[ApiMethod] = {
-    t.decls.collect {
-      case ApiMethod(m) => m
-    }
-  }.toSeq
+  private def getApiMethods(traitType: Type): Seq[ApiMethod] = {
+    traitType.decls.flatMap(ApiMethod.extract).toSeq
+  }
 
-  private def getMethodsMapping(traitType: Type, stubType: Type, apiMethods: Seq[ApiMethod]): Map[ImplMethod, ApiMethod] = {
-    val methods = traitType.decls
-      .collect {
-        case ImplMethod(m) => m
-      }
+  private def getMethodsMapping(traitType: Type, fType: Type, stubType: Type, apiMethods: Seq[ApiMethod]): Map[ImplMethod, ApiMethod] = {
+    val methods = traitType.decls.flatMap(ImplMethod.extract(_, fType))
 
     methods.map { m =>
       val apiMethod = apiMethods
@@ -138,7 +157,7 @@ class ClientMacros(val c: whitebox.Context) {
   private case class ImplMethod(name: TermName, request: Type, response: Type)
 
   private object ImplMethod {
-    def unapply(s: Symbol): Option[ImplMethod] = {
+    def extract(s: Symbol, fType: Type): Option[ImplMethod] = {
       if (s.isMethod) {
         val m = s.asMethod
 
@@ -147,13 +166,13 @@ class ClientMacros(val c: whitebox.Context) {
 
           // TODO type matching
           val serverError = typeOf[ServerError].dealias.typeSymbol
-          val future = typeOf[scala.concurrent.Future[_]].dealias.typeConstructor
+          val theF = fType.typeConstructor
           val either = typeOf[scala.util.Either[_, _]].dealias.typeConstructor
 
           for {
-            f <- Some(m.returnType.dealias) if f.dealias.typeConstructor == future // Future[_]
-            e <- f.typeArgs.headOption if e.dealias.typeConstructor == either // Future[Either[_,_]]
-            ea <- Some(e.dealias.typeArgs) if ea.head.dealias.typeSymbol == serverError // Future[Either[ServerError,_]]
+            f <- Some(m.returnType.dealias) if f.dealias.typeConstructor == theF // F[_]
+            e <- f.typeArgs.headOption if e.dealias.typeConstructor == either // F[Either[_,_]]
+            ea <- Some(e.dealias.typeArgs) if ea.head.dealias.typeSymbol == serverError // F[Either[ServerError,_]]
           } yield {
             val respType = ea(1)
 
@@ -172,7 +191,7 @@ class ClientMacros(val c: whitebox.Context) {
   private case class ApiMethod(name: TermName, request: Type, response: Type)
 
   private object ApiMethod {
-    def unapply(s: Symbol): Option[ApiMethod] = {
+    def extract(s: Symbol): Option[ApiMethod] = {
       Option(s)
         .collect {
           case m
