@@ -10,7 +10,7 @@ import scala.reflect.ClassTag
 
 package object server {
 
-  implicit class MapService[F[_], ServerTrait](val myTrait: ServerTrait) extends AnyVal {
+  implicit class MapService[ServerTrait, F[_]](val myTrait: ServerTrait) extends AnyVal {
     def mappedToService[Service <: BindableService](interceptors: ServerAsyncInterceptor*)(implicit ct: ClassTag[ServerTrait],
                                                                                            sch: Scheduler): MappedGrpcService[Service] =
       macro com.avast.cactus.grpc.server.ServerMacros.mapImplToService[Service, F]

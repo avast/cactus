@@ -13,10 +13,8 @@ class ClientMacros(val c: whitebox.Context) {
 
   import c.universe._
 
-  def mapClientToTraitWithInterceptors[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag,
-                                       F[_],
-                                       MyTrait <: GrpcClient[F]: WeakTypeTag](interceptors: c.Tree*)(ec: c.Tree,
-                                                                                                     ex: c.Tree): c.Expr[MyTrait] = {
+  def mapClientToTraitWithInterceptors[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag, F[_], MyTrait: WeakTypeTag](
+      interceptors: c.Tree*)(ec: c.Tree, ex: c.Tree): c.Expr[MyTrait] = {
 
     val stubType = weakTypeOf[GrpcClientStub]
     val traitType = weakTypeOf[MyTrait]
@@ -25,12 +23,12 @@ class ClientMacros(val c: whitebox.Context) {
     // fType cannot be get with weakTypeOf => https://issues.scala-lang.org/browse/SI-8919
     val fType = traitType
       .baseType(traitType.baseClasses.find(_.fullName == classOf[GrpcClient[F]].getName).getOrElse {
-        c.abort(c.enclosingPosition, s"The $traitType does not extend GrpcClient[F], however it should not be possible - please report bug")
+        c.abort(c.enclosingPosition, s"The $traitType does not extend GrpcClient[F]")
       })
       .typeArgs
       .headOption
       .getOrElse {
-        c.abort(c.enclosingPosition, s"Unable to extract F from GrpcClient[F] - please report bug")
+        c.abort(c.enclosingPosition, s"Unable to extract F from GrpcClient[F] - please report a bug")
       }
 
     if (!traitTypeSymbol.isClass || !traitTypeSymbol.asClass.isTrait || traitTypeSymbol.typeSignature.takesTypeArgs) {

@@ -75,7 +75,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
 
-    val mapped = channel.createMappedClient[TestApiServiceFutureStub, Task, ClientTrait](
+    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait](
       ClientHeadersInterceptor(Map(headerName -> "theValue"))
     )
 
@@ -121,7 +121,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
 
-    val mapped = channel.createMappedClient[TestApiServiceFutureStub, Task, ClientTrait]()
+    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait]()
 
     val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).runAsync.futureValue
 
@@ -149,7 +149,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
 
-    val mapped = channel.createMappedClient[TestApiServiceFutureStub, Future, ClientTrait]()
+    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait]()
 
     val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).futureValue
 

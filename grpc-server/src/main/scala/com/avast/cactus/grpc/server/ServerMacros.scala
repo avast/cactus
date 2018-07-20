@@ -27,7 +27,7 @@ class ServerMacros(val c: whitebox.Context) {
       .typeArgs
       .headOption
       .getOrElse {
-        c.abort(c.enclosingPosition, s"Unable to extract F from GrpcService[F] - please report bug")
+        c.abort(c.enclosingPosition, s"Unable to extract F from GrpcService[F] - please report a bug")
       }
 
     if (CactusMacros.Debug) {
