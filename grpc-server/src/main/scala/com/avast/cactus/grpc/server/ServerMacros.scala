@@ -2,30 +2,46 @@ package com.avast.cactus.grpc.server
 
 import com.avast.cactus.CactusMacros
 import com.google.protobuf.MessageLite
-import io.grpc.{BindableService, ServerServiceDefinition, Status}
+import io.grpc.{BindableService, Status}
 
+import scala.language.higherKinds
 import scala.reflect.macros.whitebox
 
 class ServerMacros(val c: whitebox.Context) {
 
   import c.universe._
 
-  def mapImplToService[Service <: BindableService: WeakTypeTag](interceptors: c.Tree*)(ct: Tree,
-                                                                                       ec: c.Tree): c.Expr[GrpcService[Service]] = {
-    // this method require `ec` as an argument but only to secure the EC will be present. If it's visible by the macro method, it has to be
-    // visible also for the generated code thus it's ok to not use the argument
+  def mapImplToService[Service <: BindableService: WeakTypeTag, F[_]](
+      interceptors: c.Tree*)(ct: Tree, sch: c.Tree): c.Expr[MappedGrpcService[Service]] = {
+    // this method require `sch` as an argument but only to secure the Scheduler will be present. If it's visible by the macro method, it
+    // has to be visible also for the generated code thus it's ok to not use the argument
 
     val serviceType = weakTypeOf[Service]
     val implType = CactusMacros.extractSymbolFromClassTag(c)(ct)
 
+    // fType cannot be get with weakTypeOf => https://issues.scala-lang.org/browse/SI-8919
+    val fType = implType
+      .baseType(implType.baseClasses.find(_.fullName == classOf[GrpcService[F]].getName).getOrElse {
+        c.abort(c.enclosingPosition, s"The $implType does not extend GrpcService[F]")
+      })
+      .typeArgs
+      .headOption
+      .getOrElse {
+        c.abort(c.enclosingPosition, s"Unable to extract F from GrpcService[F] - please report bug")
+      }
+
+    if (CactusMacros.Debug) {
+      println(s"Mapping $serviceType to $implType (F = $fType)")
+    }
+
     val variable = CactusMacros.getVariable(c)
 
     val apiMethods = getApiMethods(serviceType)
-    val methodsMappings = getMethodsMapping(implType, apiMethods)
+    val methodsMappings = getMethodsMapping(fType, implType, apiMethods)
 
-    val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(am, im) }
+    val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(fType, am, im) }
 
-    c.Expr[GrpcService[Service]] {
+    c.Expr[MappedGrpcService[Service]] {
       val t =
         q"""
         val service = new $serviceType {
@@ -41,7 +57,7 @@ class ServerMacros(val c: whitebox.Context) {
           ..$mappingMethods
         }
 
-        new DefaultGrpcService[$serviceType](service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
+        new DefaultMappedGrpcService[$serviceType](service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
 
         """
 
@@ -51,7 +67,7 @@ class ServerMacros(val c: whitebox.Context) {
     }
   }
 
-  private def generateMappingMethod(apiMethod: ApiMethod, implMethod: ImplMethod): Tree = {
+  private def generateMappingMethod(fType: Type, apiMethod: ApiMethod, implMethod: ImplMethod): Tree = {
 
     val convertRequest = if (apiMethod.request =:= implMethod.request) {
       q" scala.util.Right(request) "
@@ -65,7 +81,7 @@ class ServerMacros(val c: whitebox.Context) {
       q" convertResponse[${implMethod.response}, ${apiMethod.response}] "
     }
 
-    val executeRequestMethod = q" executeRequest[${implMethod.request}, ${implMethod.response}, ${apiMethod.response}] "
+    val executeRequestMethod = q" executeRequest[$fType, ${implMethod.request}, ${implMethod.response}, ${apiMethod.response}] "
 
     val (createCtxMethod: Tree, executeMethod: Tree) = implMethod.context match {
       case Some(ctxType) =>
@@ -112,10 +128,8 @@ class ServerMacros(val c: whitebox.Context) {
   }
 
   private def getApiMethods(t: Type): Seq[ApiMethod] = {
-    t.decls.collect {
-      case ApiMethod(m) => m
-    }
-  }.toSeq
+    t.decls.flatMap(ApiMethod.extract).toSeq
+  }
 
   private val standardJavaMethods: Set[MethodSymbol] = {
     typeOf[Object].members.collect {
@@ -123,8 +137,8 @@ class ServerMacros(val c: whitebox.Context) {
     }.toSet
   }
 
-  private def getMethodsMapping(ot: Type, apiMethods: Seq[ApiMethod]): Map[ApiMethod, ImplMethod] = {
-    val implMethods = ot.members
+  private def getMethodsMapping(fType: Type, implType: Type, apiMethods: Seq[ApiMethod]): Map[ApiMethod, ImplMethod] = {
+    val implMethods = implType.members
       .collect {
         case m if m.isMethod => m.asMethod
       }
@@ -138,11 +152,11 @@ class ServerMacros(val c: whitebox.Context) {
           c.info(c.enclosingPosition, "Found methods:\n" + l.map(CactusMacros.methodToString(c)).mkString("- ", "\n- ", ""), force = true)
           c.abort(
             c.enclosingPosition,
-            s"Method ${apiMethod.name} in type ${ot.typeSymbol} must have exactly one alternative, found ${l.size}"
+            s"Method ${apiMethod.name} in type ${implType.typeSymbol} must have exactly one alternative, found ${l.size}"
           )
       }
 
-      apiMethod -> ImplMethod(implMethod)
+      apiMethod -> ImplMethod.extract(implMethod, fType)
     }.toMap
   }
 
@@ -187,7 +201,7 @@ class ServerMacros(val c: whitebox.Context) {
   private case class ImplMethod(name: TermName, request: Type, context: Option[Type], response: Type)
 
   private object ImplMethod {
-    def apply(m: MethodSymbol): ImplMethod = {
+    def extract(m: MethodSymbol, fType: Type): ImplMethod = {
       if (m.paramLists.size != 1) c.abort(c.enclosingPosition, s"Method ${m.name} in type ${m.owner} must have exactly one parameter list")
 
       val (reqType, ctxType) = m.paramLists.head.map(_.typeSignature) match {
@@ -202,16 +216,16 @@ class ServerMacros(val c: whitebox.Context) {
 
       // TODO type matching
       val status = typeOf[Status].dealias
-      val future = typeOf[scala.concurrent.Future[_]].dealias.typeConstructor
+      val theF = fType.typeConstructor
       val either = typeOf[scala.util.Either[_, _]].dealias.typeConstructor
 
       val respType = (for {
-        f <- Some(m.returnType.dealias) if f.dealias.typeConstructor == future // Future[_]
-        e <- f.typeArgs.headOption if e.dealias.typeConstructor == either // Future[Either[_,_]]
-        ea <- Some(e.typeArgs) if ea.head.dealias == status // Future[Either[Status,_]]
+        f <- Some(m.returnType.dealias) if f.dealias.typeConstructor == theF // F[_]
+        e <- f.typeArgs.headOption if e.dealias.typeConstructor == either // F[Either[_,_]]
+        ea <- Some(e.typeArgs) if ea.head.dealias == status // F[Either[Status,_]]
       } yield ea(1))
         .getOrElse(
-          c.abort(c.enclosingPosition, s"Method ${m.name} in type ${m.owner} does not have required result type Future[Either[Status, ?]]"))
+          c.abort(c.enclosingPosition, s"Method ${m.name} in type ${m.owner} does not have required result type $fType[Either[Status, ?]]"))
 
       new ImplMethod(m.name, reqType, ctxType, respType)
     }
@@ -220,7 +234,7 @@ class ServerMacros(val c: whitebox.Context) {
   private case class ApiMethod(name: TermName, request: Type, response: Type)
 
   private object ApiMethod {
-    def unapply(s: Symbol): Option[ApiMethod] = {
+    def extract(s: Symbol): Option[ApiMethod] = {
       Option(s)
         .collect {
           case m

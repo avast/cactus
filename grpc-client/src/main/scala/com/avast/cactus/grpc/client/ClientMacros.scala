@@ -25,13 +25,12 @@ class ClientMacros(val c: whitebox.Context) {
     // fType cannot be get with weakTypeOf => https://issues.scala-lang.org/browse/SI-8919
     val fType = traitType
       .baseType(traitType.baseClasses.find(_.fullName == classOf[GrpcClient[F]].getName).getOrElse {
-        CactusMacros.terminateWithInfo(c)(
-          s"The $traitType does not extend GrpcClient[F], however it should not be possible - please report bug")
+        c.abort(c.enclosingPosition, s"The $traitType does not extend GrpcClient[F], however it should not be possible - please report bug")
       })
       .typeArgs
       .headOption
       .getOrElse {
-        CactusMacros.terminateWithInfo(c)(s"Unable to extract F from GrpcClient[F] - please report bug")
+        c.abort(c.enclosingPosition, s"Unable to extract F from GrpcClient[F] - please report bug")
       }
 
     if (!traitTypeSymbol.isClass || !traitTypeSymbol.asClass.isTrait || traitTypeSymbol.typeSignature.takesTypeArgs) {

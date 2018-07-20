@@ -2,27 +2,33 @@ package com.avast.cactus.grpc.server
 
 import cats.syntax.either._
 import com.avast.cactus.Converter
-import com.avast.cactus.grpc.CommonMethods
+import com.avast.cactus.grpc.{CommonMethods, ToTask}
 import com.avast.cactus.v3._
 import com.google.protobuf.MessageLite
 import io.grpc.stub.StreamObserver
 import io.grpc.{Status, StatusException, StatusRuntimeException}
+import monix.execution.Scheduler
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.language.higherKinds
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 object ServerCommonMethods extends CommonMethods {
-  def executeRequest[ReqCaseClass, RespCaseClass, RespGpb](
-      req: ReqCaseClass,
-      f: ReqCaseClass => Future[Either[Status, RespCaseClass]],
-      cr: RespCaseClass => Either[StatusException, RespGpb])(implicit ec: ExecutionContext): Future[Either[StatusException, RespGpb]] = {
-    f(req)
+  def executeRequest[F[_]: ToTask, ReqCaseClass, RespCaseClass, RespGpb](req: ReqCaseClass,
+                                                                         call: ReqCaseClass => F[Either[Status, RespCaseClass]],
+                                                                         handleResponse: RespCaseClass => Either[StatusException, RespGpb])(
+      implicit sch: Scheduler): Future[Either[StatusException, RespGpb]] = {
+    implicitly[ToTask[F]]
+      .apply {
+        call(req)
+      }
       .map {
-        case Right(resp) => cr(resp)
+        case Right(resp) => handleResponse(resp)
         case Left(status) => Left(new StatusException(status))
       }
+      .runAsync
   }
 
   def convertResponse[RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, ?]](
