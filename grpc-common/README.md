@@ -180,9 +180,7 @@ case class MyRequest(names: Seq[String])
 
 case class MyResponse(results: Map[String, Int])
 
-case class MyContextContent(i: Int, s: String)
-
-case class MyContext(theHeader: String, content: MyContextContent)
+case class MyContext(theHeader: String)
 
 trait MyApi extends GrpcService[Future] {
   def get(request: MyRequest, ctx: MyContext): Future[Either[Status, MyResponse]]
@@ -195,6 +193,30 @@ Note the context class has to
 
 The `MyContext` instance is created automatically by mapping incoming `Context` in following way:
 ```scala
+val ctx = Context.current()
+
+for {
+  theHeader <- Option(ContextKeys.get[String]("theHeader").get(ctx))
+} yield {
+  MyContext(theHeader, content)
+}
+```
+where `theHeader` is header received from the client. Headers are automatically passed to the `Context` to be available for this - no action
+is required. Please only `String` headers are supported (gRPC limitation).
+
+#### Custom class in context
+
+There are scenarios where you need to take a header and transform it to some more complex context class (e.g. authentication/authorization).
+You have to provide your own interceptor doing the transformation however the mapping to the context class is very similar to the case with
+a header:
+
+```scala
+case class MyContextContent(i: Int, s: String)
+
+case class MyContext(theHeader: String, content: MyContextContent)
+
+...
+
 val ctx = Context.current()
 
 for {
