@@ -13,38 +13,40 @@ class ClientMacros(val c: whitebox.Context) {
 
   import c.universe._
 
-  def mapClientToTraitWithInterceptors[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag, F[_], MyTrait: WeakTypeTag](
-      interceptors: c.Tree*)(ec: c.Tree, ex: c.Tree): c.Expr[MyTrait] = {
+  def mapClientToTraitWithInterceptors[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag, F[_], MyTrait[_[_]]](
+      interceptors: c.Tree*)(ec: c.Tree, ex: c.Tree, ct: c.Tree): c.Expr[MyTrait[F]] = {
+
+    // fType and traitType cannot be get with weakTypeOf => https://issues.scala-lang.org/browse/SI-8919
 
     val stubType = weakTypeOf[GrpcClientStub]
-    val traitType = weakTypeOf[MyTrait]
+    val traitType = CactusMacros.extractSymbolFromClassTag(c)(ct)
     val traitTypeSymbol = traitType.typeSymbol
 
-    // fType cannot be get with weakTypeOf => https://issues.scala-lang.org/browse/SI-8919
-    val fType = traitType
-      .baseType(traitType.baseClasses.find(_.fullName == classOf[GrpcClient[F]].getName).getOrElse {
-        c.abort(c.enclosingPosition, s"The $traitType does not extend GrpcClient[F]")
-      })
-      .typeArgs
-      .headOption
-      .getOrElse {
-        c.abort(c.enclosingPosition, s"Unable to extract F from GrpcClient[F] - please report a bug")
-      }
-
-    if (!traitTypeSymbol.isClass || !traitTypeSymbol.asClass.isTrait || traitTypeSymbol.typeSignature.takesTypeArgs) {
+    if (!traitTypeSymbol.isClass || !traitTypeSymbol.asClass.isTrait) {
       CactusMacros.terminateWithInfo(c) {
-        s"The $traitTypeSymbol must be a plain trait without type arguments"
+        s"The $traitTypeSymbol must be a trait"
       }
     }
 
+    traitType.baseType(traitType.baseClasses.find(_.fullName == classOf[GrpcClient].getName).getOrElse {
+      c.abort(c.enclosingPosition, s"The $traitType does not extend GrpcClient")
+    })
+
+    val fType = traitType.typeArgs.headOption
+      .getOrElse {
+        c.abort(c.enclosingPosition, s"Unable to extract F from $traitType - please report a bug")
+      }
+
+    val fSymbol = traitType.erasure.typeArgs.head.typeSymbol.asType
+
     if (CactusMacros.Debug) {
-      println(s"Mapping $traitType to $stubType (F = $fType)")
+      println(s"Mapping $traitType to $stubType")
     }
 
     val apiMethods = getApiMethods(stubType)
-    val methodsMappings = getMethodsMapping(traitType, fType, stubType, apiMethods)
+    val methodsMappings = getMethodsMapping(traitType, fSymbol, stubType, apiMethods)
 
-    checkAbstractMethods(traitType, methodsMappings.keySet)
+    checkAbstractMethods(traitType, fSymbol, methodsMappings.keySet)
 
     val channelVar = CactusMacros.getVariable(c)
     val mappingMethods = methodsMappings.map { case (im, am) => generateMappingMethod(fType, im, am) }
@@ -63,7 +65,7 @@ class ClientMacros(val c: whitebox.Context) {
       }
     } else q" () "
 
-    c.Expr[MyTrait] {
+    c.Expr[MyTrait[F]] {
       val t =
         q"""
          new com.avast.cactus.grpc.client.ClientInterceptorsWrapper(scala.collection.immutable.Seq(..$interceptors)) with $traitType with _root_.java.lang.AutoCloseable {
@@ -109,7 +111,7 @@ class ClientMacros(val c: whitebox.Context) {
      """
   }
 
-  private def checkAbstractMethods(traitType: Type, implMethods: Set[ImplMethod]): Unit = {
+  private def checkAbstractMethods(traitType: Type, fSymbol: TypeSymbol, implMethods: Set[ImplMethod]): Unit = {
     val nonGrpcAbstractMethods = traitType.decls
       .collect {
         case m if m.isMethod => m.asMethod
@@ -124,7 +126,7 @@ class ClientMacros(val c: whitebox.Context) {
         .mkString("\n - ", "\n - ", "")
 
       CactusMacros.terminateWithInfo(c) {
-        s"Only gRPC methods are allowed to be abstract in type ${traitType.typeSymbol}, found others too: $foundIllegalMethods"
+        s"Only gRPC methods are allowed to be abstract in type ${traitType.typeSymbol}[${fSymbol.name}], found others too: $foundIllegalMethods"
       }
     }
   }
@@ -133,8 +135,11 @@ class ClientMacros(val c: whitebox.Context) {
     traitType.decls.flatMap(ApiMethod.extract).toSeq
   }
 
-  private def getMethodsMapping(traitType: Type, fType: Type, stubType: Type, apiMethods: Seq[ApiMethod]): Map[ImplMethod, ApiMethod] = {
-    val methods = traitType.decls.flatMap(ImplMethod.extract(_, fType))
+  private def getMethodsMapping(traitType: Type,
+                                fSymbol: TypeSymbol,
+                                stubType: Type,
+                                apiMethods: Seq[ApiMethod]): Map[ImplMethod, ApiMethod] = {
+    val methods = traitType.decls.flatMap(ImplMethod.extract(_, fSymbol))
 
     methods.map { m =>
       val apiMethod = apiMethods
@@ -154,7 +159,7 @@ class ClientMacros(val c: whitebox.Context) {
   private case class ImplMethod(name: TermName, request: Type, response: Type)
 
   private object ImplMethod {
-    def extract(s: Symbol, fType: Type): Option[ImplMethod] = {
+    def extract(s: Symbol, fSymbol: TypeSymbol): Option[ImplMethod] = {
       if (s.isMethod) {
         val m = s.asMethod
 
@@ -163,11 +168,14 @@ class ClientMacros(val c: whitebox.Context) {
 
           // TODO type matching
           val serverError = typeOf[ServerError].dealias.typeSymbol
-          val theF = fType.typeConstructor
           val either = typeOf[scala.util.Either[_, _]].dealias.typeConstructor
 
+          //          val tq"${t}[${_}]" = m.returnType.dealias
+
+          //          c.abort(c.enclosingPosition, (m.returnType.dealias.typeSymbol == fSymbol).toString)
+
           for {
-            f <- Some(m.returnType.dealias) if f.dealias.typeConstructor == theF // F[_]
+            f <- Some(m.returnType.dealias) if f.typeSymbol == fSymbol // F[_]
             e <- f.typeArgs.headOption if e.dealias.typeConstructor == either // F[Either[_,_]]
             ea <- Some(e.dealias.typeArgs) if ea.head.dealias.typeSymbol == serverError // F[Either[ServerError,_]]
           } yield {

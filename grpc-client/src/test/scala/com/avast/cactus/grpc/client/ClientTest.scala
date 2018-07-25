@@ -17,6 +17,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.higherKinds
 import scala.util.Random
 
 class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
@@ -38,8 +39,8 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
   case class MyResponse(results: Map[String, Int])
 
   test("ok path") {
-    trait ClientTrait extends GrpcClient[Task] with AutoCloseable {
-      def get(request: MyRequest): Task[ServerResponse[MyResponse]]
+    trait ClientTrait[F[_]] extends GrpcClient with AutoCloseable {
+      def get(request: MyRequest): F[ServerResponse[MyResponse]]
     }
 
     val channelName = randomString(10)
@@ -75,7 +76,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
 
-    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait](
+    val mapped = channel.createMappedClient[TestApiServiceFutureStub, Task, ClientTrait](
       ClientHeadersInterceptor(Map(headerName -> "theValue"))
     )
 
@@ -85,8 +86,8 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
   }
 
   test("missing header - server interceptor failure") {
-    trait ClientTrait extends GrpcClient[Task] with AutoCloseable {
-      def get(request: MyRequest): Task[ServerResponse[MyResponse]]
+    trait ClientTrait[F[_]] extends GrpcClient with AutoCloseable {
+      def get(request: MyRequest): F[ServerResponse[MyResponse]]
     }
 
     val channelName = randomString(10)
@@ -121,7 +122,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
 
-    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait]()
+    val mapped = channel.createMappedClient[TestApiServiceFutureStub, Task, ClientTrait]()
 
     val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).runAsync.futureValue
 
@@ -130,8 +131,8 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
   }
 
   test("propagation of status") {
-    trait ClientTrait extends GrpcClient[Future] with AutoCloseable {
-      def get(request: MyRequest): Future[ServerResponse[MyResponse]]
+    trait ClientTrait[F[_]] extends GrpcClient with AutoCloseable {
+      def get(request: MyRequest): F[ServerResponse[MyResponse]]
     }
 
     val channelName = randomString(10)
@@ -149,7 +150,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
 
-    val mapped = channel.createMappedClient[TestApiServiceFutureStub, ClientTrait]()
+    val mapped = channel.createMappedClient[TestApiServiceFutureStub, Future, ClientTrait]()
 
     val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).futureValue
 
