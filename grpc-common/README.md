@@ -51,9 +51,9 @@ case class MyRequest(names: Seq[String])
 
 case class MyResponse(results: Map[String, Int])
 
-// choose your F by extending from GrpcClient[F] 
-trait ClientTrait extends GrpcClient[Future] with AutoCloseable { // the trait may or may not extend AutoCloseable, see below
-  def get(request: MyRequest): Future[ServerResponse[MyResponse]] // keep this format (F[ServerResponse[MyResponse]])
+// choose your F! 
+trait ClientTrait[F[_]] extends GrpcClient with AutoCloseable { // the trait may or may not extend AutoCloseable, see below
+  def get(request: MyRequest): F[ServerResponse[MyResponse]] // keep this format (F[ServerResponse[MyResponse]])
 }
 ```
 
@@ -66,7 +66,7 @@ implicit val futureFromTask: FromTask[Future] = ??? // provide FromTask[F]
 
 val channel = InProcessChannelBuilder.forName("channelName").directExecutor.build // fine for testing
 
-val client: ClientTrait = channel.createMappedClient[MyServiceFutureStub, ClientTrait](/* async interceptors go here */)
+val client: ClientTrait[Future] = channel.createMappedClient[MyServiceFutureStub, Future, ClientTrait](/* async interceptors go here */)
 ```
 
 Notes:
@@ -90,7 +90,7 @@ There is also an option to use your own interceptors. gRPC offers only synchrono
 a very big complication for some advanced scenario. There is a `ClientAsyncInterceptor` trait for this.  
 `ClientAsyncInterceptor` has one very common implementation provided by default - `ClientHeadersInterceptor`.
 ```scala
-val client: ClientTrait = channel.createMappedClient[MyServiceFutureStub, ClientTrait](
+val client: ClientTrait[Future] = channel.createMappedClient[MyServiceFutureStub, Future, ClientTrait](
   ClientHeadersInterceptor(Map("headerName" -> "headerValue"))
   // other interceptors may come here!
 )
