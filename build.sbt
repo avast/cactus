@@ -142,6 +142,7 @@ lazy val grpcCommonModule = Project(id = "grpc-common", base = file("./grpc-comm
   macroSettings,
   name := "cactus-grpc-common",
   libraryDependencies ++= Seq(
+    "io.monix" % "monix_2.12" % "3.0.0-RC1",
     "io.grpc" % "grpc-protobuf" % Versions.grpcVersion,
     "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test",
     "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
