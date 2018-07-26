@@ -1,11 +1,13 @@
 package com.avast.cactus
 
-import cats.implicits._
 import org.scalactic.Or
 
 import scala.annotation.implicitNotFound
 import scala.collection.JavaConverters._
+import scala.collection.TraversableLike
+import scala.collection.generic.CanBuildFrom
 import scala.language.experimental.macros
+import scala.language.higherKinds
 import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
@@ -59,11 +61,12 @@ object Converter {
   // conversions generators:
 
   implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] =
-    new Converter[Vector[A], List[B]] {
-      override def apply(fieldPath: String)(v: Vector[A]): ResultOrErrors[List[B]] = {
-        v.map(aToBConverter.apply(fieldPath)).toList.sequence[ResultOrErrors, B]
-      }
-    }
+    collAToCollB[A, B, List].contraMap(_.toList)
+
+  implicit def collAToCollB[A, B, Coll[X] <: TraversableLike[X, Coll[X]]](implicit cbf: CanBuildFrom[Coll[A], B, Coll[B]],
+                                                                          aToBConverter: Converter[A, B]): Converter[Coll[A], Coll[B]] = {
+    Converter.fromOrChecked[Coll[A], Coll[B]](CactusMacros.CollAToCollB[A, B, Coll])
+  }
 
   implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
 

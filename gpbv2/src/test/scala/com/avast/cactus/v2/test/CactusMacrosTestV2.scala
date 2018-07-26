@@ -227,6 +227,17 @@ class CactusMacrosTestV2 extends FunSuite {
         |""".stripMargin
     )
   }
+
+  test("seq[case class] to seq[gpb] and then gpb wrapper") {
+    assertCompiles(
+      """
+        |val value: Converter[Seq[CaseClassB], Data3] = {
+        |  implicitly[Converter[Seq[CaseClassB], Seq[Data2]]]
+        |    .map(sd2 => Data3.newBuilder().addAllFieldGpb(sd2.asJava).build())
+        |}
+      """.stripMargin)
+  }
+
 }
 
 case class CaseClassA(fieldString: String,

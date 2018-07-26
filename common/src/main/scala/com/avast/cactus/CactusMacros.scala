@@ -56,7 +56,7 @@ object CactusMacros {
   )
 
   def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](fieldPath: String, coll: T[A])(implicit cbf: CanBuildFrom[T[A], B, T[B]], aToBConverter: Converter[A, B]): T[B] Or EveryCactusFailure = {
-    coll.map((e: A) => aToBConverter.apply(fieldPath)(e).toOr).combined.map { (c: TraversableOnce[B]) =>
+    coll.map((e: A) => aToBConverter.apply(fieldPath)(e).toOr).combined.map { c: TraversableOnce[B] =>
       cbf.apply().++=(c).result()
     }
   }
