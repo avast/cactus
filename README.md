@@ -286,6 +286,7 @@ There are following ways how to implement own `Converter`:
     This is to be used when the conversion can go wrong and it's better to cover possible failures right in the converter.  
     **Please note**, that even if the `StringJavaIntegerListConverter` fails, the exception _will *not*_ be thrown outside.
     The `UnknownFailure(..., ...)` error will be returned instead.
+    
 * Just implement `new Converter`
     ```scala
     implicit val StringJavaIntegerListConverter2: Converter[String, java.lang.Iterable[_ <: Integer]] = new Converter[String, java.lang.Iterable[_ <: Integer]] {
@@ -300,6 +301,7 @@ There are following ways how to implement own `Converter`:
       }
     }
     ```
+    
 * Derive converter from existing one
     
     There are multiple methods which allow you to manually derive and combine converters on the `Converter` trait
@@ -317,6 +319,57 @@ There are following ways how to implement own `Converter`:
     ```
 
 Basic examples of custom converters may have been seen in examples above or in [unit tests](gpbv3/src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala).
+
+### Advanced example
+
+Scenario:
+
+Having proto messages
+
+```proto
+message Event {
+    optional int32 number = 1;
+}
+
+message EventsResponse {
+    repeated Event events = 1;
+}
+```
+
+you want to have a following code in Scala:
+
+```scala
+import com.avast.cactus.ResultOrErrors
+import com.avast.cactus.v3._
+
+import my.gpb.{Event => GpbEvent, EventsResponse => GpbEventsResopnse}
+
+case class Event(number: Int)
+
+val response: Seq[Event] = myMethodCall()
+
+val gpbResponse: ResultOrErrors[GpbEventsResponse] = response.asGpb[GpbEventsResponse]
+
+```
+
+Unfortunately this code won't compile because Cactus is unable to generate `Converter[Seq[Event], GpbEventsResponse]` automatically.
+
+There are three possible solutions:
+1. Implement the converter manually - but that is what Cactus is trying to help you from ;-)
+1. Wrap `Seq[Event]` into some case class (e.g. `case class EventsResponse(events: Seq[Event])`) which would add basically useless code into
+the application
+1. Implement the converter but let Cactus do the dirty part
+    1. Cactus is able to generate `Converter[Event, GpbEvent]` and derive `Converter[Seq[Event], Seq[GpbEvent]]` from it
+    1. You have to implement just `Seq[GpbEvent] => GpbEventsResponse` which is an easy task:
+        ```scala
+           implicit val theConverter: Converter[Seq[Event], GpbEventsResponse] = {
+             import scala.collection.JavaConverters._
+      
+             implicitly[Converter[Seq[Event], Seq[GpbEvent]]]
+                 .map(events => GpbEventsResponse.newBuilder().addAllEvents(events.asJava).build())
+           }
+
+        ```
 
 ## Optional modules
 
