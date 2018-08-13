@@ -5,8 +5,8 @@ val logger: Logger = ConsoleLogger()
 crossScalaVersions := Seq("2.12.6")
 
 lazy val Versions = new {
-  val grpcVersion = "1.12.0"
-  val gpb3Version = "3.5.1"
+  val grpcVersion = "1.14.0"
+  val gpb3Version = "3.6.1"
   val gpb2Version = "2.6.1"
 
   val GPBv2 = gpb2Version.replace(".", "")
@@ -48,7 +48,7 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.5",
-    "org.typelevel" %% "cats-core" % "1.1.0",
+    "org.typelevel" %% "cats-core" % "1.2.0",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test",
     "org.mockito" % "mockito-core" % "2.18.3" % "test"
   )
