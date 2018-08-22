@@ -2,27 +2,32 @@ package com.avast.cactus.grpc.client
 
 import java.util.concurrent.Executor
 
-import cats.syntax.either._
+import cats.effect.Async
+import cats.syntax.all._
 import com.avast.cactus.Converter
 import com.avast.cactus.grpc.{CommonMethods, FromTask, ServerError, ServerResponse}
 import com.avast.cactus.v3._
-import com.google.common.util.concurrent.{FutureCallback, Futures, ListenableFuture}
+import com.google.common.util.concurrent._
 import com.google.protobuf.MessageLite
-import io.grpc.{Status, StatusRuntimeException}
-import monix.eval.Task
+import io.grpc._
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent._
 import scala.language.higherKinds
 import scala.reflect.ClassTag
-
 object ClientCommonMethods extends CommonMethods {
 
-  def executeRequest[ReqGpb <: MessageLite, RespGpb <: MessageLite: ClassTag, RespCaseClass: Converter[RespGpb, ?]](
+  def executeRequest[F[_]: Async, ReqGpb <: MessageLite, RespGpb <: MessageLite: ClassTag, RespCaseClass: Converter[RespGpb, ?]](
       req: ReqGpb,
+      ctx: Context,
       f: ReqGpb => ListenableFuture[RespGpb],
-      ex: Executor)(implicit ec: ExecutionContext): Future[ServerResponse[RespCaseClass]] = {
-    f(req)
-      .asScala(ex)
+      ex: Executor)(implicit ec: ExecutionContext): F[ServerResponse[RespCaseClass]] = {
+
+    Async[F]
+      .async[RespGpb] { cb =>
+        ctx
+          .call[Future[RespGpb]](() => f(req).asScala(ex))
+          .onComplete(r => cb(r.toEither))
+      }
       .map(convertResponse[RespGpb, RespCaseClass])
       .recover {
         case e: StatusRuntimeException => Left(ServerError(e.getStatus, e.getTrailers))
@@ -36,10 +41,6 @@ object ClientCommonMethods extends CommonMethods {
       .leftMap { errors =>
         ServerError(Status.INTERNAL.withDescription(formatCactusFailures("response", errors)))
       }
-  }
-
-  def adaptToF[F[_]: FromTask, A](future: Future[A]): F[A] = {
-    implicitly[FromTask[F]].apply(Task.deferFuture(future))
   }
 
   private implicit class ListenableFuture2ScalaFuture[T](val f: ListenableFuture[T]) extends AnyVal {

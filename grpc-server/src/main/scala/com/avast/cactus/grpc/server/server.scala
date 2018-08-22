@@ -22,8 +22,9 @@ package object server {
       * @return Instance of `MappedGrpcService[Service]`
       */
     // there should theoretically be ClientTrait <: GrpcServer bound here but it's solved in the macro itself - it caused some problems here
-    def mappedToService[Service <: BindableService](
-        interceptors: ServerAsyncInterceptor[F]*)(implicit ct: ClassTag[ServerTrait[F]], ec: ExecutionContext, ef: Effect[F]): MappedGrpcService[Service] =
+    def mappedToService[Service <: BindableService](interceptors: ServerAsyncInterceptor[F]*)(implicit ct: ClassTag[ServerTrait[F]],
+                                                                                              ec: ExecutionContext,
+                                                                                              ef: Effect[F]): MappedGrpcService[Service] =
       macro com.avast.cactus.grpc.server.ServerMacros.mapImplToService[Service, F]
   }
 

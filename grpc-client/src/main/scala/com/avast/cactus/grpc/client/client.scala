@@ -2,6 +2,7 @@ package com.avast.cactus.grpc
 
 import java.util.concurrent.Executor
 
+import cats.effect.Async
 import io.grpc._
 import io.grpc.stub.AbstractStub
 
@@ -13,6 +14,7 @@ import scala.reflect.ClassTag
 package object client {
 
   implicit class MapClient(val channel: Channel) extends AnyVal {
+
     /**
       * @param interceptors List of async interceptors to be attached to the client.
       * @param ec ExecutionContext for callbacks.
@@ -24,7 +26,10 @@ package object client {
       */
     // there should theoretically be ClientTrait <: GrpcClient bound here but it's solved in the macro itself - it caused some problems here
     def createMappedClient[GrpcClientStub <: AbstractStub[GrpcClientStub], F[_], ClientTrait[_[_]]](
-        interceptors: ClientAsyncInterceptor*)(implicit ec: ExecutionContext, ex: Executor, ct: ClassTag[ClientTrait[F]]): ClientTrait[F] =
+        interceptors: ClientAsyncInterceptor[F]*)(implicit ec: ExecutionContext,
+                                                  ex: Executor,
+                                                  ct: ClassTag[ClientTrait[F]],
+                                                  as: Async[F]): ClientTrait[F] =
       macro com.avast.cactus.grpc.client.ClientMacros.mapClientToTraitWithInterceptors[GrpcClientStub, F, ClientTrait]
   }
 

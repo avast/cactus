@@ -21,7 +21,7 @@ class ServerMacros(val c: whitebox.Context) {
 
     val fTypeImpl = implType.typeArgs.headOption
       .getOrElse(c.abort(c.enclosingPosition, s"$implType has to have single type parameter (e.g. F[_])"))
-    val fType = implType.typeConstructor.typeParams.headOption
+    val fSymbol = implType.typeConstructor.typeParams.headOption
       .getOrElse(c.abort(c.enclosingPosition, s"$implType has to have single type parameter (e.g. F[_])"))
         .asType
 
@@ -37,7 +37,7 @@ class ServerMacros(val c: whitebox.Context) {
     val variable = CactusMacros.getVariable(c)
 
     val apiMethods = getApiMethods(serviceType)
-    val methodsMappings = getMethodsMapping(fType, implType, apiMethods)
+    val methodsMappings = getMethodsMapping(fSymbol, implType, apiMethods)
 
     val mappingMethods = methodsMappings.map { case (am, im) => generateMappingMethod(fTypeImpl, am, im) }
 
@@ -138,7 +138,7 @@ class ServerMacros(val c: whitebox.Context) {
     }.toSet
   }
 
-  private def getMethodsMapping(fType: TypeSymbol, implType: Type, apiMethods: Seq[ApiMethod]): Map[ApiMethod, ImplMethod] = {
+  private def getMethodsMapping(fSymbol: TypeSymbol, implType: Type, apiMethods: Seq[ApiMethod]): Map[ApiMethod, ImplMethod] = {
     val implMethods = implType.members
       .collect {
         case m if m.isMethod => m.asMethod
@@ -157,7 +157,7 @@ class ServerMacros(val c: whitebox.Context) {
           )
       }
 
-      apiMethod -> ImplMethod.extract(implMethod, fType)
+      apiMethod -> ImplMethod.extract(implMethod, fSymbol)
     }.toMap
   }
 
@@ -202,7 +202,7 @@ class ServerMacros(val c: whitebox.Context) {
   private case class ImplMethod(name: TermName, request: Type, context: Option[Type], response: Type)
 
   private object ImplMethod {
-    def extract(m: MethodSymbol, fType: TypeSymbol): ImplMethod = {
+    def extract(m: MethodSymbol, fSymbol: TypeSymbol): ImplMethod = {
       if (m.paramLists.size != 1) c.abort(c.enclosingPosition, s"Method ${m.name} in type ${m.owner} must have exactly one parameter list")
 
       val (reqType, ctxType) = m.paramLists.head.map(_.typeSignature) match {
@@ -219,12 +219,12 @@ class ServerMacros(val c: whitebox.Context) {
       val either = typeOf[scala.util.Either[_, _]].dealias.typeConstructor
 
       val respType = (for {
-        f <- Some(m.returnType) if f.typeConstructor.typeSymbol == fType // F[_]
+        f <- Some(m.returnType) if f.typeConstructor.typeSymbol == fSymbol // F[_]
         e <- f.typeArgs.headOption if e.dealias.typeConstructor == either // F[Either[_,_]]
         ea <- Some(e.typeArgs) if ea.head.dealias == status // F[Either[Status,_]]
       } yield ea(1))
         .getOrElse {
-          c.abort(c.enclosingPosition, s"Method ${m.name} in type ${m.owner} does not have required result type ${fType.name}[Either[Status, ?]]")
+          c.abort(c.enclosingPosition, s"Method ${m.name} in type ${m.owner} does not have required result type ${fSymbol.name}[Either[Status, ?]]")
         }
 
       new ImplMethod(m.name, reqType, ctxType, respType)

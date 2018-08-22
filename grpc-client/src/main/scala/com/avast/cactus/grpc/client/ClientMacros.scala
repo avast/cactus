@@ -14,7 +14,7 @@ class ClientMacros(val c: whitebox.Context) {
   import c.universe._
 
   def mapClientToTraitWithInterceptors[GrpcClientStub <: AbstractStub[GrpcClientStub]: WeakTypeTag, F[_], MyTrait[_[_]]](
-      interceptors: c.Tree*)(ec: c.Tree, ex: c.Tree, ct: c.Tree): c.Expr[MyTrait[F]] = {
+      interceptors: c.Tree*)(ec: c.Tree, ex: c.Tree, ct: c.Tree, as: c.Tree): c.Expr[MyTrait[F]] = {
 
     // fType and traitType cannot be get with weakTypeOf => https://issues.scala-lang.org/browse/SI-8919
 
@@ -68,12 +68,15 @@ class ClientMacros(val c: whitebox.Context) {
     c.Expr[MyTrait[F]] {
       val t =
         q"""
-         new com.avast.cactus.grpc.client.ClientInterceptorsWrapper(scala.collection.immutable.Seq(..$interceptors)) with $traitType with _root_.java.lang.AutoCloseable {
+         new com.avast.cactus.grpc.client.ClientInterceptorsWrapper[$fType](scala.collection.immutable.Seq(..$interceptors)) with $traitType with _root_.java.lang.AutoCloseable {
             private val ex: java.util.concurrent.Executor = $ex
+
+            override protected val F = { $as }
+            override protected val ec = { $ec }
 
             private def newStub = $stub
 
-            import com.avast.cactus.grpc.client.ClientCommonMethods._
+            import com.avast.cactus.grpc.client.{ClientCommonMethods => Methods}
             import com.avast.cactus.v3._
 
             ..$mappingMethods
@@ -93,16 +96,16 @@ class ClientMacros(val c: whitebox.Context) {
     val fReturnType = tq"${fType.typeSymbol}[$returnType]"
 
     q"""
-       override def ${implMethod.name}(request: ${implMethod.request}): $fReturnType = adaptToF[$fType, $returnType] {
-          withInterceptors {
+       override def ${implMethod.name}(request: ${implMethod.request}): $fReturnType = {
+          super.withInterceptors { ctx =>
              val stub = newStub
 
              request.asGpb[${apiMethod.request}] match {
-                case scala.util.Right(req) => executeRequest[${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, stub.${apiMethod.name}, ex)
+                case scala.util.Right(req) => Methods.executeRequest[$fType, ${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, ctx, stub.${apiMethod.name}, ex)
                 case scala.util.Left(errors) =>
-                   scala.concurrent.Future.successful {
+                   F.pure {
                       Left {
-                         com.avast.cactus.grpc.ServerError(io.grpc.Status.INVALID_ARGUMENT.withDescription(formatCactusFailures("request", errors)))
+                         com.avast.cactus.grpc.ServerError(io.grpc.Status.INVALID_ARGUMENT.withDescription(Methods.formatCactusFailures("request", errors)))
                       }
                    }
             }
@@ -169,10 +172,6 @@ class ClientMacros(val c: whitebox.Context) {
           // TODO type matching
           val serverError = typeOf[ServerError].dealias.typeSymbol
           val either = typeOf[scala.util.Either[_, _]].dealias.typeConstructor
-
-          //          val tq"${t}[${_}]" = m.returnType.dealias
-
-          //          c.abort(c.enclosingPosition, (m.returnType.dealias.typeSymbol == fSymbol).toString)
 
           for {
             f <- Some(m.returnType.dealias) if f.typeSymbol == fSymbol // F[_]
