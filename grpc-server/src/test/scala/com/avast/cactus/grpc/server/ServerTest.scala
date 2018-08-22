@@ -16,7 +16,7 @@ import org.scalatest.FunSuite
 import org.scalatest.concurrent.Eventually
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.time.{Milliseconds, Seconds, Span}
+import org.scalatest.time._
 
 import scala.concurrent.Future
 import scala.util.Random
@@ -24,10 +24,6 @@ import scala.util.Random
 class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
   private implicit val p: PatienceConfig = PatienceConfig(timeout = Span(2, Seconds), interval = Span(50, Milliseconds))
-
-  private implicit val ftt: ToTask[Future] = new ToTask[Future] {
-    override def apply[A](fa: Future[A]): Task[A] = Task.deferFuture(fa)
-  }
 
   def randomString(length: Int): String = {
     Random.alphanumeric.take(length).mkString("")
@@ -128,12 +124,12 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
   }
 
   test("missing headers") {
-    trait MyApi extends GrpcService[Future] {
-      def get(request: MyRequest): Future[Either[Status, MyResponse]]
+    trait MyApi extends GrpcService[Task] {
+      def get(request: MyRequest): Task[Either[Status, MyResponse]]
 
-      def get2(request: MyRequest, ctx: MyContext): Future[Either[Status, MyResponse]]
+      def get2(request: MyRequest, ctx: MyContext): Task[Either[Status, MyResponse]]
 
-      def get3(request: MyRequest, ctx: MyContext2): Future[Either[Status, MyResponse]]
+      def get3(request: MyRequest, ctx: MyContext2): Task[Either[Status, MyResponse]]
     }
 
     val channelName = randomString(10)
@@ -141,9 +137,9 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
     // format: OFF
     val impl = mock[MyApi]
-    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Task.now(Right(MyResponse(Map("name42" -> 42)))))
     when(impl.get2(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(MyContext(theHeader = headerValue, theHeader2 = headerValue))))
-      .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+      .thenReturn(Task.now(Right(MyResponse(Map("name42" -> 42)))))
     // format: ON
 
     val service = impl.mappedToService[TestApiServiceImplBase]()
@@ -177,12 +173,12 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
   }
 
   test("headers visible in interceptors") {
-    trait MyApi extends GrpcService[Future] {
-      def get(request: MyRequest): Future[Either[Status, MyResponse]]
+    trait MyApi extends GrpcService[Task] {
+      def get(request: MyRequest): Task[Either[Status, MyResponse]]
 
-      def get2(request: MyRequest, ctx: MyContext): Future[Either[Status, MyResponse]]
+      def get2(request: MyRequest, ctx: MyContext): Task[Either[Status, MyResponse]]
 
-      def get3(request: MyRequest, ctx: MyContext2): Future[Either[Status, MyResponse]]
+      def get3(request: MyRequest, ctx: MyContext2): Task[Either[Status, MyResponse]]
     }
 
     val channelName = randomString(10)
@@ -190,9 +186,9 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
     // format: OFF
     val impl = mock[MyApi]
-    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Task.now(Right(MyResponse(Map("name42" -> 42)))))
     when(impl.get2(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(MyContext(theHeader = headerValue, theHeader2 = headerValue))))
-      .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+      .thenReturn(Task.now(Right(MyResponse(Map("name42" -> 42)))))
     // format: ON
 
     val service = impl.mappedToService[TestApiServiceImplBase]((m: GrpcMetadata) => {
@@ -231,12 +227,12 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
   }
 
   test("ok path with advanced context") {
-    trait MyApi extends GrpcService[Future] {
-      def get(request: MyRequest): Future[Either[Status, MyResponse]]
+    trait MyApi extends GrpcService[Task] {
+      def get(request: MyRequest): Task[Either[Status, MyResponse]]
 
-      def get2(request: MyRequest, ctx: MyContext): Future[Either[Status, MyResponse]]
+      def get2(request: MyRequest, ctx: MyContext): Task[Either[Status, MyResponse]]
 
-      def get3(request: MyRequest, ctx: MyContext2): Future[Either[Status, MyResponse]]
+      def get3(request: MyRequest, ctx: MyContext2): Task[Either[Status, MyResponse]]
     }
 
     val channelName = randomString(10)
@@ -248,7 +244,7 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
     val context = MyContext2(theHeader = headerValue, content = cont)
 
     when(impl.get3(ArgumentMatchers.eq(MyRequest(Seq("name42"))), ArgumentMatchers.eq(context)))
-      .thenReturn(Future.successful(Right(MyResponse(Map("name42" -> 42)))))
+      .thenReturn(Task.now(Right(MyResponse(Map("name42" -> 42)))))
 
     val service = impl
       .mappedToService[TestApiServiceImplBase]((m: GrpcMetadata) => {
@@ -283,12 +279,12 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
   }
 
   test("propagation of status") {
-    trait MyApi extends GrpcService[Future] {
-      def get(request: MyRequest): Future[Either[Status, MyResponse]]
+    trait MyApi extends GrpcService[Task] {
+      def get(request: MyRequest): Task[Either[Status, MyResponse]]
 
-      def get2(request: MyRequest, ctx: MyContext): Future[Either[Status, MyResponse]]
+      def get2(request: MyRequest, ctx: MyContext): Task[Either[Status, MyResponse]]
 
-      def get3(request: MyRequest, ctx: MyContext2): Future[Either[Status, MyResponse]]
+      def get3(request: MyRequest, ctx: MyContext2): Task[Either[Status, MyResponse]]
     }
 
     val channelName = randomString(10)
@@ -296,7 +292,7 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
     // format: OFF
     val impl = mock[MyApi]
     when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42")))))
-      .thenReturn(Future.successful(Left(Status.UNAVAILABLE.withDescription("jenda"))))
+      .thenReturn(Task.now(Left(Status.UNAVAILABLE.withDescription("jenda"))))
     // format: ON
 
     val service = impl.mappedToService[TestApiServiceImplBase]()
@@ -325,18 +321,18 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
   }
 
   test("propagation of failure") {
-    trait MyApi extends GrpcService[Future] {
-      def get(request: MyRequest): Future[Either[Status, MyResponse]]
+    trait MyApi extends GrpcService[Task] {
+      def get(request: MyRequest): Task[Either[Status, MyResponse]]
 
-      def get2(request: MyRequest, ctx: MyContext): Future[Either[Status, MyResponse]]
+      def get2(request: MyRequest, ctx: MyContext): Task[Either[Status, MyResponse]]
 
-      def get3(request: MyRequest, ctx: MyContext2): Future[Either[Status, MyResponse]]
+      def get3(request: MyRequest, ctx: MyContext2): Task[Either[Status, MyResponse]]
     }
 
     val channelName = randomString(10)
 
     val impl = mock[MyApi]
-    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Future.failed(new RuntimeException("failure")))
+    when(impl.get(ArgumentMatchers.eq(MyRequest(Seq("name42"))))).thenReturn(Task.raiseError(new RuntimeException("failure")))
 
     val service = impl.mappedToService[TestApiServiceImplBase]()
 

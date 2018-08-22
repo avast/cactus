@@ -12,8 +12,8 @@ class ServerMacros(val c: whitebox.Context) {
   import c.universe._
 
   def mapImplToService[Service <: BindableService: WeakTypeTag, F[_]](
-      interceptors: c.Tree*)(ct: Tree, sch: c.Tree): c.Expr[MappedGrpcService[Service]] = {
-    // this method require `sch` as an argument but only to secure the Scheduler will be present. If it's visible by the macro method, it
+      interceptors: c.Tree*)(ct: Tree, ec: c.Tree): c.Expr[MappedGrpcService[Service]] = {
+    // this method require `ec` as an argument but only to secure the implicits will be present. If it's visible by the macro method, it
     // has to be visible also for the generated code thus it's ok to not use the argument
 
     val serviceType = weakTypeOf[Service]

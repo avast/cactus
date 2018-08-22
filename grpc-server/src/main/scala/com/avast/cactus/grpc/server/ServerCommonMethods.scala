@@ -1,34 +1,35 @@
 package com.avast.cactus.grpc.server
 
-import cats.syntax.either._
+import cats.effect.{Effect, IO}
+import cats.syntax.all._
 import com.avast.cactus.Converter
 import com.avast.cactus.grpc.{CommonMethods, ToTask}
 import com.avast.cactus.v3._
 import com.google.protobuf.MessageLite
+import io.grpc._
 import io.grpc.stub.StreamObserver
-import io.grpc.{Status, StatusException, StatusRuntimeException}
-import monix.execution.Scheduler
 
-import scala.concurrent.Future
+import scala.concurrent._
 import scala.language.higherKinds
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 object ServerCommonMethods extends CommonMethods {
-  def executeRequest[F[_]: ToTask, ReqCaseClass, RespCaseClass, RespGpb](req: ReqCaseClass,
+  def executeRequest[F[_]: Effect, ReqCaseClass, RespCaseClass, RespGpb](req: ReqCaseClass,
                                                                          call: ReqCaseClass => F[Either[Status, RespCaseClass]],
                                                                          handleResponse: RespCaseClass => Either[StatusException, RespGpb])(
-      implicit sch: Scheduler): Future[Either[StatusException, RespGpb]] = {
-    implicitly[ToTask[F]]
-      .apply {
-        call(req)
-      }
-      .map {
-        case Right(resp) => handleResponse(resp)
-        case Left(status) => Left(new StatusException(status))
-      }
-      .runAsync
+      implicit ec: ExecutionContext): Future[Either[StatusException, RespGpb]] = {
+
+    val p = Promise[Either[StatusException, RespGpb]]
+
+    (IO.shift >> Effect[F].runAsync(call(req)) {
+      case Right(Right(resp)) => IO { p.complete(Success(handleResponse(resp))) }
+      case Right(Left(status)) => IO { p.complete(Success(Left(new StatusException(status)))) }
+      case Left(err) => IO { p.complete(Failure(err)) }
+    }).unsafeRunSync()
+
+    p.future
   }
 
   def convertResponse[RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, ?]](
