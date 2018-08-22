@@ -137,25 +137,22 @@ The Scala trait:
 ```scala
 import com.avast.cactus.grpc._
 import io.grpc.Status
-import scala.concurrent.Future
 
 case class MyRequest(names: Seq[String])
 
 case class MyResponse(results: Map[String, Int])
 
-// choose your F by extending from GrpcService[F]
-trait ServerTrait extends GrpcService[Future] {
-  def get(request: MyRequest): Future[Either[Status, MyResponse]]
+trait ServerTrait[F[_]] extends GrpcService {
+  def get(request: MyRequest): F[Either[Status, MyResponse]]
 }
 ```
 
 Map the instance of `ServerTrait` to generated service stub:
 ```scala
+import monix.eval.Task
 import com.avast.cactus.grpc.server._  // this adds the `mappedToService` method
 
-implicit val ftt: ToTask[Future] = ??? // provide ToTask[F]
-
-val impl: ServerTrait = ???
+val impl: ServerTrait[Task] = ???
 
 val service: io.grpc.ServerServiceDefinition = impl.mappedToService[MyServiceImplBase](/* async interceptors go here */)
 ```
@@ -182,8 +179,8 @@ case class MyResponse(results: Map[String, Int])
 
 case class MyContext(theHeader: String)
 
-trait MyApi extends GrpcService[Future] {
-  def get(request: MyRequest, ctx: MyContext): Future[Either[Status, MyResponse]]
+trait MyApi[F[_]] extends GrpcService {
+  def get(request: MyRequest, ctx: MyContext): F[Either[Status, MyResponse]]
 }
 ```
 
@@ -230,11 +227,11 @@ for {
    * Only `String` headers are supported
 1. `content` is a case class inserted into the `Context` by an interceptor like this one:
     ```scala
-    new ServerAsyncInterceptor {
-      override def apply(m: GrpcMetadata): Future[Either[Status, GrpcMetadata]] = {
+    new ServerAsyncInterceptor[Task] {
+      override def apply(m: GrpcMetadata): Task[Either[Status, GrpcMetadata]] = {
         val cont = MyContextContent(42, "jenda")
         
-        Future.successful {
+        Task.now {
           Right(m.copy(context = m.context.withValue(ContextKeys.get[MyContextContent]("content"), cont)))
         }
       }
