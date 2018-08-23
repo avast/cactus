@@ -11,7 +11,6 @@ package object grpc {
   private[grpc] val MetadataContextKey = ContextKeys.get[Metadata]("headers")
 
   type FromTask[A[_]] = FunctionK[Task, A]
-  type ToTask[A[_]] = FunctionK[A, Task]
 
   type ServerResponse[Resp] = Either[ServerError, Resp]
 

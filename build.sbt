@@ -166,6 +166,7 @@ lazy val grpcServerModule = Project(id = "grpc-server", base = file("./grpc-serv
   grpcTestGenSettings,
   name := "cactus-grpc-server",
   libraryDependencies ++= Seq(
+    "com.kailuowang" %% "mainecoon-core" % "0.6.4",
     "io.grpc" % "grpc-services" % Versions.grpcVersion,
     "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test"
   )

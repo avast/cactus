@@ -1,12 +1,13 @@
 package com.avast.cactus.grpc.client
 
+import cats.Monad
 import com.avast.cactus.grpc.GrpcMetadata
 import io.grpc._
 
-import scala.concurrent.Future
+import scala.language.higherKinds
 
-class ClientHeadersInterceptor private (userHeaders: () => Map[String, String]) extends ClientAsyncInterceptor {
-  override def apply(m: GrpcMetadata): Future[Either[Status, GrpcMetadata]] = {
+class ClientHeadersInterceptor[F[_]: Monad] private (userHeaders: () => Map[String, String]) extends ClientAsyncInterceptor[F] {
+  override def apply(m: GrpcMetadata): F[Either[Status, GrpcMetadata]] = {
     import m._
 
     userHeaders().foreach {
@@ -14,16 +15,16 @@ class ClientHeadersInterceptor private (userHeaders: () => Map[String, String]) 
         headers.put(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER), value)
     }
 
-    Future.successful(Right(m.copy(headers = headers)))
+    Monad[F].pure(Right(m.copy(headers = headers)))
   }
 }
 
 object ClientHeadersInterceptor {
-  def apply(userHeaders: Map[String, String]): ClientHeadersInterceptor = {
+  def apply[F[_]: Monad](userHeaders: Map[String, String]): ClientHeadersInterceptor[F] = {
     new ClientHeadersInterceptor(() => userHeaders)
   }
 
-  def apply(userHeaders: () => Map[String, String]): ClientHeadersInterceptor = {
+  def apply[F[_]: Monad](userHeaders: () => Map[String, String]): ClientHeadersInterceptor[F] = {
     new ClientHeadersInterceptor(userHeaders)
   }
 }
