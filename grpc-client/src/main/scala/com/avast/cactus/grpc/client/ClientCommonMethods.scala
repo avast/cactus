@@ -20,13 +20,13 @@ object ClientCommonMethods extends CommonMethods {
       req: ReqGpb,
       ctx: Context,
       f: ReqGpb => ListenableFuture[RespGpb],
-      ex: Executor)(implicit ec: ExecutionContext): F[ServerResponse[RespCaseClass]] = {
+      ex: Executor, ec: ExecutionContext): F[ServerResponse[RespCaseClass]] = {
 
     Async[F]
       .async[RespGpb] { cb =>
         ctx
           .call[Future[RespGpb]](() => f(req).asScala(ex))
-          .onComplete(r => cb(r.toEither))
+          .onComplete(r => cb(r.toEither))(ec)
       }
       .map(convertResponse[RespGpb, RespCaseClass])
       .recover {

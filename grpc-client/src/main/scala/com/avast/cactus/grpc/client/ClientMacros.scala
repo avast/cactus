@@ -71,8 +71,8 @@ class ClientMacros(val c: whitebox.Context) {
          new com.avast.cactus.grpc.client.ClientInterceptorsWrapper[$fType](scala.collection.immutable.Seq(..$interceptors)) with $traitType with _root_.java.lang.AutoCloseable {
             private val ex: java.util.concurrent.Executor = $ex
 
-            override protected val F = { $as }
-            override protected val ec = { $ec }
+            override protected val F: _root_.cats.MonadError[$fType, _root_.java.lang.Throwable] = { $as }
+            override protected val ec: scala.concurrent.ExecutionContext = { $ec }
 
             private def newStub = $stub
 
@@ -101,7 +101,7 @@ class ClientMacros(val c: whitebox.Context) {
              val stub = newStub
 
              request.asGpb[${apiMethod.request}] match {
-                case scala.util.Right(req) => Methods.executeRequest[$fType, ${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, ctx, stub.${apiMethod.name}, ex)
+                case scala.util.Right(req) => Methods.executeRequest[$fType, ${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, ctx, stub.${apiMethod.name}, ex, ec)
                 case scala.util.Left(errors) =>
                    F.pure {
                       Left {

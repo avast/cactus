@@ -54,12 +54,12 @@ class ServerMacros(val c: whitebox.Context) {
 
           private val F = _root_.cats.effect.Effect[$fTypeImpl]
 
-          private val interceptorsWrapper = new ServerInterceptorsWrapper[$fTypeImpl](scala.collection.immutable.List(..$interceptors))
+          private val interceptorsWrapper = new com.avast.cactus.grpc.server.ServerInterceptorsWrapper[$fTypeImpl](scala.collection.immutable.List(..$interceptors))
 
           ..$mappingMethods
         }
 
-        new DefaultMappedGrpcService[$serviceType](service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
+        new com.avast.cactus.grpc.server.DefaultMappedGrpcService[$serviceType](service, com.avast.cactus.grpc.server.ServerMetadataInterceptor)
 
         """
 
