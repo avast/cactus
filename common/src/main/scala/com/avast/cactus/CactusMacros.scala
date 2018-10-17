@@ -9,13 +9,14 @@ import scala.language.experimental.macros
 import scala.language.{higherKinds, implicitConversions}
 import scala.reflect.ClassTag
 import scala.reflect.macros._
+import scala.util.Try
 
 //noinspection TypeAnnotation
 object CactusMacros {
 
   private[cactus] type AnnotationsMap = Map[String, Map[String, String]]
 
-  private[cactus] val Debug = false
+  private[cactus] val Debug = Option(System.getProperty("cactus.debug")).flatMap(s => Try(s.toBoolean).toOption).getOrElse(false)
 
   private val OptPattern = "Option\\[(.*)\\]".r
 
