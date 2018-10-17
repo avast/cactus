@@ -5,7 +5,7 @@ val logger: Logger = ConsoleLogger()
 crossScalaVersions := Seq("2.12.6")
 
 lazy val Versions = new {
-  val grpcVersion = "1.14.0"
+  val grpcVersion = "1.15.0"
   val gpb3Version = "3.6.1"
   val gpb2Version = "2.6.1"
 
