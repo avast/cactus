@@ -422,4 +422,10 @@ def parse[GpbMessage <: MessageLite: Parser: ClassTag, CaseClass: Converter[GpbM
 ```
 This is where `com.avast.cactus.CactusParser` from _cactus-common_ module should be used - depending on this module does not add dependency on neither the GPBv2 nor GPBv3.
 
-_Note: There is [Kind Projector](https://github.com/non/kind-projector) library used in the example above._
+## Notes
+1. There is [Kind Projector](https://github.com/non/kind-projector) library used in some examples above.
+1. In case of any problem (or you just want to see the generated code), you can turn on debug of cactus by passing `cactus.debug=true` system
+property to the compiler. E.g. in IDEA go to `File | Settings | Build, Execution, Deployment | Compiler | Scala Compiler | Scala Compile Server`
+and add ` -Dcactus.debug=true` to JVM options.
+1. Name you GPB fields with a common sense. Some combinations will cause clashes: e.g. `Enum enum` and `map<string, Enum> enumMap` will cause
+the mapping/compilation to fail with a nonsense message.
