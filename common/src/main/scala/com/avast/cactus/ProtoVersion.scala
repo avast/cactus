@@ -26,7 +26,7 @@ private[cactus] object ProtoVersion {
 
     private def isPrimitiveType(c: whitebox.Context)(fieldType: c.universe.Type): Boolean = {
       fieldType.baseClasses.exists { t =>
-        CactusMacros.isPrimitive(c)(fieldType) || t.asType.fullName == ClassesNames.Protobuf.ByteString
+        CactusMacros.isPrimitive(c)(fieldType) || t.asType.fullName == ClassesNames.Protobuf.ByteString || t.asType.fullName == ClassesNames.Protobuf.Enum
       }
     }
 
@@ -38,8 +38,8 @@ private[cactus] object ProtoVersion {
       }
     }
 
-    def newOneOfConverterToCaseClass(c: whitebox.Context)
-                                    (from: c.universe.Type, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+    def newOneOfConverterToSealedTrait(c: whitebox.Context)
+                                      (from: c.universe.Type, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
       import c.universe._
       import oneOfType._
 
@@ -65,7 +65,7 @@ private[cactus] object ProtoVersion {
         }
 
       val enumValues = implsSeq
-        .map(n => splitByUppers(n.name.toString)
+        .map(n => CactusMacros.splitByUppers(n.name.toString)
           .map(_.toUpperCase).mkString("_"))
         .map(TermName(_))
 
@@ -79,7 +79,7 @@ private[cactus] object ProtoVersion {
       val options = enumValues zip (implsSeq zip getters)
 
       val cases = options.map { case (enum, (ccl, getter)) =>
-        getCtorParamType(c)(ccl) match {
+        CactusMacros.getCtorParamType(c)(ccl) match {
           case Some(cpt) => // case class
             val value = CactusMacros.convertIfNeeded(c)(c.Expr[String](q"fieldPath"), getter.returnType, cpt)(q"wholeGpb.$getter")
             cq""" $enumClass.$enum => $value.map(${ccl.companion}.apply)  """
@@ -138,14 +138,14 @@ private[cactus] object ProtoVersion {
         case (ccl, (setter, Some(field))) => // case class
           val fieldName = field.name.toTermName
 
-          val setterArgType = getParamType(c)(setter)
+          val setterArgType = CactusMacros.getParamType(c)(setter)
 
           val value = CactusMacros.convertIfNeeded(c)(c.Expr[String](q"fieldPath"), field.typeSignature, setterArgType)(q"v.$fieldName")
 
           cq" v: $ccl => $value.map(builder.$setter)"
 
         case (ccl, (setter, None)) => // case object
-          val setterArgType = getParamType(c)(setter)
+          val setterArgType = CactusMacros.getParamType(c)(setter)
 
           if (setterArgType.typeSymbol.fullName != CactusMacros.ClassesNames.Protobuf.Empty) {
             CactusMacros.terminateWithInfo(c)(s"ONE-OF trait implementations has to have 'google.protobuf.Empty' as counterpart in GPB; has $setterArgType")
@@ -257,20 +257,6 @@ private[cactus] object ProtoVersion {
             }
          """
     }
-
-    private def splitByUppers(s: String): Array[String] = {
-      s.split("(?=\\p{Upper})")
-    }
   }
 
-  private def getParamType(c: whitebox.Context)(setter: c.universe.MethodSymbol): c.universe.Type = {
-    setter.paramLists.flatten.head.typeSignature
-  }
-
-  private def getCtorParamType(c: whitebox.Context)(ccl: c.universe.ClassSymbol): Option[c.universe.Type] = {
-    ccl.typeSignature.decls.collectFirst {
-      case m if m.isMethod && m.asMethod.isPrimaryConstructor =>
-        if (m.asMethod.paramLists.flatten.nonEmpty) Option(getParamType(c)(m.asMethod)) else None // could be object!
-    }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate parameter of ctor for $ccl, it is probably a bug"))
-  }
 }
