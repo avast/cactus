@@ -2,7 +2,8 @@ package com.avast.cactus.v2.test
 
 import cats.data.NonEmptyList
 import com.avast.cactus.v2.TestMessageV2.MapMessage.MapInnerMessage
-import com.avast.cactus.v2.TestMessageV2.{Data, Data2, Data3, Data4}
+import com.avast.cactus.v2.TestMessageV2.MessageWithRawEnum.EnumMapEntry
+import com.avast.cactus.v2.TestMessageV2._
 import com.avast.cactus.v2._
 import com.avast.cactus.{Converter, _}
 import com.google.protobuf.ByteString
@@ -33,17 +34,20 @@ class CactusMacrosTestV2 extends FunSuite {
       throw thrownIllegalArgumentException
     }
   }
-  implicit val StringJavaIntegerListConverter: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter(_.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
+  implicit val StringJavaIntegerListConverter: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter(
+    _.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
 
   implicit val MapInnerMessageIntConverter: Converter[MapInnerMessage, Int] = Converter(_.getFieldInt)
-  implicit val IntMapInnerMessageConverter: Converter[Int, MapInnerMessage] = Converter(MapInnerMessage.newBuilder().setFieldString("str").setFieldInt(_).build())
+  implicit val IntMapInnerMessageConverter: Converter[Int, MapInnerMessage] = Converter(
+    MapInnerMessage.newBuilder().setFieldString("str").setFieldInt(_).build())
 
   // these are not needed, but they are here to be sure it won't cause trouble to the user
   implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter((b: Array[Byte]) => ByteString.copyFrom(b))
   implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
 
   test("GPB to case class") {
-    val gpbInternal = Data2.newBuilder()
+    val gpbInternal = Data2
+      .newBuilder()
       .setFieldDouble(0.9)
       .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
@@ -53,7 +57,8 @@ class CactusMacrosTestV2 extends FunSuite {
 
     val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
 
-    val gpb = TestMessageV2.Data.newBuilder()
+    val gpb = TestMessageV2.Data
+      .newBuilder()
       .setFieldString("ahoj")
       .setFieldIntName(9)
       //.setFieldOption(13) -> will become None
@@ -66,11 +71,21 @@ class CactusMacrosTestV2 extends FunSuite {
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
       .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
-      .addAllFieldMap(map.map { case (key, value) =>
-        TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString)).build()
+      .addAllFieldMap(map.map {
+        case (key, value) =>
+          TestMessageV2.MapMessage
+            .newBuilder()
+            .setKey(key)
+            .setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString))
+            .build()
       }.asJava)
-      .addAllFieldMap2(map.map { case (key, value) =>
-        TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString)).build()
+      .addAllFieldMap2(map.map {
+        case (key, value) =>
+          TestMessageV2.MapMessage
+            .newBuilder()
+            .setKey(key)
+            .setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString))
+            .build()
       }.asJava)
       .build()
 
@@ -78,19 +93,38 @@ class CactusMacrosTestV2 extends FunSuite {
 
     val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
 
-    val expected = CaseClassA("ahoj", 9, None, ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val expected = CaseClassA(
+      fieldString = "ahoj",
+      fieldInt = 9,
+      fieldOption = None,
+      fieldBlob = ByteString.EMPTY,
+      fieldStrings2 = List("a"),
+      fieldGpb = caseClassB,
+      fieldGpbOption = Some(caseClassB),
+      fieldGpbOptionEmpty = None,
+      fieldGpbRepeated = Seq(caseClassB, caseClassB, caseClassB),
+      fieldGpb2RepeatedRecurse = caseClassD,
+      fieldStrings = List("a", "b"),
+      fieldOptionIntegers = Vector(3, 6),
+      fieldOptionIntegersEmpty = List(),
+      fieldIntegersString = "1, 2",
+      fieldMap = map,
+      fieldMapDiffType = map2
+    )
 
     assertResult(Right(expected))(gpb.asCaseClass[CaseClassA])
   }
 
   test("GPB to case class multiple failures") {
-    val gpbInternal = Data2.newBuilder()
+    val gpbInternal = Data2
+      .newBuilder()
       .setFieldDouble(0.9)
       //      .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
 
     // fields commented out are REQUIRED
-    val gpb = TestMessageV2.Data.newBuilder()
+    val gpb = TestMessageV2.Data
+      .newBuilder()
       //      .setFieldString("ahoj")
       //      .setFieldIntName(9)
       .setFieldOption(13)
@@ -127,16 +161,35 @@ class CactusMacrosTestV2 extends FunSuite {
 
     val caseClassD = Seq(CaseClassD(Seq(caseClassB, caseClassB, caseClassB)))
 
-    val caseClass = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), "1, 2", map, map2)
+    val caseClass = CaseClassA(
+      fieldString = "ahoj",
+      fieldInt = 9,
+      fieldOption = Some(13),
+      fieldBlob = ByteString.EMPTY,
+      fieldStrings2 = List("a"),
+      fieldGpb = caseClassB,
+      fieldGpbOption = Some(caseClassB),
+      fieldGpbOptionEmpty = None,
+      fieldGpbRepeated = Seq(caseClassB, caseClassB, caseClassB),
+      fieldGpb2RepeatedRecurse = caseClassD,
+      fieldStrings = List("a", "b"),
+      fieldOptionIntegers = Vector(3, 6),
+      fieldOptionIntegersEmpty = List(),
+      fieldIntegersString = "1, 2",
+      fieldMap = map,
+      fieldMapDiffType = map2
+    )
 
-    val gpbInternal = Data2.newBuilder()
+    val gpbInternal = Data2
+      .newBuilder()
       .setFieldDouble(0.9)
       .setFieldBlob(ByteString.copyFromUtf8("text"))
       .build()
 
     val dataRepeated = Seq(gpbInternal, gpbInternal, gpbInternal)
 
-    val expectedGpb = TestMessageV2.Data.newBuilder()
+    val expectedGpb = TestMessageV2.Data
+      .newBuilder()
       .setFieldString("ahoj")
       .setFieldIntName(9)
       .setFieldOption(13)
@@ -148,11 +201,21 @@ class CactusMacrosTestV2 extends FunSuite {
       .addAllFieldStrings(Seq("a", "b").asJava)
       .addAllFieldStringsName(Seq("a").asJava)
       .addAllFieldOptionIntegers(Seq(3, 6).map(int2Integer).asJava)
-      .addAllFieldMap(map.map { case (key, value) =>
-        TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString)).build()
+      .addAllFieldMap(map.map {
+        case (key, value) =>
+          TestMessageV2.MapMessage
+            .newBuilder()
+            .setKey(key)
+            .setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString))
+            .build()
       }.asJava)
-      .addAllFieldMap2(map.map { case (key, value) =>
-        TestMessageV2.MapMessage.newBuilder().setKey(key).setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString)).build()
+      .addAllFieldMap2(map.map {
+        case (key, value) =>
+          TestMessageV2.MapMessage
+            .newBuilder()
+            .setKey(key)
+            .setValue(MapInnerMessage.newBuilder().setFieldInt(value.fieldInt).setFieldString(value.fieldString))
+            .build()
       }.asJava)
       .addAllFieldIntegers2(Seq(1, 2).map(int2Integer).asJava)
       .build()
@@ -172,8 +235,24 @@ class CactusMacrosTestV2 extends FunSuite {
 
     val wrongIntegersString = "1 2" // expected format is ', ' concatenated numbers
 
-    val caseClassA = CaseClassA("ahoj", 9, Some(13), ByteString.EMPTY, List("a"), caseClassB, Some(caseClassB), None, Seq(caseClassB, caseClassB, caseClassB), caseClassD, List("a", "b"), Vector(3, 6), List(), wrongIntegersString, map, map2)
-
+    val caseClassA = CaseClassA(
+      fieldString = "ahoj",
+      fieldInt = 9,
+      fieldOption = Some(13),
+      fieldBlob = ByteString.EMPTY,
+      fieldStrings2 = List("a"),
+      fieldGpb = caseClassB,
+      fieldGpbOption = Some(caseClassB),
+      fieldGpbOptionEmpty = None,
+      fieldGpbRepeated = Seq(caseClassB, caseClassB, caseClassB),
+      fieldGpb2RepeatedRecurse = caseClassD,
+      fieldStrings = List("a", "b"),
+      fieldOptionIntegers = Vector(3, 6),
+      fieldOptionIntegersEmpty = List(),
+      fieldIntegersString = wrongIntegersString,
+      fieldMap = map,
+      fieldMapDiffType = map2
+    )
 
     val Left(NonEmptyList(UnknownFailure(fieldPath, cause), List())) = caseClassA.asGpb[Data]
 
@@ -184,7 +263,20 @@ class CactusMacrosTestV2 extends FunSuite {
   test("convert case class to GPB and back") {
     val map = Map("first" -> CaseClassMapInnerMessage("str", 1), "second" -> CaseClassMapInnerMessage("str", 2))
 
-    val original = CaseClassC(StringWrapperClass("ahoj"), 9, Some(13), ByteString.EMPTY, Vector("a"), CaseClassB(0.9, "text"), Some(CaseClassB(0.9, "text")), None, Array("a", "b"), Vector(3, 6), List(), map)
+    val original = CaseClassC(
+      fieldString = StringWrapperClass("ahoj"),
+      fieldInt = 9,
+      fieldOption = Some(13),
+      fieldBlob = ByteString.EMPTY,
+      fieldStrings2 = Vector("a"),
+      fieldGpb = CaseClassB(0.9, "text"),
+      fieldGpbOption = Some(CaseClassB(0.9, "text")),
+      fieldGpbOptionEmpty = None,
+      fieldStrings = Array("a", "b"),
+      fieldOptionIntegers = Vector(3, 6),
+      fieldOptionIntegersEmpty = List(),
+      fieldMap = map
+    )
 
     val Right(converted) = original.asGpb[Data]
 
@@ -201,10 +293,10 @@ class CactusMacrosTestV2 extends FunSuite {
 
   test("recursion detection") {
     /*
-    * In case the recursion detection doesn't work, this code won't require a Converter -  macros generate
-    * a Converter referring recursively to itself which will cause a StackOverflowError in runtime.
-    * By doing this check we try to avoid it and detect the "recursion detection" is broken.
-    * */
+     * In case the recursion detection doesn't work, this code won't require a Converter -  macros generate
+     * a Converter referring recursively to itself which will cause a StackOverflowError in runtime.
+     * By doing this check we try to avoid it and detect the "recursion detection" is broken.
+     * */
     checkDoesNotCompile(
       """
         import com.avast.cactus.v2._
@@ -223,19 +315,52 @@ class CactusMacrosTestV2 extends FunSuite {
         |  case GpbEnum.TWO => TheEnum.Two
         |}
         |
-        |TestMessageV2.MessageWithEnum.getDefaultInstance.asCaseClass[com.avast.cactus.v2.test.MessageWithEnum]
+        |TestMessageV2.MessageWithEnum.getDefaultInstance.asCaseClass[com.avast.cactus.v2.test.CaseClassWithEnum]
         |""".stripMargin
     )
   }
 
   test("seq[case class] to seq[gpb] and then gpb wrapper") {
-    assertCompiles(
-      """
-        |val value: Converter[Seq[CaseClassB], Data3] = {
-        |  implicitly[Converter[Seq[CaseClassB], Seq[Data2]]]
-        |    .map(sd2 => Data3.newBuilder().addAllFieldGpb(sd2.asJava).build())
-        |}
+    assertCompiles("""
+                     |val value: Converter[Seq[CaseClassB], Data3] = {
+                     |  implicitly[Converter[Seq[CaseClassB], Seq[Data2]]]
+                     |    .map(sd2 => Data3.newBuilder().addAllFieldGpb(sd2.asJava).build())
+                     |}
       """.stripMargin)
+  }
+
+  test("message with enum") {
+    val gpb = MessageWithRawEnum
+      .newBuilder()
+      .setFieldString("ahoj")
+      .setFieldEnum(TestEnum.FIRST)
+      .setFieldEnumOption(TestEnum.SECOND)
+      .addAllFieldMap(Map("first" -> TestEnum.FIRST, "second" -> TestEnum.SECOND).map {
+        case (key, value) =>
+          EnumMapEntry
+            .newBuilder()
+            .setKey(key)
+            .setValue(value)
+            .build()
+      }.asJava)
+      .build()
+
+    val ccl = CaseClassWithRawEnum(
+      fieldString = "ahoj",
+      fieldEnum = TestEnum.FIRST,
+      fieldEnumOption = Some(TestEnum.SECOND),
+      fieldMap = Map("first" -> TestEnum.FIRST, "second" -> TestEnum.SECOND)
+    )
+
+    assertResult(Right(ccl))(gpb.asCaseClass[CaseClassWithRawEnum])
+    assertResult(Right(gpb))(ccl.asGpb[MessageWithRawEnum])
+
+    val gpb2 = MessageWithEnum.newBuilder().setTheEnum(MessageWithEnum.TheEnum.TWO).build()
+
+    assertResult(Right(CaseClassWithEnum(Some(TheEnum.Two))))(gpb2.asCaseClass[CaseClassWithEnum])
+    assertResult(Right(gpb2))(CaseClassWithEnum(Some(TheEnum.Two)).asGpb[MessageWithEnum])
+
+//    Converter.deriveConverter[MessageWithRawEnum, CaseClassWithRawEnum]
   }
 
 }
@@ -313,9 +438,8 @@ case class CaseClassE(fieldString: String,
 
 case class StringWrapperClass(value: String)
 
-object CaseClassA
-
 // this is here to prevent reappearing of bug with companion object
+object CaseClassA
 
 sealed trait TheEnum
 
@@ -327,4 +451,9 @@ object TheEnum {
 
 }
 
-case class MessageWithEnum(theEnum: Option[TheEnum])
+case class CaseClassWithEnum(theEnum: Option[TheEnum])
+
+case class CaseClassWithRawEnum(fieldString: String,
+                                fieldEnum: TestEnum,
+                                fieldEnumOption: Option[TestEnum],
+                                @GpbMap(key = "key", value = "value") fieldMap: Map[String, TestEnum])
