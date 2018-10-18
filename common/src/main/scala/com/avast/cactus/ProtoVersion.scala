@@ -1,12 +1,17 @@
 package com.avast.cactus
 
-import com.avast.cactus.CactusMacros.{AnnotationsMap, ClassesNames, newConverter, typesEqual}
+import com.avast.cactus.CactusMacros._
 
 import scala.collection.mutable
 import scala.reflect.macros.whitebox
 
 private[cactus] sealed trait ProtoVersion {
   def getQuery(c: whitebox.Context)(gpb: c.Tree, fieldNameUpper: String, fieldType: c.universe.Type): Option[c.Tree]
+
+  def createEnumToSealedTraitCases(c: whitebox.Context)(fieldName: String,
+                                                        enumClass: c.universe.Symbol,
+                                                        enumValues: Seq[c.universe.TermName],
+                                                        implsSeq: Seq[c.universe.ClassSymbol]): Seq[c.universe.Tree]
 }
 
 private[cactus] object ProtoVersion {
@@ -19,6 +24,19 @@ private[cactus] object ProtoVersion {
       val query = TermName(s"has$fieldNameUpper")
 
       Some(q"$gpb.$query")
+    }
+
+    override def createEnumToSealedTraitCases(c: whitebox.Context)(fieldName: String,
+                                                                   enumClass: c.universe.Symbol,
+                                                                   enumValues: Seq[c.universe.TermName],
+                                                                   implsSeq: Seq[c.universe.ClassSymbol]): Seq[c.universe.Tree] = {
+      import c.universe._
+
+      val options = enumValues zip implsSeq
+
+      options.map {
+        case (enumValue, ccl) => cq""" $enumClass.$enumValue => Good(${ccl.module}) """
+      }
     }
   }
 
@@ -38,8 +56,22 @@ private[cactus] object ProtoVersion {
       }
     }
 
-    def newOneOfConverterToSealedTrait(c: whitebox.Context)
-                                      (from: c.universe.Type, oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+    override def createEnumToSealedTraitCases(c: whitebox.Context)(fieldName: String,
+                                                                   enumClass: c.universe.Symbol,
+                                                                   enumValues: Seq[c.universe.TermName],
+                                                                   implsSeq: Seq[c.universe.ClassSymbol]): Seq[c.universe.Tree] = {
+      import c.universe._
+
+      val options = enumValues zip implsSeq
+
+      options.map {
+        case (enumValue, ccl) => cq""" $enumClass.$enumValue => Good(${ccl.module}) """
+      } :+ cq""" $enumClass.UNRECOGNIZED => Bad(One(OneOfValueNotSetFailure(fieldPath + "." + $fieldName))) """
+    }
+
+    def newOneOfConverterToSealedTrait(c: whitebox.Context)(
+        from: c.universe.Type,
+        oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
       import c.universe._
       import oneOfType._
 
@@ -49,9 +81,12 @@ private[cactus] object ProtoVersion {
 
       if (CactusMacros.Debug) println(s"Generating ONE-OF converter from $gpbClassSymbol to ${classType.resultType}, GPB ONE-OF '$name'")
 
-      val getCaseMethod = gpbClassSymbol.typeSignature.decls.collectFirst {
-        case m if m.isMethod && m.name.toString == s"get${name}Case" => m.asMethod
-      }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method get${name}Case inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}"))
+      val getCaseMethod = gpbClassSymbol.typeSignature.decls
+        .collectFirst {
+          case m if m.isMethod && m.name.toString == s"get${name}Case" => m.asMethod
+        }
+        .getOrElse(c.abort(c.enclosingPosition,
+                           s"Could not locate method get${name}Case inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}"))
 
       val implsSeq = impls.toSeq
 
@@ -59,14 +94,21 @@ private[cactus] object ProtoVersion {
         .map(_.name.toString)
         .map("get" + _)
         .map { n =>
-          gpbClassSymbol.typeSignature.decls.collectFirst {
-            case m if m.isMethod && m.name.toString == n => m.asMethod
-          }.getOrElse(c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}"))
+          gpbClassSymbol.typeSignature.decls
+            .collectFirst {
+              case m if m.isMethod && m.name.toString == n => m.asMethod
+            }
+            .getOrElse(
+              c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}"))
         }
 
       val enumValues = implsSeq
-        .map(n => CactusMacros.splitByUppers(n.name.toString)
-          .map(_.toUpperCase).mkString("_"))
+        .map(
+          n =>
+            CactusMacros
+              .splitByUppers(n.name.toString)
+              .map(_.toUpperCase)
+              .mkString("_"))
         .map(TermName(_))
 
       val enumClass = {
@@ -78,15 +120,16 @@ private[cactus] object ProtoVersion {
 
       val options = enumValues zip (implsSeq zip getters)
 
-      val cases = options.map { case (enum, (ccl, getter)) =>
-        CactusMacros.getCtorParamType(c)(ccl) match {
-          case Some(cpt) => // case class
-            val value = CactusMacros.convertIfNeeded(c)(c.Expr[String](q"fieldPath"), getter.returnType, cpt)(q"wholeGpb.$getter")
-            cq""" $enumClass.$enum => $value.map(${ccl.companion}.apply)  """
+      val cases = options.map {
+        case (enum, (ccl, getter)) =>
+          CactusMacros.getCtorParamType(c)(ccl) match {
+            case Some(cpt) => // case class
+              val value = CactusMacros.convertIfNeeded(c)(c.Expr[String](q"fieldPath"), getter.returnType, cpt)(q"wholeGpb.$getter")
+              cq""" $enumClass.$enum => $value.map(${ccl.companion}.apply)  """
 
-          case None => // case object
-            cq""" $enumClass.$enum => Good(${ccl.module})  """
-        }
+            case None => // case object
+              cq""" $enumClass.$enum => Good(${ccl.module})  """
+          }
       } :+
         cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => Bad(One(OneOfValueNotSetFailure(fieldPath + "." + $name))) """
 
@@ -103,9 +146,8 @@ private[cactus] object ProtoVersion {
       f
     }
 
-    def newOneOfConverterToGpb(c: whitebox.Context)
-                              (gpbType: c.universe.Type, gpbSetters: Iterable[c.universe.MethodSymbol])
-                              (oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+    def newOneOfConverterToGpb(c: whitebox.Context)(gpbType: c.universe.Type, gpbSetters: Iterable[c.universe.MethodSymbol])(
+        oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
       import c.universe._
       import oneOfType._
 
@@ -122,14 +164,17 @@ private[cactus] object ProtoVersion {
             .find {
               _.name.toString == n
             }
-            .getOrElse(c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol"))
+            .getOrElse(
+              c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol"))
         }
 
       val fields = implsSeq
         .map { t =>
-          t.typeSignature.decls.collectFirst {
-            case m if m.isMethod && m.asMethod.isPrimaryConstructor => m.asMethod.paramLists.flatten.headOption
-          }.getOrElse(CactusMacros.terminateWithInfo(c)(s"Could not extract value field name from $t, needed for ONE-OF $oneOfTypeSymbol"))
+          t.typeSignature.decls
+            .collectFirst {
+              case m if m.isMethod && m.asMethod.isPrimaryConstructor => m.asMethod.paramLists.flatten.headOption
+            }
+            .getOrElse(CactusMacros.terminateWithInfo(c)(s"Could not extract value field name from $t, needed for ONE-OF $oneOfTypeSymbol"))
         }
 
       val options = implsSeq zip (setters zip fields)
@@ -148,7 +193,8 @@ private[cactus] object ProtoVersion {
           val setterArgType = CactusMacros.getParamType(c)(setter)
 
           if (setterArgType.typeSymbol.fullName != CactusMacros.ClassesNames.Protobuf.Empty) {
-            CactusMacros.terminateWithInfo(c)(s"ONE-OF trait implementations has to have 'google.protobuf.Empty' as counterpart in GPB; has $setterArgType")
+            CactusMacros.terminateWithInfo(c)(
+              s"ONE-OF trait implementations has to have 'google.protobuf.Empty' as counterpart in GPB; has $setterArgType")
           }
 
           cq" _: ${ccl.module} => Good(builder.$setter(_root_.com.google.protobuf.Empty.getDefaultInstance()))"
@@ -171,16 +217,17 @@ private[cactus] object ProtoVersion {
       // has to be annotated with GpbOneOf and optionally with GpbName
       if (fieldAnnotations.exists(_._1 == classOf[GpbOneOf].getName)) {
         Option {
-          fieldAnnotations.collectFirst {
-            case (name, params) if name == classOf[GpbName].getName => params("value")
-          }.getOrElse(fieldNameUpper)
+          fieldAnnotations
+            .collectFirst {
+              case (name, params) if name == classOf[GpbName].getName => params("value")
+            }
+            .getOrElse(fieldNameUpper)
         }
       } else None
     }
 
-    def newConverterScalaToJavaMap(c: whitebox.Context)
-                                  (srcType: c.universe.Type, dstType: c.universe.Type)
-                                  (implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
+    def newConverterScalaToJavaMap(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type)(
+        implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
       import c.universe._
 
       val srcTypeArgs = srcType.typeArgs
@@ -218,9 +265,8 @@ private[cactus] object ProtoVersion {
          """
     }
 
-    def newConverterJavaToScalaMap(c: whitebox.Context)
-                                  (srcType: c.universe.Type, dstType: c.universe.Type)
-                                  (implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
+    def newConverterJavaToScalaMap(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type)(
+        implicit converters: mutable.Map[String, c.Tree]): c.Tree = {
       import c.universe._
 
       val srcTypeArgs = srcType.typeArgs

@@ -99,3 +99,27 @@ message MessageInsideAnyField {
              string     field_string = 1;
              int32      field_int = 2;
 }
+
+message MessageWithEnum {
+    enum TheEnum {
+        UNKNOWN = 0;
+        ONE = 1;
+        TWO = 2;
+    }
+
+    TheEnum the_enum_field = 1;                             // OPTIONAL
+}
+
+message MessageWithRawEnum {
+    string   field_string = 1;                              // REQUIRED
+    TestEnum field_enum = 2;                                // REQUIRED
+    TestEnum field_enum_option = 3;                         // OPTIONAL
+
+    map<string, TestEnum> field_map = 4;
+}
+
+enum TestEnum {
+    UNKNOWN = 0;
+    FIRST = 1;
+    SECOND = 2;
+}

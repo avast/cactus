@@ -234,8 +234,6 @@ object CactusMacros {
         val e = extractField(c)(field, isProto3, gpbGetters, gpbSetters)
         import e._
 
-        if (Debug) println(s"$fieldName field type: $fieldType")
-
         val innerFieldPath = c.Expr[String] {
           q"""$fieldPath + "." + $nameInGpb"""
         }
@@ -247,8 +245,8 @@ object CactusMacros {
 
             processEndType(c)(fieldName, innerFieldPath, annotations, nameInGpb, dstType)(query, q"$gpb.${n.getter}", returnType)
 
-          case o: FieldType.Enum[MethodSymbol, ClassSymbol, Type] =>
-            processEnum(c)(gpbType, gpb, fieldPath)(o)
+          case en: FieldType.Enum[MethodSymbol, ClassSymbol, Type] =>
+            processEnum(c)(protoVersion)(gpbType, gpb, fieldPath)(en)
 
           case o: FieldType.OneOf[MethodSymbol, ClassSymbol, Type] =>
             processOneOf(c)(gpbType, gpb, fieldPath)(o)
@@ -291,18 +289,25 @@ object CactusMacros {
       }
     }
 
-    private def processEnum(c: whitebox.Context)
-                            (gpbType: c.universe.Type, gpb: c.Tree, fieldPath: c.universe.Expr[String])
-                                        (enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+    private def processEnum(c: whitebox.Context)(
+        protoVersion: ProtoVersion)(gpbType: c.universe.Type, gpb: c.Tree, fieldPath: c.universe.Expr[String])(
+        enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
       import c.universe._
 
       if (Debug) {
-        println(s"Converting GPB enum $gpbType to sealed trait (${enumType.impls}) ")
+        println(s"Converting GPB enum $gpbType to sealed trait (${enumType.traitImpls}) ")
       }
 
-      val conv = EnumMacros.newEnumConverterToSealedTrait(c)(gpbType, enumType)
+      def conv(finalType: c.universe.Type) = {
+        EnumMacros.newEnumConverterToSealedTrait(c)(protoVersion)(gpbType, enumType.copy(traitType = finalType))
+      }
 
-      q" $conv($fieldPath, $gpb) "
+      enumType.traitType.resultType.toString match {
+        case OptPattern(_) =>
+          q""" (${conv(enumType.traitType.resultType.typeArgs.head)}($fieldPath, $gpb)).map(Option(_)).recover( _=> None) """
+
+        case _ => q" ${conv(enumType.traitType)}($fieldPath, $gpb) "
+      }
     }
 
     private[cactus] def processEndType(c: whitebox.Context)
@@ -424,6 +429,8 @@ object CactusMacros {
               q" CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($getter) "
 
             case None =>
+              c.info(c.enclosingPosition, s"Map field $fieldName without annotation, possible bug?", force = false)
+
               if (Debug) {
                 println(s"Map field $fieldName without annotation, fallback to raw conversion")
               }
@@ -530,6 +537,9 @@ object CactusMacros {
 
             processEndType(c)(q"$caseClass.$fieldName", innerFieldPath, annotations, dstType)(setterParam.typeSignature, q"builder.${n.setter.name}", upper)
 
+          case en: FieldType.Enum[MethodSymbol, ClassSymbol, Type] =>
+            processEnum(c)(q"$caseClass.$fieldName", fieldPath)(en)
+
           case o: FieldType.OneOf[MethodSymbol, ClassSymbol, Type] =>
             processOneOf(c)(gpbType, gpbSetters)(q"$caseClass.$fieldName", fieldPath, o)
         }
@@ -556,16 +566,38 @@ object CactusMacros {
       }
     }
 
-    private def processOneOf(c: whitebox.Context)
-                            (gpbType: c.universe.Type, gpbSetters: Iterable[c.universe.MethodSymbol])
-                            (field: c.universe.Tree, fieldPath: c.universe.Expr[String], oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+    private def processOneOf(c: whitebox.Context)(gpbType: c.universe.Type, gpbSetters: Iterable[c.universe.MethodSymbol])(
+        field: c.universe.Tree,
+        fieldPath: c.universe.Expr[String],
+        oneOfType: FieldType.OneOf[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
       import c.universe._
 
-      def conv(finalType: c.universe.Type) = ProtoVersion.V3.newOneOfConverterToGpb(c)(gpbType, gpbSetters)(oneOfType.copy(classType = finalType))
+      def conv(finalType: c.universe.Type) = {
+        ProtoVersion.V3.newOneOfConverterToGpb(c)(gpbType, gpbSetters)(oneOfType.copy(classType = finalType))
+      }
 
       oneOfType.classType.resultType.toString match {
-        case OptPattern(_) => q""" $field.map(${conv(oneOfType.classType.resultType.typeArgs.head)}($fieldPath, _)).getOrElse(Good(builder)) """
+        case OptPattern(_) =>
+          q""" $field.map(${conv(oneOfType.classType.resultType.typeArgs.head)}($fieldPath, _)).getOrElse(Good(builder)) """
+
         case _ => q" ${conv(oneOfType.classType)}($fieldPath, $field) "
+      }
+    }
+
+    private def processEnum(c: whitebox.Context)
+                           (field: c.Tree, fieldPath: c.universe.Expr[String])
+                           (enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+      import c.universe._
+
+      if (Debug) {
+        println(s"Converting GPB enum ${enumType.getter.returnType} to sealed trait ${enumType.traitType} (${enumType.traitImpls}) ")
+      }
+
+      def conv(finalType: c.universe.Type) = EnumMacros.newEnumConverterToGpb(c)(enumType.copy(traitType = finalType))
+
+      enumType.traitType.resultType.toString match {
+        case OptPattern(_) => q""" $field.map(${conv(enumType.traitType.resultType.typeArgs.head)}($fieldPath, _)).getOrElse(Good(builder)) """
+        case _ => q" ${conv(enumType.traitType)}($fieldPath, $field) "
       }
     }
 
@@ -868,20 +900,28 @@ object CactusMacros {
         getter <- gpbGetter
         setter <- gpbSetter
       } yield {
-        if (isProtoEnum(c)(getter.returnType.finalResultType) && !typesEqual(c)(getter.returnType, dstType)) { // enum, should it be converted or handled as plain type?
-          getEnumType(c)(getter, upper, dstType, annotations).getOrElse {
+        if (isProtoEnum(c)(getter.returnType.finalResultType) && !typesEqualOption(c)(getter.returnType, dstType)) { // enum, should it be converted or handled as plain type?
+          getEnumType(c)(getter, setter, upper, dstType, annotations).getOrElse {
             terminateWithInfo(c)(s"Could not process enum field $fieldName")
           }
         } else
           FieldType.Normal[MethodSymbol, ClassSymbol, Type](getter, setter)
       }) match {
-        case Good(ft) => ft
+        case Good(ft) =>
+          if (Debug) println(s"$fieldName field type: $ft")
+          ft
+
         case Bad(err) if isProto3 => // give it one more chance, it can be ONE-OF
           if (Debug) println(s"Testing ${dstType.typeSymbol} to being a ONE-OF")
 
-          getOneOfType(c)(upper, dstType, annotations).getOrElse {
-            terminateWithInfo(c)(err)
-          }
+          getOneOfType(c)(upper, dstType, annotations)
+            .map { ft =>
+              if (Debug) println(s"$fieldName field type: $ft")
+              ft
+            }
+            .getOrElse {
+              terminateWithInfo(c)(err)
+            }
 
         case Bad(err) => terminateWithInfo(c)(err)
       }
@@ -945,40 +985,40 @@ object CactusMacros {
     } else None
   }
 
-  private def getEnumType(c: whitebox.Context)(getter: c.universe.MethodSymbol, fieldNameUpper: String, fieldType: c.universe.Type, fieldAnnotations: AnnotationsMap): Option[FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]] = {
+  private def getEnumType(c: whitebox.Context)(getter: c.universe.MethodSymbol, setter: c.universe.MethodSymbol, fieldNameUpper: String, traitType: c.universe.Type, fieldAnnotations: AnnotationsMap): Option[FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]] = {
     import c.universe._
 
-    val resultType = fieldType.resultType
+    val resultType = traitType.resultType
 
-    val fieldTypeSymbol = (resultType.toString match {
+    val traitTypeSymbolUnwrapped = (resultType.toString match {
       case OptPattern(_) => resultType.typeArgs.head
-      case _ => fieldType
+      case _ => traitType
     }).typeSymbol.asType
 
-    if (fieldTypeSymbol.isClass) {
-      val name = extractNameOfEnum(c)(fieldNameUpper, fieldAnnotations)
-      val asClass = fieldTypeSymbol.asClass
+    if (traitTypeSymbolUnwrapped.isClass) {
+      val fieldName = extractFieldNameOfEnum(c)(fieldNameUpper, fieldAnnotations)
+      val asClass = traitTypeSymbolUnwrapped.asClass
 
       if (asClass.isSealed) {
-        val impls = getImpls(c)(asClass)
+        val traitImpls = getImpls(c)(asClass)
 
         // checks format of impls - case objects
-        impls.foreach { t =>
+        traitImpls.foreach { t =>
           if (!t.asClass.isModuleClass) {
-            terminateWithInfo(c)(s"ENUM trait implementations has to be case objects")
+            terminateWithInfo(c)(s"ENUM sealed trait implementations has to be case objects")
           }
         }
 
-        if (impls.isEmpty) terminateWithInfo(c)(s"Didn't find any implementations for $fieldTypeSymbol")
+        if (traitImpls.isEmpty) terminateWithInfo(c)(s"Didn't find any implementations for $traitTypeSymbolUnwrapped")
 
-        if (Debug) println(s"$fieldTypeSymbol is a ENUM, name '$name', impls $impls")
+        if (Debug) println(s"$traitTypeSymbolUnwrapped is an ENUM, field '$fieldName', impls $traitImpls")
 
-        Some(FieldType.Enum[MethodSymbol, ClassSymbol, Type](getter, fieldType, impls))
+        Some(FieldType.Enum[MethodSymbol, ClassSymbol, Type](fieldName, getter, setter, traitType, traitImpls))
       } else None
     } else None
   }
 
-  private def extractNameOfEnum(c: whitebox.Context)(fieldNameUpper: String, fieldAnnotations: AnnotationsMap): String = {
+  private def extractFieldNameOfEnum(c: whitebox.Context)(fieldNameUpper: String, fieldAnnotations: AnnotationsMap): String = {
     // has to be annotated with GpbOneOf and optionally with GpbName
     fieldAnnotations
       .collectFirst {
@@ -990,12 +1030,14 @@ object CactusMacros {
   private def getImpls(c: whitebox.Context)(cl: c.universe.ClassSymbol): Set[c.universe.ClassSymbol] = {
     import c.universe._
 
-    init(c)(cl.owner)
+    init(c)(cl)
 
     val companion = cl.companion
     if (companion.isModule) {
       init(c)(companion)
     }
+
+    if (Debug) println(s"Getting implementations for $cl")
 
     cl.knownDirectSubclasses.collect { case s if s.isClass => s.asClass }
   }
@@ -1005,6 +1047,11 @@ object CactusMacros {
     import c.universe._
 
     s.typeSignature.decls.foreach {
+      case a: ClassSymbol => a.selfType.baseClasses
+      case _ =>
+    }
+
+    s.owner.typeSignature.decls.foreach {
       case a: ClassSymbol => a.selfType.baseClasses
       case _ =>
     }
@@ -1057,10 +1104,6 @@ object CactusMacros {
     caseClassTypeSymbol.isClass && caseClassTypeSymbol.asClass.isCaseClass && isProtoBuf(c)(getterReturnType)
   }
 
-  private def sealedTraitAndEnum(c: whitebox.Context)(classType: c.universe.Symbol, gpbType: c.universe.Type): Boolean = {
-    classType.isClass && classType.asClass.isTrait && classType.asClass.isSealed && isProtoEnum(c)(gpbType)
-  }
-
   private def isProtoBuf(c: whitebox.Context)(t: c.universe.Type): Boolean = {
     t.baseClasses.exists(_.fullName == ClassesNames.Protobuf.MessageLite)
   }
@@ -1096,6 +1139,22 @@ object CactusMacros {
     val dstTypeSymbol = dstType.typeSymbol
 
     symbolsEqual(c)(srcTypeSymbol, dstTypeSymbol)
+  }
+
+  /**
+  * This methods allows both `srcType` and `dstType` to be wrapped in `Option[_]`, but compares the raw (internal) types.
+    */
+  private[cactus] def typesEqualOption(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): Boolean = {
+    typesEqual(c)(
+      srcType = srcType.toString match { // unwrap the type from Option
+        case OptPattern(_) => srcType.typeArgs.head
+        case _ => srcType
+      },
+      dstType = dstType.toString match { // unwrap the type from Option
+        case OptPattern(_) => dstType.typeArgs.head
+        case _ => dstType
+      }
+    )
   }
 
   private[cactus] def symbolsEqual(c: whitebox.Context)(srcTypeSymbol: c.universe.Symbol, dstTypeSymbol: c.universe.Symbol): Boolean = {

@@ -29,7 +29,7 @@ message Data3 {
 }
 
 message Data4 {
-    optional string     field_string = 1;                          // REQUIRED
+    optional string     field_string = 1;                   // REQUIRED
     optional string     field_option = 2;                   // OPTIONAL
     optional bytes      field_bytes = 3;                    // REQUIRED
 }
@@ -51,5 +51,23 @@ message MessageWithEnum {
         TWO = 2;
     }
 
-    optional TheEnum the_enum = 1;
+    optional TheEnum the_enum = 1;                          // OPTIONAL
+}
+
+message MessageWithRawEnum {
+    optional string field_string = 1;                       // REQUIRED
+    optional TestEnum field_enum = 2;                       // REQUIRED
+    optional TestEnum field_enum_option = 3;                // OPTIONAL
+    repeated EnumMapEntry field_map = 4;                    // OPTIONAL
+
+    message EnumMapEntry {
+        optional string key = 1;                            // REQUIRED
+        optional TestEnum value = 2;                        // REQUIRED
+    }
+}
+
+enum TestEnum {
+    UNKNOWN = 0;
+    FIRST = 1;
+    SECOND = 2;
 }
