@@ -72,7 +72,7 @@ class ServerMacros(val c: whitebox.Context) {
   private def generateMappingMethod(fTypeImpl: Type, apiMethod: ApiMethod, implMethod: ImplMethod): Tree = {
 
     val convertRequest = if (apiMethod.request =:= implMethod.request) {
-      q" scala.util.Right(request) "
+      q" (scala.util.Right(request): Either[_root_.com.avast.cactus.CactusFailures, ${implMethod.request}]) "
     } else {
       q" request.asCaseClass[${implMethod.request}] "
     }

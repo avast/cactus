@@ -360,6 +360,49 @@ class ServerTest extends FunSuite with MockitoSugar with Eventually {
 
   }
 
+  test("raw GPBs") {
+    trait MyApi[F[_]] extends GrpcService {
+      def get(request: TestApi.GetRequest): F[Either[Status, TestApi.GetResponse]]
+      def get2(request: TestApi.GetRequest): F[Either[Status, TestApi.GetResponse]]
+      def get3(request: TestApi.GetRequest): F[Either[Status, TestApi.GetResponse]]
+    }
+
+    val channelName = randomString(10)
+    val headerValue = randomString(10)
+
+    val request = GetRequest.newBuilder().addNames("name42").build()
+    val response = GetResponse.newBuilder().putResults("name42", 42).build()
+
+    // format: OFF
+    val impl = mock[MyApi[Task]]
+    when(impl.get(ArgumentMatchers.eq(request))).thenReturn(Task.now(Right(response)))
+    // format: ON
+
+    val service = impl.mappedToService[TestApiServiceImplBase]()
+
+    InProcessServerBuilder
+      .forName(channelName)
+      .directExecutor
+      .addService(service)
+      .build
+      .start
+
+    val stub: TestApiServiceFutureStub = {
+      val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
+      TestApiServiceGrpc
+        .newFutureStub(channel)
+        .withInterceptors(
+          new ClientInterceptorTest(
+            Map(
+              "theHeader" -> headerValue,
+              "theHeader2" -> headerValue
+            )))
+    }
+
+    val result = stub.get(request).get()
+    assertResult(response)(result)
+  }
+
   private class ClientInterceptorTest(userHeaders: Map[String, String]) extends ClientInterceptor {
     override def interceptCall[ReqT, RespT](method: MethodDescriptor[ReqT, RespT],
                                             callOptions: CallOptions,
