@@ -2,7 +2,7 @@ package com.avast.cactus
 import scala.reflect.macros.whitebox
 
 object EnumMacros {
-  def newEnumConverterToSealedTrait(c: whitebox.Context)( protoVersion: ProtoVersion)(
+  def newEnumConverterToSealedTrait(c: whitebox.Context)(protoVersion: ProtoVersion)(
       wholeGpbType: c.universe.Type,
       enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
     import c.universe._

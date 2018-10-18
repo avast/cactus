@@ -359,8 +359,6 @@ class CactusMacrosTestV2 extends FunSuite {
 
     assertResult(Right(CaseClassWithEnum(Some(TheEnum.Two))))(gpb2.asCaseClass[CaseClassWithEnum])
     assertResult(Right(gpb2))(CaseClassWithEnum(Some(TheEnum.Two)).asGpb[MessageWithEnum])
-
-//    Converter.deriveConverter[MessageWithRawEnum, CaseClassWithRawEnum]
   }
 
 }
