@@ -335,8 +335,10 @@ object CactusMacros {
         case OptPattern(_) => // Option[T]
           val dstTypeArg = dstResultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          newConverter(c)(srcResultType, dstTypeArg) {
-            q" (fieldPath: String, t: $srcResultType) => ${processEndType(c)(fieldName, c.Expr[String](q"fieldPath"), fieldAnnotations, nameInGpb, dstTypeArg)(None, q" t ", getterReturnType)} "
+          if (!typesEqual(c)(srcResultType, dstTypeArg)) {
+            newConverter(c)(srcResultType, dstTypeArg) {
+              q" (fieldPath: String, t: $srcResultType) => ${processEndType(c)(fieldName, c.Expr[String](q"fieldPath"), fieldAnnotations, nameInGpb, dstTypeArg)(None, q" t ", getterReturnType)} "
+            }
           }
 
           query match {
@@ -1219,19 +1221,15 @@ object CactusMacros {
                                                            dstType: c.universe.Type)(value: c.Tree): c.Tree = {
     import c.universe._
 
-    val srcTypeSymbol = srcType.typeSymbol
-    val dstTypeSymbol = dstType.typeSymbol
-
     if (typesEqual(c)(srcType, dstType)) {
       q" Good($value) "
     } else {
       if (Debug) {
-        println(s"Requires converter from $srcTypeSymbol to $dstTypeSymbol")
+        println(s"Requires converter from $srcType to $dstType")
       }
 
       if (!converterExists(c)(srcType, dstType)) {
         c.info(c.enclosingPosition, s"Cactus: Missing Converter[$srcType, $dstType]", force = false)
-        //        println(s"Cactus: Missing Converter[$srcType, $dstType]")
       }
 
       q" CactusMacros.AToB[$srcType, $dstType]($fieldPath)($value) "
@@ -1256,30 +1254,36 @@ object CactusMacros {
       )
     }
 
-    if (!converterExists(c)(from, to)) {
-      val recursive = f match {
-        case q" (($_: $_, $_: $_) => Predef.identity(CactusMacros.AToB[${f}, ${t}]($_)($_))) " if f.tpe =:= from && t.tpe =:= to => true
-        case q" (($_: $_, $_: $_) => CactusMacros.AToB[${f}, ${t}]($_)($_)) " if f.tpe =:= from && t.tpe =:= to => true
-        case _ => false
+    if (typesEqual(c)(from, to)) {
+      if (Debug) {
+        println(s"Skipping definition of converter from ${from.typeSymbol} to ${to.typeSymbol} - types are equal")
       }
+    } else {
+      if (!converterExists(c)(from, to)) {
+        val recursive = f match {
+          case q" (($_: $_, $_: $_) => Predef.identity(CactusMacros.AToB[${f}, ${t}]($_)($_))) " if f.tpe =:= from && t.tpe =:= to => true
+          case q" (($_: $_, $_: $_) => CactusMacros.AToB[${f}, ${t}]($_)($_)) " if f.tpe =:= from && t.tpe =:= to => true
+          case _ => false
+        }
 
-      if (!recursive) {
-        // skip primitive types, conversions already defined
-        if (!(isPrimitive(c)(from) && isPrimitive(c)(to))) {
-          addConverter()
+        if (!recursive) {
+          // skip primitive types, conversions already defined
+          if (!(isPrimitive(c)(from) && isPrimitive(c)(to))) {
+            addConverter()
+          } else {
+            if (Debug) {
+              println(s"Skipping definition of converter from ${from.typeSymbol} to ${to.typeSymbol} because they are primitives")
+            }
+          }
         } else {
           if (Debug) {
-            println(s"Skipping definition of converter from ${from.typeSymbol} to ${to.typeSymbol}")
+            println(s"Skipping recursive definition of converter from ${from.typeSymbol} to ${to.typeSymbol}")
           }
         }
       } else {
         if (Debug) {
-          println(s"Skipping recursive definition of converter from ${from.typeSymbol} to ${to.typeSymbol}")
+          println(s"Found in scope existing implicit converter from ${from.typeSymbol} to ${to.typeSymbol}")
         }
-      }
-    } else {
-      if (Debug) {
-        println(s"Found in scope existing implicit converter from ${from.typeSymbol} to ${to.typeSymbol}")
       }
     }
   }
