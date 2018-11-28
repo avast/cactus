@@ -224,8 +224,10 @@ class ServerMacros(val c: whitebox.Context) {
         ea <- Some(e.typeArgs) if ea.head.dealias == status // F[Either[Status,_]]
       } yield ea(1))
         .getOrElse {
-          c.abort(c.enclosingPosition,
-                  s"Method ${m.name} in type ${m.owner} does not have required result type ${fSymbol.name}[Either[Status, ?]]")
+          c.abort(
+            c.enclosingPosition,
+            s"Method ${m.name} in type ${m.owner} does not have required result type ${fSymbol.name}[Either[Status, ?]]"
+          )
         }
 
       new ImplMethod(m.name, reqType, ctxType, respType)

@@ -23,9 +23,10 @@ class ClientMacros(val c: whitebox.Context) {
     val traitTypeSymbol = traitType.typeSymbol
 
     if (!traitTypeSymbol.isClass || !traitTypeSymbol.asClass.isTrait) {
-      CactusMacros.terminateWithInfo(c) {
+      c.abort(
+        c.enclosingPosition,
         s"The $traitTypeSymbol must be a trait"
-      }
+      )
     }
 
     traitType.baseType(traitType.baseClasses.find(_.fullName == classOf[GrpcClient].getName).getOrElse {
@@ -57,11 +58,15 @@ class ClientMacros(val c: whitebox.Context) {
 
     val closeMethod = if (traitType.baseClasses.exists(_.fullName == "java.lang.AutoCloseable")) {
       if (channelVar.tpe.members.exists(m => m.isMethod && m.asMethod.name.toString == "shutdownNow")) {
-        q"$channelVar.shutdownNow()"
+        q"""{
+              $channelVar.shutdownNow()
+              ()
+            }"""
       } else {
-        CactusMacros.terminateWithInfo(c) {
-          s"$traitType extends java.lang.AutoCloseable but the requirement could not be satisfied because given channel is of type ${channelVar.tpe.typeSymbol.fullName} which is not closeable"
-        }
+        c.abort(
+          c.enclosingPosition,
+          s"$traitType extends java.lang.AutoCloseable but the requirement could not be satisfied because given channel is of type ${channelVar.tpe.typeSymbol.fullName} which is not closeable (tip: try to use io.grpc.ManagedChannel instead)"
+        )
       }
     } else q" () "
 
@@ -128,9 +133,10 @@ class ClientMacros(val c: whitebox.Context) {
         }
         .mkString("\n - ", "\n - ", "")
 
-      CactusMacros.terminateWithInfo(c) {
+      c.abort(
+        c.enclosingPosition,
         s"Only gRPC methods are allowed to be abstract in type ${traitType.typeSymbol}[${fSymbol.name}], found others too: $foundIllegalMethods"
-      }
+      )
     }
   }
 
@@ -148,9 +154,10 @@ class ClientMacros(val c: whitebox.Context) {
       val apiMethod = apiMethods
         .find(_.name == m.name)
         .getOrElse {
-          CactusMacros.terminateWithInfo(c) {
+          c.abort(
+            c.enclosingPosition,
             s"Method ${m.name} of ${traitType.typeSymbol} does not have it's counterpart in ${stubType.typeSymbol}"
-          }
+          )
         }
 
       m -> apiMethod
@@ -181,9 +188,10 @@ class ClientMacros(val c: whitebox.Context) {
             val respType = ea(1)
 
             if (!m.isAbstract)
-              CactusMacros.terminateWithInfo(c) {
+              c.abort(
+                c.enclosingPosition,
                 s"Method ${m.name} of trait ${m.owner} has to be abstract to be able to implement"
-              }
+              )
 
             new ImplMethod(m.name, reqType, respType)
           }
