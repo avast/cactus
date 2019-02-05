@@ -205,7 +205,7 @@ class ServerMacros(val c: whitebox.Context) {
     def extract(m: MethodSymbol, fSymbol: TypeSymbol): ImplMethod = {
       if (m.paramLists.size != 1) c.abort(c.enclosingPosition, s"Method ${m.name} in type ${m.owner} must have exactly one parameter list")
 
-      val (reqType, ctxType) = m.paramLists.head.map(_.typeSignature) match {
+      val (reqType, ctxType) = m.paramLists.headOption.toList.flatMap(_.map(_.typeSignature)) match {
         case List(req: Type) => (req, None)
         case List(req: Type, ctx: Type) => (req, Some(ctx))
         case _ =>
@@ -246,7 +246,7 @@ class ServerMacros(val c: whitebox.Context) {
                 && m.asMethod.paramLists.size == 1
                 && m.asMethod.paramLists.head.size == 2
                 && m.asMethod.returnType == typeOf[Unit] =>
-            m.asMethod.name -> m.asMethod.paramLists.head.map(_.typeSignature.resultType)
+            m.asMethod.name -> m.asMethod.paramLists.headOption.toList.flatMap(_.map(_.typeSignature.resultType))
         }
         .collect {
           case (name, List(req: Type, respObs: Type)) if isGpbClass(req) && respObs.typeArgs.forall(isGpbClass) =>

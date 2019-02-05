@@ -170,11 +170,27 @@ class ClientMacros(val c: whitebox.Context) {
 
   private object ImplMethod {
     def extract(s: Symbol, fSymbol: TypeSymbol): Option[ImplMethod] = {
+      if (CactusMacros.Debug) {
+        println(s"ImplMethod.extract($s)")
+      }
+
       if (s.isMethod) {
+        if (s.name.toString == "$init$") {
+          c.abort(
+            c.enclosingPosition,
+            s"Trait ${s.owner.name} must not contain constructor method. It's presence can be caused e.g. by internal class etc."
+          )
+        }
+
         val m = s.asMethod
 
         if (m.paramLists.size == 1) {
-          val reqType = m.paramLists.head.head.typeSignature
+          val reqType = m.paramLists.headOption
+            .flatMap(_.headOption)
+            .getOrElse {
+              c.abort(c.enclosingPosition, s"Unknown problem while mapping the client - check if the ${s.owner} is just a plain trait")
+            }
+            .typeSignature
 
           // TODO type matching
           val serverError = typeOf[ServerError].dealias.typeSymbol
@@ -190,7 +206,7 @@ class ClientMacros(val c: whitebox.Context) {
             if (!m.isAbstract)
               c.abort(
                 c.enclosingPosition,
-                s"Method ${m.name} of trait ${m.owner} has to be abstract to be able to implement"
+                s"Method ${m.name} of ${m.owner} has to be abstract to be able to implement"
               )
 
             new ImplMethod(m.name, reqType, respType)
