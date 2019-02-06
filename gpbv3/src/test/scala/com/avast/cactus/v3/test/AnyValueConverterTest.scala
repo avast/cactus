@@ -5,8 +5,7 @@ import java.time.Instant
 import cats.data.NonEmptyList
 import com.avast.cactus.v3.TestMessageV3.{ExtensionsMessage, MessageInsideAnyField}
 import com.avast.cactus.v3._
-import com.avast.cactus._
-import com.avast.cactus.{Converter, ResultOrErrors, TestMacros, UnknownFailure}
+import com.avast.cactus.{Converter, ResultOrErrors, UnknownFailure, _}
 import com.google.protobuf.{Any, ByteString, InvalidProtocolBufferException, Timestamp => GpbTimestamp}
 import org.scalatest.FunSuite
 
@@ -27,6 +26,44 @@ class AnyValueConverterTest extends FunSuite {
 
     assertResult(Right(orig))(actual)
     assertResult(Right(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
+  }
+
+  test("convert to GPB and back if any is optional") {
+    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
+
+    val orig = ExtClassOpt(Instant.ofEpochSecond(12345), Some(AnyValue.of(innerMessage)))
+
+    val expected = ExtensionsMessage
+      .newBuilder()
+      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345))
+      .setAny(Any.pack(innerMessage))
+      .build()
+
+    val Right(converted) = orig.asGpb[ExtensionsMessage]
+
+    assertResult(expected)(converted)
+
+    val Right(actual) = expected.asCaseClass[ExtClassOpt]
+
+    assertResult(orig)(actual)
+    assertResult(Some(Right(innerMessage)))(actual.any.map(_.asGpb[MessageInsideAnyField]))
+  }
+
+  test("convert to GPB and back if any is optional and not set") {
+    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
+
+    val orig = ExtClassOpt(Instant.ofEpochSecond(12345), None)
+
+    val expected = ExtensionsMessage.newBuilder().setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345)).build()
+
+    val Right(converted) = orig.asGpb[ExtensionsMessage]
+
+    assertResult(expected)(converted)
+
+    val Right(actual) = expected.asCaseClass[ExtClassOpt]
+
+    assertResult(orig)(actual)
+    assertResult(None)(actual.any.map(_.asGpb[MessageInsideAnyField]))
   }
 
   test("convert to GPB and back incl. inner") {
@@ -127,7 +164,7 @@ class AnyValueConverterTest extends FunSuite {
   }
 
   test("needs manually derived converter to convert AnyValue directly to case class") {
-    checkDoesNotCompile{
+    checkDoesNotCompile {
       """
         |val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
         |

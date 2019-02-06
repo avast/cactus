@@ -83,7 +83,7 @@ case class CaseClassExtensionsScala(boolValue: Boolean,
 
 case class ExtClass(timestamp: Instant, any: AnyValue)
 
-//case class ExtClassOpt(timestamp: Instant, any: Option[AnyValue])
+case class ExtClassOpt(timestamp: Instant, any: Option[AnyValue])
 
 case class InnerClass(fieldInt: Int, fieldString: String)
 
