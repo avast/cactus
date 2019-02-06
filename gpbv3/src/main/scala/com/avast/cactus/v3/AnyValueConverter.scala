@@ -1,6 +1,6 @@
 package com.avast.cactus.v3
 
-import com.avast.cactus.ResultOrErrors
+import com.avast.cactus.{CactusMacros, ResultOrErrors}
 import com.google.protobuf.Message
 
 import scala.annotation.implicitNotFound
@@ -14,7 +14,8 @@ trait AnyValueConverter[Gpb] {
 
 object AnyValueConverter {
 
-  implicit def deriveAnyValueToGpbConverter[To <: Message]: AnyValueConverter[To] = macro anyValueConverter[To]
+  implicit def deriveToGpb[Gpb <: Message]: AnyValueConverter[Gpb] = macro anyValueConverter[Gpb]
+  implicit def deriveToCaseClass[Gpb <: Message, CaseClass]: AnyValueConverter[CaseClass] = macro anyValueConverterCaseClass[Gpb, CaseClass]
 
   def anyValueConverter[GpbClass: c.WeakTypeTag](c: whitebox.Context): c.Expr[AnyValueConverter[GpbClass]] = {
     import c.universe._
@@ -56,6 +57,32 @@ object AnyValueConverter {
          }
        """
     }
+  }
+
+  def anyValueConverterCaseClass[GpbClass: c.WeakTypeTag, CaseClass: c.WeakTypeTag](
+      c: whitebox.Context): c.Expr[AnyValueConverter[CaseClass]] = {
+    import c.universe._
+
+    val gpbType = weakTypeOf[GpbClass]
+    val caseClassType = weakTypeOf[CaseClass]
+
+    val t = c.Expr[AnyValueConverter[CaseClass]] {
+      q"""
+          {
+            new com.avast.cactus.v3.AnyValueConverter[$caseClassType] {
+                override def apply(fieldPath: String)(a: AnyValue) = {
+                  val innerConverter = implicitly[com.avast.cactus.Converter[$gpbType, $caseClassType]]
+
+                  com.avast.cactus.v3.AnyValueConverter.deriveToGpb[$gpbType].apply(fieldPath)(a)
+                    .flatMap(innerConverter(fieldPath))
+                }
+              }
+
+          }
+       """
+    }
+
+    t
   }
 
 }

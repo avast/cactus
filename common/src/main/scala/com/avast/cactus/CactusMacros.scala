@@ -30,6 +30,7 @@ object CactusMacros {
       val MessageLite = "com.google.protobuf.MessageLite"
       val GeneratedMessageV3 = "com.google.protobuf.GeneratedMessageV3"
       val Empty = "com.google.protobuf.Empty"
+      val Any = "com.google.protobuf.Any"
     }
 
     object Scala {
@@ -43,6 +44,7 @@ object CactusMacros {
       val Iterable = "java.lang.Iterable"
     }
 
+    val AnyValue = "com.avast.cactus.v3.AnyValue"
   }
 
   private val JavaPrimitiveTypes = Set(
@@ -109,14 +111,15 @@ object CactusMacros {
       t.isClass && t.asClass.isCaseClass
     }
 
-    val res = if (isCaseClass(fromType.typeSymbol) && isProtoBuf(c)(toType)) {
+    val res = if (fromType.typeSymbol.fullName == ClassesNames.AnyValue && toType.typeSymbol.fullName != ClassesNames.Protobuf.Any) {
+      // forward Converter[AnyValue, A] to AnyValueConverter[A]
+      c.Expr[Converter[From, To]](deriveConverterFromAnyValue[To](c))
+    } else if (isCaseClass(fromType.typeSymbol) && isProtoBuf(c)(toType)) {
       deriveCaseClassToGpbConverter[From, To](c)
+    } else if (isCaseClass(toType.typeSymbol) && isProtoBuf(c)(fromType)) {
+      deriveGpbToCaseClassConverter[From, To](c)
     } else {
-      if (isCaseClass(toType.typeSymbol) && isProtoBuf(c)(fromType)) {
-        deriveGpbToCaseClassConverter[From, To](c)
-      } else {
-        c.abort(c.enclosingPosition, s"Could not generate converter from $fromType to $toType")
-      }
+      c.abort(c.enclosingPosition, s"Could not generate converter from $fromType to $toType")
     }
 
     if (Debug) {
@@ -124,6 +127,18 @@ object CactusMacros {
     }
 
     res
+  }
+
+  private def deriveConverterFromAnyValue[To: c.WeakTypeTag](c: whitebox.Context): c.Tree = {
+    import c.universe._
+
+    val toType = weakTypeOf[To]
+
+    q"""
+       Converter.checked[com.avast.cactus.v3.AnyValue, $toType]{(path, v) =>
+         implicitly[com.avast.cactus.v3.AnyValueConverter[$toType]].apply(path)(v)
+       }
+     """
   }
 
   private def deriveGpbToCaseClassConverter[GpbClass: c.WeakTypeTag, CaseClass: c.WeakTypeTag](
@@ -1145,7 +1160,7 @@ object CactusMacros {
     caseClassTypeSymbol.isClass && caseClassTypeSymbol.asClass.isCaseClass && isProtoBuf(c)(getterReturnType)
   }
 
-  private def isProtoBuf(c: whitebox.Context)(t: c.universe.Type): Boolean = {
+  def isProtoBuf(c: whitebox.Context)(t: c.universe.Type): Boolean = {
     t.baseClasses.exists(_.fullName == ClassesNames.Protobuf.MessageLite)
   }
 
@@ -1316,7 +1331,7 @@ object CactusMacros {
 
   def terminateWithInfo(c: whitebox.Context)(msg: String = ""): Nothing = {
     if (msg != "") c.info(c.enclosingPosition, "Cactus: " + msg, force = false)
-    c.abort(c.enclosingPosition, "Could not proceed")
+    c.abort(c.enclosingPosition, s"Could not proceed: $msg")
   }
 
 }
