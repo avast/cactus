@@ -358,6 +358,35 @@ class CactusMacrosTestV3 extends FunSuite {
     assertResult(Right(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
   }
 
+  test("any extension to GPB and back incl. inner") {
+    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
+
+    // to case class:
+
+    val msg = ExtensionsMessage
+      .newBuilder()
+      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345))
+      .setAny(Any.pack(innerMessage))
+      .build()
+
+    val extClass: ResultOrErrors[ExtClass] = msg.asCaseClass[ExtClass]
+
+    val Right(innerClass: InnerClass) = extClass
+      .flatMap(_.any.asGpb[MessageInsideAnyField]) // Any -> GPB
+      .flatMap(_.asCaseClass[InnerClass]) // GPB -> case class
+
+    assertResult(InnerClass(42, "ahoj"))(innerClass)
+
+    // to GPB:
+
+    val Right(extensionMessage: ExtensionsMessage) = InnerClass(42, "ahoj")
+      .asGpb[MessageInsideAnyField]
+      .map(miaf => ExtClass(Instant.ofEpochSecond(12345), AnyValue.of(miaf)))
+      .flatMap(_.asGpb[ExtensionsMessage])
+
+    assertResult(msg)(extensionMessage)
+  }
+
   test("any extension failure when parsing trash") {
     val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
 
@@ -472,6 +501,8 @@ case class CaseClassExtensionsScala(boolValue: Boolean,
                                     timestamp: Instant)
 
 case class ExtClass(timestamp: Instant, any: AnyValue)
+
+case class InnerClass(fieldInt: Int, fieldString: String)
 
 sealed trait OneOfNamed
 

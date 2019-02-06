@@ -27,16 +27,6 @@ object AnyValueConverter {
     val theFunction = {
       q"""
             {
-               import com.avast.cactus._
-               import com.avast.cactus.CactusMacros._
-
-               import org.scalactic._
-               import org.scalactic.Accumulation._
-
-               import scala.util.Try
-               import scala.util.control.NonFatal
-               import scala.collection.JavaConverters._
-
                try {
                  if (anyValInstance.typeUrl == "type.googleapis.com/" + $gpbTypeName) {
                     Good(${gpbType.companion}.parseFrom(anyValInstance.bytes))
@@ -50,8 +40,19 @@ object AnyValueConverter {
 
     c.Expr[AnyValueConverter[GpbClass]] {
       q"""
-         new AnyValueConverter[$gpbType] {
-            def apply(fieldPath: String)(anyValInstance: $anyValueType): ResultOrErrors[$gpbType] = $theFunction.toEitherNEL
+         {
+           import com.avast.cactus._
+           import com.avast.cactus.CactusMacros._
+
+           import org.scalactic._
+           import org.scalactic.Accumulation._
+           import scala.util.Try
+           import scala.util.control.NonFatal
+           import scala.collection.JavaConverters._
+
+           new AnyValueConverter[$gpbType] {
+              def apply(fieldPath: String)(anyValInstance: $anyValueType): com.avast.cactus.ResultOrErrors[$gpbType] = $theFunction.toEitherNEL
+           }
          }
        """
     }

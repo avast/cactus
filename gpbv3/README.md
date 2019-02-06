@@ -9,11 +9,14 @@ See [unit tests](src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scal
 The `Any` is by design very benevolent from a types POV. The Cactus provides better API for parsing messages hidden in `Any` field:
 
 ```scala
-import com.avast.cactus.v3.AnyValue // mind the import!
-import com.avast.cactus.v3._
+import com.avast.cactus.ResultOrErrors
+import com.avast.cactus.v3.TestMessageV3.{ExtensionsMessage, MessageInsideAnyField}
+import com.avast.cactus.v3.{AnyValue, _}
 import com.google.protobuf.Any
 
 case class ExtClass(any: AnyValue)
+
+case class InnerClass(fieldInt: Int, fieldString: String)
 
 val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
 
@@ -21,14 +24,18 @@ val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldSt
 
 val msg = ExtensionsMessage.newBuilder().setAny(Any.pack(innerMessage)).build()
 
+val extClass: ResultOrErrors[ExtClass] = msg.asCaseClass[ExtClass]
 
-val c1 = msg.asCaseClass[ExtClass]
-val c2 = c1.flatMap(_.any.asGpb[MessageInsideAnyField])
+val innerClass: ResultOrErrors[InnerClass] = extClass
+    .flatMap(_.any.asGpb[MessageInsideAnyField]) // Any -> GPB
+    .flatMap(_.asCaseClass[InnerClass]) // GPB -> case class
 
 // to GPB:
 
-val c21 = ExtClass(AnyValue.of(innerMessage))
-val c22 = c21.asGpb[ExtensionsMessage]
+val extensionMessage: ResultOrErrors[ExtensionsMessage] = InnerClass(42, "ahoj")
+    .asGpb[MessageInsideAnyField]
+    .map(miaf => ExtClass(AnyValue.of(miaf)))
+    .flatMap(_.asGpb[ExtensionsMessage])
 ```
 
 There is the `WrongAnyTypeFailure` error defined for a case when the programmer tries to parse the `Any` as different type than it's serialized inside.
