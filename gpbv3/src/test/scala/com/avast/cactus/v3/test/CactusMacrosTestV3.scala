@@ -2,24 +2,19 @@ package com.avast.cactus.v3.test
 
 import java.time.{Duration, Instant}
 
-import cats.data.NonEmptyList
 import com.avast.cactus._
 import com.avast.cactus.v3.TestMessageV3._
 import com.avast.cactus.v3.ValueOneOf.NumberValue
 import com.avast.cactus.v3._
 import com.google.protobuf.{
-  Any,
   BoolValue,
   ByteString,
   BytesValue,
-  DoubleValue,
   Empty,
   FloatValue,
   Int32Value,
   Int64Value,
-  InvalidProtocolBufferException,
   ListValue,
-  StringValue,
   Struct,
   Value,
   Duration => GpbDuration,
@@ -28,7 +23,6 @@ import com.google.protobuf.{
 import org.scalatest.FunSuite
 
 import scala.collection.JavaConverters._
-import scala.collection.immutable
 
 class CactusMacrosTestV3 extends FunSuite {
 
@@ -340,81 +334,6 @@ class CactusMacrosTestV3 extends FunSuite {
     assertResult(Right(gpb))(converted.asGpb[ExtensionsMessage])
   }
 
-  test("any extension to GPB and back") {
-    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
-
-    val orig = ExtClass(Instant.ofEpochSecond(12345), AnyValue.of(innerMessage))
-
-    val expected =
-      ExtensionsMessage.newBuilder().setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345)).setAny(Any.pack(innerMessage)).build()
-
-    val Right(converted) = orig.asGpb[ExtensionsMessage]
-
-    assertResult(expected)(converted)
-
-    val actual = converted.asCaseClass[ExtClass]
-
-    assertResult(Right(orig))(actual)
-    assertResult(Right(innerMessage))(actual.flatMap(_.any.asGpb[MessageInsideAnyField]))
-  }
-
-  test("any extension to GPB and back incl. inner") {
-    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
-
-    // to case class:
-
-    val msg = ExtensionsMessage
-      .newBuilder()
-      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345))
-      .setAny(Any.pack(innerMessage))
-      .build()
-
-    val extClass: ResultOrErrors[ExtClass] = msg.asCaseClass[ExtClass]
-
-    val Right(innerClass: InnerClass) = extClass
-      .flatMap(_.any.asGpb[MessageInsideAnyField]) // Any -> GPB
-      .flatMap(_.asCaseClass[InnerClass]) // GPB -> case class
-
-    assertResult(InnerClass(42, "ahoj"))(innerClass)
-
-    // to GPB:
-
-    val Right(extensionMessage: ExtensionsMessage) = InnerClass(42, "ahoj")
-      .asGpb[MessageInsideAnyField]
-      .map(miaf => ExtClass(Instant.ofEpochSecond(12345), AnyValue.of(miaf)))
-      .flatMap(_.asGpb[ExtensionsMessage])
-
-    assertResult(msg)(extensionMessage)
-  }
-
-  test("any extension failure when parsing trash") {
-    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
-
-    val anyValue = AnyValue.of(innerMessage).copy(bytes = ByteString.copyFromUtf8("+ěščřžýáííé")) // damaged data
-
-    val Left(NonEmptyList(UnknownFailure(fieldPath, cause), List())) = anyValue.asGpb[MessageInsideAnyField]
-
-    assertResult("anyValue")(fieldPath)
-    assert(cause.isInstanceOf[InvalidProtocolBufferException])
-
-    //
-
-    val gpb = ExtensionsMessage
-      .newBuilder()
-      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345))
-      .setAny(Any.pack(innerMessage).toBuilder.setValue(ByteString.copyFromUtf8("+ěščřžýáííé")).build())
-      .build()
-
-    val cc = gpb.asCaseClass[ExtClass]
-
-    assertResult(Right(ExtClass(Instant.ofEpochSecond(12345), `anyValue`)))(cc)
-
-    val Left(NonEmptyList(UnknownFailure(fieldPath2, cause2), List())) = cc.flatMap(_.any.asGpb[MessageInsideAnyField])
-
-    assertResult("any")(fieldPath2)
-    assert(cause2.isInstanceOf[InvalidProtocolBufferException])
-  }
-
   test("message with enum") {
     val gpb = MessageWithRawEnum
       .newBuilder()
@@ -440,163 +359,3 @@ class CactusMacrosTestV3 extends FunSuite {
     assertResult(Right(gpb2))(CaseClassWithEnum(Some(TheEnum.Two)).asGpb[MessageWithEnum])
   }
 }
-
-case class CaseClassA(fieldString: String,
-                      @GpbName("fieldIntName")
-                      fieldInt: Int,
-                      fieldOption: Option[Int],
-                      fieldBlob: ByteString,
-                      @GpbName("fieldStringsName")
-                      fieldStrings2: List[String],
-                      fieldGpb: CaseClassB,
-                      fieldGpb2: CaseClassB,
-                      fieldGpb3: CaseClassF,
-                      fieldGpbOption: Option[CaseClassB],
-                      fieldGpbOptionEmpty: Option[CaseClassB],
-                      fieldGpbRepeated: Seq[CaseClassB],
-                      fieldGpb2RepeatedRecurse: Seq[CaseClassD],
-                      fieldStrings: immutable.Seq[String],
-                      fieldOptionIntegers: Vector[Int],
-                      fieldOptionIntegersEmpty: List[Int],
-                      @GpbName("fieldIntegers2")
-                      fieldIntegersString: String,
-                      @GpbMap(key = "key", value = "value")
-                      fieldMap: Map[String, String],
-                      @GpbName("fieldMap2")
-                      @GpbMap(key = "key", value = "value")
-                      fieldMapDiffType: Map[String, Int])
-
-case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
-
-case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf @GpbName("NamedOneOf2") oneOfNamed: OneOfNamed3)
-
-case class CaseClassF(fieldGpb: Seq[CaseClassB], @GpbOneOf namedOneOf: Option[OneOfNamed])
-
-case class CaseClassExtensions(boolValue: BoolValue,
-                               int32Value: Int32Value,
-                               @GpbName("int64Value")
-                               longValue: Int64Value,
-                               floatValue: Option[FloatValue],
-                               doubleValue: Option[DoubleValue],
-                               stringValue: Option[StringValue],
-                               bytesValue: BytesValue,
-                               listValue: ListValue,
-                               listValue2: Seq[ValueOneOf],
-                               listValue3: Option[Seq[ValueOneOf]],
-                               listValue4: Option[Seq[ValueOneOf]],
-                               duration: GpbDuration,
-                               timestamp: GpbTimestamp,
-                               struct: Map[String, ValueOneOf])
-
-case class CaseClassExtensionsScala(boolValue: Boolean,
-                                    int32Value: Int,
-                                    @GpbName("int64Value")
-                                    longValue: Long,
-                                    floatValue: Option[Float],
-                                    doubleValue: Option[Double],
-                                    stringValue: Option[String],
-                                    bytesValue: ByteString,
-                                    listValue: Seq[ValueOneOf],
-                                    duration: Duration,
-                                    timestamp: Instant)
-
-case class ExtClass(timestamp: Instant, any: AnyValue)
-
-case class InnerClass(fieldInt: Int, fieldString: String)
-
-sealed trait OneOfNamed
-
-object OneOfNamed {
-
-  case class FooInt(theInt: Int) extends OneOfNamed // to prove the name is not relevant
-
-  case class FooString(value: String) extends OneOfNamed
-
-}
-
-sealed trait OneOfNamed3
-
-object OneOfNamed3 {
-
-  case class FooInt(value: Int) extends OneOfNamed3
-
-  case class FooString(value: String) extends OneOfNamed3
-
-  case class FooBytes(value: String) extends OneOfNamed3
-
-  case object FooEmpty extends OneOfNamed3
-
-}
-
-case class CaseClassC(fieldString: StringWrapperClass,
-                      @GpbName("fieldIntName")
-                      fieldInt: Int,
-                      fieldOption: Option[Int],
-                      fieldBlob: ByteString,
-                      @GpbName("fieldStringsName")
-                      fieldStrings2: Vector[String],
-                      fieldGpb: CaseClassB,
-                      fieldGpbOption: Option[CaseClassB],
-                      fieldGpbOptionEmpty: Option[CaseClassB],
-                      fieldStrings: Array[String],
-                      fieldOptionIntegers: Seq[Int],
-                      fieldOptionIntegersEmpty: Seq[Int],
-                      @GpbMap(key = "key", value = "value")
-                      fieldMap: Map[String, String]) {
-
-  // needed because of the array
-  override def equals(obj: scala.Any): Boolean = obj match {
-    case that: CaseClassC =>
-      fieldString == that.fieldString &&
-        fieldInt == that.fieldInt &&
-        fieldOption == that.fieldOption &&
-        fieldBlob == that.fieldBlob &&
-        fieldStrings2 == that.fieldStrings2 &&
-        fieldGpb == that.fieldGpb &&
-        fieldGpbOption == that.fieldGpbOption &&
-        fieldGpbOptionEmpty == that.fieldGpbOptionEmpty &&
-        (fieldStrings sameElements that.fieldStrings) &&
-        fieldOptionIntegers == that.fieldOptionIntegers &&
-        fieldOptionIntegersEmpty == that.fieldOptionIntegersEmpty &&
-        fieldMap == fieldMap
-
-    case _ => false
-  }
-}
-
-// the `fieldIgnored` field is very unusually placed, but it has to be tested too...
-case class CaseClassE(fieldString: String,
-                      @GpbIgnored fieldIgnored: String = "hello",
-                      fieldOption: Option[String],
-                      @GpbIgnored fieldIgnored2: String = "hello")
-
-case class CaseClassG(fieldString: String,
-                      fieldOption: Option[String],
-                      fieldMap: Map[String, Int],
-                      fieldMap2: Map[String, CaseClassMapInnerMessage])
-
-case class CaseClassMapInnerMessage(fieldString: String, fieldInt: Int)
-
-case class StringWrapperClass(value: String)
-
-sealed trait TheEnum
-
-object TheEnum {
-
-  case object Unknown extends TheEnum
-
-  case object One extends TheEnum
-
-  case object Two extends TheEnum
-
-}
-
-case class CaseClassWithEnum(theEnumField: Option[TheEnum])
-
-case class CaseClassWithRawEnum(fieldString: String,
-                                fieldEnum: TestEnum,
-                                fieldEnumOption: Option[TestEnum],
-                                fieldMap: Map[String, TestEnum])
-
-// this is here to prevent reappearing of bug with companion object
-object CaseClassA

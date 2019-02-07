@@ -9,6 +9,7 @@ package object v3 extends CactusCommonImplicits with V3Converters {
 
   implicit class AnyValueParser(val anyValue: AnyValue) extends AnyVal {
     def asGpb[Gpb <: Message : AnyValueConverter]: ResultOrErrors[Gpb] = macro anyValueAsGpbMethod[Gpb]
+    def asCaseClass[CaseClass: AnyValueConverter]: ResultOrErrors[CaseClass] = macro anyValueAsCCMethod[CaseClass]
   }
 
   def anyValueAsGpbMethod[Gpb: c.WeakTypeTag](c: whitebox.Context)(conv: c.Tree): c.Expr[ResultOrErrors[Gpb]] = {
@@ -21,6 +22,19 @@ package object v3 extends CactusCommonImplicits with V3Converters {
 
     c.Expr[ResultOrErrors[Gpb]] {
       q" implicitly[AnyValueConverter[$gpbType]].apply($variableName)($variable) "
+    }
+  }
+
+  def anyValueAsCCMethod[CaseClass: c.WeakTypeTag](c: whitebox.Context)(conv: c.Tree): c.Expr[ResultOrErrors[CaseClass]] = {
+    import c.universe._
+
+    val caseClassType = weakTypeOf[CaseClass]
+
+    val variable = CactusMacros.getVariable(c)
+    val variableName = variable.symbol.asTerm.fullName.split('.').last
+
+    c.Expr[ResultOrErrors[CaseClass]] {
+      q" implicitly[AnyValueConverter[$caseClassType]].apply($variableName)($variable) "
     }
   }
 
