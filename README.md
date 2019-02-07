@@ -318,9 +318,9 @@ There are following ways how to implement own `Converter`:
       val convAtoC: Converter[A, C] = convAtoB.map((b: B) => C(b))
     ```
 
-Basic examples of custom converters may have been seen in examples above or in [unit tests](gpbv3/src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala).
+Examples of custom converters may have been seen in examples above or in [unit tests](gpbv3/src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala).
 
-### Advanced example
+### Advanced example 1
 
 Scenario:
 
@@ -368,8 +368,87 @@ the application
              implicitly[Converter[Seq[Event], Seq[GpbEvent]]]
                  .map(events => GpbEventsResponse.newBuilder().addAllEvents(events.asJava).build())
            }
-
         ```
+        
+### Advanced example 2
+
+Scenario (GPBv3):
+
+You want to have sth. like `Option[A]` in your GPB base API (e.g. gRPC). The closest way how to implement this for any `A` is to use
+[`Any`](gpbv3/README.md#any) in GPB (if you know all possible options for `A`, you should consider to use [`OneOf`](gpbv3/README.md#oneof) instead!
+
+Having proto messages
+
+```proto
+message OptionalMessage {
+    google.protobuf.Any elem = 1;
+}
+
+message MessageInsideAnyField {
+    string     field_string = 1;
+    int32      field_int = 2;
+}
+```
+
+and Scala counterparts
+```scala
+case class OptionalMessageClass(elem: Option[AnyValue])
+
+case class InnerClass(fieldInt: Int, fieldString: String)
+```
+
+you need to get converter `OptionalMessage` -> `Option[InnerClass]` (when you know the `MessageInsideAnyField` is the only option to be inside
+the `Any`, for keeping this example clear enough). Unfortunately this converter could NOT be derived automatically, on the other hand it can
+be done easily with your help.
+
+```scala
+import com.avast.cactus.Converter
+import com.avast.cactus.v3.AnyValue
+import com.avast.cactus.v3.TestMessageV3.{MessageInsideAnyField, OptionalMessage}
+
+case class OptionalMessageClass(elem: Option[AnyValue])
+
+case class InnerClass(fieldInt: Int, fieldString: String)
+
+implicit val convToCc: Converter[OptionalMessage, Option[InnerClass]] = {
+  implicitly[Converter[Option[AnyValue], Option[MessageInsideAnyField]]] // 1 -> Converter[Option[AnyValue], Option[MessageInsideAnyField]]
+    .andThen[Option[InnerClass]] // 2 -> Converter[Option[AnyValue], Option[InnerClass]]
+    .contraMap[OptionalMessageClass](_.elem) // 3 -> Converter[OptionalMessageClass, Option[InnerClass]]
+    .compose[OptionalMessage] // 4 -> Converter[OptionalMessage, Option[InnerClass]]
+}
+```
+
+Steps explained:
+
+1. Cactus is able to generate `Converter[AnyValue, MessageInsideAnyField]` and _lift_ it into `Option`, so you get
+`Converter[Option[AnyValue], Option[MessageInsideAnyField]]` for free.
+1. Cactus is also able to generate `Converter[MessageInsideAnyField, InnerClass]` (and lift it into `Option`), you append this converter
+to the previous one.
+1. You know how to convert `OptionalMessageClass` to `Option[AnyValue]` and you prepend this conversion function in front of the converter.
+1. Cactus is able to generate `Converter[OptionalMessage, OptionalMessageClass]` and you prepend this converter in front of the converter.
+
+As you see, Cactus is able to do almost all parts of the work, it just is not able to connect them correctly for such advanced use-case. The
+main reason is that `Any`/`AnyValue` does not have any type in compile-time and you need to say how (through which GPB) it should convert the
+`AnyValue` instance to your case class.
+
+The steps for conversion from CC to GPB are analogous:
+
+```scala
+val convToGpb: Converter[Option[InnerClass], OptionalMessage] = {
+  implicitly[Converter[Option[InnerClass], Option[MessageInsideAnyField]]] // 1 -> Converter[Option[InnerClass], Option[MessageInsideAnyField]]
+    .andThen[Option[AnyValue]] // 2 -> Converter[Option[InnerClass], Option[AnyValue]]
+    .map(OptionalMessageClass) // 3 -> Converter[Option[InnerClass], OptionalMessageClass]
+    .andThen[OptionalMessage] // 4 -> Converter[Option[InnerClass], OptionalMessage]
+}
+```
+
+Steps explained:
+1. Cactus is able to generate `Converter[Option[InnerClass], Option[MessageInsideAnyField]]`.
+1. Cactus is able to generate `Converter[Option[MessageInsideAnyField], Option[AnyValue]]`, you just append this converter to the previous one.
+1. You know how to convert `Option[AnyValue]` to `OptionalMessageClass` so you append this conversion function to the previous converter
+1. Cactus is able to generate `Converter[OptionalMessageClass, OptionalMessage]`, you just append this converter to the previous one.
+
+Again, cactus does most of the work, you just help to assemble the final converter.
 
 ## Optional modules
 

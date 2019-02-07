@@ -38,7 +38,8 @@ val extensionMessage: ResultOrErrors[ExtensionsMessage] = InnerClass(42, "ahoj")
     .flatMap(_.asGpb[ExtensionsMessage])
 ```
 
-There is the `WrongAnyTypeFailure` error defined for a case when the programmer tries to parse the `Any` as different type than it's serialized inside.
+There is the `WrongAnyTypeFailure` error defined for a case when the programmer tries to parse the `Any`/`AnyValue` as different type than
+it's serialized inside.
 
 ## OneOf
 

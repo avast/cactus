@@ -72,4 +72,12 @@ object Converter {
 
   implicit def vectorToArray[A: ClassTag]: Converter[Vector[A], Array[A]] = Converter(_.toArray)
 
+  implicit def liftToOption[A, B](implicit converter: Converter[A, B]): Converter[Option[A], Option[B]] = {
+    Converter.checked { (path, a) =>
+      a.map(converter.apply(path)) match {
+        case Some(result) => result.map(Some(_))
+        case None => Right(None)
+      }
+    }
+  }
 }
