@@ -50,8 +50,6 @@ class AnyValueConverterTest extends FunSuite {
   }
 
   test("convert to GPB and back if any is optional and not set") {
-    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
-
     val orig = ExtClassOpt(Instant.ofEpochSecond(12345), None)
 
     val expected = ExtensionsMessage.newBuilder().setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345)).build()
@@ -60,7 +58,7 @@ class AnyValueConverterTest extends FunSuite {
 
     assertResult(expected)(converted)
 
-    val Right(actual) = expected.asCaseClass[ExtClassOpt]
+    val Right(actual) = converted.asCaseClass[ExtClassOpt]
 
     assertResult(orig)(actual)
     assertResult(None)(actual.any.map(_.asGpb[MessageInsideAnyField]))
@@ -93,6 +91,21 @@ class AnyValueConverterTest extends FunSuite {
       .flatMap(_.asGpb[ExtensionsMessage])
 
     assertResult(msg)(extensionMessage)
+  }
+
+  test("GPB to case class with AnyValue.of(caseClass)") {
+    val expected = ExtensionsMessage
+      .newBuilder()
+      .setTimestamp(GpbTimestamp.newBuilder().setSeconds(12345))
+      .setAny(Any.pack(MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()))
+      .build()
+
+    val Right(extensionMessage: ExtensionsMessage) = AnyValue
+      .of[MessageInsideAnyField, InnerClass](InnerClass(42, "ahoj"))
+      .map(ExtClass(Instant.ofEpochSecond(12345), _))
+      .flatMap(_.asGpb[ExtensionsMessage])
+
+    assertResult(expected)(extensionMessage)
   }
 
   test("failure when parsing trash") {

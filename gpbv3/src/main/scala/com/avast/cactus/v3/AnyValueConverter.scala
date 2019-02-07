@@ -1,6 +1,6 @@
 package com.avast.cactus.v3
 
-import com.avast.cactus.{CactusMacros, ResultOrErrors}
+import com.avast.cactus.ResultOrErrors
 import com.google.protobuf.Message
 
 import scala.annotation.implicitNotFound
@@ -66,11 +66,11 @@ object AnyValueConverter {
     val gpbType = weakTypeOf[GpbClass]
     val caseClassType = weakTypeOf[CaseClass]
 
-    val t = c.Expr[AnyValueConverter[CaseClass]] {
+    c.Expr[AnyValueConverter[CaseClass]] {
       q"""
           {
             new com.avast.cactus.v3.AnyValueConverter[$caseClassType] {
-                override def apply(fieldPath: String)(a: AnyValue) = {
+                override def apply(fieldPath: String)(a: com.avast.cactus.v3.AnyValue) = {
                   val innerConverter = implicitly[com.avast.cactus.Converter[$gpbType, $caseClassType]]
 
                   com.avast.cactus.v3.AnyValueConverter.deriveToGpb[$gpbType].apply(fieldPath)(a)
@@ -81,8 +81,6 @@ object AnyValueConverter {
           }
        """
     }
-
-    t
   }
 
 }
