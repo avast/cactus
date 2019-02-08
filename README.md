@@ -374,7 +374,7 @@ the application
 
 Scenario:
 
-You have `findUser` endpoint in your service. As it is usual for all find* methods, it's valid case that the user is not found. You want to
+You have `findUser` endpoint in your service. As it's usual for all find* methods, it's valid case that the user is not found. You want to
 express this as `Option[User]` in Scala API and now you need to model GPB messages and related converter.  
 
 ```proto
@@ -394,10 +394,10 @@ case class OptionalUserResponse(user: Option[User])
 case class User(name: String, age: Int)
 ```
 
-Now, the cactus is able to convert `OptionalUserResponse` to `OptionalUserResponseMessage` (and back), but you want to have just `Option[User]`
+Now, the Cactus is able to convert `OptionalUserResponse` to `OptionalUserResponseMessage` (and back), but you want to have just `Option[User]`
 in your API, not the whole `OptionalUserResponse`.
 
-Creating converter for client side is very easy:
+Creating converter for a client side is very easy:
 
 ```scala
 implicit val convGpbToOptUser: Converter[OptionalUserResponseMessage, Option[User]] = {
@@ -406,7 +406,7 @@ implicit val convGpbToOptUser: Converter[OptionalUserResponseMessage, Option[Use
 }
 ```
 
-But on the server side, you call DAO which gets you class `DbUser`:
+But on a server side, you call DAO which gets you class `DbUser`:
 
 ```scala
 // def findUser: Option[DbUser] = ???
@@ -414,7 +414,7 @@ But on the server side, you call DAO which gets you class `DbUser`:
 case class DbUser(firstName: String, surName: String, dateOfBirth: LocalDate)
 ``` 
 
-You want to return `Option[DbUser]` from your handler and thus to convert `DbUser` directly to GPB. That is obviously something Cactus
+You decide to return `Option[DbUser]` from your handler and thus to convert `DbUser` directly to GPB. That is obviously something Cactus
 cannot do by its own. However, you can derive your custom converter if you provide a way how to convert `DbUser` to `User`:
 
 ```scala
@@ -435,8 +435,8 @@ This deserves more detailed explanation:
 
 1. Cactus derives `Converter[OptionalUserResponse, OptionalUserResponseMessage]` for you.
 1. You _prepend_ conversion function `Option[User] => OptionalUserResponse` to the converter from previous step.
-1. You _prepend_ your custom `Converter[DbUser, User]` to the converter from previous step. In fact, the `Converter[Option[DbUser], Option[User]]`
-is needed here, but Cactus will _lift_ your custom converter automatically to fit here.
+1. You _prepend_ your custom `Converter[DbUser, User]` to the converter from previous step.  
+    (In fact, the `Converter[Option[DbUser], Option[User]]` is needed here, but Cactus will _lift_ your custom converter automatically to fit.)
 
 ## Optional modules
 
