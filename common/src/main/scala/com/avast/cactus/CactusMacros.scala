@@ -253,7 +253,7 @@ object CactusMacros {
       }
 
       val params = fields.map { field =>
-        val e = extractField(c)(field, isProto3, gpbGetters, gpbSetters)
+        val e = extractField(c)(gpbType, caseClassType)(field, isProto3, gpbGetters, gpbSetters)
         import e._
 
         val innerFieldPath = c.Expr[String] {
@@ -548,7 +548,7 @@ object CactusMacros {
       }
 
       val params = fields.map { field =>
-        val e = extractField(c)(field, isProto3, gpbGetters, gpbSetters)
+        val e = extractField(c)(gpbType, caseClassType)(field, isProto3, gpbGetters, gpbSetters)
         import e._
 
         val innerFieldPath = c.Expr[String] {
@@ -881,7 +881,7 @@ object CactusMacros {
     }
   }
 
-  private def extractField(c: whitebox.Context)(field: c.universe.Symbol,
+  private def extractField(c: whitebox.Context)(gpbType: c.universe.Type, caseClassType: c.universe.Type)(field: c.universe.Symbol,
                                                 isProto3: Boolean,
                                                 gpbGetters: Iterable[c.universe.MethodSymbol],
                                                 gpbSetters: Iterable[c.universe.MethodSymbol]) = new {
@@ -916,11 +916,11 @@ object CactusMacros {
           .map(Good(_))
           .getOrElse {
             if (Debug) {
-              println(s"No getter for $fieldName found in GPB - neither ${s"get${upper}List"} nor ${s"get$upper"}")
+              println(s"No getter for $fieldName found in GPB ${gpbType.typeSymbol.fullName} - neither ${s"get${upper}List"} nor ${s"get$upper"}")
               println(s"All getters: ${gpbGetters.map(_.name.toString).mkString("[", ", ", "]")}")
             }
 
-            Bad(s"Could not find getter in GPB for field $nameInGpb ($fieldName in case class), does the field in GPB exist?")
+            Bad(s"Could not find getter in GPB ${gpbType.typeSymbol.fullName} for field $nameInGpb ($fieldName in case class ${caseClassType.typeSymbol.fullName}), does the field in GPB exist?")
           }
       }
 
@@ -933,11 +933,11 @@ object CactusMacros {
           .map(Good(_))
           .getOrElse {
             if (Debug) {
-              println(s"No setter for $fieldName found in GPB - neither ${s"addAll$upper"} nor ${s"set$upper"}")
+              println(s"No setter for $fieldName found in GPB ${gpbType.typeSymbol.fullName} - neither ${s"addAll$upper"} nor ${s"set$upper"}")
               println(s"All setters: ${gpbSetters.map(_.name.toString).mkString("[", ", ", "]")}")
             }
 
-            Bad(s"Could not find setter in GPB for field $nameInGpb ($fieldName in case class), does the field in GPB exist?")
+            Bad(s"Could not find setter in GPB ${gpbType.typeSymbol.fullName} for field $nameInGpb ($fieldName in case class ${caseClassType.typeSymbol.fullName}), does the field in GPB exist?")
           }
       }
 
