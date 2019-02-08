@@ -318,9 +318,9 @@ There are following ways how to implement own `Converter`:
       val convAtoC: Converter[A, C] = convAtoB.map((b: B) => C(b))
     ```
 
-Basic examples of custom converters may have been seen in examples above or in [unit tests](gpbv3/src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala).
+Examples of custom converters may be seen in examples above or in [unit tests](gpbv3/src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala).
 
-### Advanced example
+### Advanced example 1
 
 Scenario:
 
@@ -368,8 +368,75 @@ the application
              implicitly[Converter[Seq[Event], Seq[GpbEvent]]]
                  .map(events => GpbEventsResponse.newBuilder().addAllEvents(events.asJava).build())
            }
-
         ```
+        
+### Advanced example 2
+
+Scenario:
+
+You have `findUser` endpoint in your service. As it's usual for all find* methods, it's valid case that the user is not found. You want to
+express this as `Option[User]` in Scala API and now you need to model GPB messages and related converter.  
+
+```proto
+message OptionalUserResponseMessage {
+    UserMessage user = 1;
+}
+
+message UserMessage {
+    string name = 1;                                        // REQUIRED
+    int32 age = 2;                                          // REQUIRED
+}
+```
+
+```scala
+case class OptionalUserResponse(user: Option[User])
+
+case class User(name: String, age: Int)
+```
+
+Now, Cactus is able to convert `OptionalUserResponse` to `OptionalUserResponseMessage` (and back), but you want to have just `Option[User]`
+in your API, not the whole `OptionalUserResponse`.
+
+Creating converter for a client side is very easy:
+
+```scala
+implicit val convGpbToOptUser: Converter[OptionalUserResponseMessage, Option[User]] = {
+  implicitly[Converter[OptionalUserResponseMessage, OptionalUserResponse]]
+    .map(_.user) // append `OptionalUserResponse => Option[User]` to the converter
+}
+```
+
+But on a server side, you call DAO which gets you class `DbUser`:
+
+```scala
+// def findUser: Option[DbUser] = ???
+
+case class DbUser(firstName: String, surName: String, dateOfBirth: LocalDate)
+``` 
+
+You decide to return `Option[DbUser]` from your handler and thus to convert `DbUser` directly to GPB. That is obviously something Cactus
+cannot do by its own. However, you can derive your custom converter if you provide a way how to convert `DbUser` to `User`:
+
+```scala
+def toAge(d: Duration): Int = ???
+
+implicit val dbUserToUser: Converter[DbUser, User] = Converter{ dbUser =>
+  User(s"${dbUser.firstName} ${dbUser.surName}", toAge(Duration.between(dbUser.dateOfBirth, Instant.now())))
+}
+
+implicit val convToGpb: Converter[Option[DbUser], OptionalUserResponseMessage] = {
+  implicitly[Converter[OptionalUserResponse, OptionalUserResponseMessage]] // 1 -> Converter[OptionalUserResponse, OptionalUserResponseMessage]
+    .contraMap(OptionalUserResponse.apply) // 2 -> Converter[Option[User], OptionalUserResponseMessage]
+    .compose[Option[DbUser]] // 3 -> Converter[Option[DbUser], OptionalUserResponseMessage]
+}
+```
+
+This deserves more detailed explanation:
+
+1. Cactus derives `Converter[OptionalUserResponse, OptionalUserResponseMessage]` for you.
+1. You _prepend_ conversion function `Option[User] => OptionalUserResponse` to the converter from previous step.
+1. You _prepend_ your custom `Converter[DbUser, User]` to the converter from previous step.  
+    (In fact, the `Converter[Option[DbUser], Option[User]]` is needed here, but Cactus will _lift_ your custom converter automatically to fit.)
 
 ## Optional modules
 
@@ -404,7 +471,7 @@ message Message {
 
 ## Using Cactus in your own library
 
-Sometimes you need to wrap the Cactus parsing under the hood of your own library and be GPB-version-agnostic at the same time.  
+Sometimes you need to wrap Cactus parsing under the hood of your own library and be GPB-version-agnostic at the same time.  
 For example you could have method for parsing some event into a case class but the event is encoded in the GPB like this:
 ```scala
 import cats.syntax.either._

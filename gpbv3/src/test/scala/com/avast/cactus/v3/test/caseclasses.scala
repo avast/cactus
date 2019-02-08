@@ -183,3 +183,6 @@ case class CaseClassWithRawEnum(fieldString: String,
 
 // this is here to prevent reappearing of bug with companion object
 object CaseClassA
+
+
+case class OptionalMessageClass(elem: Option[AnyValue])

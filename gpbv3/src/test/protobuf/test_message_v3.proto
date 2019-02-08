@@ -123,3 +123,7 @@ enum TestEnum {
     FIRST = 1;
     SECOND = 2;
 }
+
+message OptionalMessage {
+    google.protobuf.Any elem = 1;
+}

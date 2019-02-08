@@ -7,6 +7,7 @@ import com.avast.cactus.v3.TestMessageV3._
 import com.avast.cactus.v3.ValueOneOf.NumberValue
 import com.avast.cactus.v3._
 import com.google.protobuf.{
+  Any,
   BoolValue,
   ByteString,
   BytesValue,
@@ -357,5 +358,42 @@ class CactusMacrosTestV3 extends FunSuite {
 
     assertResult(Right(CaseClassWithEnum(Some(TheEnum.Two))))(gpb2.asCaseClass[CaseClassWithEnum])
     assertResult(Right(gpb2))(CaseClassWithEnum(Some(TheEnum.Two)).asGpb[MessageWithEnum])
+  }
+
+  test("is possible to derive Option[A] -> OptionalResponse and back converters through AnyValue") {
+    implicit val convToCc: Converter[OptionalMessage, Option[InnerClass]] = {
+      implicitly[Converter[Option[AnyValue], Option[MessageInsideAnyField]]]
+        .andThen[Option[InnerClass]]
+        .contraMap[OptionalMessageClass](_.elem)
+        .compose[OptionalMessage]
+    }
+
+    val convToGpb: Converter[Option[InnerClass], OptionalMessage] = {
+      implicitly[Converter[Option[InnerClass], Option[MessageInsideAnyField]]]
+        .andThen[Option[AnyValue]]
+        .map(OptionalMessageClass)
+        .andThen[OptionalMessage]
+    }
+
+    val convThereAndBack: Converter[Option[InnerClass], Option[InnerClass]] = convToGpb.andThen(convToCc)
+
+    val innerMessage = MessageInsideAnyField.newBuilder().setFieldInt(42).setFieldString("ahoj").build()
+
+    {
+      val gpb = OptionalMessage.newBuilder().build()
+
+      assertResult(Right(gpb))(convToGpb.apply("")(None))
+      assertResult(Right(None))(convToCc.apply("")(gpb))
+      assertResult(Right(None))(convThereAndBack.apply("")(None))
+    }
+
+    {
+      val cc = Some(InnerClass(42, "ahoj"))
+      val gpb = OptionalMessage.newBuilder().setElem(Any.pack(innerMessage)).build()
+
+      assertResult(Right(gpb))(convToGpb.apply("")(cc))
+      assertResult(Right(cc))(convToCc.apply("")(gpb))
+      assertResult(Right(cc))(convThereAndBack.apply("")(cc))
+    }
   }
 }
