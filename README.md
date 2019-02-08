@@ -318,7 +318,7 @@ There are following ways how to implement own `Converter`:
       val convAtoC: Converter[A, C] = convAtoB.map((b: B) => C(b))
     ```
 
-Examples of custom converters may have been seen in examples above or in [unit tests](gpbv3/src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala).
+Examples of custom converters may be seen in examples above or in [unit tests](gpbv3/src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala).
 
 ### Advanced example 1
 
@@ -394,7 +394,7 @@ case class OptionalUserResponse(user: Option[User])
 case class User(name: String, age: Int)
 ```
 
-Now, the Cactus is able to convert `OptionalUserResponse` to `OptionalUserResponseMessage` (and back), but you want to have just `Option[User]`
+Now, Cactus is able to convert `OptionalUserResponse` to `OptionalUserResponseMessage` (and back), but you want to have just `Option[User]`
 in your API, not the whole `OptionalUserResponse`.
 
 Creating converter for a client side is very easy:
@@ -471,7 +471,7 @@ message Message {
 
 ## Using Cactus in your own library
 
-Sometimes you need to wrap the Cactus parsing under the hood of your own library and be GPB-version-agnostic at the same time.  
+Sometimes you need to wrap Cactus parsing under the hood of your own library and be GPB-version-agnostic at the same time.  
 For example you could have method for parsing some event into a case class but the event is encoded in the GPB like this:
 ```scala
 import cats.syntax.either._
