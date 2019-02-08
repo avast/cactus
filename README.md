@@ -372,84 +372,71 @@ the application
         
 ### Advanced example 2
 
-Scenario (GPBv3):
+Scenario:
 
-You want to have sth. like `Option[A]` in your GPB base API (e.g. gRPC). The closest way how to implement this for any `A` is to use
-[`Any`](gpbv3/README.md#any) in GPB (if you know all possible options for `A`, you should consider to use [`OneOf`](gpbv3/README.md#oneof) instead!)
-
-Having proto messages
+You have `findUser` endpoint in your service. As it is usual for all find* methods, it's valid case that the user is not found. You want to
+express this as `Option[User]` in Scala API and now you need to model GPB messages and related converter.  
 
 ```proto
-message OptionalMessage {
-    google.protobuf.Any elem = 1;
+message OptionalUserResponseMessage {
+    UserMessage user = 1;
 }
 
-message MessageInsideAnyField {
-    string     field_string = 1;
-    int32      field_int = 2;
+message UserMessage {
+    string name = 1;                                        // REQUIRED
+    int32 age = 2;                                          // REQUIRED
 }
 ```
-
-and Scala counterparts
-```scala
-case class OptionalMessageClass(elem: Option[AnyValue])
-
-case class MessageInsideAnyFieldClass(fieldInt: Int, fieldString: String)
-```
-
-you need to get converter `OptionalMessage` -> `Option[MessageInsideAnyFieldClass]` (when you know the `MessageInsideAnyField` is the only
-option to be inside the `Any`, to keep this example simple enough). Unfortunately this converter could NOT be derived automatically, on
-the other hand it can be done easily with your help.
 
 ```scala
-import com.avast.cactus.Converter
-import com.avast.cactus.v3.AnyValue
-import com.avast.cactus.v3.TestMessageV3.{MessageInsideAnyField, OptionalMessage}
+case class OptionalUserResponse(user: Option[User])
 
-case class OptionalMessageClass(elem: Option[AnyValue])
-
-case class MessageInsideAnyFieldClass(fieldInt: Int, fieldString: String)
-
-implicit val convToCc: Converter[OptionalMessage, Option[MessageInsideAnyFieldClass]] = {
-  implicitly[Converter[Option[AnyValue], Option[MessageInsideAnyField]]] // 1 -> Converter[Option[AnyValue], Option[MessageInsideAnyField]]
-    .andThen[Option[MessageInsideAnyFieldClass]] // 2 -> Converter[Option[AnyValue], Option[MessageInsideAnyFieldClass]]
-    .contraMap[OptionalMessageClass](_.elem) // 3 -> Converter[OptionalMessageClass, Option[MessageInsideAnyFieldClass]]
-    .compose[OptionalMessage] // 4 -> Converter[OptionalMessage, Option[MessageInsideAnyFieldClass]]
-}
+case class User(name: String, age: Int)
 ```
 
-Steps explained:
+Now, the cactus is able to convert `OptionalUserResponse` to `OptionalUserResponseMessage` (and back), but you want to have just `Option[User]`
+in your API, not the whole `OptionalUserResponse`.
 
-1. Cactus is able to generate `Converter[AnyValue, MessageInsideAnyField]` and _lift_ it into `Option`, so you get
-`Converter[Option[AnyValue], Option[MessageInsideAnyField]]` for free.
-1. Cactus is also able to generate `Converter[MessageInsideAnyField, MessageInsideAnyFieldClass]` (and lift it into `Option`), you append this converter
-to the previous one.
-1. You know how to convert `OptionalMessageClass` to `Option[AnyValue]` and you prepend this conversion function in front of the converter.
-1. Cactus is able to generate `Converter[OptionalMessage, OptionalMessageClass]` and you prepend this converter in front of the converter.
-
-As you see, Cactus is able to do almost all parts of the work, it just is not able to connect them correctly for such advanced use-case. The
-main reason is that `Any`/`AnyValue` does not have any type in compile-time and you need to say how (through which GPB) it should convert the
-`AnyValue` instance to your case class.
-
-
-The steps for conversion from CC to GPB are analogous:
+Creating converter for client side is very easy:
 
 ```scala
-val convToGpb: Converter[Option[MessageInsideAnyFieldClass], OptionalMessage] = {
-  implicitly[Converter[Option[MessageInsideAnyFieldClass], Option[MessageInsideAnyField]]] // 1 -> Converter[Option[MessageInsideAnyFieldClass], Option[MessageInsideAnyField]]
-    .andThen[Option[AnyValue]] // 2 -> Converter[Option[MessageInsideAnyFieldClass], Option[AnyValue]]
-    .map(OptionalMessageClass) // 3 -> Converter[Option[MessageInsideAnyFieldClass], OptionalMessageClass]
-    .andThen[OptionalMessage] // 4 -> Converter[Option[MessageInsideAnyFieldClass], OptionalMessage]
+implicit val convGpbToOptUser: Converter[OptionalUserResponseMessage, Option[User]] = {
+  implicitly[Converter[OptionalUserResponseMessage, OptionalUserResponse]]
+    .map(_.user) // append `OptionalUserResponse => Option[User]` to the converter
 }
 ```
 
-Steps explained:
-1. Cactus is able to generate `Converter[Option[MessageInsideAnyFieldClass], Option[MessageInsideAnyField]]`.
-1. Cactus is able to generate `Converter[Option[MessageInsideAnyField], Option[AnyValue]]`, you just append this converter to the previous one.
-1. You know how to convert `Option[AnyValue]` to `OptionalMessageClass` so you append this conversion function to the previous converter
-1. Cactus is able to generate `Converter[OptionalMessageClass, OptionalMessage]`, you just append this converter to the previous one.
+But on the server side, you call DAO which gets you class `DbUser`:
 
-Again, Cactus does most of the work, you just help to assemble the final converter.
+```scala
+// def findUser: Option[DbUser] = ???
+
+case class DbUser(firstName: String, surName: String, dateOfBirth: LocalDate)
+``` 
+
+You want to return `Option[DbUser]` from your handler and thus to convert `DbUser` directly to GPB. That is obviously something Cactus
+cannot do by its own. However, you can derive your custom converter if you provide a way how to convert `DbUser` to `User`:
+
+```scala
+def toAge(d: Duration): Int = ???
+
+implicit val dbUserToUser: Converter[DbUser, User] = Converter{ dbUser =>
+  User(s"${dbUser.firstName} ${dbUser.surName}", toAge(Duration.between(dbUser.dateOfBirth, Instant.now())))
+}
+
+implicit val convToGpb: Converter[Option[DbUser], OptionalUserResponseMessage] = {
+  implicitly[Converter[OptionalUserResponse, OptionalUserResponseMessage]] // 1 -> Converter[OptionalUserResponse, OptionalUserResponseMessage]
+    .contraMap(OptionalUserResponse.apply) // 2 -> Converter[Option[User], OptionalUserResponseMessage]
+    .compose[Option[DbUser]] // 3 -> Converter[Option[DbUser], OptionalUserResponseMessage]
+}
+```
+
+This deserves more detailed explanation:
+
+1. Cactus derives `Converter[OptionalUserResponse, OptionalUserResponseMessage]` for you.
+1. You _prepend_ conversion function `Option[User] => OptionalUserResponse` to the converter from previous step.
+1. You _prepend_ your custom `Converter[DbUser, User]` to the converter from previous step. In fact, the `Converter[Option[DbUser], Option[User]]`
+is needed here, but Cactus will _lift_ your custom converter automatically to fit here.
 
 ## Optional modules
 
