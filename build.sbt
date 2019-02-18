@@ -2,10 +2,10 @@ import sbt.Keys._
 
 val logger: Logger = ConsoleLogger()
 
-crossScalaVersions := Seq("2.12.6")
+crossScalaVersions := Seq("2.12.7")
 
 lazy val Versions = new {
-  val grpcVersion = "1.15.0"
+  val grpcVersion = "1.18.0"
   val gpb3Version = "3.6.1"
   val gpb2Version = "2.6.1"
 
@@ -14,7 +14,7 @@ lazy val Versions = new {
 }
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.6",
+  scalaVersion := "2.12.7",
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
@@ -48,7 +48,7 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.5",
-    "org.typelevel" %% "cats-core" % "1.2.0",
+    "org.typelevel" %% "cats-core" % "1.5.0",
     "org.scalatest" %% "scalatest" % "3.0.5" % "test",
     "org.mockito" % "mockito-core" % "2.18.3" % "test"
   )
@@ -128,7 +128,7 @@ lazy val bytesV2Module = Project(id = "bytes-gpbv2", base = file("./bytes-gpbv2"
   commonSettings,
   name := "cactus-bytes-gpbv2",
   libraryDependencies ++= Seq(
-    "com.avast.bytes" % "bytes-gpb" % "2.0.3"
+    "com.avast.bytes" % "bytes-gpb" % "2.0.5"
   )
 ).dependsOn(commonModule)
 
