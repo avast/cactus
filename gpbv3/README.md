@@ -4,6 +4,8 @@ Cactus currently supports v3.3. See [official docs](https://developers.google.co
 
 See [unit tests](src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala) for more examples.
 
+Note: Don't forget to add `import com.avast.cactus.v3._` always when you work with anything GPBv3 specific.
+
 ## Any
 
 The `Any` is by design very benevolent from a types POV. The Cactus provides better API for parsing messages hidden in `Any` field:
