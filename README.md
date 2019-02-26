@@ -259,6 +259,8 @@ See [unit tests](gpbv2/src/test/scala/com/avast/cactus/v2/test/CactusMacrosTestV
 
 ## GPB v3 support
 
+Don't forget to add `import com.avast.cactus.v3._` always when you work with anything GPBv3 specific.
+
 See more in [gpbv3 module](gpbv3/README.md).
 
 ## Defining own converters
