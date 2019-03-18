@@ -360,6 +360,33 @@ class CactusMacrosTestV3 extends FunSuite {
     assertResult(Right(gpb2))(CaseClassWithEnum(Some(TheEnum.Two)).asGpb[MessageWithEnum])
   }
 
+  test("message with enum - own enum converter") {
+    val gpb = MessageWithRawEnum
+      .newBuilder()
+      .setFieldString("ahoj")
+      .setFieldEnum(TestEnum.FIRST)
+      .build()
+
+    val ccl = CaseClassWithRawEnum(
+      fieldString = "ahoj",
+      fieldEnum = TestEnum.FIRST,
+      fieldEnumOption = None,
+      fieldMap = Map.empty
+    )
+
+    assertResult(Right(ccl.copy(fieldEnumOption = Some(TestEnum.UNKNOWN))))(gpb.asCaseClass[CaseClassWithRawEnum])
+    assertResult(Right(gpb))(ccl.asGpb[MessageWithRawEnum])
+
+    implicit val c: Converter[MessageWithEnum.TheEnum, TheEnum] = Converter(_ => TheEnum.Two)
+    implicit val c2: Converter[TheEnum, MessageWithEnum.TheEnum] = Converter(_ => MessageWithEnum.TheEnum.ONE)
+
+    val gpb2 = MessageWithEnum.newBuilder().setTheEnumField(MessageWithEnum.TheEnum.ONE).build()
+    val ccl2 = CaseClassWithEnum(Some(TheEnum.Two))
+
+    assertResult(Right(ccl2))(gpb2.asCaseClass[CaseClassWithEnum])
+    assertResult(Right(gpb2))(ccl2.asGpb[MessageWithEnum])
+  }
+
   test("is possible to derive Option[A] -> OptionalResponse and back converters through AnyValue") {
     implicit val convToCc: Converter[OptionalMessage, Option[InnerClass]] = {
       implicitly[Converter[Option[AnyValue], Option[MessageInsideAnyField]]]

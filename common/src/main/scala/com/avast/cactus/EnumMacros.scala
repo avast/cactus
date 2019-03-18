@@ -3,8 +3,7 @@ import scala.reflect.macros.whitebox
 
 object EnumMacros {
   def newEnumConverterToSealedTrait(c: whitebox.Context)(protoVersion: ProtoVersion)(
-      wholeGpbType: c.universe.Type,
-      enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+    enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
     import c.universe._
     import enumType._
 
@@ -30,7 +29,7 @@ object EnumMacros {
 
     val f =
       q""" {
-             (fieldPath: String, wholeGpb: $wholeGpbType) => (wholeGpb.${getter.name} match {
+             (fieldPath: String, gpbEnum: ${getter.returnType}) => (gpbEnum match {
                 case ..$cases
              }): Or[$traitType, _root_.com.avast.cactus.EveryCactusFailure]
         }
@@ -69,7 +68,7 @@ object EnumMacros {
     val cases = options.map {
       case (enumValue, ccl) => // case object
 
-        cq" _: ${ccl.module} => Good(builder.$setter($enumClass.$enumValue))"
+        cq" _: ${ccl.module} => Good($enumClass.$enumValue)"
     }
 
     val f =

@@ -262,10 +262,10 @@ object CactusMacros {
 
         val value: c.Tree = fieldType match {
           case n: FieldType.Normal[MethodSymbol, ClassSymbol, Type] =>
-            val returnType = n.getter.returnType
-            val query = protoVersion.getQuery(c)(gpb, upper, returnType)
+            val gpbFieldType = n.getter.returnType
+            val query = protoVersion.getQuery(c)(gpb, upper, gpbFieldType)
 
-            processEndType(c)(fieldName, innerFieldPath, annotations, nameInGpb, dstType)(query, q"$gpb.${n.getter}", returnType)
+            processEndType(c)(fieldName, innerFieldPath, annotations, nameInGpb, dstType)(query, q"$gpb.${n.getter}", gpbFieldType)
 
           case en: FieldType.Enum[MethodSymbol, ClassSymbol, Type] =>
             processEnum(c)(protoVersion)(gpbType, gpb, fieldPath)(en)
@@ -311,8 +311,9 @@ object CactusMacros {
     }
 
     private def processEnum(c: whitebox.Context)(
-        protoVersion: ProtoVersion)(gpbType: c.universe.Type, gpb: c.Tree, fieldPath: c.universe.Expr[String])(
-        enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+        protoVersion: ProtoVersion)(gpbType: c.universe.Type, gpb: c.Tree, innerFieldPath: c.universe.Expr[String])(
+        enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type])(
+        implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
       import c.universe._
 
       if (Debug) {
@@ -320,14 +321,29 @@ object CactusMacros {
       }
 
       def conv(finalType: c.universe.Type) = {
-        EnumMacros.newEnumConverterToSealedTrait(c)(protoVersion)(gpbType, enumType.copy(traitType = finalType))
+        EnumMacros.newEnumConverterToSealedTrait(c)(protoVersion)(enumType.copy(traitType = finalType))
       }
 
       enumType.traitType.resultType.toString match {
         case OptPattern(_) =>
-          q""" (${conv(enumType.traitType.resultType.typeArgs.head)}($fieldPath, $gpb)).map(Option(_)).recover( _=> None) """
+          val gpbFieldType = enumType.getter.returnType
+          val dstType = enumType.traitType.resultType.typeArgs.head
 
-        case _ => q" ${conv(enumType.traitType)}($fieldPath, $gpb) "
+          newConverter(c)(gpbFieldType, dstType) {
+            conv(dstType)
+          }
+
+          q"com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter}).map(Option(_)).recover( _=> None)"
+
+        case _ =>
+          val gpbFieldType = enumType.getter.returnType
+          val dstType = enumType.traitType
+
+          newConverter(c)(gpbFieldType, dstType) {
+            conv(dstType)
+          }
+
+          q"com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter})"
       }
     }
 
@@ -614,8 +630,9 @@ object CactusMacros {
       }
     }
 
-    private def processEnum(c: whitebox.Context)(field: c.Tree, fieldPath: c.universe.Expr[String])(
-        enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
+    private def processEnum(c: whitebox.Context)(field: c.Tree, innerFieldPath: c.universe.Expr[String])(
+        enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type])(
+        implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
       import c.universe._
 
       if (Debug) {
@@ -626,8 +643,24 @@ object CactusMacros {
 
       enumType.traitType.resultType.toString match {
         case OptPattern(_) =>
-          q""" $field.map(${conv(enumType.traitType.resultType.typeArgs.head)}($fieldPath, _)).getOrElse(Good(builder)) """
-        case _ => q" ${conv(enumType.traitType)}($fieldPath, $field) "
+          val srcType = enumType.traitType.resultType.typeArgs.head
+          val gpbFieldType = enumType.getter.returnType
+
+          newConverter(c)(srcType, gpbFieldType) {
+            conv(srcType)
+          }
+
+          q" $field.map(value => CactusMacros.AToB[$srcType, $gpbFieldType]($innerFieldPath)(value).map(builder.${enumType.setter})).getOrElse(Good(builder)) "
+
+        case _ =>
+          val srcType = enumType.traitType
+          val gpbFieldType = enumType.getter.returnType
+
+          newConverter(c)(srcType, gpbFieldType) {
+            conv(srcType)
+          }
+
+          q" CactusMacros.AToB[$srcType, $gpbFieldType]($innerFieldPath)($field).map(builder.${enumType.setter}) "
       }
     }
 
@@ -881,10 +914,11 @@ object CactusMacros {
     }
   }
 
-  private def extractField(c: whitebox.Context)(gpbType: c.universe.Type, caseClassType: c.universe.Type)(field: c.universe.Symbol,
-                                                isProto3: Boolean,
-                                                gpbGetters: Iterable[c.universe.MethodSymbol],
-                                                gpbSetters: Iterable[c.universe.MethodSymbol]) = new {
+  private def extractField(c: whitebox.Context)(gpbType: c.universe.Type, caseClassType: c.universe.Type)(
+      field: c.universe.Symbol,
+      isProto3: Boolean,
+      gpbGetters: Iterable[c.universe.MethodSymbol],
+      gpbSetters: Iterable[c.universe.MethodSymbol]) = new {
 
     import c.universe._
 
@@ -916,11 +950,15 @@ object CactusMacros {
           .map(Good(_))
           .getOrElse {
             if (Debug) {
-              println(s"No getter for $fieldName found in GPB ${gpbType.typeSymbol.fullName} - neither ${s"get${upper}List"} nor ${s"get$upper"}")
+              println {
+                s"No getter for $fieldName found in GPB ${gpbType.typeSymbol.fullName} - neither ${s"get${upper}List"} nor ${s"get$upper"}"
+              }
               println(s"All getters: ${gpbGetters.map(_.name.toString).mkString("[", ", ", "]")}")
             }
 
-            Bad(s"Could not find getter in GPB ${gpbType.typeSymbol.fullName} for field $nameInGpb ($fieldName in case class ${caseClassType.typeSymbol.fullName}), does the field in GPB exist?")
+            Bad {
+              s"Could not find getter in GPB ${gpbType.typeSymbol.fullName} for field $nameInGpb ($fieldName in case class ${caseClassType.typeSymbol.fullName}), does the field in GPB exist?"
+            }
           }
       }
 
@@ -933,11 +971,15 @@ object CactusMacros {
           .map(Good(_))
           .getOrElse {
             if (Debug) {
-              println(s"No setter for $fieldName found in GPB ${gpbType.typeSymbol.fullName} - neither ${s"addAll$upper"} nor ${s"set$upper"}")
+              println {
+                s"No setter for $fieldName found in GPB ${gpbType.typeSymbol.fullName} - neither ${s"addAll$upper"} nor ${s"set$upper"}"
+              }
               println(s"All setters: ${gpbSetters.map(_.name.toString).mkString("[", ", ", "]")}")
             }
 
-            Bad(s"Could not find setter in GPB ${gpbType.typeSymbol.fullName} for field $nameInGpb ($fieldName in case class ${caseClassType.typeSymbol.fullName}), does the field in GPB exist?")
+            Bad {
+              s"Could not find setter in GPB ${gpbType.typeSymbol.fullName} for field $nameInGpb ($fieldName in case class ${caseClassType.typeSymbol.fullName}), does the field in GPB exist?"
+            }
           }
       }
 
@@ -1256,7 +1298,7 @@ object CactusMacros {
     }
   }
 
-  private[cactus] def newConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)(f: c.Tree)(
+  private[cactus] def newConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)(convertFunction: c.Tree)(
       implicit converters: mutable.Map[String, c.universe.Tree]): Unit = {
     import c.universe._
 
@@ -1266,21 +1308,21 @@ object CactusMacros {
       converters.getOrElse(
         key, {
           if (Debug) {
-            println(s"Defining converter from ${from.typeSymbol} to ${to.typeSymbol}")
+            println(s"Defining converter from ${from.typeSymbol.fullName} to ${to.typeSymbol.fullName}")
           }
 
-          converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:com.avast.cactus.Converter[$from, $to] = com.avast.cactus.Converter.fromOrChecked($f) "
+          converters += key -> q" implicit lazy val ${TermName(s"conv${converters.size}")}:com.avast.cactus.Converter[$from, $to] = com.avast.cactus.Converter.fromOrChecked($convertFunction) "
         }
       )
     }
 
     if (typesEqual(c)(from, to)) {
       if (Debug) {
-        println(s"Skipping definition of converter from ${from.typeSymbol} to ${to.typeSymbol} - types are equal")
+        println(s"Skipping definition of converter from ${from.typeSymbol.fullName} to ${to.typeSymbol.fullName} - types are equal")
       }
     } else {
       if (!converterExists(c)(from, to)) {
-        val recursive = f match {
+        val recursive = convertFunction match {
           case q" (($_: $_, $_: $_) => Predef.identity(CactusMacros.AToB[${f}, ${t}]($_)($_))) " if f.tpe =:= from && t.tpe =:= to => true
           case q" (($_: $_, $_: $_) => CactusMacros.AToB[${f}, ${t}]($_)($_)) " if f.tpe =:= from && t.tpe =:= to => true
           case _ => false
@@ -1292,24 +1334,32 @@ object CactusMacros {
             addConverter()
           } else {
             if (Debug) {
-              println(s"Skipping definition of converter from ${from.typeSymbol} to ${to.typeSymbol} because they are primitives")
+              println {
+                s"Skipping definition of converter from ${from.typeSymbol.fullName} to ${to.typeSymbol.fullName} because they are primitives"
+              }
             }
           }
         } else {
           if (Debug) {
-            println(s"Skipping recursive definition of converter from ${from.typeSymbol} to ${to.typeSymbol}")
+            println(s"Skipping recursive definition of converter from ${from.typeSymbol.fullName} to ${to.typeSymbol.fullName}")
           }
         }
       } else {
         if (Debug) {
-          println(s"Found in scope existing implicit converter from ${from.typeSymbol} to ${to.typeSymbol}")
+          println(s"Found in scope existing implicit converter from ${from.typeSymbol.fullName} to ${to.typeSymbol.fullName}")
         }
       }
     }
   }
 
+  private def getExistingConverter(c: whitebox.Context)(from: c.Type, to: c.Type): Option[c.Tree] = {
+    if (Debug) println(s"Looking for existing com.avast.cactus.Converter[${from.typeSymbol.fullName}, ${to.typeSymbol.fullName}]")
+
+    Option(c.inferImplicitValue(extractType(c)(s"???.asInstanceOf[com.avast.cactus.Converter[$from, $to]]"))).filter(_.nonEmpty)
+  }
+
   private def converterExists(c: whitebox.Context)(from: c.Type, to: c.Type): Boolean = {
-    c.inferImplicitValue(extractType(c)(s"???.asInstanceOf[com.avast.cactus.Converter[$from, $to]]")).nonEmpty
+    getExistingConverter(c)(from, to).nonEmpty
   }
 
   private[cactus] def isPrimitive(c: whitebox.Context)(t: c.universe.Type) = {
