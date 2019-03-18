@@ -1161,7 +1161,12 @@ object CactusMacros {
   }
 
   def isProtoBuf(c: whitebox.Context)(t: c.universe.Type): Boolean = {
-    t.baseClasses.exists(_.fullName == ClassesNames.Protobuf.MessageLite)
+    t.baseClasses.exists(_.fullName == ClassesNames.Protobuf.MessageLite) && !isProtoWrapper(c)(t)
+  }
+
+  def isProtoWrapper(c: whitebox.Context)(t: c.universe.Type): Boolean = {
+    val fullName = t.typeSymbol.fullName
+    fullName.startsWith("com.google.protobuf") && fullName.endsWith("Value")
   }
 
   private def isProtoEnum(c: whitebox.Context)(t: c.universe.Type): Boolean = {

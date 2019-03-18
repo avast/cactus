@@ -1,5 +1,6 @@
 package com.avast.cactus.v3.test
 import com.avast.cactus._
+import com.avast.cactus.v3.TestMessageV3.Data4
 import org.scalatest.FunSuite
 
 class WrappersToAnythingTest extends FunSuite {
@@ -301,4 +302,30 @@ class WrappersToAnythingTest extends FunSuite {
       """.stripMargin
     }
   }
+
+  test("convert case class to GPB and back - StringValue to case class field conversion") {
+    import com.avast.cactus.v3._
+
+    checkDoesNotCompile {
+      """
+        |val original = CaseClass(fieldString = "ahoj", fieldOption = Some(Sha256("ahoj2")))
+        |val Right(converted) = original.asGpb[Data4]
+      """.stripMargin
+    }
+
+    {
+      implicit val c: Converter[String, Sha256] = Converter(Sha256)
+      implicit val c2: Converter[Sha256, String] = Converter(_.hash)
+
+      val original = CaseClass(fieldString = "ahoj", fieldOption = Some(Sha256("ahoj2")))
+
+      val Right(converted) = original.asGpb[Data4]
+
+      assertResult(Right(original))(converted.asCaseClass[CaseClass])
+    }
+  }
 }
+
+case class Sha256(hash: String)
+
+case class CaseClass(fieldString: String, fieldOption: Option[Sha256])
