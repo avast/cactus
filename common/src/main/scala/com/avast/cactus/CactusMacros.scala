@@ -784,9 +784,8 @@ object CactusMacros {
 
           val addMethod = setter
 
-          val getterGenType = extractGpbGenType(c)(setterRequiredType)
-
           if (isJavaCollection(c)(dstTypeSymbol)) {
+            val getterGenType = extractGpbGenType(c)(setterRequiredType)
 
             (dstResultType.typeArgs.headOption, srcResultType.typeArgs.headOption) match {
               case (Some(dstTypeArg), srcTypeArgOpt) =>
