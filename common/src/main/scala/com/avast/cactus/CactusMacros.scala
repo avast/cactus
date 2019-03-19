@@ -474,7 +474,7 @@ object CactusMacros {
                 println(s"Map field $fieldName without annotation, fallback to raw conversion")
               }
 
-              q" CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($getter) "
+              convertIfNeeded(c)(fieldPath, srcResultType, dstResultType)(getter)
           }
 
         case _ if isScalaCollection(c)(dstTypeSymbol) || dstTypeSymbol.name == TypeName("Array") => // collection
@@ -512,18 +512,27 @@ object CactusMacros {
               case (_, _) =>
                 val getterGenType = extractGpbGenType(c)(getterReturnType)
 
+                // Note: the Seq/Vector here is an intention. It's better for user to manipulate with Scala collections than with Java ones.
+
                 if (Debug) {
-                  println(s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion")
+                  println {
+                    s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion Seq[${getterGenType.typeSymbol.fullName}] -> ${dstTypeSymbol.fullName}"
+                  }
                 }
 
-                q" CactusMacros.AToB[Vector[$getterGenType], $dstResultType]($fieldPath)($getter.asScala.toVector) "
+                convertIfNeeded(c)(
+                  fieldPath,
+                  srcResultType,
+                  extractType(c)(s"scala.collection.immutable.Vector[${getterGenType.typeSymbol.fullName}]"))(q"$getter.asScala.toVector")
             }
           } else {
             if (Debug) {
-              println(s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion")
+              println {
+                s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion ${srcTypeSymbol.fullName} -> ${dstTypeSymbol.fullName}"
+              }
             }
 
-            q" CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($getter) "
+            convertIfNeeded(c)(fieldPath, srcResultType, dstResultType)(getter)
           }
 
         case _ if isJavaCollection(c)(srcTypeSymbol) => // this means raw conversion, because otherwise it would have match before
@@ -777,7 +786,8 @@ object CactusMacros {
                 println(s"Map field $field without annotation, fallback to raw conversion")
               }
 
-              q" (CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)).map($addMethod) "
+              val conv = convertIfNeeded(c)(fieldPath, srcResultType, dstResultType)(field)
+              q" $conv.map($addMethod) "
           }
 
         case _ if isScalaCollection(c)(srcTypeSymbol) || srcTypeSymbol.name == TypeName("Array") => // collection
@@ -819,20 +829,24 @@ object CactusMacros {
 
               case (_, _) =>
                 if (Debug) {
-                  println(
-                    s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to conversion $srcTypeSymbol -> Seq[${getterGenType.typeSymbol}]")
+                  println {
+                    s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion ${srcTypeSymbol.fullName} -> ${dstTypeSymbol.fullName}[${getterGenType.typeSymbol.fullName}]"
+                  }
                 }
 
-                q" ((CactusMacros.AToB[$srcResultType, scala.collection.Seq[$getterGenType]]($fieldPath)($field)).map(_.asJava)).map($addMethod) "
-
+                val conv = convertIfNeeded(c)(fieldPath, srcResultType, extractType(c)("scala.collection.Seq"))(field)
+                q" $conv.map(_.asJava).map($addMethod) "
             }
 
           } else {
             if (Debug) {
-              println(s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion")
+              println {
+                s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion ${srcTypeSymbol.fullName} -> ${dstTypeSymbol.fullName}"
+              }
             }
 
-            q" (CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)).map($addMethod) "
+            val conv = convertIfNeeded(c)(fieldPath, srcResultType, dstResultType)(field)
+            q" $conv.map($addMethod) "
           }
 
         case _ if isJavaCollection(c)(dstTypeSymbol) => // this means raw conversion, because otherwise it would have match before
@@ -843,7 +857,8 @@ object CactusMacros {
             println(s"Converting $srcTypeSymbol to $dstTypeSymbol, fallback to raw conversion")
           }
 
-          q" (CactusMacros.AToB[$srcResultType, $dstResultType]($fieldPath)($field)).map($addMethod) "
+          val conv = convertIfNeeded(c)(fieldPath, srcResultType, dstResultType)(field)
+          q" $conv.map($addMethod) "
 
         case _ => // plain type
 
@@ -1289,11 +1304,15 @@ object CactusMacros {
         println(s"Requires converter from $srcType to $dstType")
       }
 
-      if (!converterExists(c)(srcType, dstType)) {
-        c.info(c.enclosingPosition, s"Cactus: Missing Converter[$srcType, $dstType]", force = false)
-      }
+      infoIfConverterMissing(c)(srcType, dstType)
 
       q" CactusMacros.AToB[$srcType, $dstType]($fieldPath)($value) "
+    }
+  }
+
+  private def infoIfConverterMissing(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): Unit = {
+    if (!converterExists(c)(srcType, dstType)) {
+      c.info(c.enclosingPosition, s"Cactus: Missing Converter[$srcType, $dstType]", force = false)
     }
   }
 
