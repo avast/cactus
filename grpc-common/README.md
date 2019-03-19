@@ -67,8 +67,9 @@ val client: ClientTrait[Task] = channel.createMappedClient[MyServiceFutureStub, 
 
 Notes:
 * only asynchronous stub mappings are available (as stated above)
-* The method in user-defined trait has to have this format: `def %name%(request: %Request%): F[ServerResponse[%Response%]]`
-(you don't have to use the `ServerResponse` which is just a type alias)
+* The method in user-defined trait has to have one of these formats:
+    1. `def %name%(request: %Request%): F[ServerResponse[%Response%]]` (you don't have to use the `ServerResponse` which is just a type alias)
+    1. `def %name%(): F[ServerResponse[%Response%]]` - in case you used `google.protobuf.Empty` as your request type (because gRPC doesn't support empty requests)
 * For conversion between request/response case classes and GPB classes a standard Cactus functions will be used.
 Currently you are not allowed to use GPB classes in the trait directly (the Cactus mapping will be used always).
 

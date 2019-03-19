@@ -6,6 +6,8 @@ option java_package = "com.avast.cactus.grpc.client";
 
 option java_generic_services = true;
 
+import "google/protobuf/empty.proto";
+
 message TestApi {
     message GetRequest {
         repeated string names = 1;           // REQUIRED
@@ -18,4 +20,8 @@ message TestApi {
 
 service TestApiService {
     rpc Get (TestApi.GetRequest) returns (TestApi.GetResponse) {}
+}
+
+service TestApiServiceEmpty {
+    rpc GetEmptyRequest (google.protobuf.Empty) returns (TestApi.GetResponse) {}
 }

@@ -45,6 +45,9 @@ class ClientMacros(val c: whitebox.Context) {
     }
 
     val apiMethods = getApiMethods(stubType)
+
+    if (CactusMacros.Debug) println(apiMethods.mkString("Api methods: [",",","]"))
+
     val methodsMappings = getMethodsMapping(traitType, fSymbol, stubType, apiMethods)
 
     checkAbstractMethods(traitType, fSymbol, methodsMappings.keySet)
@@ -100,23 +103,39 @@ class ClientMacros(val c: whitebox.Context) {
     val returnType = tq"com.avast.cactus.grpc.ServerResponse[${implMethod.response}]"
     val fReturnType = tq"${fType.typeSymbol}[$returnType]"
 
-    q"""
-       override def ${implMethod.name}(request: ${implMethod.request}): $fReturnType = {
-          super.withInterceptors { ctx =>
-             val stub = newStub
+    com.google.protobuf.Empty.getDefaultInstance
 
-             request.asGpb[${apiMethod.request}] match {
-                case scala.util.Right(req) => Methods.executeRequest[$fType, ${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, ctx, stub.${apiMethod.name}, ex, ec)
-                case scala.util.Left(errors) =>
-                   F.pure {
-                      Left {
-                         com.avast.cactus.grpc.ServerError(io.grpc.Status.INVALID_ARGUMENT.withDescription(Methods.formatCactusFailures("request", errors)))
+    implMethod.request match {
+      case Some(implRequestType) =>
+        q"""
+          override def ${implMethod.name}(request: $implRequestType): $fReturnType = {
+             super.withInterceptors { ctx =>
+                val stub = newStub
+
+                request.asGpb[${apiMethod.request}] match {
+                   case scala.util.Right(req) => Methods.executeRequest[$fType, ${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, ctx, stub.${apiMethod.name}, ex, ec)
+                   case scala.util.Left(errors) =>
+                      F.pure {
+                         Left {
+                            com.avast.cactus.grpc.ServerError(io.grpc.Status.INVALID_ARGUMENT.withDescription(Methods.formatCactusFailures("request", errors)))
+                         }
                       }
-                   }
+               }
             }
-         }
-       }
+          }
      """
+
+      case None =>
+        q"""
+          override def ${implMethod.name}(): $fReturnType = {
+             super.withInterceptors { ctx =>
+                val stub = newStub
+
+                Methods.executeRequest[$fType, ${ apiMethod.request }, ${ apiMethod.response }, ${ implMethod.response }](com.google.protobuf.Empty.getDefaultInstance, ctx, stub.${ apiMethod.name }, ex, ec)
+            }
+          }
+     """
+    }
   }
 
   private def checkAbstractMethods(traitType: Type, fSymbol: TypeSymbol, implMethods: Set[ImplMethod]): Unit = {
@@ -150,6 +169,8 @@ class ClientMacros(val c: whitebox.Context) {
                                 apiMethods: Seq[ApiMethod]): Map[ImplMethod, ApiMethod] = {
     val methods = traitType.decls.flatMap(ImplMethod.extract(_, fSymbol))
 
+    if (CactusMacros.Debug) println(methods.mkString("Impl methods: [",",","]"))
+
     methods.map { m =>
       val apiMethod = apiMethods
         .find(_.name == m.name)
@@ -166,7 +187,7 @@ class ClientMacros(val c: whitebox.Context) {
 
   private def isGpbClass(t: Type): Boolean = t.baseClasses.contains(typeOf[MessageLite].typeSymbol)
 
-  private case class ImplMethod(name: TermName, request: Type, response: Type)
+  private case class ImplMethod(name: TermName, request: Option[Type], response: Type)
 
   private object ImplMethod {
     def extract(s: Symbol, fSymbol: TypeSymbol): Option[ImplMethod] = {
@@ -187,10 +208,7 @@ class ClientMacros(val c: whitebox.Context) {
         if (m.paramLists.size == 1) {
           val reqType = m.paramLists.headOption
             .flatMap(_.headOption)
-            .getOrElse {
-              c.abort(c.enclosingPosition, s"Unknown problem while mapping the client - check if the ${s.owner} is just a plain trait")
-            }
-            .typeSignature
+            .map(_.typeSignature)
 
           // TODO type matching
           val serverError = typeOf[ServerError].dealias.typeSymbol

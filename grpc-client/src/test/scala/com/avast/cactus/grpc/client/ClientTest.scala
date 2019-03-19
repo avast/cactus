@@ -4,7 +4,9 @@ import java.util.concurrent.Executor
 
 import com.avast.cactus.grpc._
 import com.avast.cactus.grpc.client.TestApi.{GetRequest, GetResponse}
+import com.avast.cactus.grpc.client.TestApiServiceEmptyGrpc.TestApiServiceEmptyFutureStub
 import com.avast.cactus.grpc.client.TestApiServiceGrpc.TestApiServiceFutureStub
+import com.google.protobuf.Empty
 import io.grpc._
 import io.grpc.inprocess.{InProcessChannelBuilder, InProcessServerBuilder}
 import io.grpc.stub.StreamObserver
@@ -148,6 +150,34 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
     val mapped = channel.createMappedClient[TestApiServiceFutureStub, Task, ClientTrait]()
 
     val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).runAsync.futureValue
+
+    assertResult(Status.Code.UNAVAILABLE)(status.getCode)
+    assertResult("hello-world")(status.getDescription)
+  }
+
+  test("mapping empty request") {
+    trait ClientTrait[F[_]] extends GrpcClient with AutoCloseable {
+      def getEmptyRequest(): F[ServerResponse[MyResponse]]
+    }
+
+    val channelName = randomString(10)
+
+    InProcessServerBuilder
+      .forName(channelName)
+      .directExecutor
+      .addService(new TestApiServiceEmptyGrpc.TestApiServiceEmptyImplBase {
+        override def getEmptyRequest(request: Empty, responseObserver: StreamObserver[GetResponse]): Unit = {
+          responseObserver.onError(new StatusRuntimeException(Status.UNAVAILABLE.withDescription("hello-world")))
+        }
+      })
+      .build
+      .start
+
+    val channel = InProcessChannelBuilder.forName(channelName).directExecutor.build
+
+    val mapped = channel.createMappedClient[TestApiServiceEmptyFutureStub, Task, ClientTrait]()
+
+    val Left(ServerError(status, _)) = mapped.getEmptyRequest().runAsync.futureValue
 
     assertResult(Status.Code.UNAVAILABLE)(status.getCode)
     assertResult("hello-world")(status.getDescription)
