@@ -27,24 +27,6 @@ import scala.collection.JavaConverters._
 
 class CactusMacrosTestV3 extends FunSuite {
 
-  // user specified converters
-  implicit val StringToByteStringConverter: Converter[String, ByteString] = Converter((b: String) => ByteString.copyFromUtf8(b))
-  implicit val ByteStringToStringConverter: Converter[ByteString, String] = Converter((b: ByteString) => b.toStringUtf8)
-
-  implicit val StringWrapperToStringConverter: Converter[StringWrapperClass, String] = Converter((b: StringWrapperClass) => b.value)
-  implicit val StringToStringWrapperConverter: Converter[String, StringWrapperClass] = Converter((b: String) => StringWrapperClass(b))
-
-  implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter(_.asScala.mkString(", "))
-  implicit val StringJavaIntegerListConverter: Converter[String, java.lang.Iterable[_ <: Integer]] = Converter(
-    _.split(", ").map(_.toInt).map(int2Integer).toSeq.asJava)
-
-  implicit val StringIntConverter: Converter[String, Int] = Converter(_.toInt)
-  implicit val IntStringConverter: Converter[Int, String] = Converter(_.toString)
-
-  // these are not needed, but they are here to be sure it won't cause trouble to the user
-  implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter((b: Array[Byte]) => ByteString.copyFrom(b))
-  implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
-
   test("GPB to case class") {
     val text = "textěščřžýáíé"
 
@@ -422,5 +404,22 @@ class CactusMacrosTestV3 extends FunSuite {
       assertResult(Right(cc))(convToCc.apply("")(gpb))
       assertResult(Right(cc))(convThereAndBack.apply("")(cc))
     }
+  }
+
+  test("able to convert generic case class to gpb and back") {
+    val gpb = MessageWithStringAndInt
+      .newBuilder()
+      .setFieldString("123456")
+      .setFieldInt(42)
+      .build()
+
+    val caseClassString = GenericCaseClass[String]("123456", 42)
+    val caseClassInt = GenericCaseClass[Int](123456, 42)
+
+    assertResult(Right(caseClassString))(gpb.asCaseClass[GenericCaseClass[String]])
+    assertResult(Right(caseClassInt))(gpb.asCaseClass[GenericCaseClass[Int]])
+
+    assertResult(Right(gpb))(caseClassString.asGpb[MessageWithStringAndInt])
+    assertResult(Right(gpb))(caseClassInt.asGpb[MessageWithStringAndInt])
   }
 }
