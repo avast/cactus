@@ -47,6 +47,9 @@ case class CaseClassA(fieldString: String,
                       @GpbMap(key = "key", value = "value")
                       fieldMapDiffType: Map[String, Int])
 
+// this is here to prevent reappearing of bug with companion object
+object CaseClassA
+
 case class CaseClassB(fieldDouble: Double, @GpbName("fieldBlob") fieldString: String)
 
 case class CaseClassD(fieldGpb: Seq[CaseClassB], @GpbOneOf @GpbName("NamedOneOf2") oneOfNamed: OneOfNamed3)
@@ -181,8 +184,6 @@ case class CaseClassWithRawEnum(fieldString: String,
                                 fieldEnumOption: Option[TestEnum],
                                 fieldMap: Map[String, TestEnum])
 
-// this is here to prevent reappearing of bug with companion object
-object CaseClassA
-
-
 case class OptionalMessageClass(elem: Option[AnyValue])
+
+case class GenericCaseClass[T](@GpbName("fieldString") fieldT: T, fieldInt: Int)

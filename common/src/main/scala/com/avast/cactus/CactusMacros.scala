@@ -248,12 +248,16 @@ object CactusMacros {
       val i = initialize(c)(caseClassType, gpbType, s"from ${gpbType.typeSymbol} to ${caseClassType.typeSymbol}")
       import i._
 
+      def getFinalTypeForField(field: Symbol): Type = extractFinalTypeForField(c)(field, genericTypesMapping)
+
       if (Debug) {
         println(s"Converting GPB ${gpbType.typeSymbol} to ${caseClassType.typeSymbol}")
       }
 
       val params = fields.map { field =>
-        val e = extractField(c)(gpbType, caseClassType)(field, isProto3, gpbGetters, gpbSetters)
+        val dstType = getFinalTypeForField(field)
+
+        val e = extractField(c)(gpbType, caseClassType)(field, dstType, isProto3, gpbGetters, gpbSetters)
         import e._
 
         val innerFieldPath = c.Expr[String] {
@@ -278,7 +282,8 @@ object CactusMacros {
       }
 
       val fieldNames = fields.map(_.name.toTermName)
-      val fieldTypes = fields.map(_.typeSignature.resultType)
+      //noinspection ConvertibleToMethodValue
+      val fieldTypes = fields.map(getFinalTypeForField(_))
       val fieldsWithTypes = (fieldNames zip fieldTypes).map { case (n, t) => q"$n:$t" }
 
       // prevent Deprecated warning from scalactic.Or
@@ -566,6 +571,8 @@ object CactusMacros {
       val i = initialize(c)(caseClassType, gpbType, s"from ${caseClassType.typeSymbol} to ${gpbType.typeSymbol}")
       import i._
 
+      def getFinalTypeForField(field: Symbol): Type = extractFinalTypeForField(c)(field, genericTypesMapping)
+
       val gpbClassSymbol = gpbType.typeSymbol.asClass
 
       if (Debug) {
@@ -573,7 +580,9 @@ object CactusMacros {
       }
 
       val params = fields.map { field =>
-        val e = extractField(c)(gpbType, caseClassType)(field, isProto3, gpbGetters, gpbSetters)
+        val dstType = getFinalTypeForField(field)
+
+        val e = extractField(c)(gpbType, caseClassType)(field, dstType, isProto3, gpbGetters, gpbSetters)
         import e._
 
         val innerFieldPath = c.Expr[String] {
@@ -871,7 +880,6 @@ object CactusMacros {
   }
 
   private def initialize(c: whitebox.Context)(caseClassType: c.universe.Type, gpbType: c.universe.Type, errDesc: String) = new {
-
     import c.universe._
 
     if (!caseClassType.typeSymbol.isClass) {
@@ -890,9 +898,11 @@ object CactusMacros {
 
     val protoVersion = if (isProto3) ProtoVersion.V3 else ProtoVersion.V2
 
-    val ctor = caseClassType.decls.collectFirst {
-      case m: MethodSymbol if m.isPrimaryConstructor => m
-    }.get
+    val ctor = caseClassType.decls
+      .collectFirst {
+        case m: MethodSymbol if m.isPrimaryConstructor => m
+      }
+      .getOrElse(c.abort(c.enclosingPosition, s"Could not extract primary constructor from $caseClassSymbol"))
 
     val fields = ctor.paramLists.flatten.flatMap { field =>
       val annotations = field.annotations.map(_.tree.tpe.toString)
@@ -926,10 +936,18 @@ object CactusMacros {
             .startsWith("putAll")) && !m.isStatic =>
         m
     }
+
+    val genericTypesMapping = ctor.returnType.typeArgs
+      .map(_.typeSymbol.name)
+      .zip {
+        caseClassType.typeArgs
+      }
+      .toMap
   }
 
   private def extractField(c: whitebox.Context)(gpbType: c.universe.Type, caseClassType: c.universe.Type)(
       field: c.universe.Symbol,
+      dstType: c.universe.Type,
       isProto3: Boolean,
       gpbGetters: Iterable[c.universe.MethodSymbol],
       gpbSetters: Iterable[c.universe.MethodSymbol]) = new {
@@ -937,7 +955,6 @@ object CactusMacros {
     import c.universe._
 
     val fieldName = field.name.decodedName.toTermName
-    val dstType = field.typeSignature
 
     val annotations = getAnnotations(c)(field)
 
@@ -1025,6 +1042,23 @@ object CactusMacros {
             }
 
         case Bad(err) => terminateWithInfo(c)(err)
+      }
+    }
+  }
+
+  private def extractFinalTypeForField(
+      c: whitebox.Context)(field: c.universe.Symbol, genericTypesMapping: Map[c.Symbol#NameType, c.universe.Type]): c.universe.Type = {
+    if (field.typeSignature.typeSymbol.isClass) {
+      field.typeSignature
+    } else {
+      genericTypesMapping.get(field.typeSignature.typeSymbol.name) match {
+        case Some(genType) =>
+          if (Debug) println(s"Field ${field.name} is detected to be of generic type $genType")
+
+          genType
+
+        case None =>
+          c.abort(c.enclosingPosition, "Unknown problem while detecting field types, please report a BUG")
       }
     }
   }

@@ -127,3 +127,8 @@ enum TestEnum {
 message OptionalMessage {
     google.protobuf.Any elem = 1;
 }
+
+message MessageWithStringAndInt {
+    string     field_string = 1;
+    int32      field_int = 2;
+}
