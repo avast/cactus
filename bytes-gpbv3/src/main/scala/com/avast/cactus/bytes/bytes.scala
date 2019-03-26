@@ -5,6 +5,13 @@ import com.avast.bytes.gpb.ByteStringBytes
 import com.google.protobuf.{ByteString, BytesValue}
 
 package object bytes {
+  implicit val BytesToByteStringConverter: Converter[Bytes, ByteString] = Converter {
+    case b: ByteStringBytes => b.underlying()
+    case b: Bytes => ByteString.copyFrom(b.toReadOnlyByteBuffer)
+  }
+
+  implicit val ByteStringToBytesConverter: Converter[ByteString, Bytes] = Converter((b: ByteString) => ByteStringBytes.wrap(b))
+
   implicit val bytes2bytesValue: Converter[Bytes, BytesValue] = Converter {
     case b: ByteStringBytes => BytesValue.newBuilder().setValue(b.underlying()).build()
     case b: Bytes => BytesValue.newBuilder().setValue(ByteString.copyFrom(b.toReadOnlyByteBuffer)).build()

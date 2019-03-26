@@ -9,6 +9,8 @@ lazy val Versions = new {
   val gpb3Version = "3.6.1"
   val gpb2Version = "2.6.1"
 
+  val bytesVersion = "2.0.6"
+  
   val GPBv2 = gpb2Version.replace(".", "")
   val GPBv3 = gpb3Version.replace(".", "")
 }
@@ -49,7 +51,7 @@ lazy val commonSettings = Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.5",
     "org.typelevel" %% "cats-core" % "1.5.0",
-    "org.scalatest" %% "scalatest" % "3.0.5" % "test",
+    "org.scalatest" %% "scalatest" % "3.0.7" % "test",
     "org.mockito" % "mockito-core" % "2.18.3" % "test"
   )
 )
@@ -128,14 +130,17 @@ lazy val bytesV2Module = Project(id = "bytes-gpbv2", base = file("./bytes-gpbv2"
   commonSettings,
   name := "cactus-bytes-gpbv2",
   libraryDependencies ++= Seq(
-    "com.avast.bytes" % "bytes-gpb" % "2.0.5"
+    "com.avast.bytes" % "bytes-gpb" % Versions.bytesVersion
   )
 ).dependsOn(commonModule)
 
 lazy val bytesV3Module = Project(id = "bytes-gpbv3", base = file("./bytes-gpbv3")).settings(
   commonSettings,
-  name := "cactus-bytes-gpbv3"
-).dependsOn(v3Module, bytesV2Module)
+  name := "cactus-bytes-gpbv3",
+  libraryDependencies ++= Seq(
+    "com.avast.bytes" % "bytes-gpb" % Versions.bytesVersion
+  )
+).dependsOn(v3Module)
 
 lazy val grpcCommonModule = Project(id = "grpc-common", base = file("./grpc-common")).settings(
   commonSettings,
