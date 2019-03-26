@@ -1,5 +1,6 @@
 package com.avast.cactus
 
+import com.google.protobuf.ByteString
 import org.scalactic.Or
 
 import scala.annotation.implicitNotFound
@@ -57,6 +58,9 @@ object Converter {
   implicit val Float2floatConverter: Converter[java.lang.Float, Float] = Converter(Float2float)
   implicit val Double2doubleConverter: Converter[java.lang.Double, Double] = Converter(Double2double)
   implicit val Boolean2booleanConverter: Converter[java.lang.Boolean, Boolean] = Converter(Boolean2boolean)
+
+  implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter((b: Array[Byte]) => ByteString.copyFrom(b))
+  implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
 
   // conversions generators:
 

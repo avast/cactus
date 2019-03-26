@@ -20,8 +20,4 @@ package object test {
   implicit val StringIntConverter: Converter[String, Int] = Converter(_.toInt)
   implicit val IntStringConverter: Converter[Int, String] = Converter(_.toString)
 
-  // these are not needed, but they are here to be sure it won't cause trouble to the user
-  implicit val ByteArrayToByteStringConverter: Converter[Array[Byte], ByteString] = Converter((b: Array[Byte]) => ByteString.copyFrom(b))
-  implicit val ByteStringToByteArrayConverter: Converter[ByteString, Array[Byte]] = Converter((b: ByteString) => b.toByteArray)
-
 }
