@@ -65,6 +65,8 @@ However **recursive** mapping (field with `Data` type in `Data` class) is **NOT 
 When using your own converters, please note it's necessary to use exactly the same type as present in the GPB instance/case class.
 For example see `JavaIntegerListStringConverter` in [test](gpbv2/src/test/scala/com/avast/cactus/v2/test/CactusMacrosTestV2.scala). 
 
+Don't forget to add `import com.avast.cactus.v3._` (or `import com.avast.cactus.v2._` respectively).
+
 ### Example
 
 GPB:
@@ -175,6 +177,8 @@ By specifying `scala.collection.Seq[T]`, which can contain also mutable collecti
 When using your own converters, please note it's necessary to use exactly the same type as present in the GPB builder/case class.
 For example see `StringJavaIntegerListConverter` in [test](gpbv2/src/test/scala/com/avast/cactus/v2/test/CactusMacrosTestV2.scala).
 
+Don't forget to add `import com.avast.cactus.v3._` (or `import com.avast.cactus.v2._` respectively).
+
 ### Example
 
 GPB:
@@ -259,7 +263,7 @@ See [unit tests](gpbv2/src/test/scala/com/avast/cactus/v2/test/CactusMacrosTestV
 
 ## GPB v3 support
 
-Don't forget to add `import com.avast.cactus.v3._` always when you work with anything GPBv3 specific.
+Don't forget to always add `import com.avast.cactus.v3._`.
 
 See more in [gpbv3 module](gpbv3/README.md).
 

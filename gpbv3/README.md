@@ -4,7 +4,7 @@ Cactus currently supports v3.3. See [official docs](https://developers.google.co
 
 See [unit tests](src/test/scala/com/avast/cactus/v3/test/CactusMacrosTestV3.scala) for more examples.
 
-Note: Don't forget to add `import com.avast.cactus.v3._` always when you work with anything GPBv3 specific.
+Note: Don't forget to always add `import com.avast.cactus.v3._`.
 
 ## Any
 
