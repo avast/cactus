@@ -2,6 +2,7 @@ package com.avast.cactus.v3.test
 
 import java.time.{Duration, Instant}
 
+import cats.data.NonEmptyList
 import com.avast.cactus._
 import com.avast.cactus.v3.TestMessageV3._
 import com.avast.cactus.v3.ValueOneOf.NumberValue
@@ -421,5 +422,16 @@ class CactusMacrosTestV3 extends FunSuite {
 
     assertResult(Right(gpb))(caseClassString.asGpb[MessageWithStringAndInt])
     assertResult(Right(gpb))(caseClassInt.asGpb[MessageWithStringAndInt])
+  }
+
+  test("fails when having null fields") {
+    val original = CaseClassG(fieldString = "ahoj", fieldOption = Some(null), fieldMap = Map.empty, fieldMap2 = null)
+
+    assertResult(Left {
+      NonEmptyList.of(
+        InvalidValueFailure("original.fieldOption", "Some(null)"),
+        InvalidValueFailure("original.fieldMap2", "null"),
+      )
+    })(original.asGpb[Data4])
   }
 }

@@ -580,14 +580,16 @@ object CactusMacros {
       }
 
       val params = fields.map { field =>
-        val dstType = getFinalTypeForField(field)
+        val fieldFinalType = getFinalTypeForField(field)
 
-        val e = extractField(c)(gpbType, caseClassType)(field, dstType, isProto3, gpbGetters, gpbSetters)
+        val e = extractField(c)(gpbType, caseClassType)(field, fieldFinalType, isProto3, gpbGetters, gpbSetters)
         import e._
 
         val innerFieldPath = c.Expr[String] {
           q"""$fieldPath + "." + ${fieldName.toString}""" // don't use $nameInGpb, since here the name in case class is important
         }
+
+        val fieldAccessor = q"$caseClass.$fieldName"
 
         val f = fieldType match {
           case n: FieldType.Normal[MethodSymbol, ClassSymbol, Type] =>
@@ -595,15 +597,19 @@ object CactusMacros {
               .flatMap(_.headOption)
               .getOrElse(terminateWithInfo(c)(s"Could not extract param from setter for field $field"))
 
-            processEndType(c)(q"$caseClass.$fieldName", innerFieldPath, annotations, dstType)(setterParam.typeSignature,
-                                                                                              q"builder.${n.setter.name}",
-                                                                                              upper)
+            q"""
+               if (${ifNotNull(c)(fieldAccessor, fieldFinalType)}) {
+                 ${processEndType(c)(fieldAccessor, innerFieldPath, annotations, fieldFinalType)(setterParam.typeSignature,
+                                                                                                 q"builder.${n.setter.name}",
+                                                                                                 upper)}
+               } else org.scalactic.Bad(org.scalactic.One(com.avast.cactus.InvalidValueFailure($innerFieldPath, "null")))
+             """
 
           case en: FieldType.Enum[MethodSymbol, ClassSymbol, Type] =>
-            processEnum(c)(q"$caseClass.$fieldName", fieldPath)(en)
+            processEnum(c)(fieldAccessor, fieldPath)(en)
 
           case o: FieldType.OneOf[MethodSymbol, ClassSymbol, Type] =>
-            processOneOf(c)(gpbType, gpbSetters)(q"$caseClass.$fieldName", fieldPath, o)
+            processOneOf(c)(gpbType, gpbSetters)(fieldAccessor, fieldPath, o)
         }
 
         q""" try { $f } catch { case NonFatal(e) => Bad(One(UnknownFailure($innerFieldPath, e))) } """
@@ -700,7 +706,15 @@ object CactusMacros {
         case OptPattern(_) => // Option[T]
           val typeArg = srcResultType.typeArgs.head // it's an Option, so it has 1 type arg
 
-          q" $field.map(value => ${processEndType(c)(q"value", fieldPath, fieldAnnotations, typeArg)(setterRequiredType, setter, upperFieldName)}).getOrElse(Good(builder)) "
+          q"""
+             $field
+             .map { value =>
+                if (${ifNotNull(c)(q"value", typeArg)}) {
+                  ${processEndType(c)(q"value", fieldPath, fieldAnnotations, typeArg)(setterRequiredType, setter, upperFieldName)}
+                } else
+                  org.scalactic.Bad(org.scalactic.One(com.avast.cactus.InvalidValueFailure($fieldPath, "Some(null)")))
+             }.getOrElse(Good(builder))
+            """
 
         case _ if caseClassAndGpb(c)(srcTypeSymbol, dstResultType) => // case class -> GPB
 
@@ -947,7 +961,7 @@ object CactusMacros {
 
   private def extractField(c: whitebox.Context)(gpbType: c.universe.Type, caseClassType: c.universe.Type)(
       field: c.universe.Symbol,
-      dstType: c.universe.Type,
+      fieldFinalType: c.universe.Type,
       isProto3: Boolean,
       gpbGetters: Iterable[c.universe.MethodSymbol],
       gpbSetters: Iterable[c.universe.MethodSymbol]) = new {
@@ -1018,8 +1032,8 @@ object CactusMacros {
         getter <- gpbGetter
         setter <- gpbSetter
       } yield {
-        if (isProtoEnum(c)(getter.returnType.finalResultType) && !typesEqualOption(c)(getter.returnType, dstType)) { // enum, should it be converted or handled as plain type?
-          getEnumType(c)(getter, setter, upper, dstType, annotations).getOrElse {
+        if (isProtoEnum(c)(getter.returnType.finalResultType) && !typesEqualOption(c)(getter.returnType, fieldFinalType)) { // enum, should it be converted or handled as plain type?
+          getEnumType(c)(getter, setter, upper, fieldFinalType, annotations).getOrElse {
             terminateWithInfo(c)(s"Could not process enum field $fieldName")
           }
         } else
@@ -1030,9 +1044,9 @@ object CactusMacros {
           ft
 
         case Bad(err) if isProto3 => // give it one more chance, it can be ONE-OF
-          if (Debug) println(s"Testing ${dstType.typeSymbol} to being a ONE-OF")
+          if (Debug) println(s"Testing ${fieldFinalType.typeSymbol} to being a ONE-OF")
 
-          getOneOfType(c)(upper, dstType, annotations)
+          getOneOfType(c)(upper, fieldFinalType, annotations)
             .map { ft =>
               if (Debug) println(s"$fieldName field type: $ft")
               ft
@@ -1282,6 +1296,16 @@ object CactusMacros {
     typeSymbol.isClass && typeSymbol.asClass.baseClasses.exists(_.fullName == ClassesNames.Java.Map)
   }
 
+  private def ifNotNull(c: whitebox.Context)(fieldAccessor: c.Tree, fieldType: c.universe.Type): c.Tree = {
+    import c.universe._
+
+    if (!isPrimitive(c)(fieldType) || fieldType.typeSymbol.fullName == classOf[String].getName) {
+      q"""
+         ($fieldAccessor != null)
+       """
+    } else q"true"
+  }
+
   private def firstUpper(s: String): String = {
     s.charAt(0).toUpper + s.substring(1)
   }
@@ -1414,10 +1438,11 @@ object CactusMacros {
     getExistingConverter(c)(from, to).nonEmpty
   }
 
-  private[cactus] def isPrimitive(c: whitebox.Context)(t: c.universe.Type) = {
+  private[cactus] def isPrimitive(c: whitebox.Context)(t: c.universe.Type): Boolean = {
     val typeSymbol = t.typeSymbol
 
-    typeSymbol.asClass.baseClasses.exists(_.fullName == ClassesNames.Scala.AnyVal) || JavaPrimitiveTypes.contains(typeSymbol.fullName)
+    typeSymbol.asClass.baseClasses.exists(_.fullName == ClassesNames.Scala.AnyVal) ||
+      JavaPrimitiveTypes.contains(typeSymbol.fullName)
   }
 
   private def toConverterKey(c: whitebox.Context)(a: c.universe.Type, b: c.universe.Type): String = {
