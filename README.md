@@ -495,6 +495,21 @@ def parse[GpbMessage <: MessageLite: Parser: ClassTag, CaseClass: Converter[GpbM
 ```
 This is where `com.avast.cactus.CactusParser` from _cactus-common_ module should be used - depending on this module does not add dependency on neither the GPBv2 nor GPBv3.
 
+## Debugging
+
+### Hidden errors
+
+It happens the Cactus is not able to derive your converter despite of you're convinced it should. Because the derivation is called implicitly,
+the compiler will not output the real reason (error) which happened there. As a workaround for this, you can do this to call the derivation
+directly and to unveil the error output:
+
+```scala
+import com.avast.cactus.Converter
+
+Converter.deriveConverter[MySource, MyDestination]
+```
+where `MySource` and `MyDestination` are obviously the two types which you need to be `Converter` derived for.
+
 ## Notes
 1. There is [Kind Projector](https://github.com/non/kind-projector) library used in some examples above.
 1. In case of any problem (or you just want to see the generated code), you can turn on debug of cactus by passing `cactus.debug=true` system
