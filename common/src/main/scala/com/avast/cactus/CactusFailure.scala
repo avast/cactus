@@ -12,6 +12,10 @@ case class OneOfValueNotSetFailure(oneOfName: String) extends CactusFailure {
   override val message: String = s"ONE-OF '$oneOfName' does not have set value"
 }
 
+case class EnumValueUnrecognizedFailure(enumName: String) extends CactusFailure {
+  override val message: String = s"Enum '$enumName' value was UNRECOGNIZED"
+}
+
 case class WrongAnyTypeFailure(fieldPath: String, declared: String, required: String) extends CactusFailure {
   override val message: String = s"Declared type_url in message is '$declared', required '$required' (field '$fieldPath')"
 }

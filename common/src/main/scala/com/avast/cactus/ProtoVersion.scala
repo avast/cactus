@@ -35,7 +35,7 @@ private[cactus] object ProtoVersion {
       val options = enumValues zip implsSeq
 
       options.map {
-        case (enumValue, ccl) => cq""" $enumClass.$enumValue => Good(${ccl.module}) """
+        case (enumValue, ccl) => cq""" $enumClass.$enumValue => org.scalactic.Good(${ccl.module}) """
       }
     }
   }
@@ -65,8 +65,8 @@ private[cactus] object ProtoVersion {
       val options = enumValues zip implsSeq
 
       options.map {
-        case (enumValue, ccl) => cq""" $enumClass.$enumValue => Good(${ccl.module}) """
-      } :+ cq""" $enumClass.UNRECOGNIZED => Bad(One(OneOfValueNotSetFailure(fieldPath + "." + $fieldName))) """
+        case (enumValue, ccl) => cq""" $enumClass.$enumValue => org.scalactic.Good(${ccl.module}) """
+      } :+ cq""" $enumClass.UNRECOGNIZED => org.scalactic.Bad(org.scalactic.One(com.avast.cactus.EnumValueUnrecognizedFailure(fieldPath + "." + $fieldName))) """
     }
 
     def newOneOfConverterToSealedTrait(c: whitebox.Context)(
@@ -85,8 +85,12 @@ private[cactus] object ProtoVersion {
         .collectFirst {
           case m if m.isMethod && m.name.toString == s"get${name}Case" => m.asMethod
         }
-        .getOrElse(c.abort(c.enclosingPosition,
-                           s"Could not locate method get${name}Case inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}"))
+        .getOrElse {
+          c.abort(
+            c.enclosingPosition,
+            s"Could not locate method get${name}Case inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}"
+          )
+        }
 
       val implsSeq = impls.toSeq
 
@@ -98,8 +102,9 @@ private[cactus] object ProtoVersion {
             .collectFirst {
               case m if m.isMethod && m.name.toString == n => m.asMethod
             }
-            .getOrElse(
-              c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}"))
+            .getOrElse {
+              c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF ${classType.resultType}")
+            }
         }
 
       val enumValues = implsSeq
@@ -164,8 +169,9 @@ private[cactus] object ProtoVersion {
             .find {
               _.name.toString == n
             }
-            .getOrElse(
-              c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol"))
+            .getOrElse {
+              c.abort(c.enclosingPosition, s"Could not locate method $n inside $gpbClassSymbol, needed for ONE-OF $oneOfTypeSymbol")
+            }
         }
 
       val fields = implsSeq
@@ -174,7 +180,9 @@ private[cactus] object ProtoVersion {
             .collectFirst {
               case m if m.isMethod && m.asMethod.isPrimaryConstructor => m.asMethod.paramLists.flatten.headOption
             }
-            .getOrElse(CactusMacros.terminateWithInfo(c)(s"Could not extract value field name from $t, needed for ONE-OF $oneOfTypeSymbol"))
+            .getOrElse {
+              CactusMacros.terminateWithInfo(c)(s"Could not extract value field name from $t, needed for ONE-OF $oneOfTypeSymbol")
+            }
         }
 
       val options = implsSeq zip (setters zip fields)
