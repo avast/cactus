@@ -370,6 +370,32 @@ class CactusMacrosTestV3 extends FunSuite {
     assertResult(Right(gpb2))(ccl2.asGpb[MessageWithEnum])
   }
 
+  test("it's possible to derive converter from enum to sealed trait and back") {
+    checkDoesNotCompile {
+      """
+        |Converter.deriveConverter[TestEnum, TheEnum]
+      """.stripMargin
+    }
+
+    checkDoesNotCompile {
+      """
+        |Converter.deriveConverter[TheEnum, TestEnum]
+      """.stripMargin
+    }
+
+    checkCompiles {
+      """
+        |Converter.deriveConverter[MessageWithEnum.TheEnum, TheEnum]
+      """.stripMargin
+    }
+
+    checkCompiles {
+      """
+        |Converter.deriveConverter[TheEnum, MessageWithEnum.TheEnum]
+      """.stripMargin
+    }
+  }
+
   test("is possible to derive Option[A] -> OptionalResponse and back converters through AnyValue") {
     implicit val convToCc: Converter[OptionalMessage, Option[InnerClass]] = {
       implicitly[Converter[Option[AnyValue], Option[MessageInsideAnyField]]]

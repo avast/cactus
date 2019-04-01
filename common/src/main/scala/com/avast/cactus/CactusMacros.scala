@@ -118,8 +118,22 @@ object CactusMacros {
       deriveCaseClassToGpbConverter[From, To](c)
     } else if (isCaseClass(toType.typeSymbol) && isProtoBuf(c)(fromType)) {
       deriveGpbToCaseClassConverter[From, To](c)
+    } else if (isProtoEnum(c)(fromType) && isSealedTrait(c)(toType)) {
+      deriveGpbEnumtoSealedTrait[From, To](c)
+    } else if (isSealedTrait(c)(fromType) && isProtoEnum(c)(toType)) {
+      deriveSealedTraitToGpbEnum[From, To](c)
     } else {
-      c.abort(c.enclosingPosition, s"Could not generate converter from $fromType to $toType")
+      c.abort(
+        c.enclosingPosition,
+        s"""Could not generate converter from $fromType to $toType
+           |Allowed combinations of types:
+           |- GPB -> case class
+           |- case class -> GPB
+           |- GPB enum -> sealed trait
+           |- sealed trait -> GPB enum
+           |- AnyValue -> case class
+         """.stripMargin
+      )
     }
 
     if (Debug) {
@@ -139,6 +153,72 @@ object CactusMacros {
          implicitly[com.avast.cactus.v3.AnyValueConverter[$toType]].apply(path)(v)
        }
      """
+  }
+
+  private def deriveGpbEnumtoSealedTrait[GpbEnum: c.WeakTypeTag, SealedTrait: c.WeakTypeTag](
+      c: whitebox.Context): c.Expr[Converter[GpbEnum, SealedTrait]] = {
+    import c.universe._
+
+    val gpbEnumType = weakTypeOf[GpbEnum]
+    val traitType = weakTypeOf[SealedTrait]
+
+    val proto3Gpb = getJavaEnumImpls(c)(gpbEnumType.typeSymbol.asClass).exists(_.name.toString == "UNRECOGNIZED")
+
+    if (Debug && proto3Gpb) println(s"Type of ${gpbEnumType.typeSymbol} is detected as proto v3")
+
+    val protoVersion = if (proto3Gpb) ProtoVersion.V3 else ProtoVersion.V2
+
+    val fieldName = "_"
+
+    val traitImpls = getSealedTraitImpls(c)(traitType.typeSymbol.asClass, fieldName)
+
+    c.Expr[Converter[GpbEnum, SealedTrait]] {
+      val converter = EnumMacros.newEnumConverterToSealedTrait(c)(protoVersion)(fieldName, gpbEnumType, traitType, traitImpls)
+
+      val tree =
+        q""" {
+          import org.scalactic._
+          import org.scalactic.Accumulation._
+
+          com.avast.cactus.Converter.fromOrChecked($converter)
+         }
+        """
+
+      if (Debug) println(tree)
+
+      tree
+    }
+  }
+
+  private def deriveSealedTraitToGpbEnum[SealedTrait: c.WeakTypeTag, GpbEnum: c.WeakTypeTag](
+      c: whitebox.Context): c.Expr[Converter[SealedTrait, GpbEnum]] = {
+    import c.universe._
+
+    val gpbEnumType = weakTypeOf[GpbEnum]
+    val traitType = weakTypeOf[SealedTrait]
+
+    // no need to handle GPB 3 specifics
+
+    val fieldName = "_"
+
+    val traitImpls = getSealedTraitImpls(c)(traitType.typeSymbol.asClass, fieldName)
+
+    c.Expr[Converter[SealedTrait, GpbEnum]] {
+      val converter = EnumMacros.newEnumConverterToGpb(c)(fieldName, gpbEnumType, traitType, traitImpls)
+
+      val tree =
+        q""" {
+          import org.scalactic._
+          import org.scalactic.Accumulation._
+
+          com.avast.cactus.Converter.fromOrChecked($converter)
+         }
+        """
+
+      if (Debug) println(tree)
+
+      tree
+    }
   }
 
   private def deriveGpbToCaseClassConverter[GpbClass: c.WeakTypeTag, CaseClass: c.WeakTypeTag](
@@ -257,7 +337,7 @@ object CactusMacros {
       val params = fields.map { field =>
         val dstType = getFinalTypeForField(field)
 
-        val e = extractField(c)(gpbType, caseClassType)(field, dstType, isProto3, gpbGetters, gpbSetters)
+        val e = extractField(c)(gpbType, caseClassType)(field, dstType, proto3Gpb, gpbGetters, gpbSetters)
         import e._
 
         val innerFieldPath = c.Expr[String] {
@@ -326,7 +406,7 @@ object CactusMacros {
       }
 
       def conv(finalType: c.universe.Type) = {
-        EnumMacros.newEnumConverterToSealedTrait(c)(protoVersion)(enumType.copy(traitType = finalType))
+        EnumMacros.newEnumConverterToSealedTraitFromEnumType(c)(protoVersion)(enumType.copy(traitType = finalType))
       }
 
       enumType.traitType.resultType.toString match {
@@ -582,7 +662,7 @@ object CactusMacros {
       val params = fields.map { field =>
         val fieldFinalType = getFinalTypeForField(field)
 
-        val e = extractField(c)(gpbType, caseClassType)(field, fieldFinalType, isProto3, gpbGetters, gpbSetters)
+        val e = extractField(c)(gpbType, caseClassType)(field, fieldFinalType, proto3Gpb, gpbGetters, gpbSetters)
         import e._
 
         val innerFieldPath = c.Expr[String] {
@@ -663,7 +743,7 @@ object CactusMacros {
         println(s"Converting GPB enum ${enumType.getter.returnType} to sealed trait ${enumType.traitType} (${enumType.traitImpls}) ")
       }
 
-      def conv(finalType: c.universe.Type) = EnumMacros.newEnumConverterToGpb(c)(enumType.copy(traitType = finalType))
+      def conv(finalType: c.universe.Type) = EnumMacros.newEnumConverterToGpbFromEnumType(c)(enumType.copy(traitType = finalType))
 
       enumType.traitType.resultType.toString match {
         case OptPattern(_) =>
@@ -906,11 +986,11 @@ object CactusMacros {
       terminateWithInfo(c)(s"Could not generate converter $errDesc, because ${caseClassType.typeSymbol} is not a case class")
     }
 
-    val isProto3 = gpbType.baseClasses.exists(_.asType.fullName == ClassesNames.Protobuf.GeneratedMessageV3)
+    val proto3Gpb = isProto3(c)(gpbType)
 
-    if (Debug && isProto3) println(s"Type of ${gpbType.typeSymbol} is detected as proto v3")
+    if (Debug && proto3Gpb) println(s"Type of ${gpbType.typeSymbol} is detected as proto v3")
 
-    val protoVersion = if (isProto3) ProtoVersion.V3 else ProtoVersion.V2
+    val protoVersion = if (proto3Gpb) ProtoVersion.V3 else ProtoVersion.V2
 
     val ctor = caseClassType.decls
       .collectFirst {
@@ -1160,22 +1240,29 @@ object CactusMacros {
       val asClass = traitTypeSymbolUnwrapped.asClass
 
       if (asClass.isSealed) {
-        val traitImpls = getImpls(c)(asClass)
-
-        // checks format of impls - case objects
-        traitImpls.foreach { t =>
-          if (!t.asClass.isModuleClass) {
-            terminateWithInfo(c)(s"ENUM sealed trait implementations has to be case objects")
-          }
-        }
-
-        if (traitImpls.isEmpty) terminateWithInfo(c)(s"Didn't find any implementations for $traitTypeSymbolUnwrapped")
-
-        if (Debug) println(s"$traitTypeSymbolUnwrapped is an ENUM, field '$fieldName', impls $traitImpls")
+        val traitImpls = getSealedTraitImpls(c)(asClass, fieldName)
 
         Some(FieldType.Enum[MethodSymbol, ClassSymbol, Type](fieldName, getter, setter, traitType, traitImpls))
       } else None
     } else None
+  }
+
+  private def getSealedTraitImpls(c: whitebox.Context)(traitTypeSymbol: c.universe.ClassSymbol,
+                                                       fieldName: String): Set[c.universe.ClassSymbol] = {
+    val traitImpls = getImpls(c)(traitTypeSymbol)
+
+    // checks format of impls - case objects
+    traitImpls.foreach { t =>
+      if (!t.asClass.isModuleClass) {
+        terminateWithInfo(c)(s"ENUM sealed trait implementations has to be case objects")
+      }
+    }
+
+    if (traitImpls.isEmpty) terminateWithInfo(c)(s"Didn't find any implementations for $traitTypeSymbol")
+
+    if (Debug) println(s"$traitTypeSymbol is an ENUM, field '$fieldName', impls $traitImpls")
+
+    traitImpls
   }
 
   private def extractFieldNameOfEnum(c: whitebox.Context)(fieldNameUpper: String, fieldAnnotations: AnnotationsMap): String = {
@@ -1200,6 +1287,16 @@ object CactusMacros {
     if (Debug) println(s"Getting implementations for $cl")
 
     cl.knownDirectSubclasses.collect { case s if s.isClass => s.asClass }
+  }
+
+  private[cactus] def getJavaEnumImpls(c: whitebox.Context)(cl: c.universe.ClassSymbol): Set[c.universe.Symbol] = {
+    import c.universe._
+
+    init(c)(cl)
+
+    if (Debug) println(s"Getting implementations for $cl")
+
+    cl.knownDirectSubclasses
   }
 
   // this is a hack - we need to force the initialization of the class before knowing it's impls
@@ -1275,6 +1372,20 @@ object CactusMacros {
 
   private def isProtoEnum(c: whitebox.Context)(t: c.universe.Type): Boolean = {
     t.baseClasses.exists(_.fullName == ClassesNames.Protobuf.Enum)
+  }
+
+  private def isSealedTrait(c: whitebox.Context)(t: c.universe.Type): Boolean = {
+    val ts = t.typeSymbol
+
+    if (ts.isClass) {
+      val clazz = ts.asClass
+
+      clazz.isTrait && clazz.isSealed
+    } else false
+  }
+
+  private def isProto3(c: whitebox.Context)(gpbType: c.universe.Type): Boolean = {
+    gpbType.baseClasses.exists(_.asType.fullName == ClassesNames.Protobuf.GeneratedMessageV3)
   }
 
   private def isScalaCollection(c: whitebox.Context)(typeSymbol: c.universe.Symbol): Boolean = {
@@ -1442,7 +1553,7 @@ object CactusMacros {
     val typeSymbol = t.typeSymbol
 
     typeSymbol.asClass.baseClasses.exists(_.fullName == ClassesNames.Scala.AnyVal) ||
-      JavaPrimitiveTypes.contains(typeSymbol.fullName)
+    JavaPrimitiveTypes.contains(typeSymbol.fullName)
   }
 
   private def toConverterKey(c: whitebox.Context)(a: c.universe.Type, b: c.universe.Type): String = {
