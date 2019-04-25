@@ -63,7 +63,7 @@ object ServerCommonMethods extends CommonMethods {
     case e: StatusRuntimeException => Left(new StatusException(e.getStatus, e.getTrailers))
     case NonFatal(e) =>
       Left {
-        new StatusException(Status.INTERNAL.withDescription(s"${e.getClass.getName}: ${e.getMessage}"))
+        new StatusException(Status.INTERNAL.withDescription(s"${e.getClass.getName}: ${e.getMessage}").withCause(e))
       }
   }
 
