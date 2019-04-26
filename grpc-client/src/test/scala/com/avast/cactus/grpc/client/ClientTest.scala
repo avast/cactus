@@ -77,7 +77,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
       ClientHeadersInterceptor(Map(headerName -> "theValue"))
     )
 
-    val Right(result) = mapped.get(MyRequest(Seq("name42"))).runAsync.futureValue
+    val Right(result) = mapped.get(MyRequest(Seq("name42"))).runToFuture.futureValue
 
     assertResult(MyResponse(Map("name42" -> 42)))(result)
   }
@@ -121,7 +121,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val mapped = channel.createMappedClient[TestApiServiceFutureStub, Task, ClientTrait]()
 
-    val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).runAsync.futureValue
+    val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).runToFuture.futureValue
 
     assertResult(Status.Code.ABORTED)(status.getCode)
     assertResult("hello-world")(status.getDescription)
@@ -149,7 +149,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val mapped = channel.createMappedClient[TestApiServiceFutureStub, Task, ClientTrait]()
 
-    val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).runAsync.futureValue
+    val Left(ServerError(status, _)) = mapped.get(MyRequest(Seq("name42"))).runToFuture.futureValue
 
     assertResult(Status.Code.UNAVAILABLE)(status.getCode)
     assertResult("hello-world")(status.getDescription)
@@ -177,7 +177,7 @@ class ClientTest extends FunSuite with ScalaFutures with MockitoSugar {
 
     val mapped = channel.createMappedClient[TestApiServiceEmptyFutureStub, Task, ClientTrait]()
 
-    val Left(ServerError(status, _)) = mapped.getEmptyRequest().runAsync.futureValue
+    val Left(ServerError(status, _)) = mapped.getEmptyRequest().runToFuture.futureValue
 
     assertResult(Status.Code.UNAVAILABLE)(status.getCode)
     assertResult("hello-world")(status.getDescription)
