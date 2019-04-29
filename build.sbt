@@ -5,8 +5,8 @@ val logger: Logger = ConsoleLogger()
 crossScalaVersions := Seq("2.12.7")
 
 lazy val Versions = new {
-  val grpcVersion = "1.18.0"
-  val gpb3Version = "3.6.1"
+  val grpcVersion = "1.20.0"
+  val gpb3Version = "3.7.1"
   val gpb2Version = "2.6.1"
 
   val bytesVersion = "2.0.6"
@@ -112,7 +112,7 @@ lazy val v2Module = Project(id = "gpbv2", base = file("./gpbv2")).settings(
   gpbTestGenSettings(Versions.GPBv2),
   name := "cactus-gpbv2",
   libraryDependencies ++= Seq(
-    "com.google.protobuf" % "protobuf-java" % "2.6.1" % "optional"
+    "com.google.protobuf" % "protobuf-java" % Versions.gpb2Version % "optional"
   )
 ).dependsOn(commonModule, bytesV2Module % "test")
 
