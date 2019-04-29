@@ -31,10 +31,12 @@ object ServerCommonMethods extends CommonMethods {
       }
   }
 
-  def execute[F[_]: Effect, RespGpb <: MessageLite](respObs: StreamObserver[RespGpb])(action: F[Either[StatusException, RespGpb]])(implicit ec: ExecutionContext): Unit = {
-    Task.fromEffect(action)
+  def execute[F[_]: Effect, RespGpb <: MessageLite](respObs: StreamObserver[RespGpb])(action: F[Either[StatusException, RespGpb]])(
+      implicit ec: ExecutionContext): Unit = {
+    Task
+      .fromEffect(action)
       .onErrorRecover(recoverWithStatus)
-      .runOnComplete(sendResponse(respObs))(Scheduler(ec))
+      .runAsync(sendResponse(respObs))(Scheduler(ec))
   }
 
   def convertResponse[RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, ?]](
@@ -46,15 +48,16 @@ object ServerCommonMethods extends CommonMethods {
       }
   }
 
-  def sendResponse[Resp <: MessageLite](respObs: StreamObserver[Resp]): PartialFunction[Try[Either[StatusException, Resp]], Unit] = {
-    case Success(Right(resp)) =>
+  def sendResponse[Resp <: MessageLite](
+      respObs: StreamObserver[Resp]): PartialFunction[Either[Throwable, Either[StatusException, Resp]], Unit] = {
+    case Right(Right(resp)) =>
       respObs.onNext(resp)
       respObs.onCompleted()
 
-    case Success(Left(statusException)) =>
+    case Right(Left(statusException)) =>
       respObs.onError(statusException)
 
-    case Failure(NonFatal(e)) =>
+    case Left(NonFatal(e)) =>
       respObs.onError(e)
   }
 

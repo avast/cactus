@@ -2,11 +2,11 @@ import sbt.Keys._
 
 val logger: Logger = ConsoleLogger()
 
-crossScalaVersions := Seq("2.12.7")
+crossScalaVersions := Seq("2.12.8")
 
 lazy val Versions = new {
-  val grpcVersion = "1.18.0"
-  val gpb3Version = "3.6.1"
+  val grpcVersion = "1.20.0"
+  val gpb3Version = "3.7.1"
   val gpb2Version = "2.6.1"
 
   val bytesVersion = "2.0.6"
@@ -50,7 +50,7 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.5",
-    "org.typelevel" %% "cats-core" % "1.5.0",
+    "org.typelevel" %% "cats-core" % "1.6.0",
     "org.scalatest" %% "scalatest" % "3.0.7" % "test",
     "org.mockito" % "mockito-core" % "2.18.3" % "test"
   )
@@ -112,7 +112,7 @@ lazy val v2Module = Project(id = "gpbv2", base = file("./gpbv2")).settings(
   gpbTestGenSettings(Versions.GPBv2),
   name := "cactus-gpbv2",
   libraryDependencies ++= Seq(
-    "com.google.protobuf" % "protobuf-java" % "2.6.1" % "optional"
+    "com.google.protobuf" % "protobuf-java" % Versions.gpb2Version % "optional"
   )
 ).dependsOn(commonModule, bytesV2Module % "test")
 
@@ -147,7 +147,7 @@ lazy val grpcCommonModule = Project(id = "grpc-common", base = file("./grpc-comm
   macroSettings,
   name := "cactus-grpc-common",
   libraryDependencies ++= Seq(
-    "io.monix" % "monix_2.12" % "3.0.0-RC1",
+    "io.monix" % "monix_2.12" % "3.0.0-RC2",
     "io.grpc" % "grpc-protobuf" % Versions.grpcVersion,
     "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test",
     "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
