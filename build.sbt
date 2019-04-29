@@ -2,7 +2,7 @@ import sbt.Keys._
 
 val logger: Logger = ConsoleLogger()
 
-crossScalaVersions := Seq("2.12.7")
+crossScalaVersions := Seq("2.12.8")
 
 lazy val Versions = new {
   val grpcVersion = "1.20.0"
