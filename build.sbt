@@ -2,9 +2,9 @@ import sbt.Keys._
 
 val logger: Logger = ConsoleLogger()
 
-lazy val ScalaVersion = "2.12.8"
+lazy val ScalaV = "2.12.8"
 
-crossScalaVersions := Seq(ScalaVersion)
+crossScalaVersions := Seq(ScalaV)
 
 lazy val Versions = new {
   val grpcVersion = "1.20.0"
@@ -18,7 +18,7 @@ lazy val Versions = new {
 }
 
 lazy val commonSettings = Seq(
-  scalaVersion := ScalaVersion,
+  scalaVersion := ScalaV,
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
