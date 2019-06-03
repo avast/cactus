@@ -33,3 +33,9 @@ case class InvalidValueFailure(fieldPath: String, value: String, error: Throwabl
 }
 
 case class CustomFailure(fieldPath: String, message: String, error: Throwable = null) extends Exception(message, error) with CactusFailure
+
+case class CompositeFailure(errors: Seq[CactusFailure])
+    extends Exception(s"Multiple failures:\n${errors.mkString("[", ", ", "]")}")
+    with CactusFailure {
+  override def message: String = s"Multiple failures has happened\n${errors.mkString("[", ", ", "]")}"
+}

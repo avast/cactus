@@ -109,18 +109,22 @@ class ClientMacros(val c: whitebox.Context) {
       case Some(implRequestType) =>
         q"""
           override def ${implMethod.name}(request: $implRequestType): $fReturnType = {
-             super.withInterceptors { ctx =>
-                val stub = newStub
+            super.withInterceptors { ctx =>
+              val stub = newStub
 
-                request.asGpb[${apiMethod.request}] match {
-                   case scala.util.Right(req) => Methods.executeRequest[$fType, ${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, ctx, stub.${apiMethod.name}, ex, ec)
-                   case scala.util.Left(errors) =>
-                      F.pure {
-                         Left {
-                            com.avast.cactus.grpc.ServerError(io.grpc.Status.INVALID_ARGUMENT.withDescription(Methods.formatCactusFailures("request", errors)))
-                         }
-                      }
-               }
+              request.asGpb[${apiMethod.request}] match {
+                case scala.util.Right(req) => Methods.executeRequest[$fType, ${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](req, ctx, stub.${apiMethod.name}, ex, ec)
+                case scala.util.Left(errors) =>
+                  F.pure {
+                    Left {
+                      com.avast.cactus.grpc.ServerError(
+                        io.grpc.Status.INVALID_ARGUMENT
+                          .withDescription(Methods.formatCactusFailures("request", errors))
+                          .withCause(com.avast.cactus.CompositeFailure(errors.toList))
+                      )
+                    }
+                  }
+              }
             }
           }
      """
