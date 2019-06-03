@@ -111,15 +111,19 @@ class ServerMacros(val c: whitebox.Context) {
     q"""
       override def ${apiMethod.name}(request: ${apiMethod.request}, responseObserver: io.grpc.stub.StreamObserver[${apiMethod.response}]): Unit = {
 
-       $createCtxMethod
+        $createCtxMethod
 
-       Methods.execute[$fTypeImpl, ${apiMethod.response}](responseObserver) {
+        Methods.execute[$fTypeImpl, ${apiMethod.response}](responseObserver) {
           $convertRequest match {
             case scala.util.Right(req) => interceptorsWrapper.withInterceptors { $executeMethod }
             case scala.util.Left(errors) =>
               F.pure {
                 Left {
-                  new StatusException(Status.INVALID_ARGUMENT.withDescription(Methods.formatCactusFailures("request", errors)))
+                  new io.grpc.StatusException(
+                    io.grpc.Status.INVALID_ARGUMENT
+                      .withDescription(Methods.formatCactusFailures("request", errors))
+                      .withCause(com.avast.cactus.CompositeFailure(errors.toList))
+                  )
                 }
               }
           }
@@ -162,6 +166,8 @@ class ServerMacros(val c: whitebox.Context) {
   }
 
   private def metadataToContextInstance(ctxType: Type): Tree = {
+    if (CactusMacros.Debug) println(s"Mapping ${ctxType.typeSymbol.fullName} from request context")
+
     val fields = toCaseClassFields(ctxType.typeSymbol)
 
     if (fields.isEmpty) {
@@ -185,8 +191,24 @@ class ServerMacros(val c: whitebox.Context) {
   private def toCaseClassFields(t: Symbol): List[Symbol] = {
     val cl = if (t.isClass) {
       val cl = t.asClass
-      if (cl.isCaseClass) cl else c.abort(c.enclosingPosition, s"$t must be a case class")
-    } else c.abort(c.enclosingPosition, s"$t must be a case class")
+      if (cl.isCaseClass) cl
+      else {
+        if (CactusMacros.Debug) {
+          println(s"Converting $cl to fields")
+          println(s"Module class: ${cl.isModuleClass}")
+          println(s"Package class: ${cl.isPackageClass}")
+          println(s"Der. val. class: ${cl.isDerivedValueClass}")
+          println(s"Trait: ${cl.isTrait}")
+          println(s"Module: ${cl.isModule}")
+          println(s"Term: ${cl.isTerm}")
+          println(s"--: ${t.typeSignature}")
+        }
+        c.abort(c.enclosingPosition, s"$t must be a case class")
+      }
+    } else {
+      if (CactusMacros.Debug) println(s"${t.fullName} is not class at all")
+      c.abort(c.enclosingPosition, s"$t must be a case class")
+    }
 
     val ctor = cl.typeSignature.decls
       .collectFirst {
