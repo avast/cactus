@@ -165,7 +165,7 @@ case class CaseClassMapInnerMessage(fieldString: String, fieldInt: Int)
 
 case class StringWrapperClass(value: String)
 
-sealed trait TheEnum
+sealed abstract class TheEnum
 
 object TheEnum {
 
