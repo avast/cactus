@@ -1380,7 +1380,7 @@ object CactusMacros {
     if (ts.isClass) {
       val clazz = ts.asClass
 
-      clazz.isTrait && clazz.isSealed
+      (clazz.isTrait || clazz.isAbstract) && clazz.isSealed
     } else false
   }
 
