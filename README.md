@@ -28,11 +28,17 @@ SBT:
 ```
 where current version is [available here](https://bintray.com/avast/maven/cactus/_latestVersion) and _ARTIFACT_ is one of:
 1. cactus-gpbv2 (conversion of GPB v2.x.x)
+    Use `import com.avast.cactus._` and `import com.avast.cactus.v2._`.
 1. cactus-gpbv3 (conversion of GPB v3.x.x)
-1. bytes-gpbv2 (additional converters for support [Avast Bytes](https://github.com/avast/bytes))
-1. bytes-gpbv3 (same as `bytes-gpbv2` but supports some GPBv3 types too)
-1. grpc-client (support for mapping of gRPC client, see [docs](grpc-common/README.md))
-1. grpc-server (support for mapping of gRPC server, see [docs](grpc-common/README.md))
+    Use `import com.avast.cactus._` and `import com.avast.cactus.v3._`.
+1. cactus-bytes-gpbv2 (additional converters for support [Avast Bytes](https://github.com/avast/bytes))
+    Use `import com.avast.cactus.bytes._`.
+1. cactus-bytes-gpbv3 (same as `bytes-gpbv2` but supports some GPBv3 types too)
+    Use `import com.avast.cactus.bytes._`.
+1. cactus-grpc-client (support for mapping of gRPC client, see [docs](grpc-common/README.md))
+    Use `import com.avast.cactus.grpc.client._`.
+1. cactus-grpc-server (support for mapping of gRPC server, see [docs](grpc-common/README.md))
+    Use `import com.avast.cactus.grpc.client._`.
 
 
 ## GPB to case class
