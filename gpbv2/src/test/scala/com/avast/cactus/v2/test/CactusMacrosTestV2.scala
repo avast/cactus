@@ -361,6 +361,59 @@ class CactusMacrosTestV2 extends FunSuite {
     assertResult(Right(gpb2))(CaseClassWithEnum(Some(TheEnum.Two)).asGpb[MessageWithEnum])
   }
 
+  test("message with unset optional enum") {
+    val gpb = MessageWithRawEnum
+      .newBuilder()
+      .setFieldString("ahoj")
+      .setFieldEnum(TestEnum.FIRST)
+      // missing: .setFieldEnumOption(TestEnum.SECOND)
+      .addAllFieldMap(Map("first" -> TestEnum.FIRST, "second" -> TestEnum.SECOND).map {
+        case (key, value) =>
+          EnumMapEntry
+            .newBuilder()
+            .setKey(key)
+            .setValue(value)
+            .build()
+      }.asJava)
+      .build()
+
+    val ccl = CaseClassWithRawEnum(
+      fieldString = "ahoj",
+      fieldEnum = TestEnum.FIRST,
+      fieldEnumOption = None,
+      fieldMap = Map("first" -> TestEnum.FIRST, "second" -> TestEnum.SECOND)
+    )
+
+    assertResult(Right(ccl))(gpb.asCaseClass[CaseClassWithRawEnum])
+    assertResult(Right(gpb))(ccl.asGpb[MessageWithRawEnum])
+
+    val gpb2 = MessageWithEnum.newBuilder().build()
+
+    assertResult(Right(CaseClassWithEnum(None)))(gpb2.asCaseClass[CaseClassWithEnum])
+    assertResult(Right(gpb2))(CaseClassWithEnum(None).asGpb[MessageWithEnum])
+  }
+
+  test("message with unset required enum") {
+    val gpb = MessageWithRawEnum
+      .newBuilder()
+      .setFieldString("ahoj")
+      // missing: .setFieldEnum(TestEnum.FIRST)
+      .setFieldEnumOption(TestEnum.SECOND)
+      .addAllFieldMap(Map("first" -> TestEnum.FIRST, "second" -> TestEnum.SECOND).map {
+        case (key, value) =>
+          EnumMapEntry
+            .newBuilder()
+            .setKey(key)
+            .setValue(value)
+            .build()
+      }.asJava)
+      .build()
+
+    assertResult {
+      Left(NonEmptyList(MissingFieldFailure("gpb.fieldEnum"), List()))
+    }(gpb.asCaseClass[CaseClassWithRawEnum])
+  }
+
 }
 
 case class CaseClassA(fieldString: String,

@@ -352,7 +352,9 @@ object CactusMacros {
             processEndType(c)(fieldName, innerFieldPath, annotations, nameInGpb, dstType)(query, q"$gpb.${n.getter}", gpbFieldType)
 
           case en: FieldType.Enum[MethodSymbol, ClassSymbol, Type] =>
-            processEnum(c)(protoVersion)(gpbType, gpb, fieldPath)(en)
+            val gpbFieldType = en.getter.returnType
+            val query = protoVersion.getQuery(c)(gpb, upper, gpbFieldType)
+            processEnum(c)(protoVersion)(gpbType, gpb, fieldPath)(query, en)
 
           case o: FieldType.OneOf[MethodSymbol, ClassSymbol, Type] =>
             processOneOf(c)(gpbType, gpb, fieldPath)(o)
@@ -397,6 +399,7 @@ object CactusMacros {
 
     private def processEnum(c: whitebox.Context)(
         protoVersion: ProtoVersion)(gpbType: c.universe.Type, gpb: c.Tree, innerFieldPath: c.universe.Expr[String])(
+        query: Option[c.universe.Tree],
         enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type])(
         implicit converters: mutable.Map[String, c.universe.Tree]): c.Tree = {
       import c.universe._
@@ -418,7 +421,19 @@ object CactusMacros {
             conv(dstType)
           }
 
-          q"com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter}).map(Option(_)).recover( _=> None)"
+          query match {
+            case Some(q) =>
+              q"""
+                if ($q) {
+                  com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter}).map(Option(_)).recover( _=> None)
+                } else {
+                  Good[Option[$dstType]](None).orBad[Every[CactusFailure]]
+                }
+               """
+
+            case None =>
+              q"com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter}).map(Option(_)).recover( _=> None)"
+          }
 
         case _ =>
           val gpbFieldType = enumType.getter.returnType
@@ -428,7 +443,19 @@ object CactusMacros {
             conv(dstType)
           }
 
-          q"com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter})"
+          query match {
+            case Some(q) =>
+              q"""
+                if ($q) {
+                  com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter})
+                } else {
+                  Bad(One(MissingFieldFailure($innerFieldPath)))
+                }
+               """
+
+            case None =>
+              q"com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter})"
+          }
       }
     }
 
