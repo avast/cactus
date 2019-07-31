@@ -49,13 +49,15 @@ lazy val commonSettings = Seq(
         </developer>
       </developers>
     ),
+
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.5",
     "org.typelevel" %% "cats-core" % "1.6.0",
     "org.scalatest" %% "scalatest" % "3.0.7" % "test",
-    "org.mockito" % "mockito-core" % "2.18.3" % "test"
-  )
+    "org.mockito" % "mockito-core" % "2.18.3" % "test",
+    "javax.annotation" % "javax.annotation-api" % "1.3.2" % "test" // for compatibility with JDK >8
+  ),
 )
 
 lazy val macroSettings = Seq(
