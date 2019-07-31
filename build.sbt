@@ -17,6 +17,8 @@ lazy val Versions = new {
   val GPBv3 = gpb3Version.replace(".", "")
 }
 
+lazy val CompileOnly = config("compileonly")
+
 lazy val commonSettings = Seq(
   scalaVersion := ScalaV,
   scalacOptions += "-deprecation",
@@ -50,12 +52,15 @@ lazy val commonSettings = Seq(
       </developers>
     ),
   libraryDependencies ++= Seq(
+    "javax.annotation" % "javax.annotation-api" % "1.3.2" % "compileonly", // for compatibility with JDK >8
     "org.scala-lang" % "scala-library" % scalaVersion.value,
     "org.scalactic" %% "scalactic" % "3.0.5",
     "org.typelevel" %% "cats-core" % "1.6.0",
     "org.scalatest" %% "scalatest" % "3.0.7" % "test",
     "org.mockito" % "mockito-core" % "2.18.3" % "test"
-  )
+  ),
+  ivyConfigurations += CompileOnly.hide,
+  unmanagedClasspath in Compile ++= update.value.select(configurationFilter("compileonly"))
 )
 
 lazy val macroSettings = Seq(
