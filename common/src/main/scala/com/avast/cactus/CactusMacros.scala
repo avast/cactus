@@ -1512,11 +1512,11 @@ object CactusMacros {
     }
   }
 
-  private[cactus] def newConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)(convertFunction: c.Tree)(
+  private[cactus] def newConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)(convertFunction:  => c.Tree)(
       implicit converters: mutable.Map[String, c.universe.Tree]): Unit = {
     import c.universe._
 
-    def addConverter() = {
+    def addConverter(): Unit = {
       val key = toConverterKey(c)(from, to)
 
       converters.getOrElse(
