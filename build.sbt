@@ -23,6 +23,7 @@ lazy val commonSettings = Seq(
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
   scalacOptions += "-target:jvm-1.8",
+  javacOptions ++= Seq("-target", "1.8"),
   resolvers += Resolver.jcenterRepo,
 
   organization := "com.avast.cactus",
