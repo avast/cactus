@@ -7,8 +7,8 @@ lazy val ScalaV = "2.12.8"
 crossScalaVersions := Seq(ScalaV)
 
 lazy val Versions = new {
-  val grpcVersion = "1.22.1"
-  val gpb3Version = "3.9.0"
+  val grpcVersion = "1.23.0"
+  val gpb3Version = "3.9.1"
   val gpb2Version = "2.6.1"
 
   val bytesVersion = "2.0.6"
