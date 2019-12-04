@@ -392,7 +392,7 @@ object CactusMacros {
 
       // be able to change NOT_SET state to `None`, if the type is wrapped in `Option`
       oneOfType.classType.resultType.toString match {
-        case OptPattern(_) => q""" ($conv($fieldPath, $gpb)).map(Option(_)).recover( _=> None) """
+        case OptPattern(_) => q""" ($conv($fieldPath, $gpb)).map(Option(_)).recover { fck => val _ = fck; None } """
         case _ => q" $conv($fieldPath, $gpb) "
       }
     }
@@ -425,14 +425,14 @@ object CactusMacros {
             case Some(q) =>
               q"""
                 if ($q) {
-                  com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter}).map(Option(_)).recover( _=> None)
+                  com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter}).map(Option(_)).recover { fck => val _ = fck; None }
                 } else {
                   Good[Option[$dstType]](None).orBad[Every[CactusFailure]]
                 }
                """
 
             case None =>
-              q"com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter}).map(Option(_)).recover( _=> None)"
+              q"com.avast.cactus.CactusMacros.AToB[$gpbFieldType, $dstType]($innerFieldPath)($gpb.${enumType.getter}).map(Option(_)).recover { fck => val _ = fck; None }"
           }
 
         case _ =>
@@ -490,7 +490,7 @@ object CactusMacros {
                  if ($q) {
                    val value: $dstTypeArg Or Every[CactusFailure] = ${convertIfNeeded(c)(fieldPath, srcResultType, dstTypeArg)(getter)}
 
-                   value.map(Option(_)).recover(_ => None)
+                   value.map(Option(_)).recover { fck => val _ = fck; None }
                  } else { Good[Option[$dstTypeArg]](None).orBad[Every[CactusFailure]] }
                }
            """
@@ -498,7 +498,7 @@ object CactusMacros {
               q""" {
                  val value: $dstTypeArg Or Every[CactusFailure] = ${convertIfNeeded(c)(fieldPath, srcResultType, dstTypeArg)(getter)}
 
-                 value.map(Option(_)).recover(_ => None)
+                 value.map(Option(_)).recover { fck => val _ = fck; None }
                }
            """
           }
@@ -1569,7 +1569,7 @@ object CactusMacros {
   private def getExistingConverter(c: whitebox.Context)(from: c.Type, to: c.Type): Option[c.Tree] = {
     if (Debug) println(s"Looking for existing com.avast.cactus.Converter[${from.typeSymbol.fullName}, ${to.typeSymbol.fullName}]")
 
-    Option(c.inferImplicitValue(extractType(c)(s"???.asInstanceOf[com.avast.cactus.Converter[$from, $to]]"))).filter(_.nonEmpty)
+    Option(c.inferImplicitValue(extractType(c)(s"null.asInstanceOf[com.avast.cactus.Converter[$from, $to]]"))).filter(_.nonEmpty)
   }
 
   private def converterExists(c: whitebox.Context)(from: c.Type, to: c.Type): Boolean = {

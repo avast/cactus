@@ -23,6 +23,7 @@ lazy val commonSettings = Seq(
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
   scalacOptions += "-target:jvm-1.8",
+  scalacOptions ++= Seq("-Ywarn-unused", "-Ywarn-dead-code", "-Ywarn-inaccessible", "-Ywarn-unused-import"),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   resolvers += Resolver.jcenterRepo,
 
