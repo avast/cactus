@@ -460,4 +460,44 @@ class CactusMacrosTestV3 extends FunSuite {
       )
     })(original.asGpb[Data4])
   }
+
+  test("map of options conversion") {
+    // missing converters:
+    checkDoesNotCompile {
+      """
+        |val original = CaseClassWithMap(values = Map("now" -> Some(Instant.now())))
+        |original.asGpb[MessageWithMap1]
+        |""".stripMargin
+    }
+
+    {
+      implicit val c: Converter[Option[Instant], GpbTimestamp] = instant2gpbTimestamp.contraMap(_.get)
+      // Converter[GpbTimestamp, Option[Instant]] is derived automatically
+
+      val original = CaseClassWithMap(values = Map("now" -> Some(Instant.ofEpochSecond(42))))
+      val Right(converted) = original.asGpb[MessageWithMap1]
+
+      assertResult(Right(original))(converted.asCaseClass[CaseClassWithMap])
+    }
+
+    // missing converters:
+    checkDoesNotCompile {
+      """
+        |val original = CaseClassWithMapEnums(values = Map("now" -> Some(TheEnum.Two)))
+        |original.asGpb[MessageWithMap2]
+        |""".stripMargin
+    }
+
+    {
+      implicit val c: Converter[Option[com.avast.cactus.v3.test.TheEnum], com.avast.cactus.v3.TestMessageV3.MessageWithEnum.TheEnum] =
+        Converter(_ => com.avast.cactus.v3.TestMessageV3.MessageWithEnum.TheEnum.TWO)
+
+      // Converter[MessageWithEnum.TheEnum, Option[TheEnum]] is derived automatically
+
+      val original = CaseClassWithMapEnums(values = Map("now" -> Some(TheEnum.Two)))
+      val Right(converted) = original.asGpb[MessageWithMap2]
+
+      assertResult(Right(original))(converted.asCaseClass[CaseClassWithMapEnums])
+    }
+  }
 }

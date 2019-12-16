@@ -248,7 +248,7 @@ private[cactus] object ProtoVersion {
         q" Good(key) "
       } else {
         newConverter(c)(srcKeyType, dstKeyType) {
-          q" (fieldPath: String, a: $srcKeyType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcKeyType)(dstKeyType, q" identity  ", "")} "
+          q" (fieldPath: String, a: $srcKeyType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcKeyType)(dstKeyType, q" identity  ", "", inConverter = true)} "
         }
 
         q" CactusMacros.AToB[$srcKeyType, $dstKeyType](fieldPath)(key) "
@@ -258,7 +258,7 @@ private[cactus] object ProtoVersion {
         q" Good(value) "
       } else {
         newConverter(c)(srcValueType, dstValueType) {
-          q" (fieldPath: String, a: $srcValueType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcValueType)(dstValueType, q" identity  ", "")} "
+          q" (fieldPath: String, a: $srcValueType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcValueType)(dstValueType, q" identity  ", "", inConverter = true)} "
         }
 
         q" CactusMacros.AToB[$srcValueType, $dstValueType](fieldPath)(value) "
@@ -287,7 +287,7 @@ private[cactus] object ProtoVersion {
         q" Good(key).orBad[Every[com.avast.cactus.CactusFailure]] "
       } else {
         newConverter(c)(srcKeyType, dstKeyType) {
-          q" (fieldPath: String, t: $srcKeyType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType)} "
+          q" (fieldPath: String, t: $srcKeyType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType, inConverter = true)} "
         }
 
         q" CactusMacros.AToB[$srcKeyType, $dstKeyType](fieldPath)(key) "
@@ -297,7 +297,7 @@ private[cactus] object ProtoVersion {
         q" Good(value).orBad[Every[com.avast.cactus.CactusFailure]] "
       } else {
         newConverter(c)(srcValueType, dstValueType) {
-          q" (fieldPath: String, t: $srcValueType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType)} "
+          q" (fieldPath: String, t: $srcValueType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType, inConverter = true)} "
         }
 
         q" CactusMacros.AToB[$srcValueType, $dstValueType](fieldPath)(value) "
