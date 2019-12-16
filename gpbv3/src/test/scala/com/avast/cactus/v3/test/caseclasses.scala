@@ -187,3 +187,7 @@ case class CaseClassWithRawEnum(fieldString: String,
 case class OptionalMessageClass(elem: Option[AnyValue])
 
 case class GenericCaseClass[T](@GpbName("fieldString") fieldT: T, fieldInt: Int)
+
+case class CaseClassWithMap(values: Map[String, Option[Instant]])
+
+case class CaseClassWithMapEnums(values: Map[String, Option[TheEnum]])

@@ -132,3 +132,11 @@ message MessageWithStringAndInt {
     string     field_string = 1;
     int32      field_int = 2;
 }
+
+message MessageWithMap1 {
+    map<string, google.protobuf.Timestamp> values = 1;      // REQUIRED
+}
+
+message MessageWithMap2 {
+    map<string, MessageWithEnum.TheEnum> values = 1;        // REQUIRED
+}
