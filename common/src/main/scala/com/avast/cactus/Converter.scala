@@ -4,7 +4,7 @@ import com.google.protobuf.ByteString
 import org.scalactic.Or
 
 import scala.annotation.implicitNotFound
-import scala.collection.BuildFrom
+import scala.collection.{BuildFrom, Factory}
 import scala.language.experimental.macros
 import scala.reflect.ClassTag
 
@@ -64,8 +64,8 @@ object Converter {
   implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] =
     collAToCollB[A, B, List].contraMap(_.toList)
 
-  implicit def collAToCollB[A, B, Coll[X] <: Iterable[Coll[X]]](implicit cbf: BuildFrom[Coll[A], B, Coll[B]],
-                                                                aToBConverter: Converter[A, B]): Converter[Coll[A], Coll[B]] = {
+  implicit def collAToCollB[A, B, Coll[X] <: Iterable[X]](implicit cbf: Factory[B, Coll[B]],
+                                                          aToBConverter: Converter[A, B]): Converter[Coll[A], Coll[B]] = {
     Converter.fromOrChecked[Coll[A], Coll[B]](CactusMacros.CollAToCollB[A, B, Coll])
   }
 

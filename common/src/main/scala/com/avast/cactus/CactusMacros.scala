@@ -3,7 +3,7 @@ package com.avast.cactus
 import org.scalactic._
 import org.scalactic.Accumulation._
 
-import scala.collection.{BuildFrom, mutable}
+import scala.collection.{mutable, BuildFrom, Factory}
 import scala.language.experimental.macros
 import scala.reflect.ClassTag
 import scala.reflect.macros._
@@ -57,14 +57,14 @@ object CactusMacros {
     classOf[java.lang.String].getName // consider String as primitive
   )
 
-  def CollAToCollB[A, B, T[X] <: Iterable[X]](fieldPath: String, coll: T[A])(implicit cbf: BuildFrom[T[A], B, T[B]],
-                                                                             aToBConverter: Converter[A, B]): T[B] Or EveryCactusFailure = {
-
-    val a: Or[T[B], EveryCactusFailure] = coll.map { e: A =>
-      val b = aToBConverter.apply(fieldPath)(e).toOr
-      b
-    }.combined
-    a
+  def CollAToCollB[A, B, Coll[X] <: Iterable[X]](fieldPath: String, coll: Coll[A])(
+    implicit factory: Factory[B, Coll[B]],
+    aToBConverter: Converter[A, B]): Coll[B] Or EveryCactusFailure = {
+    val a: Iterable[Or[B, EveryCactusFailure]] =
+      coll.map { e: A =>
+        aToBConverter.apply(fieldPath)(e).toOr
+      }
+    a.combined.map(_.to(factory))
   }
 
   def AToB[A, B](fieldPath: String)(a: A)(implicit aToBConverter: Converter[A, B]): B Or EveryCactusFailure = {

@@ -5,7 +5,7 @@ import com.google.protobuf.{Struct, Value, ListValue => GpbListValue, NullValue 
 import org.scalactic.Accumulation._
 import org.scalactic.{Good, Or}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait ValueOneOf
 
@@ -34,7 +34,8 @@ object ValueOneOf {
     case NumberValue(v) => Value.newBuilder().setNumberValue(v).build()
     case StringValue(v) => Value.newBuilder().setStringValue(v).build()
     case BooleanValue(v) => Value.newBuilder().setBoolValue(v).build()
-    case StructValue(v) => Value.newBuilder().setStructValue(Struct.newBuilder().putAllFields(v.mapValues(toGpbValue).asJava)).build()
+    case StructValue(v) =>
+      Value.newBuilder().setStructValue(Struct.newBuilder().putAllFields(v.view.mapValues(toGpbValue).toMap.asJava)).build()
     case ListValue(v) => Value.newBuilder().setListValue(GpbListValue.newBuilder().addAllValues(v.map(toGpbValue).asJava)).build()
   }
 

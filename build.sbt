@@ -58,7 +58,7 @@ lazy val commonSettings = Seq(
     "org.scalactic" %% "scalactic" % "3.1.0",
     "org.typelevel" %% "cats-core" % "2.0.0",
     "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.3",
-    "org.scalatest" %% "scalatest" % "3.1.0" % "test",
+    "org.scalatest" %% "scalatest" % "3.0.8" % "test",
     "org.mockito" % "mockito-core" % "2.18.3" % "test",
     "javax.annotation" % "javax.annotation-api" % "1.3.2" % "test" // for compatibility with JDK >8
   ),

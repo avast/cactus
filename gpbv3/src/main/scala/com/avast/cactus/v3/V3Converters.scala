@@ -3,29 +3,15 @@ package com.avast.cactus.v3
 import java.time.{Duration, Instant}
 
 import com.avast.cactus.Converter
-import com.google.protobuf.{
-  BoolValue,
-  ByteString,
-  BytesValue,
-  DoubleValue,
-  Empty,
-  FloatValue,
-  Int32Value,
-  Int64Value,
-  ListValue,
-  StringValue,
-  Struct,
-  Duration => GpbDuration,
-  Timestamp => GpbTimestamp
-}
+import com.google.protobuf.{BoolValue, ByteString, BytesValue, DoubleValue, Empty, FloatValue, Int32Value, Int64Value, ListValue, StringValue, Struct, Duration => GpbDuration, Timestamp => GpbTimestamp}
 import org.scalactic.Accumulation._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait V3Converters {
   implicit val listValue2SeqConverter: Converter[com.google.protobuf.ListValue, Seq[ValueOneOf]] = Converter.fromOrChecked {
     (fieldPath, listValue) =>
-      listValue.getValuesList.asScala.map(ValueOneOf.apply(fieldPath, _)).toIterable.combined.map(_.toSeq)
+      listValue.getValuesList.asScala.toVector.map(ValueOneOf.apply(fieldPath, _)).combined.map(_.toSeq)
   }
 
   implicit val seq2ListValueConverter: Converter[Seq[ValueOneOf], com.google.protobuf.ListValue] = Converter { values =>
@@ -34,7 +20,7 @@ trait V3Converters {
 
   implicit val struct2MapConverter: Converter[com.google.protobuf.Struct, Map[String, ValueOneOf]] = Converter.fromOrChecked {
     (fieldPath, struct) =>
-      struct.getFieldsMap.asScala
+      struct.getFieldsMap.asScala.view
         .mapValues(ValueOneOf.apply(fieldPath, _))
         .map { case (key, value) => value.map(key -> _) }
         .combined
@@ -42,7 +28,7 @@ trait V3Converters {
   }
 
   implicit val map2StructConverter: Converter[Map[String, ValueOneOf], com.google.protobuf.Struct] = Converter { m =>
-    Struct.newBuilder().putAllFields(m.mapValues(ValueOneOf.toGpbValue).asJava).build()
+    Struct.newBuilder().putAllFields(m.view.mapValues(ValueOneOf.toGpbValue).toMap.asJava).build()
   }
 
   // wrappers to their content type (and back)
