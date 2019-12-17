@@ -1,12 +1,10 @@
 package com.avast.cactus
 
-import org.scalactic.Accumulation._
 import org.scalactic._
+import org.scalactic.Accumulation._
 
-import scala.collection.generic.CanBuildFrom
-import scala.collection.{mutable, TraversableLike}
+import scala.collection.{BuildFrom, mutable}
 import scala.language.experimental.macros
-import scala.language.{higherKinds, implicitConversions}
 import scala.reflect.ClassTag
 import scala.reflect.macros._
 import scala.util.Try
@@ -59,12 +57,14 @@ object CactusMacros {
     classOf[java.lang.String].getName // consider String as primitive
   )
 
-  def CollAToCollB[A, B, T[X] <: TraversableLike[X, T[X]]](fieldPath: String, coll: T[A])(
-      implicit cbf: CanBuildFrom[T[A], B, T[B]],
-      aToBConverter: Converter[A, B]): T[B] Or EveryCactusFailure = {
-    coll.map((e: A) => aToBConverter.apply(fieldPath)(e).toOr).combined.map { c: TraversableOnce[B] =>
-      cbf.apply().++=(c).result()
-    }
+  def CollAToCollB[A, B, T[X] <: Iterable[X]](fieldPath: String, coll: T[A])(implicit cbf: BuildFrom[T[A], B, T[B]],
+                                                                             aToBConverter: Converter[A, B]): T[B] Or EveryCactusFailure = {
+
+    val a: Or[T[B], EveryCactusFailure] = coll.map { e: A =>
+      val b = aToBConverter.apply(fieldPath)(e).toOr
+      b
+    }.combined
+    a
   }
 
   def AToB[A, B](fieldPath: String)(a: A)(implicit aToBConverter: Converter[A, B]): B Or EveryCactusFailure = {
@@ -1302,7 +1302,6 @@ object CactusMacros {
   }
 
   private def getImpls(c: whitebox.Context)(cl: c.universe.ClassSymbol): Set[c.universe.ClassSymbol] = {
-    import c.universe._
 
     init(c)(cl)
 
@@ -1317,7 +1316,6 @@ object CactusMacros {
   }
 
   private[cactus] def getJavaEnumImpls(c: whitebox.Context)(cl: c.universe.ClassSymbol): Set[c.universe.Symbol] = {
-    import c.universe._
 
     init(c)(cl)
 
@@ -1512,7 +1510,7 @@ object CactusMacros {
     }
   }
 
-  private[cactus] def newConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)(convertFunction:  => c.Tree)(
+  private[cactus] def newConverter(c: whitebox.Context)(from: c.universe.Type, to: c.universe.Type)(convertFunction: => c.Tree)(
       implicit converters: mutable.Map[String, c.universe.Tree]): Unit = {
     import c.universe._
 

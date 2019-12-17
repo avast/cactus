@@ -4,11 +4,8 @@ import com.google.protobuf.ByteString
 import org.scalactic.Or
 
 import scala.annotation.implicitNotFound
-import scala.collection.JavaConverters._
-import scala.collection.TraversableLike
-import scala.collection.generic.CanBuildFrom
+import scala.collection.BuildFrom
 import scala.language.experimental.macros
-import scala.language.higherKinds
 import scala.reflect.ClassTag
 
 @implicitNotFound("Could not find an instance of Converter from ${A} to ${B}, try to import or define one")
@@ -67,8 +64,8 @@ object Converter {
   implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] =
     collAToCollB[A, B, List].contraMap(_.toList)
 
-  implicit def collAToCollB[A, B, Coll[X] <: TraversableLike[X, Coll[X]]](implicit cbf: CanBuildFrom[Coll[A], B, Coll[B]],
-                                                                          aToBConverter: Converter[A, B]): Converter[Coll[A], Coll[B]] = {
+  implicit def collAToCollB[A, B, Coll[X] <: Iterable[Coll[X]]](implicit cbf: BuildFrom[Coll[A], B, Coll[B]],
+                                                                aToBConverter: Converter[A, B]): Converter[Coll[A], Coll[B]] = {
     Converter.fromOrChecked[Coll[A], Coll[B]](CactusMacros.CollAToCollB[A, B, Coll])
   }
 
