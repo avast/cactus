@@ -1,9 +1,8 @@
 package com.avast.cactus.v3
 
-import com.avast.cactus.EveryCactusFailure
+import com.avast.cactus.ResultOrErrors
+import com.avast.cactus.internal._
 import com.google.protobuf.{Struct, Value, ListValue => GpbListValue, NullValue => GpbNullValue}
-import org.scalactic.Accumulation._
-import org.scalactic.{Good, Or}
 
 import scala.collection.JavaConverters._
 
@@ -11,18 +10,18 @@ trait ValueOneOf
 
 object ValueOneOf {
 
-  private[cactus] def apply(fieldPath: String, v: Value): ValueOneOf Or EveryCactusFailure = v.getKindCase match {
-    case Value.KindCase.KIND_NOT_SET => Good(EmptyValue)
-    case Value.KindCase.NULL_VALUE => Good(NullValue(v.getNullValue))
-    case Value.KindCase.NUMBER_VALUE => Good(NumberValue(v.getNumberValue))
-    case Value.KindCase.STRING_VALUE => Good(StringValue(v.getStringValue))
-    case Value.KindCase.BOOL_VALUE => Good(BooleanValue(v.getBoolValue))
-    case Value.KindCase.LIST_VALUE => listValue2SeqConverter(fieldPath)(v.getListValue).map(ListValue).toOr
+  private[cactus] def apply(fieldPath: String, v: Value): ResultOrErrors[ValueOneOf] = v.getKindCase match {
+    case Value.KindCase.KIND_NOT_SET => Right(EmptyValue)
+    case Value.KindCase.NULL_VALUE => Right(NullValue(v.getNullValue))
+    case Value.KindCase.NUMBER_VALUE => Right(NumberValue(v.getNumberValue))
+    case Value.KindCase.STRING_VALUE => Right(StringValue(v.getStringValue))
+    case Value.KindCase.BOOL_VALUE => Right(BooleanValue(v.getBoolValue))
+    case Value.KindCase.LIST_VALUE => listValue2SeqConverter(fieldPath)(v.getListValue).map(ListValue)
     case Value.KindCase.STRUCT_VALUE =>
       val scalaMap = v.getStructValue.getFieldsMap.asScala
       scalaMap
         .map { case (key, value) => ValueOneOf.apply(fieldPath, value).map(key -> _) }
-        .toSeq
+        .toList
         .combined
         .map(_.toMap)
         .map(StructValue)

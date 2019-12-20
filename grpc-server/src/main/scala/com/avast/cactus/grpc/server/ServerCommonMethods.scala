@@ -1,7 +1,7 @@
 package com.avast.cactus.grpc.server
 
 import cats.Monad
-import cats.effect.{Effect, IO}
+import cats.effect.Effect
 import cats.syntax.all._
 import com.avast.cactus.Converter
 import com.avast.cactus.grpc.CommonMethods
@@ -12,11 +12,11 @@ import io.grpc.stub.StreamObserver
 import monix.eval.Task
 import monix.execution.Scheduler
 
-import scala.concurrent.{ExecutionContext, Promise}
+import scala.concurrent.ExecutionContext
 import scala.language.higherKinds
 import scala.reflect.ClassTag
+import scala.util.Try
 import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
 
 object ServerCommonMethods extends CommonMethods {
   def prepareCall[F[_]: Monad, ReqCaseClass, RespCaseClass, RespGpb](

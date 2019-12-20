@@ -5,7 +5,6 @@ import cats.~>
 import io.grpc._
 import mainecoon.FunctorK
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext
 import scala.language.experimental.macros
 import scala.language.higherKinds

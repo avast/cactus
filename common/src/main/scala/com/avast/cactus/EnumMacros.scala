@@ -42,7 +42,7 @@ object EnumMacros {
       q""" {
              (fieldPath: _root_.scala.Predef.String, gpbEnum: $gpbEnumType) => (gpbEnum match {
                 case ..$cases
-             }): _root_.org.scalactic.Or[$traitType, _root_.com.avast.cactus.EveryCactusFailure]
+             }): com.avast.cactus.ResultOrErrors[$traitType]
         }
        """
 
@@ -53,16 +53,13 @@ object EnumMacros {
 
   def newEnumConverterToSealedTraitFromEnumType(c: whitebox.Context)(protoVersion: ProtoVersion)(
       enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
-    import c.universe._
     import enumType._
 
     newEnumConverterToSealedTrait(c)(protoVersion)(fieldName, getter.returnType, traitType, traitImpls)
   }
 
-  def newEnumConverterToGpb(c: whitebox.Context)(fieldName: String,
-                                                 gpbEnumType: c.universe.Type,
-                                                 traitType: c.universe.Type,
-                                                 traitImpls: Set[c.universe.ClassSymbol]): c.Tree = {
+  def newEnumConverterToGpb(
+      c: whitebox.Context)(gpbEnumType: c.universe.Type, traitType: c.universe.Type, traitImpls: Set[c.universe.ClassSymbol]): c.Tree = {
     import c.universe._
 
     val enumClass = gpbEnumType.typeSymbol.asClass.companion
@@ -97,7 +94,7 @@ object EnumMacros {
     val cases = options.map {
       case (enumValue, ccl) => // case object
 
-        cq" _: ${ccl.module} => Good($enumClass.$enumValue)"
+        cq" _: ${ccl.module} => Right($enumClass.$enumValue)"
     }
 
     val f =
@@ -115,9 +112,6 @@ object EnumMacros {
 
   def newEnumConverterToGpbFromEnumType(c: whitebox.Context)(
       enumType: FieldType.Enum[c.universe.MethodSymbol, c.universe.ClassSymbol, c.universe.Type]): c.Tree = {
-    import c.universe._
-    import enumType._
-
-    newEnumConverterToGpb(c)(fieldName, getter.returnType, traitType, traitImpls)
+    newEnumConverterToGpb(c)(enumType.getter.returnType,enumType. traitType, enumType.traitImpls)
   }
 }

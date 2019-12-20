@@ -55,7 +55,6 @@ lazy val commonSettings = Seq(
 
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
-    "org.scalactic" %% "scalactic" % "3.0.5",
     "org.typelevel" %% "cats-core" % "1.6.0",
     "org.scalatest" %% "scalatest" % "3.0.7" % "test",
     "org.mockito" % "mockito-core" % "2.18.3" % "test",

@@ -1,7 +1,5 @@
 package com.avast.cactus.grpc.server
 
-import java.util.concurrent.Callable
-
 import cats.MonadError
 import cats.data.EitherT
 import cats.syntax.all._
@@ -9,11 +7,9 @@ import com.avast.cactus.grpc._
 import io.grpc._
 
 import scala.collection.immutable
-import scala.concurrent.ExecutionContext
 import scala.language.higherKinds
 import scala.util.control.NonFatal
-class ServerInterceptorsWrapper[F[_]](interceptors: immutable.Seq[ServerAsyncInterceptor[F]])(implicit ec: ExecutionContext,
-                                                                                              F: MonadError[F, Throwable]) {
+class ServerInterceptorsWrapper[F[_]](interceptors: immutable.Seq[ServerAsyncInterceptor[F]])(implicit F: MonadError[F, Throwable]) {
   def withInterceptors[Resp](serverCall: => F[Either[StatusException, Resp]]): F[Either[StatusException, Resp]] = {
 
     val context = Context.current()
@@ -36,11 +32,7 @@ class ServerInterceptorsWrapper[F[_]](interceptors: immutable.Seq[ServerAsyncInt
             .flatMap {
               case Right(GrpcMetadata(ctx, _)) =>
                 ctx
-                  .call(new Callable[F[Either[StatusException, Resp]]] {
-                    override def call(): F[Either[StatusException, Resp]] = {
-                      serverCall
-                    }
-                  })
+                  .call(() => { serverCall })
 
               case Left(statusException) => F.raiseError[Either[StatusException, Resp]](statusException)
             }

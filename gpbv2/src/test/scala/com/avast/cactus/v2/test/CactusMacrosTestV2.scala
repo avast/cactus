@@ -24,7 +24,7 @@ class CactusMacrosTestV2 extends FunSuite {
   implicit val StringToStringWrapperConverter: Converter[String, StringWrapperClass] = Converter((b: String) => StringWrapperClass(b))
 
   // totally bad implementation of converter; don't use!!!
-  implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter.checked { (fieldPath, ints) =>
+  implicit val JavaIntegerListStringConverter: Converter[java.util.List[Integer], String] = Converter.checked { (_, ints) =>
     val i2 = ints.asScala
 
     if (i2.forall(_ > 0)) {

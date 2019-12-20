@@ -13,17 +13,13 @@ import monix.execution.Scheduler.Implicits.global
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.FunSuite
-import org.scalatest.concurrent.Eventually
 import org.scalatest.exceptions.TestFailedException
-import org.scalatest.time._
 import org.scalatestplus.mockito.MockitoSugar
 
 import scala.language.higherKinds
 import scala.util.Random
 
-class ServerTest extends FunSuite with MockitoSugar with Eventually {
-
-  private implicit val p: PatienceConfig = PatienceConfig(timeout = Span(2, Seconds), interval = Span(50, Milliseconds))
+class ServerTest extends FunSuite with MockitoSugar {
 
   def randomString(length: Int): String = {
     Random.alphanumeric.take(length).mkString("")
