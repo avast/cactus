@@ -1,7 +1,7 @@
 package com.avast.cactus.grpc.server
 
 import cats.Monad
-import cats.effect.Effect
+import cats.effect.{Effect, IO}
 import cats.syntax.all._
 import com.avast.cactus.Converter
 import com.avast.cactus.grpc.CommonMethods
@@ -9,8 +9,6 @@ import com.avast.cactus.v3._
 import com.google.protobuf.MessageLite
 import io.grpc._
 import io.grpc.stub.StreamObserver
-import monix.eval.Task
-import monix.execution.Scheduler
 
 import scala.concurrent.ExecutionContext
 import scala.language.higherKinds
@@ -33,10 +31,8 @@ object ServerCommonMethods extends CommonMethods {
 
   def execute[F[_]: Effect, RespGpb <: MessageLite](respObs: StreamObserver[RespGpb])(action: F[Either[StatusException, RespGpb]])(
       implicit ec: ExecutionContext): Unit = {
-    Task
-      .fromEffect(action)
-      .onErrorRecover(recoverWithStatus)
-      .runAsync(sendResponse(respObs))(Scheduler(ec))
+
+    (IO.shift(ec) >> Effect[F].toIO(action)).recover(recoverWithStatus).unsafeRunAsync(sendResponse(respObs))
   }
 
   def convertResponse[RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, ?]](

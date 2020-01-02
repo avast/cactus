@@ -55,7 +55,7 @@ lazy val commonSettings = Seq(
 
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
-    "org.typelevel" %% "cats-core" % "1.6.0",
+    "org.typelevel" %% "cats-core" % "2.0.0",
     "org.scalatest" %% "scalatest" % "3.0.7" % "test",
     "org.mockito" % "mockito-core" % "2.18.3" % "test",
     "javax.annotation" % "javax.annotation-api" % "1.3.2" % "test" // for compatibility with JDK >8
@@ -64,7 +64,7 @@ lazy val commonSettings = Seq(
 
 lazy val macroSettings = Seq(
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
 )
 
 def gpbTestGenSettings(v: String) = inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings) ++ Seq(
@@ -153,7 +153,7 @@ lazy val grpcCommonModule = Project(id = "grpc-common", base = file("./grpc-comm
   macroSettings,
   name := "cactus-grpc-common",
   libraryDependencies ++= Seq(
-    "io.monix" %% "monix" % "3.0.0-RC2",
+    "org.typelevel" %% "cats-effect" % "2.0.0",
     "io.grpc" % "grpc-protobuf" % Versions.grpcVersion,
     "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test",
     "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
@@ -167,7 +167,8 @@ lazy val grpcClientModule = Project(id = "grpc-client", base = file("./grpc-clie
   name := "cactus-grpc-client",
   libraryDependencies ++= Seq(
     "io.grpc" % "grpc-stub" % Versions.grpcVersion,
-    "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
+    "io.grpc" % "grpc-services" % Versions.grpcVersion % "test",
+    "io.monix" %% "monix" % "3.0.0" % "test"
   )
 ).dependsOn(grpcCommonModule)
 
@@ -177,9 +178,9 @@ lazy val grpcServerModule = Project(id = "grpc-server", base = file("./grpc-serv
   grpcTestGenSettings,
   name := "cactus-grpc-server",
   libraryDependencies ++= Seq(
-    "com.kailuowang" %% "mainecoon-core" % "0.6.4",
     "io.grpc" % "grpc-services" % Versions.grpcVersion,
-    "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test"
+    "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test",
+    "io.monix" %% "monix" % "3.0.0" % "test"
   )
 ).dependsOn(grpcCommonModule)
 
