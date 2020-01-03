@@ -9,14 +9,12 @@ import com.avast.cactus.v3._
 import com.google.protobuf.MessageLite
 import io.grpc._
 import io.grpc.stub.StreamObserver
-import monix.eval.Task
-import monix.execution.Scheduler
 
-import scala.concurrent.{ExecutionContext, Promise}
+import scala.concurrent.ExecutionContext
 import scala.language.higherKinds
 import scala.reflect.ClassTag
+import scala.util.Try
 import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
 
 object ServerCommonMethods extends CommonMethods {
   def prepareCall[F[_]: Monad, ReqCaseClass, RespCaseClass, RespGpb](
@@ -33,13 +31,11 @@ object ServerCommonMethods extends CommonMethods {
 
   def execute[F[_]: Effect, RespGpb <: MessageLite](respObs: StreamObserver[RespGpb])(action: F[Either[StatusException, RespGpb]])(
       implicit ec: ExecutionContext): Unit = {
-    Task
-      .fromEffect(action)
-      .onErrorRecover(recoverWithStatus)
-      .runAsync(sendResponse(respObs))(Scheduler(ec))
+
+    (IO.shift(ec) >> Effect[F].toIO(action)).recover(recoverWithStatus).unsafeRunAsync(sendResponse(respObs))
   }
 
-  def convertResponse[RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, ?]](
+  def convertResponse[RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, *]](
       resp: RespCaseClass): Either[StatusException, RespGpb] = {
     resp
       .asGpb[RespGpb]

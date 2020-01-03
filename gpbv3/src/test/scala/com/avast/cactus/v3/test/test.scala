@@ -2,7 +2,7 @@ package com.avast.cactus.v3
 import com.avast.cactus.Converter
 import com.google.protobuf.ByteString
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object test {
 

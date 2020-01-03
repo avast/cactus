@@ -13,7 +13,7 @@ class ServerMacros(val c: whitebox.Context) {
 
   def mapImplToService[Service <: BindableService: WeakTypeTag, F[_]](
       interceptors: c.Tree*)(ct: Tree, ec: c.Tree, ef: c.Tree): c.Expr[MappedGrpcService[Service]] = {
-    // this method require `ec` as an argument but only to secure the implicits will be present. If it's visible by the macro method, it
+    // this method require `ec` and `ef` as arguments but only to secure the implicits will be present. If it's visible by the macro method, it
     // has to be visible also for the generated code thus it's ok to not use the argument
 
     val serviceType = weakTypeOf[Service]
@@ -248,7 +248,7 @@ class ServerMacros(val c: whitebox.Context) {
         .getOrElse {
           c.abort(
             c.enclosingPosition,
-            s"Method ${m.name} in type ${m.owner} does not have required result type ${fSymbol.name}[Either[Status, ?]]"
+            s"Method ${m.name} in type ${m.owner} does not have required result type ${fSymbol.name}[Either[Status, *]]"
           )
         }
 

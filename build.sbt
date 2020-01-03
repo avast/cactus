@@ -2,12 +2,12 @@ import sbt.Keys._
 
 val logger: Logger = ConsoleLogger()
 
-lazy val ScalaV = "2.12.8"
-
-crossScalaVersions := Seq(ScalaV)
+lazy val Scala213 = "2.13.1"
+lazy val Scala212 = "2.12.10"
+lazy val SupportedScalaVersions = List(Scala213, Scala212)
 
 lazy val Versions = new {
-  val grpcVersion = "1.23.0"
+  val grpcVersion = "1.26.0"
   val gpb3Version = "3.9.1"
   val gpb2Version = "2.6.1"
 
@@ -18,12 +18,12 @@ lazy val Versions = new {
 }
 
 lazy val commonSettings = Seq(
-  scalaVersion := ScalaV,
+  scalaVersion := Scala213,
+  crossScalaVersions := SupportedScalaVersions,
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
   scalacOptions += "-feature",
   scalacOptions += "-target:jvm-1.8",
-  scalacOptions ++= Seq("-Ywarn-unused", "-Ywarn-dead-code", "-Ywarn-inaccessible", "-Ywarn-unused-import"),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   resolvers += Resolver.jcenterRepo,
 
@@ -55,18 +55,28 @@ lazy val commonSettings = Seq(
 
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-library" % scalaVersion.value,
-    "org.scalactic" %% "scalactic" % "3.0.5",
-    "org.typelevel" %% "cats-core" % "1.6.0",
-    "org.scalatest" %% "scalatest" % "3.0.7" % "test",
+    "org.typelevel" %% "cats-core" % "2.0.0",
+    "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.3",
+    "org.scalatest" %% "scalatest" % "3.0.8" % "test",
     "org.mockito" % "mockito-core" % "2.18.3" % "test",
     "javax.annotation" % "javax.annotation-api" % "1.3.2" % "test" // for compatibility with JDK >8
   ),
 )
 
-lazy val macroSettings = Seq(
-  addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
-)
+def macroSettings: sbt.Def.SettingsDefinition = {
+  libraryDependencies ++={
+    Seq(
+      compilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
+    ) ++ {
+      // add scalamacros paradise only on <= 2.12; it's included in 2.13
+      if (scalaVersion.value.startsWith("2.13")) Seq.empty else {
+        Seq(
+          compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
+        )
+      }
+    }
+  }
+}
 
 def gpbTestGenSettings(v: String) = inConfig(Test)(sbtprotoc.ProtocPlugin.protobufConfigSettings) ++ Seq(
   PB.protocVersion := s"-v$v",
@@ -83,7 +93,6 @@ lazy val grpcTestGenSettings = gpbTestGenSettings(Versions.GPBv3) ++ Seq(
     val exe: File = (baseDirectory in Test).value / ".bin" / grpcExeFileName
     if (!exe.exists) {
       logger.info("gRPC protoc plugin (for Java) does not exist. Downloading")
-      //    IO.download(grpcExeUrl, exe)
       IO.transfer(grpcExeUrl.openStream(), exe)
       exe.setExecutable(true)
     } else {
@@ -100,7 +109,10 @@ lazy val grpcTestGenSettings = gpbTestGenSettings(Versions.GPBv3) ++ Seq(
 /* --- --- --- --- ---  */
 
 lazy val root = Project(id = "cactus",
-  base = file(".")) settings (publish := {}) aggregate(commonModule, v2Module, v3Module, bytesV2Module, bytesV3Module, grpcCommonModule, grpcClientModule, grpcServerModule)
+  base = file(".")) settings (
+    publish := {},
+    crossScalaVersions := Nil,
+  ) aggregate(commonModule, v2Module, v3Module, bytesV2Module, bytesV3Module, grpcCommonModule, grpcClientModule, grpcServerModule)
 
 lazy val commonModule = Project(id = "common", base = file("./common")).settings(
   commonSettings,
@@ -154,7 +166,7 @@ lazy val grpcCommonModule = Project(id = "grpc-common", base = file("./grpc-comm
   macroSettings,
   name := "cactus-grpc-common",
   libraryDependencies ++= Seq(
-    "io.monix" %% "monix" % "3.0.0-RC2",
+    "org.typelevel" %% "cats-effect" % "2.0.0",
     "io.grpc" % "grpc-protobuf" % Versions.grpcVersion,
     "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test",
     "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
@@ -168,7 +180,8 @@ lazy val grpcClientModule = Project(id = "grpc-client", base = file("./grpc-clie
   name := "cactus-grpc-client",
   libraryDependencies ++= Seq(
     "io.grpc" % "grpc-stub" % Versions.grpcVersion,
-    "io.grpc" % "grpc-services" % Versions.grpcVersion % "test"
+    "io.grpc" % "grpc-services" % Versions.grpcVersion % "test",
+    "io.monix" %% "monix" % "3.0.0" % "test"
   )
 ).dependsOn(grpcCommonModule)
 
@@ -178,9 +191,9 @@ lazy val grpcServerModule = Project(id = "grpc-server", base = file("./grpc-serv
   grpcTestGenSettings,
   name := "cactus-grpc-server",
   libraryDependencies ++= Seq(
-    "com.kailuowang" %% "mainecoon-core" % "0.6.4",
     "io.grpc" % "grpc-services" % Versions.grpcVersion,
-    "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test"
+    "io.grpc" % "grpc-stub" % Versions.grpcVersion % "test",
+    "io.monix" %% "monix" % "3.0.0" % "test"
   )
 ).dependsOn(grpcCommonModule)
 

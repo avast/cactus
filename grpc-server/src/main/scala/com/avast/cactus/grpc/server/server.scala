@@ -1,11 +1,8 @@
 package com.avast.cactus.grpc
 
 import cats.effect.Effect
-import cats.~>
 import io.grpc._
-import mainecoon.FunctorK
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext
 import scala.language.experimental.macros
 import scala.language.higherKinds
@@ -26,11 +23,6 @@ package object server {
                                                                                               ec: ExecutionContext,
                                                                                               ef: Effect[F]): MappedGrpcService[Service] =
       macro com.avast.cactus.grpc.server.ServerMacros.mapImplToService[Service, F]
-  }
-
-  implicit val interceptorFunctorK: FunctorK[ServerAsyncInterceptor] = new FunctorK[ServerAsyncInterceptor] {
-    override def mapK[F[_], G[_]](af: ServerAsyncInterceptor[F])(fToG: ~>[F, G]): ServerAsyncInterceptor[G] =
-      (v1: GrpcMetadata) => fToG { af.apply(v1) }
   }
 
 }

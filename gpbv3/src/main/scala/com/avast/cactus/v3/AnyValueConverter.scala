@@ -30,11 +30,11 @@ object AnyValueConverter {
             {
                try {
                  if (anyValInstance.typeUrl == "type.googleapis.com/" + $gpbTypeName) {
-                    Good(${gpbType.companion}.parseFrom(anyValInstance.bytes))
+                    scala.util.Right(${gpbType.companion}.parseFrom(anyValInstance.bytes))
                  } else {
-                    Bad(One(WrongAnyTypeFailure(fieldPath, anyValInstance.typeUrl, "type.googleapis.com/" + $gpbTypeName)))
+                    scala.util.Left(cats.data.NonEmptyList.of(WrongAnyTypeFailure(fieldPath, anyValInstance.typeUrl, "type.googleapis.com/" + $gpbTypeName)))
                  }
-               } catch { case NonFatal(e) => Bad(One(UnknownFailure(fieldPath, e))) }
+               } catch { case NonFatal(e) => scala.util.Left(cats.data.NonEmptyList.of(UnknownFailure(fieldPath, e))) }
             }
          """
     }
@@ -45,14 +45,14 @@ object AnyValueConverter {
            import com.avast.cactus._
            import com.avast.cactus.CactusMacros._
 
-           import org.scalactic._
-           import org.scalactic.Accumulation._
+           import scala.util._
+           import com.avast.cactus.internal.ResultsListOps
            import scala.util.Try
            import scala.util.control.NonFatal
-           import scala.collection.JavaConverters._
+           import scala.jdk.CollectionConverters._
 
            new AnyValueConverter[$gpbType] {
-              def apply(fieldPath: String)(anyValInstance: $anyValueType): com.avast.cactus.ResultOrErrors[$gpbType] = $theFunction.toEitherNEL
+              def apply(fieldPath: String)(anyValInstance: $anyValueType): com.avast.cactus.ResultOrErrors[$gpbType] = $theFunction
            }
          }
        """

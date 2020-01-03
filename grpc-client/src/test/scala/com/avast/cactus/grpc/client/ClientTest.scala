@@ -14,8 +14,8 @@ import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time._
+import org.scalatestplus.mockito.MockitoSugar
 
 import scala.concurrent.ExecutionContext
 import scala.language.higherKinds

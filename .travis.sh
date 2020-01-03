@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-sbt test &&
+sbt +test &&
   if $(test ${TRAVIS_REPO_SLUG} == "avast/cactus" && test ${TRAVIS_PULL_REQUEST} == "false" && test "$TRAVIS_TAG" != ""); then
     sbt +publish
   else

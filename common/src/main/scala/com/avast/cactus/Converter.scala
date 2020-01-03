@@ -1,12 +1,9 @@
 package com.avast.cactus
 
 import com.google.protobuf.ByteString
-import org.scalactic.Or
 
 import scala.annotation.implicitNotFound
-import scala.collection.JavaConverters._
-import scala.collection.TraversableLike
-import scala.collection.generic.CanBuildFrom
+import scala.collection.compat.{Factory, _}
 import scala.language.experimental.macros
 import scala.language.higherKinds
 import scala.reflect.ClassTag
@@ -30,10 +27,6 @@ object Converter {
 
   def apply[A, B](f: A => B): Converter[A, B] = new Converter[A, B] {
     override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = Right(f(a))
-  }
-
-  def fromOrChecked[A, B](f: (String, A) => B Or EveryCactusFailure): Converter[A, B] = new Converter[A, B] {
-    override def apply(fieldPath: String)(a: A): ResultOrErrors[B] = f(fieldPath, a).toEitherNEL
   }
 
   // primitive types conversions:
@@ -67,14 +60,14 @@ object Converter {
   implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] =
     collAToCollB[A, B, List].contraMap(_.toList)
 
-  implicit def collAToCollB[A, B, Coll[X] <: TraversableLike[X, Coll[X]]](implicit cbf: CanBuildFrom[Coll[A], B, Coll[B]],
-                                                                          aToBConverter: Converter[A, B]): Converter[Coll[A], Coll[B]] = {
-    Converter.fromOrChecked[Coll[A], Coll[B]](CactusMacros.CollAToCollB[A, B, Coll])
+  implicit def collAToCollB[A, B, Coll[X] <: Iterable[X]](implicit factory: Factory[B, Coll[B]],
+                                                          aToBConverter: Converter[A, B]): Converter[Coll[A], Coll[B]] = {
+    Converter.checked[Coll[A], Coll[B]](internal.CollAToCollB[A, B, Coll])
   }
 
-  implicit def vectorToList[A]: Converter[Vector[A], List[A]] = Converter(_.toList)
+  implicit def listToVector[A]: Converter[List[A], Vector[A]] = Converter(_.toVector)
 
-  implicit def vectorToArray[A: ClassTag]: Converter[Vector[A], Array[A]] = Converter(_.toArray)
+  implicit def listToArray[A: ClassTag]: Converter[List[A], Array[A]] = Converter(_.toArray)
 
   implicit def liftToOption[A, B](implicit converter: Converter[A, B]): Converter[Option[A], Option[B]] = {
     Converter.checked { (path, a) =>

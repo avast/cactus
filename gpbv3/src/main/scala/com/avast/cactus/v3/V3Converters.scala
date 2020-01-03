@@ -3,6 +3,7 @@ package com.avast.cactus.v3
 import java.time.{Duration, Instant}
 
 import com.avast.cactus.Converter
+import com.avast.cactus.internal._
 import com.google.protobuf.{
   BoolValue,
   ByteString,
@@ -18,31 +19,32 @@ import com.google.protobuf.{
   Duration => GpbDuration,
   Timestamp => GpbTimestamp
 }
-import org.scalactic.Accumulation._
 
-import scala.collection.JavaConverters._
+import scala.collection.compat._
+import scala.jdk.CollectionConverters._
 
 trait V3Converters {
-  implicit val listValue2SeqConverter: Converter[com.google.protobuf.ListValue, Seq[ValueOneOf]] = Converter.fromOrChecked {
+  implicit val listValue2SeqConverter: Converter[com.google.protobuf.ListValue, Seq[ValueOneOf]] = Converter.checked {
     (fieldPath, listValue) =>
-      listValue.getValuesList.asScala.map(ValueOneOf.apply(fieldPath, _)).toIterable.combined.map(_.toSeq)
+      listValue.getValuesList.asScala.toList.map(ValueOneOf.apply(fieldPath, _)).combined.map(_.toSeq)
   }
 
   implicit val seq2ListValueConverter: Converter[Seq[ValueOneOf], com.google.protobuf.ListValue] = Converter { values =>
     ListValue.newBuilder().addAllValues(values.map(ValueOneOf.toGpbValue).asJava).build()
   }
 
-  implicit val struct2MapConverter: Converter[com.google.protobuf.Struct, Map[String, ValueOneOf]] = Converter.fromOrChecked {
+  implicit val struct2MapConverter: Converter[com.google.protobuf.Struct, Map[String, ValueOneOf]] = Converter.checked {
     (fieldPath, struct) =>
-      struct.getFieldsMap.asScala
+      struct.getFieldsMap.asScala.view
         .mapValues(ValueOneOf.apply(fieldPath, _))
         .map { case (key, value) => value.map(key -> _) }
+        .toList
         .combined
         .map(_.toMap)
   }
 
   implicit val map2StructConverter: Converter[Map[String, ValueOneOf], com.google.protobuf.Struct] = Converter { m =>
-    Struct.newBuilder().putAllFields(m.mapValues(ValueOneOf.toGpbValue).asJava).build()
+    Struct.newBuilder().putAllFields(m.view.mapValues(ValueOneOf.toGpbValue).toMap.asJava).build()
   }
 
   // wrappers to their content type (and back)

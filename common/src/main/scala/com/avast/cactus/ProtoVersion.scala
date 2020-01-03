@@ -35,7 +35,7 @@ private[cactus] object ProtoVersion {
       val options = enumValues zip implsSeq
 
       options.map {
-        case (enumValue, ccl) => cq""" $enumClass.$enumValue => org.scalactic.Good(${ccl.module}) """
+        case (enumValue, ccl) => cq""" $enumClass.$enumValue => scala.util.Right(${ccl.module}) """
       }
     }
   }
@@ -65,8 +65,8 @@ private[cactus] object ProtoVersion {
       val options = enumValues zip implsSeq
 
       options.map {
-        case (enumValue, ccl) => cq""" $enumClass.$enumValue => org.scalactic.Good(${ccl.module}) """
-      } :+ cq""" $enumClass.UNRECOGNIZED => org.scalactic.Bad(org.scalactic.One(com.avast.cactus.EnumValueUnrecognizedFailure(fieldPath + "." + $fieldName))) """
+        case (enumValue, ccl) => cq""" $enumClass.$enumValue => scala.util.Right(${ccl.module}) """
+      } :+ cq""" $enumClass.UNRECOGNIZED => scala.util.Left(cats.data.NonEmptyList.of(com.avast.cactus.EnumValueUnrecognizedFailure(fieldPath + "." + $fieldName))) """
     }
 
     def newOneOfConverterToSealedTrait(c: whitebox.Context)(
@@ -133,10 +133,10 @@ private[cactus] object ProtoVersion {
               cq""" $enumClass.$enum => $value.map(${ccl.companion}.apply)  """
 
             case None => // case object
-              cq""" $enumClass.$enum => Good(${ccl.module})  """
+              cq""" $enumClass.$enum => scala.util.Right(${ccl.module})  """
           }
       } :+
-        cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => Bad(One(OneOfValueNotSetFailure(fieldPath + "." + $name))) """
+        cq""" $enumClass.${TermName(name.toUpperCase + "_NOT_SET")} => scala.util.Left(cats.data.NonEmptyList.of(OneOfValueNotSetFailure(fieldPath + "." + $name))) """
 
       val f =
         q""" {
@@ -205,7 +205,7 @@ private[cactus] object ProtoVersion {
               s"ONE-OF trait implementations has to have 'google.protobuf.Empty' as counterpart in GPB; has $setterArgType")
           }
 
-          cq" _: ${ccl.module} => Good(builder.$setter(_root_.com.google.protobuf.Empty.getDefaultInstance()))"
+          cq" _: ${ccl.module} => scala.util.Right(builder.$setter(_root_.com.google.protobuf.Empty.getDefaultInstance()))"
       }
 
       val f =
@@ -221,7 +221,7 @@ private[cactus] object ProtoVersion {
       f
     }
 
-    def extractNameOfOneOf(c: whitebox.Context)(fieldNameUpper: String, fieldAnnotations: AnnotationsMap): Option[String] = {
+    def extractNameOfOneOf(fieldNameUpper: String, fieldAnnotations: AnnotationsMap): Option[String] = {
       // has to be annotated with GpbOneOf and optionally with GpbName
       if (fieldAnnotations.exists(_._1 == classOf[GpbOneOf].getName)) {
         Option {
@@ -245,30 +245,33 @@ private[cactus] object ProtoVersion {
       val (dstKeyType, dstValueType) = (dstTypeArgs.head, dstTypeArgs.tail.head)
 
       val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
-        q" Good(key) "
+        q" scala.util.Right(key) "
       } else {
         newConverter(c)(srcKeyType, dstKeyType) {
           q" (fieldPath: String, a: $srcKeyType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcKeyType)(dstKeyType, q" identity  ", "", inConverter = true)} "
         }
 
-        q" CactusMacros.AToB[$srcKeyType, $dstKeyType](fieldPath)(key) "
+        q" com.avast.cactus.internal.AToB[$srcKeyType, $dstKeyType](fieldPath)(key) "
       }
 
       val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
-        q" Good(value) "
+        q" scala.util.Right(value) "
       } else {
         newConverter(c)(srcValueType, dstValueType) {
           q" (fieldPath: String, a: $srcValueType) => ${CactusMacros.CaseClassToGpb.processEndType(c)(q"a", c.Expr[String](q"fieldPath"), Map(), srcValueType)(dstValueType, q" identity  ", "", inConverter = true)} "
         }
 
-        q" CactusMacros.AToB[$srcValueType, $dstValueType](fieldPath)(value) "
+        q" com.avast.cactus.internal.AToB[$srcValueType, $dstValueType](fieldPath)(value) "
+      }
+
+      val toMap = CactusMacros.withGood(c)(List(keyField, valueField)){
+        q""" (key: $dstKeyType, value: $dstValueType) => key -> value """
       }
 
       q"""
             (fieldPath: String, sm: $srcType) => {
-                sm.map { case (key, value) =>
-                   withGood($keyField, $valueField)(_ -> _)
-                }.combined.map(_.toMap.asJava)
+                sm.map { case (key, value) => ($toMap):ResultOrErrors[($dstKeyType,$dstValueType)]
+                }.toList.combined.map(_.toMap.asJava)
             }
          """
     }
@@ -284,30 +287,34 @@ private[cactus] object ProtoVersion {
       val (dstKeyType, dstValueType) = (dstTypeArgs.head, dstTypeArgs.tail.head)
 
       val keyField = if (typesEqual(c)(srcKeyType, dstKeyType)) {
-        q" Good(key).orBad[Every[com.avast.cactus.CactusFailure]] "
+        q" scala.util.Right(key)  "
       } else {
         newConverter(c)(srcKeyType, dstKeyType) {
           q" (fieldPath: String, t: $srcKeyType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstKeyType)(None, q" t ", srcKeyType, inConverter = true)} "
         }
 
-        q" CactusMacros.AToB[$srcKeyType, $dstKeyType](fieldPath)(key) "
+        q" com.avast.cactus.internal.AToB[$srcKeyType, $dstKeyType](fieldPath)(key) "
       }
 
       val valueField = if (typesEqual(c)(srcValueType, dstValueType)) {
-        q" Good(value).orBad[Every[com.avast.cactus.CactusFailure]] "
+        q" scala.util.Right(value)  "
       } else {
         newConverter(c)(srcValueType, dstValueType) {
           q" (fieldPath: String, t: $srcValueType) => ${CactusMacros.GpbToCaseClass.processEndType(c)(TermName("key"), c.Expr[String](q"fieldPath"), Map(), "nameInGpb", dstValueType)(None, q" t ", srcValueType, inConverter = true)} "
         }
 
-        q" CactusMacros.AToB[$srcValueType, $dstValueType](fieldPath)(value) "
+        q" com.avast.cactus.internal.AToB[$srcValueType, $dstValueType](fieldPath)(value) "
+      }
+
+      val toMap = CactusMacros.withGood(c)(List(q"key",q"value")){
+        q""" (key: $dstKeyType, value: $dstValueType) => key -> value """
       }
 
       q"""
             (fieldPath: String, sm: $srcType) => {
                 sm.asScala.map { case (key, value) =>
                     $keyField -> $valueField
-                }.toSeq.map { case(key, or) => withGood(key, or)(_ -> _) }.combined.map(_.toMap)
+                }.map { case(key, value) => ($toMap):ResultOrErrors[($dstKeyType,$dstValueType)] }.toList.combined.map(_.toMap)
             }
          """
     }

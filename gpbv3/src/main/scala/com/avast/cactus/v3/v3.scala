@@ -15,26 +15,22 @@ package object v3 extends CactusCommonImplicits with V3Converters {
   def anyValueAsGpbMethod[Gpb: c.WeakTypeTag](c: whitebox.Context)(conv: c.Tree): c.Expr[ResultOrErrors[Gpb]] = {
     import c.universe._
 
-    val gpbType = weakTypeOf[Gpb]
-
     val variable = CactusMacros.getVariable(c)
     val variableName = variable.symbol.asTerm.fullName.split('.').last
 
     c.Expr[ResultOrErrors[Gpb]] {
-      q" implicitly[AnyValueConverter[$gpbType]].apply($variableName)($variable) "
+      q" ($conv).apply($variableName)($variable) "
     }
   }
 
   def anyValueAsCCMethod[CaseClass: c.WeakTypeTag](c: whitebox.Context)(conv: c.Tree): c.Expr[ResultOrErrors[CaseClass]] = {
     import c.universe._
 
-    val caseClassType = weakTypeOf[CaseClass]
-
     val variable = CactusMacros.getVariable(c)
     val variableName = variable.symbol.asTerm.fullName.split('.').last
 
     c.Expr[ResultOrErrors[CaseClass]] {
-      q" implicitly[AnyValueConverter[$caseClassType]].apply($variableName)($variable) "
+      q" ($conv).apply($variableName)($variable) "
     }
   }
 
