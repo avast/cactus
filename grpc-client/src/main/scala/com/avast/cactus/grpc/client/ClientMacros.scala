@@ -38,19 +38,17 @@ class ClientMacros(val c: whitebox.Context) {
         c.abort(c.enclosingPosition, s"Unable to extract F from $traitType - please report a bug")
       }
 
-    val fSymbol = traitType.erasure.typeArgs.head.typeSymbol.asType
-
     if (CactusMacros.Debug) {
-      println(s"Mapping $traitType to $stubType")
+      println(s"Mapping $traitType to $stubType, F = $fType")
     }
 
     val apiMethods = getApiMethods(stubType)
 
-    if (CactusMacros.Debug) println(apiMethods.mkString("Api methods: [",",","]"))
+    if (CactusMacros.Debug) println(apiMethods.mkString("Api methods: [", ",", "]"))
 
-    val methodsMappings = getMethodsMapping(traitType, fSymbol, stubType, apiMethods)
+    val methodsMappings = getMethodsMapping(traitType, fType, stubType, apiMethods)
 
-    checkAbstractMethods(traitType, fSymbol, methodsMappings.keySet)
+    checkAbstractMethods(traitType, methodsMappings.keySet)
 
     val channelVar = CactusMacros.getVariable(c)
     val mappingMethods = methodsMappings.map { case (im, am) => generateMappingMethod(fType, im, am) }
@@ -135,14 +133,14 @@ class ClientMacros(val c: whitebox.Context) {
              super.withInterceptors { ctx =>
                 val stub = newStub
 
-                Methods.executeRequest[$fType, ${ apiMethod.request }, ${ apiMethod.response }, ${ implMethod.response }](com.google.protobuf.Empty.getDefaultInstance, ctx, stub.${ apiMethod.name }, ex, ec)
+                Methods.executeRequest[$fType, ${apiMethod.request}, ${apiMethod.response}, ${implMethod.response}](com.google.protobuf.Empty.getDefaultInstance, ctx, stub.${apiMethod.name}, ex, ec)
             }
           }
      """
     }
   }
 
-  private def checkAbstractMethods(traitType: Type, fSymbol: TypeSymbol, implMethods: Set[ImplMethod]): Unit = {
+  private def checkAbstractMethods(traitType: Type, implMethods: Set[ImplMethod]): Unit = {
     val nonGrpcAbstractMethods = traitType.decls
       .collect {
         case m if m.isMethod => m.asMethod
@@ -158,7 +156,10 @@ class ClientMacros(val c: whitebox.Context) {
 
       c.abort(
         c.enclosingPosition,
-        s"Only gRPC methods are allowed to be abstract in type ${traitType.typeSymbol}[${fSymbol.name}], found others too: $foundIllegalMethods"
+        s"""Only gRPC methods are allowed to be abstract in type ${traitType.typeSymbol}[_[_]], found others too: $foundIllegalMethods
+           |
+           |Please check names of your methods and their return types. All gRPC methods in ${traitType.typeSymbol}[_[_]] have to have `F[ServerResponse[A]]` shaped return type.
+           |""".stripMargin
       )
     }
   }
@@ -167,13 +168,10 @@ class ClientMacros(val c: whitebox.Context) {
     traitType.decls.flatMap(ApiMethod.extract).toSeq
   }
 
-  private def getMethodsMapping(traitType: Type,
-                                fSymbol: TypeSymbol,
-                                stubType: Type,
-                                apiMethods: Seq[ApiMethod]): Map[ImplMethod, ApiMethod] = {
-    val methods = traitType.decls.flatMap(ImplMethod.extract(_, fSymbol))
+  private def getMethodsMapping(traitType: Type, fType: Type, stubType: Type, apiMethods: Seq[ApiMethod]): Map[ImplMethod, ApiMethod] = {
+    val methods = traitType.decls.flatMap(ImplMethod.extract(_, traitType, fType))
 
-    if (CactusMacros.Debug) println(methods.mkString("Impl methods: [",",","]"))
+    if (CactusMacros.Debug) println(methods.mkString("Impl methods: [", ",", "]"))
 
     methods.map { m =>
       val apiMethod = apiMethods
@@ -181,7 +179,7 @@ class ClientMacros(val c: whitebox.Context) {
         .getOrElse {
           c.abort(
             c.enclosingPosition,
-            s"Method ${m.name} of ${traitType.typeSymbol} does not have it's counterpart in ${stubType.typeSymbol}"
+            s"Method ${m.name} of $traitType does not have it's counterpart in $stubType"
           )
         }
 
@@ -194,7 +192,7 @@ class ClientMacros(val c: whitebox.Context) {
   private case class ImplMethod(name: TermName, request: Option[Type], response: Type)
 
   private object ImplMethod {
-    def extract(s: Symbol, fSymbol: TypeSymbol): Option[ImplMethod] = {
+    def extract(s: Symbol, traitType: Type, fType: Type): Option[ImplMethod] = {
       if (CactusMacros.Debug) {
         println(s"ImplMethod.extract($s)")
       }
@@ -214,12 +212,13 @@ class ClientMacros(val c: whitebox.Context) {
             .flatMap(_.headOption)
             .map(_.typeSignature)
 
-          // TODO type matching
           val serverError = typeOf[ServerError].dealias.typeSymbol
           val either = typeOf[scala.util.Either[_, _]].dealias.typeConstructor
 
+          val methodReturnType = m.returnType.dealias.asSeenFrom(traitType, traitType.erasure.typeSymbol)
+
           for {
-            f <- Some(m.returnType.dealias) if f.typeSymbol == fSymbol // F[_]
+            f <- Some(m.returnType.dealias) if methodReturnType.typeConstructor == fType.typeConstructor // F[_]
             e <- f.typeArgs.headOption if e.dealias.typeConstructor == either // F[Either[_,_]]
             ea <- Some(e.dealias.typeArgs) if ea.head.dealias.typeSymbol == serverError // F[Either[ServerError,_]]
           } yield {

@@ -3,8 +3,7 @@ package com.avast.cactus
 import com.google.protobuf.ByteString
 
 import scala.annotation.implicitNotFound
-import scala.collection.TraversableLike
-import scala.collection.generic.CanBuildFrom
+import scala.collection.compat.{Factory, _}
 import scala.language.experimental.macros
 import scala.language.higherKinds
 import scala.reflect.ClassTag
@@ -61,8 +60,8 @@ object Converter {
   implicit def vectorToList[A, B](implicit aToBConverter: Converter[A, B]): Converter[Vector[A], List[B]] =
     collAToCollB[A, B, List].contraMap(_.toList)
 
-  implicit def collAToCollB[A, B, Coll[X] <: TraversableLike[X, Coll[X]]](implicit cbf: CanBuildFrom[Coll[A], B, Coll[B]],
-                                                                          aToBConverter: Converter[A, B]): Converter[Coll[A], Coll[B]] = {
+  implicit def collAToCollB[A, B, Coll[X] <: Iterable[X]](implicit factory: Factory[B, Coll[B]],
+                                                          aToBConverter: Converter[A, B]): Converter[Coll[A], Coll[B]] = {
     Converter.checked[Coll[A], Coll[B]](internal.CollAToCollB[A, B, Coll])
   }
 

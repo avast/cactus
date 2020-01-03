@@ -24,7 +24,7 @@ import com.google.protobuf.{
 }
 import org.scalatest.FunSuite
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class CactusMacrosTestV3 extends FunSuite {
 

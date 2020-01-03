@@ -29,7 +29,7 @@ object CactusMacros {
 
     object Scala {
       val AnyVal = "scala.AnyVal"
-      val TraversableLike = "scala.collection.TraversableLike"
+      val TraversableLike = "scala.collection.Iterable"
     }
 
     object Java {
@@ -223,7 +223,7 @@ object CactusMacros {
 
           import scala.util.Try
           import scala.util.control.NonFatal
-          import scala.collection.JavaConverters._
+          import scala.jdk.CollectionConverters._
 
           ..$finalConverters
 
@@ -272,7 +272,7 @@ object CactusMacros {
 
           import scala.util.Try
           import scala.util.control.NonFatal
-          import scala.collection.JavaConverters._
+          import scala.jdk.CollectionConverters._
 
           ..$finalConverters
 
@@ -1515,7 +1515,7 @@ object CactusMacros {
   }
 
   private def firstUpper(s: String): String = {
-    s.charAt(0).toUpper + s.substring(1)
+    s.charAt(0).toUpper.toString + s.substring(1)
   }
 
   private[cactus] def typesEqual(c: whitebox.Context)(srcType: c.universe.Type, dstType: c.universe.Type): Boolean = {
@@ -1642,9 +1642,17 @@ object CactusMacros {
   }
 
   private def getExistingConverter(c: whitebox.Context)(from: c.Type, to: c.Type): Option[c.Tree] = {
-    if (Debug) println(s"Looking for existing com.avast.cactus.Converter[$from, $to]")
+    val r = Option(c.inferImplicitValue(extractType(c)(s"null.asInstanceOf[com.avast.cactus.Converter[$from, $to]]"))).filter(_.nonEmpty)
 
-    Option(c.inferImplicitValue(extractType(c)(s"null.asInstanceOf[com.avast.cactus.Converter[$from, $to]]"))).filter(_.nonEmpty)
+    if (Debug) {
+      if (r.nonEmpty) {
+        println(s"Searched and found existing com.avast.cactus.Converter[$from, $to]")
+      } else {
+        println(s"Searched and did NOT find existing com.avast.cactus.Converter[$from, $to]")
+      }
+    }
+
+    r
   }
 
   private def converterExists(c: whitebox.Context)(from: c.Type, to: c.Type): Boolean = {

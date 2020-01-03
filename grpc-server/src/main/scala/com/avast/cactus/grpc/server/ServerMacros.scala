@@ -248,7 +248,7 @@ class ServerMacros(val c: whitebox.Context) {
         .getOrElse {
           c.abort(
             c.enclosingPosition,
-            s"Method ${m.name} in type ${m.owner} does not have required result type ${fSymbol.name}[Either[Status, ?]]"
+            s"Method ${m.name} in type ${m.owner} does not have required result type ${fSymbol.name}[Either[Status, *]]"
           )
         }
 

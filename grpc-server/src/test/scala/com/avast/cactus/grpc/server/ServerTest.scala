@@ -60,7 +60,7 @@ class ServerTest extends FunSuite with MockitoSugar {
           tfe
             .getMessage()
             .startsWith(
-              "Expected no compiler error, but got the following type error: \"Method get2 in type trait MyApi does not have required result type F[Either[Status, ?]]\""
+              "Expected no compiler error, but got the following type error: \"Method get2 in type trait MyApi does not have required result type F[Either[Status, *]]\""
             )
         }
     }

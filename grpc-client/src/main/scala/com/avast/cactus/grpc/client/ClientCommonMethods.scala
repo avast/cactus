@@ -17,7 +17,7 @@ import scala.reflect.ClassTag
 
 object ClientCommonMethods extends CommonMethods {
 
-  def executeRequest[F[_]: Async, ReqGpb <: MessageLite, RespGpb <: MessageLite: ClassTag, RespCaseClass: Converter[RespGpb, ?]](
+  def executeRequest[F[_]: Async, ReqGpb <: MessageLite, RespGpb <: MessageLite: ClassTag, RespCaseClass: Converter[RespGpb, *]](
       req: ReqGpb,
       ctx: Context,
       f: ReqGpb => ListenableFuture[RespGpb],
@@ -36,7 +36,7 @@ object ClientCommonMethods extends CommonMethods {
       }
   }
 
-  def convertResponse[RespGpb <: MessageLite: ClassTag, RespCaseClass: Converter[RespGpb, ?]](
+  def convertResponse[RespGpb <: MessageLite: ClassTag, RespCaseClass: Converter[RespGpb, *]](
       resp: RespGpb): ServerResponse[RespCaseClass] = {
     resp
       .asCaseClass[RespCaseClass]

@@ -3,7 +3,7 @@ package com.avast.cactus.grpc.server
 import com.avast.cactus.grpc._
 import io.grpc._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object ServerMetadataInterceptor extends ServerInterceptor {
   override def interceptCall[ReqT, RespT](serverCall: ServerCall[ReqT, RespT],

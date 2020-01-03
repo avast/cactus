@@ -4,7 +4,8 @@ import com.avast.cactus.ResultOrErrors
 import com.avast.cactus.internal._
 import com.google.protobuf.{Struct, Value, ListValue => GpbListValue, NullValue => GpbNullValue}
 
-import scala.collection.JavaConverters._
+import scala.collection.compat._
+import scala.jdk.CollectionConverters._
 
 trait ValueOneOf
 
@@ -33,7 +34,8 @@ object ValueOneOf {
     case NumberValue(v) => Value.newBuilder().setNumberValue(v).build()
     case StringValue(v) => Value.newBuilder().setStringValue(v).build()
     case BooleanValue(v) => Value.newBuilder().setBoolValue(v).build()
-    case StructValue(v) => Value.newBuilder().setStructValue(Struct.newBuilder().putAllFields(v.mapValues(toGpbValue).asJava)).build()
+    case StructValue(v) =>
+      Value.newBuilder().setStructValue(Struct.newBuilder().putAllFields(v.view.mapValues(toGpbValue).toMap.asJava)).build()
     case ListValue(v) => Value.newBuilder().setListValue(GpbListValue.newBuilder().addAllValues(v.map(toGpbValue).asJava)).build()
   }
 

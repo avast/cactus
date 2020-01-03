@@ -49,7 +49,7 @@ object AnyValueConverter {
            import com.avast.cactus.internal.ResultsListOps
            import scala.util.Try
            import scala.util.control.NonFatal
-           import scala.collection.JavaConverters._
+           import scala.jdk.CollectionConverters._
 
            new AnyValueConverter[$gpbType] {
               def apply(fieldPath: String)(anyValInstance: $anyValueType): com.avast.cactus.ResultOrErrors[$gpbType] = $theFunction

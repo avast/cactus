@@ -35,7 +35,7 @@ object ServerCommonMethods extends CommonMethods {
     (IO.shift(ec) >> Effect[F].toIO(action)).recover(recoverWithStatus).unsafeRunAsync(sendResponse(respObs))
   }
 
-  def convertResponse[RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, ?]](
+  def convertResponse[RespCaseClass: ClassTag, RespGpb <: MessageLite: Converter[RespCaseClass, *]](
       resp: RespCaseClass): Either[StatusException, RespGpb] = {
     resp
       .asGpb[RespGpb]

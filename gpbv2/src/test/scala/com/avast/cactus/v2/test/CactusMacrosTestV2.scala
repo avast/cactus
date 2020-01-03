@@ -9,7 +9,8 @@ import com.avast.cactus.{Converter, _}
 import com.google.protobuf.ByteString
 import org.scalatest.FunSuite
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
+
 import scala.collection.immutable
 
 class CactusMacrosTestV2 extends FunSuite {

@@ -4,16 +4,15 @@ import cats.Applicative
 import cats.data._
 import cats.syntax.either._
 
-import scala.collection.TraversableLike
-import scala.collection.generic.CanBuildFrom
+import scala.collection.compat.{Factory, _}
 import scala.language.higherKinds
 
 object internal {
 
-  implicit lazy val validatedNelApplicative: Applicative[ValidatedNel[CactusFailure, ?]] = Validated.catsDataApplicativeErrorForValidated
+  implicit lazy val validatedNelApplicative: Applicative[ValidatedNel[CactusFailure, *]] = Validated.catsDataApplicativeErrorForValidated
 
-  def CollAToCollB[A, B, Coll[X] <: TraversableLike[X, Coll[X]]](fieldPath: String, coll: Coll[A])(
-      implicit cbf: CanBuildFrom[Coll[A], B, Coll[B]],
+  def CollAToCollB[A, B, Coll[X] <: Iterable[X]](fieldPath: String, coll: Coll[A])(
+      implicit factory: Factory[B, Coll[B]],
       aToBConverter: Converter[A, B]): ResultOrErrors[Coll[B]] = {
     import cats.instances.either._
     import cats.instances.list._
@@ -23,7 +22,7 @@ object internal {
       .map(a => aToBConverter.apply(fieldPath)(a))
       .toList
       .sequence
-      .map(c => cbf.apply().++=(c).result())
+      .map(_.to(factory))
   }
 
   def AToB[A, B](fieldPath: String)(a: A)(implicit aToBConverter: Converter[A, B]): ResultOrErrors[B] = {
